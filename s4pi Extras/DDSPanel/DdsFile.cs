@@ -1089,20 +1089,20 @@ namespace System.Drawing
         /// <param name="supportHSV">When true, create an HSVa-encoded version of the image.</param>
         public void CreateImage(uint argb, int width, int height, bool supportHSV)
         {
-            width = width;
-            height = height;
-            useBlockCompression = true;
-            useLuminence = false;
-            alphaDepth = 5;
+            this.width = width;
+            this.height = height;
+            this.useBlockCompression = true;
+            this.useLuminence = false;
+            this.alphaDepth = 5;
 
             // SetPixels operates on currentImage, so create this...
-            currentImage = new uint[width * height];
-            SetPixels((x, y, unused) => argb);
+            this.currentImage = new uint[width * height];
+            this.SetPixels((x, y, unused) => argb);
 
             // ...and set the baseImage from the current image
-            baseImage = (uint[])currentImage.Clone();
+            this.baseImage = (uint[])this.currentImage.Clone();
 
-            if (supportHSV) UpdateHSVData();
+            if (supportHSV) this.UpdateHSVData();
         }
 
         /// <summary>
@@ -1113,16 +1113,16 @@ namespace System.Drawing
         /// <param name="supportHSV">When true, create an HSVa-encoded version of the image.</param>
         public void CreateImage(DdsFile image, bool supportHSV)
         {
-            width = image.width;
-            height = image.height;
-            useBlockCompression = image.useBlockCompression;
-            useLuminence = image.useLuminence;
-            alphaDepth = image.alphaDepth;
+            this.width = image.width;
+            this.height = image.height;
+            this.useBlockCompression = image.useBlockCompression;
+            this.useLuminence = image.useLuminence;
+            this.alphaDepth = image.alphaDepth;
 
-            baseImage = (uint[])image.currentImage.Clone();
+            this.baseImage = (uint[])image.currentImage.Clone();
 
-            currentImage = (uint[])baseImage.Clone();
-            if (supportHSV) UpdateHSVData();
+            this.currentImage = (uint[])this.baseImage.Clone();
+            if (supportHSV) this.UpdateHSVData();
         }
 
         /// <summary>
@@ -1135,28 +1135,28 @@ namespace System.Drawing
         /// <param name="supportHSV">When true, create an HSVa-encoded version of the image.</param>
         public void CreateImage(DdsFile image, int width, int height, bool supportHSV)
         {
-            width = width;
-            height = height;
-            useBlockCompression = image.useBlockCompression;
-            useLuminence = image.useLuminence;
-            alphaDepth = image.alphaDepth;
+            this.width = width;
+            this.height = height;
+            this.useBlockCompression = image.useBlockCompression;
+            this.useLuminence = image.useLuminence;
+            this.alphaDepth = image.alphaDepth;
 
-            if (useLuminence)
+            if (this.useLuminence)
             {
                 // Life would be still relatively simple were it not for Luminence maps.
                 // With these, you can't just strip the alpha channel -- they exist only for that channel,
                 // so we need to deal with them separately.
-                currentImage = new uint[width * height];
-                SetPixels((x, y, unused) => 0);
-                baseImage = (uint[])currentImage.Clone();
+                this.currentImage = new uint[width * height];
+                this.SetPixels((x, y, unused) => 0);
+                this.baseImage = (uint[])this.currentImage.Clone();
 
                 Bitmap alpha = new Bitmap(image.GetGreyscaleFromAlpha(), width, height);
-                SetAlphaFromGreyscale(alpha);
+                this.SetAlphaFromGreyscale(alpha);
             }
             else if (alphaDepth == 0)
             {
-                baseImage = new Bitmap(image.Image, width, height).ToARGBData();
-                currentImage = (uint[])baseImage.Clone();
+                this.baseImage = new Bitmap(image.Image, width, height).ToARGBData();
+                this.currentImage = (uint[])this.baseImage.Clone();
             }
             else
             {
@@ -1168,17 +1168,17 @@ namespace System.Drawing
                 {
                     ddsFileBase.CreateImage(image, false);
                     ddsFileBase.DeleteAlphaChannel();
-                    baseImage = new Bitmap(ddsFileBase.Image, width, height).ToARGBData();
+                    this.baseImage = new Bitmap(ddsFileBase.Image, width, height).ToARGBData();
                 }
 
-                currentImage = (uint[])baseImage.Clone();
+                this.currentImage = (uint[])this.baseImage.Clone();
 
                 // Now reapply the original alpha
                 Bitmap alpha = new Bitmap(image.GetGreyscaleFromAlpha(), width, height);
-                SetAlphaFromGreyscale(alpha);
+                this.SetAlphaFromGreyscale(alpha);
             }
 
-            if (supportHSV) UpdateHSVData();
+            if (supportHSV) this.UpdateHSVData();
         }
 
         /// <summary>
@@ -1197,16 +1197,16 @@ namespace System.Drawing
         /// <param name="supportHSV">When true, create an HSVa-encoded version of the image.</param>
         public void CreateImage(Bitmap image, bool supportHSV)
         {
-            width = image.Width;
-            height = image.Height;
-            useBlockCompression = true;
-            useLuminence = false;
-            alphaDepth = 5;
+            this.width = image.Width;
+            this.height = image.Height;
+            this.useBlockCompression = true;
+            this.useLuminence = false;
+            this.alphaDepth = 5;
 
-            baseImage = image.ToARGBData();
+            this.baseImage = image.ToARGBData();
 
-            currentImage = (uint[])baseImage.Clone();
-            if (supportHSV) UpdateHSVData();
+            this.currentImage = (uint[])this.baseImage.Clone();
+            if (supportHSV) this.UpdateHSVData();
         }
 
         /// <summary>
