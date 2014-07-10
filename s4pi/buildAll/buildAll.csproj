@@ -78,105 +78,41 @@
       <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
       <Name>CS System Classes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Extras\DDSPanel\DDSPanel.csproj">
+    <ProjectReference Include="..\..\s4pi Extras\DDSPanel\DDSPanel.csproj">
       <Project>{901D5F73-7DAC-49C3-9A5F-33EEA1E97F22}</Project>
       <Name>DDSPanel</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Extras\CustomForms\CustomForms.csproj">
+    <ProjectReference Include="..\..\s4pi Extras\CustomForms\CustomForms.csproj">
       <Project>{7314C38A-1519-4C58-998E-C88E4DA91086}</Project>
       <Name>CustomForms</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Extras\Extensions\Extensions.csproj">
+    <ProjectReference Include="..\..\s4pi Extras\Extensions\Extensions.csproj">
       <Project>{9B4C57BA-E09F-4439-98B4-B9B535A4ABF6}</Project>
       <Name>Extensions</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Extras\Filetable\Filetable.csproj">
+    <ProjectReference Include="..\..\s4pi Extras\Filetable\Filetable.csproj">
       <Project>{FEAA8674-9363-4BC7-B016-7BE984A2D185}</Project>
       <Name>Filetable</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Extras\Helpers\Helpers.csproj">
+    <ProjectReference Include="..\..\s4pi Extras\Helpers\Helpers.csproj">
       <Project>{D9B63641-D3BE-4120-9115-7D67B1238FBF}</Project>
       <Name>Helpers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Extras\s3piControls\s3piControls.csproj">
+    <ProjectReference Include="..\..\s4pi Extras\s4piControls\s4piControls.csproj">
       <Project>{DF6E6825-5488-43EC-81A5-0EE87945228B}</Project>
       <Name>s3piControls</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\CASPartResource\CASPartResource.csproj">
-      <Project>{38D21F02-C139-43C8-8B74-D84E22B89F50}</Project>
-      <Name>CASPartResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\CatalogResource\CatalogResource.csproj">
-      <Project>{0E257AB5-B560-462B-8B6C-631A90380D9E}</Project>
-      <Name>CatalogResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\ComplateResource\ComplateResource.csproj">
-      <Project>{513B8C1F-2BE4-46D6-B95D-836A1F36855E}</Project>
-      <Name>ComplateResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\DefaultResource\DefaultResource.csproj">
+    <ProjectReference Include="..\..\s4pi Wrappers\DefaultResource\DefaultResource.csproj">
       <Project>{06330E2B-9F3F-4A45-8B47-11795F5100FB}</Project>
       <Name>DefaultResource</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\GenericRCOLResource\GenericRCOLResource.csproj">
-      <Project>{47693A2A-1F86-47CA-A170-CC0C195A53B7}</Project>
-      <Name>GenericRCOLResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\ImageResource\ImageResource.csproj">
+    <ProjectReference Include="..\..\s4pi Wrappers\ImageResource\ImageResource.csproj">
       <Project>{AD53972B-D73E-4935-A4AD-3EBE0E3516F2}</Project>
       <Name>ImageResource</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\JazzResource\JazzResource.csproj">
-      <Project>{7AFF0D94-4F70-4A1B-842C-24EA613807B7}</Project>
-      <Name>JazzResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\MeshChunks\MeshChunks.csproj">
-      <Project>{B1E4D2EC-5027-4F44-8C46-A0485DFF7060}</Project>
-      <Name>MeshChunks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\ModularResource\ModularResource.csproj">
-      <Project>{4C8EEE00-88BB-4A22-BEB2-68245D98CB78}</Project>
-      <Name>ModularResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\NameMapResource\NameMapResource.csproj">
-      <Project>{5B43F245-AB0D-49FA-BC1E-1168103C7522}</Project>
-      <Name>NameMapResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\NGMPHashMapResource\NGMPHashMapResource.csproj">
-      <Project>{F9D57571-FB42-455D-96DA-E1E11347A664}</Project>
-      <Name>NGMPHashMapResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\ObjKeyResource\ObjKeyResource.csproj">
-      <Project>{C0297A33-3628-46E9-9324-408A72E2E922}</Project>
-      <Name>ObjKeyResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\RigResource\RigResource.csproj">
-      <Project>{77AD91D9-4BD8-4899-9308-E6209265F636}</Project>
-      <Name>RigResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\ScriptResource\ScriptResource.csproj">
-      <Project>{660E9B93-FECD-4C76-893C-F9E63ADD708E}</Project>
-      <Name>ScriptResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\StblResource\StblResource.csproj">
-      <Project>{672D72EC-89DA-4EF3-88CC-BEEC5BA478B2}</Project>
-      <Name>StblResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\TextResource\TextResource.csproj">
+    <ProjectReference Include="..\..\s4pi Wrappers\TextResource\TextResource.csproj">
       <Project>{C55762F3-6EEF-4E65-8A9A-CC6022ACAB79}</Project>
       <Name>TextResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\TxtcResource\TxtcResource.csproj">
-      <Project>{264DE8C9-33D0-451E-9067-8BA0CF2BFACE}</Project>
-      <Name>TxtcResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\UserCAStPresetResource\UserCAStPresetResource.csproj">
-      <Project>{ffd7447b-fe8c-4fd6-9e5b-7b960dcb2a9c}</Project>
-      <Name>UserCAStPresetResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CreateAssemblyVersion\CreateAssemblyVersion.csproj">
-      <Project>{114622FB-D6BF-4EA7-9BB9-FB06B5A01212}</Project>
-      <Name>CreateAssemblyVersion</Name>
     </ProjectReference>
     <ProjectReference Include="..\Interfaces\Interfaces.csproj">
       <Project>{51023BD2-9139-438D-B794-95E5EC023537}</Project>
@@ -185,10 +121,6 @@
     <ProjectReference Include="..\Package\Package.csproj">
       <Project>{9D8BB6F7-373E-4FBC-B5E8-9709B4CE9A37}</Project>
       <Name>Package</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s3pi Wrappers\s3piRCOLChunks\s3piRCOLChunks.csproj">
-      <Project>{F2E30D04-82C7-487F-B9E8-E8BABB1C94E1}</Project>
-      <Name>s3piRCOLChunks</Name>
     </ProjectReference>
     <ProjectReference Include="..\Settings\Settings.csproj">
       <Project>{374F37CF-1F27-4613-96FD-9B956A3D82B1}</Project>
