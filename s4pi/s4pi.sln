@@ -47,7 +47,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RigResource", "..\s4pi Wrap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericRCOLResource", "..\s4pi Wrappers\GenericRCOLResource\GenericRCOLResource.csproj", "{47693A2A-1F86-47CA-A170-CC0C195A53B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "s4piRCOLChunks", "..\s4pi Wrappers\s3piRCOLChunks\s4piRCOLChunks.csproj", "{F2E30D04-82C7-487F-B9E8-E8BABB1C94E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "s4piRCOLChunks", "..\s4pi Wrappers\s4piRCOLChunks\s4piRCOLChunks.csproj", "{F2E30D04-82C7-487F-B9E8-E8BABB1C94E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshChunks", "..\s4pi Wrappers\MeshChunks\MeshChunks.csproj", "{B1E4D2EC-5027-4F44-8C46-A0485DFF7060}"
 EndProject
@@ -57,7 +57,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomForms", "..\s4pi Extr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helpers", "..\s4pi Extras\Helpers\Helpers.csproj", "{D9B63641-D3BE-4120-9115-7D67B1238FBF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "s4piControls", "..\s4pi Extras\s3piControls\s4piControls.csproj", "{DF6E6825-5488-43EC-81A5-0EE87945228B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "s4piControls", "..\s4pi Extras\s4piControls\s4piControls.csproj", "{DF6E6825-5488-43EC-81A5-0EE87945228B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDSPanel", "..\s4pi Extras\DDSPanel\DDSPanel.csproj", "{901D5F73-7DAC-49C3-9A5F-33EEA1E97F22}"
 EndProject
