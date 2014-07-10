@@ -1,0 +1,7 @@
+// Text/(pure) XML files 
+ResourceType: 0x024A0E52 0x025C90A6 0x025C95B6 0x029E333B 0x02C9EFF2 0x024A0E52 0x02FAC0B6 0x0333406C 0x03B33DDF 0x0604ABDA 0x0A98EAF0 0x1F886EAD 0x2B6CAB5F 0x67771F5C 0x73E93EEB 0xA8D58BE5 0xD4D9FBE5 0xDD3223A7 0xDD6233D6 0xE5105066 0xE5105067 0xE5105068 0xF0FF5598
+Label: Notepad
+// Windows notepad is in the standard Windows PATH, so you don't need to say where it is:
+Command: notepad
+Arguments: "{}"
+Desc: Edit a Text file with Notepad

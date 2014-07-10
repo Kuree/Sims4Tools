@@ -1,0 +1,8 @@
+// DLL Export
+
+ResourceType: 0x073FAA07
+Label: Export DLL
+Command: S3SADLLExpImp.exe
+Arguments: /export "{}"
+ReadOnly: yes
+Desc: Export the DLL from a S3SA resource

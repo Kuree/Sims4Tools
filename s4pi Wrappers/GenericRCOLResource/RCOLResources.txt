@@ -1,0 +1,25 @@
+﻿;type
+;tag (*=null)
+;y=stand alone resource
+;n=only embedded in a MODL or MLOD
+;desc
+0x015A1849 GEOM N Body Geometry ; lies! but the stand alone is not a GenericRCOL
+0x01661233 MODL Y Object Geometry
+0x01D0E6FB VBUF N Vertex Buffer
+0x01D0E70F IBUF N Index Buffer
+0x01D0E723 VRTF N Vertex Format
+0x01D0E75D MATD Y Material definition
+0x01D0E76B SKIN N Mesh skin
+0x01D10F34 MLOD Y Object Geometry LODs
+0x02019972 MTST Y Material set
+0x021D7E8C TREE Y
+0x0229684B VBUF N Vertex Buffer(Used in shadow meshes, no associated VRTF)
+0x0229684F IBUF N Index Buffer(Used in shadow meshes)
+0x02D5DF13 Jazz Y Animation Sequences
+0x033260E3 TkMk Y
+0x0355E0A6 *    Y Slot Adjusts 
+0x03B4C61D LITE Y
+0x63A33EA7 ANIM Y
+0x736884F1 VPXY Y Model Links
+0xD3044521 RSLT Y Slot Definition
+0xD382BF57 FTPT Y Model Footprint

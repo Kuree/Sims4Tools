@@ -1,0 +1,10 @@
+Thanks to:
+
+Peter and Inge for the s3pi libraries which is the basis for this code,
+as well as the many patches Peter has made to the ModelResources
+http://www.simlogical.com
+
+ChaosMageX for his contributions of additional formats to the EffectResource module, 
+and EffectCloning tool:
+http://www.modthesims.info/showthread.php?t=450194
+

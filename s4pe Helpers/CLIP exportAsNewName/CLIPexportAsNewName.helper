@@ -1,0 +1,8 @@
+// CLIP exportAsNewName
+
+ResourceType: 0x6B20C4F3
+Label: Export and rename...
+Command: CLIPexportAsNewName.exe
+Arguments: "{}"
+ReadOnly: yes
+Desc: Prompts for a new name, creates an FNV64 hash and copies a CLIP into a correctly-named export file.

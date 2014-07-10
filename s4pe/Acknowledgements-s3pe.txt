@@ -1,0 +1,41 @@
+﻿Acknowledgements for s3pe.
+
+In addition to his mention in the library acknowledgements, I must add
+special mention of Atavera for use of his Model handler in the s3pe binary
+distribution.  This is needed to support the s3asc export/import helper.
+
+For some time, s3pe has been including Delphy's ViewDDS external helper.
+Recently, I took the time to split out the "external helper" part from
+the bit that did the "View DDS" work, making a re-useable user control.
+Both pieces of code are very simple wrappers over the original Paint.NET
+DDS File Type Plugin by Dean Ashton, which is MIT licenced as follows:
+
+//------------------------------------------------------------------------------
+/*
+        @brief          DDS File Type Plugin for Paint.NET
+
+        @note           Copyright (c) 2006 Dean Ashton         http://www.dmashton.co.uk
+
+        Permission is hereby granted, free of charge, to any person obtaining
+        a copy of this software and associated documentation files (the 
+        "Software"), to deal in the Software without restriction, including
+        without limitation the rights to use, copy, modify, merge, publish,
+        distribute, sublicense, and/or sell copies of the Software, and to 
+        permit persons to whom the Software is furnished to do so, subject to 
+        the following conditions:
+
+        The above copyright notice and this permission notice shall be included
+        in all copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+        OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+        IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+        CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+        TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+        SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**/
+//------------------------------------------------------------------------------
+
+This in turn is based on Simon J Brown's squish library, at
+http://code.google.com/p/libsquish/ that also uses the MIT licence.

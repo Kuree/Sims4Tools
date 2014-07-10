@@ -1,0 +1,6 @@
+﻿// Assembly Viewer
+ResourceType: 0x073FAA07
+Label: View assembly (no setup)
+Command: S3SADLLExpImp.exe
+Arguments: /view /go "{}"
+Desc: Pass the .Net Assembly in a S3SA resource to another program to view.  (Do not prompt for program name or arguments.)

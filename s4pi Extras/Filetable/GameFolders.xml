@@ -1,0 +1,481 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!--  The higher priority number indicates that where two identical TGIs exist, the one with the higher priority number will be used -->
+<gamefolders xmlns="http://sims3.drealm.info/terms/gamefolders/1.0">
+  <defaultrootfolder>C:/Program Files (x86)/</defaultrootfolder>
+  <rootfolder vendor="Microsoft" os="64bit">C:/Program Files (x86)/</rootfolder>
+  <rootfolder vendor="Microsoft" os="32bit">C:/Program Files/</rootfolder>
+  <game class="baseGame" rgversion="0" priority="99">
+    <Name>base</Name>
+    <Longname>The Sims 3</Longname>
+    <GUID>{C05D8CDB-417D-4335-A38C-A0659EDFD6B8}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3</DefaultInstallDir>
+    <Suppressed>not-allowed</Suppressed>
+    <GameContent>
+      <Folder path="GameData/Shared/DeltaPackages">
+        <Package isPatch="true" priority="1">p02/DeltaBuild_p02.package</Package>
+        <Package isPatch="true" priority="1">p03/DeltaBuild_p03.package</Package>
+        <Package isPatch="true" priority="1">p04/DeltaBuild_p04.package</Package>
+        <Package isPatch="true" priority="1">p05/DeltaBuild_p05.package</Package>
+        <Package isPatch="true" priority="1">p06/DeltaBuild_p06.package</Package>
+        <Package isPatch="true" priority="1">p07/DeltaBuild_p07.package</Package>
+        <Package isPatch="true" priority="1">p08/DeltaBuild_p08.package</Package>
+        <Package isPatch="true" priority="1">p09/DeltaBuild_p09.package</Package>
+        <Package isPatch="true" priority="1">p10/DeltaBuild_p10.package</Package>
+        <Package isPatch="true" priority="1">p11/DeltaBuild_p11.package</Package>
+        <Package isPatch="true" priority="1">p12/DeltaBuild_p12.package</Package>
+        <Package isPatch="true" priority="1">p13/DeltaBuild_p13.package</Package>
+        <Package isPatch="true" priority="1">p14/DeltaBuild_p14.package</Package>
+        <Package isPatch="true" priority="1">p15/DeltaBuild_p15.package</Package>
+        <Package isPatch="true" priority="1">p16/DeltaBuild_p16.package</Package>
+        <Package isPatch="true" priority="1">p17/DeltaBuild_p17.package</Package>
+        <Package isPatch="true" priority="1">p18/DeltaBuild_p18.package</Package>
+        <Package isPatch="true" priority="1">p19/DeltaBuild_p19.package</Package>
+        <Package isPatch="true" priority="1">p20/DeltaBuild_p20.package</Package>
+      </Folder>
+      <Folder path="GameData/Shared/Packages">
+        <Package isPatch="true" priority="2">Deltabuild0.package</Package>
+        <Package isPatch="false" priority="0">Fullbuild0.package</Package>
+      </Folder>
+    </GameContent>
+    <DDSImages>
+      <Folder path="GameData/Shared/Packages">
+        <Package isPatch="true" priority="2">Deltabuild2.package</Package>
+        <Package isPatch="false" priority="0">Fullbuild2.package</Package>
+      </Folder>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="1">
+    <Name>WA</Name>
+    <Longname>The Sims 3 World Adventures</Longname>
+    <GUID>{BA26FFA5-6D47-47DB-BE56-34C357B5F8CC}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 World Adventures</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Folder path="GameData/Shared/DeltaPackages">
+        <Package isPatch="true" priority="1">p02/DeltaBuild_p02.package</Package>
+      </Folder>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/Fullbuildep1.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/Fullbuildep1.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="2">
+    <Name>HEL</Name>
+    <Longname>The Sims 3 High-End Loft Stuff</Longname>
+    <GUID>{71828142-5A24-4BD0-97E7-976DA08CE6CF}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 High-End Loft Stuff</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Folder path="GameData/Shared/DeltaPackages">
+       <Package isPatch="true" priority="1">p02/DeltaBuild_p02.package</Package>
+      </Folder>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p03.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p03.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="3">
+    <Name>AMB</Name>
+    <Longname>The Sims 3 Ambitions</Longname>
+    <GUID>{910F4A29-1134-49E0-AD8B-56E4A3152BD1}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Ambitions</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Folder path="GameData/Shared/DeltaPackages">
+        <Package isPatch="true" priority="1">p02/DeltaBuild_p02.package</Package>
+        <Package isPatch="true" priority="1">p03/DeltaBuild_p03.package</Package>
+      </Folder>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p04.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p04.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="4">
+    <Name>FLS</Name>
+    <Longname>The Sims 3 Fast Lane Stuff</Longname>
+    <GUID>{ED436EA8-4145-4703-AE5D-4D09DD24AF5A}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Fast Lane Stuff</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Folder path="GameData/Shared/DeltaPackages">
+	    <Package isPatch="true" priority="1">p02/DeltaBuild_p02.package</Package>
+        <Package isPatch="true" priority="1">p03/DeltaBuild_p03.package</Package>
+        <Package isPatch="true" priority="1">p04/DeltaBuild_p04.package</Package>
+      </Folder>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p05.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p05.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="5">
+    <Name>LN</Name>
+    <Longname>The Sims 3 Late Night</Longname>
+    <GUID>{45057FCE-5784-48BE-8176-D9D00AF56C3C}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Late Night</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Folder path="GameData/Shared/DeltaPackages">
+	    <Package isPatch="true" priority="1">p02/DeltaBuild_p02.package</Package>
+        <Package isPatch="true" priority="1">p03/DeltaBuild_p03.package</Package>
+        <Package isPatch="true" priority="1">p04/DeltaBuild_p04.package</Package>
+        <Package isPatch="true" priority="1">p05/DeltaBuild_p05.package</Package>
+      </Folder>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p06.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p06.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="6">
+    <Name>OLS</Name>
+    <Longname>The Sims 3 Outdoor Living Stuff</Longname>
+    <GUID>{117B6BF6-82C3-420C-B284-9247C8568E53}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Outdoor Living Stuff</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Folder path="GameData/Shared/DeltaPackages">
+	    <Package isPatch="true" priority="1">p02/DeltaBuild_p02.package</Package>
+        <Package isPatch="true" priority="1">p03/DeltaBuild_p03.package</Package>
+        <Package isPatch="true" priority="1">p04/DeltaBuild_p04.package</Package>
+        <Package isPatch="true" priority="1">p05/DeltaBuild_p05.package</Package>
+        <Package isPatch="true" priority="1">p06/DeltaBuild_p06.package</Package>
+      </Folder>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p07.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p07.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="7">
+    <Name>GEN</Name>
+    <Longname>The Sims 3 Generations</Longname>
+    <GUID>{E6B88BD6-E4B2-4701-A648-B6DAC6E491CC}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Generations</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p08.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p08.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="8">
+    <Name>TLS</Name>
+    <Longname>The Sims 3 Town Life Stuff</Longname>
+    <GUID>{7B11296A-F894-449C-8DF6-6AAAA7D4D118}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Town Life Stuff</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p09.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p09.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="9">
+    <Name>PETS</Name>
+    <Longname>The Sims 3 Pets</Longname>
+    <GUID>{C12631C6-804D-4B32-B0DD-8A496462F106}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Pets</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild0_p10.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild0_p10.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="10">
+    <Name>MSS</Name>
+    <Longname>The Sims 3 Master Suite Stuff</Longname>
+    <GUID>{08A25478-C5DD-4EA7-B168-3D687CA987FF}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Master Suite Stuff</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p11.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p11.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="11">
+    <Name>SHT</Name>
+    <Longname>The Sims 3 Showtime</Longname>
+    <GUID>{3BBFD444-5FAB-49F6-98B1-A1954E831399}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Showtime</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p12.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p12.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="12">
+    <Name>KPST</Name>
+    <Longname>The Sims 3 Katy Perry's Sweet Treats</Longname>
+    <GUID>{9B2506E3-9A3F-45B5-96BF-509CAD584650}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Katy Perry's Sweet Treats</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p13.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p13.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="13">
+    <Name>DS</Name>
+    <Longname>The Sims 3 Diesel Stuff</Longname>
+    <GUID>{1C9B6173-6DC9-4EEE-9EFC-6BA115CFBE43}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Diesel Stuff</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p14.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p14.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="14">
+    <Name>SN</Name>
+    <Longname>The Sims 3 Supernatural</Longname>
+    <GUID>{B37DAFA5-717D-41F8-BDFB-3A4B68C0B3A1}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Supernatural</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p15.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p15.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="15">
+    <Name>SEAS</Name>
+    <Longname>The Sims 3 Seasons</Longname>
+    <GUID>{3DE92282-CB49-434F-81BF-94E5B380E889}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Seasons</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p16.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p16.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="16">
+    <Name>DEC</Name>
+    <Longname>The Sims 3 70s 80s 90s Stuff</Longname>
+    <GUID>{E1868CAE-E3B9-4099-8C18-AA8944D336FD}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 70s 80s &amp; 90s Stuff</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p17.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p17.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="17">
+    <Name>UNI</Name>
+    <Longname>The Sims 3 University Life</Longname>
+    <GUID>{F26DE8EF-F2CF-40DC-8CDA-CC0D82D11B36}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 University Life</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p18.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p18.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="18">
+    <Name>IP</Name>
+    <Longname>The Sims 3 Island Paradise</Longname>
+    <GUID>{DB21639E-FE55-432C-BCA2-0C5249E3F79E}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Island Paradise</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p19.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p19.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="SP" rgversion="19">
+    <Name>MVS</Name>
+    <Longname>The Sims 3 Movie Stuff</Longname>
+    <GUID>{D0087539-3C57-44E0-BEE7-D779D546CBE1}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Movie Stuff</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p20.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p20.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="20">
+    <Name>ITF</Name>
+    <Longname>The Sims 3 Into The Future</Longname>
+    <GUID>{A0BBD6C7-B546-4048-B33A-F21F5C9F5B09}</GUID>
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Into The Future</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p21.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p21.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+  <game class="EP" rgversion="21">
+    <Name>Spare</Name>
+    <Longname>The Sims 3 Next Pack</Longname>
+    <GUID />
+    <DefaultInstallDir>Electronic Arts/The Sims 3 Whatever Next</DefaultInstallDir>
+    <Suppressed>false</Suppressed>
+    <GameContent>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p22.package</Package>
+    </GameContent>
+    <DDSImages>
+      <Package isPatch="false" priority="0">GameData/Shared/Packages/FullBuild_p22.package</Package>
+    </DDSImages>
+    <Thumbnails>
+      <Folder path="Thumbnails">
+        <Package isPatch="false" priority="0">AllThumbnails.package</Package>
+        <Package isPatch="false" priority="0">CasThumbnails.package</Package>
+      </Folder>
+    </Thumbnails>
+  </game>
+</gamefolders>

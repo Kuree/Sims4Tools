@@ -1,0 +1,6 @@
+// Visual proxy files, using the editor supplied with s3pe
+ResourceType: 0x736884F1
+Label: Edit VPXY
+Command: VPXYResourceEditor.exe
+Arguments: "{}"
+Desc: Edit a VPXY Resource with the s3pe VPXYResourceEditor

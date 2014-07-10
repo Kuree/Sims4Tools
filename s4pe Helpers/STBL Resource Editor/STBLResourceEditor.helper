@@ -1,0 +1,6 @@
+// String tables, using the editor supplied with s3pe
+ResourceType: 0x220557DA
+Label: Edit STBL
+Command: STBLResourceEditor.exe
+Arguments: "{}"
+Desc: Edit a STBL Resource with the s3pe STBLResourceEditor

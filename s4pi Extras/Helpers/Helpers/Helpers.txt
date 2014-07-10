@@ -1,0 +1,111 @@
+#
+# Comments start with "#", "//" or ";" anywhere on the line
+# Block comments /* */ are allowed, too.
+#
+
+#
+# When determining what Helpers are available for a particular resource,
+# all of the *.helper files in the Helpers folder are read.  Resources are matched
+# against keywords in each file to decide whether the helper in that file
+# is applicable.  The keywords are:
+#
+# Wrapper
+#  This matches the name of the class used to load the resource.  For instance, all
+#  resources with a ResourceType listed in ImageResource.txt will get loaded by
+#  the ImageResource wrapper.  This is useful when matching multiple similar ResourceTypes.
+#  Example (commented out with ";"):
+;Wrapper: ImageResource
+#
+# ResourceType | ResourceGroup | Instance
+#  All three are recognised although only ResourceType is particularly useful.  This matches
+#  against the exact value pertaining to a resource.
+#  Example (commented out with ";") - match against OBJK resources:
+;ResourceType: 0x02DC343F
+#
+# In both cases, "*" can be used to mean "any" -- only one helper should exist for "*" to avoid
+# potential confusion.
+#
+# You can specify a description with "Desc: text" - for example:
+;Desc: Edit an OBJK Resource with the s3pe OBJKResourceEditor
+#
+# You can specify the label for the button with "Label: labeltext" - for example:
+;Label: Edit OBJK
+#
+# The command to run is specified with "Command: exename" (with path, if needed)
+# Note: if the command exe name is unqualified, the OS will search in the folder
+# containing the current executing program followed by the usual search path.
+# Examples:
+;Command: notepad
+;Command: OBJKResourceEditor
+;Command: X:\Path\To\Editor.exe
+#
+# Any required arguments are specified with "Arguments: args", for example:
+;Arguments: "-load:{}" "-title:{Common.Name}"
+#
+# {} is replaced with a filename when on Command or Arguments lines.
+# Using "{}" means data will be exchanged with the command using a file system file.
+# If "{}" is not used, it is assumed data from the resource should be placed on
+# the ClipBoard and read from the ClipBoard.  Using the ClipBoard circumvents
+# detecting changes in the data (as there's no file modified date to check).
+#
+# {prop} is replaced with the selected resource's "prop" field value on Argument line.
+#
+# Note: you probably want to add quotes around {} and {prop} - this isn't automatic.
+#
+# By default, any change to a file by the program that has been run will be detected.
+# There are two modifications to this behaviour.  The first is where you want to use
+# an editor for viewing only; you can set it "ReadOnly", as follows:
+;ReadOnly: yes
+# ("yes" can be anything)
+#
+# The second is if you are passing a file to your editor and it does not update
+# the write timestamp.  You can disable checking and always assume the data has changed,
+# as follows:
+;IgnoreWriteTimestamp: anything_here
+
+//
+// -
+// *--
+// *
+// * A final reminder:
+// *   Only put one helper in each *.helper file
+// *
+// *--
+// -
+//
+
+// --
+// Here are some other examples (all commented out, remember)
+// --
+
+// Could try just running it... but we won't; this uses the OS's file associations
+;Wrapper: *
+;Desc: Just run it
+;Label: Start
+;Command: {}
+// To avoid ever saving updates, say the helper is read-only
+;ReadOnly: yes
+
+// Or you might want to use Notepad on everything not handled elsewhere
+// (this is dangerous as there's no guaranteed load order to *.helpers - it
+// could end up matching things you didn't intend)
+;Wrapper: *
+;Desc: Try Notepad
+;Label: Edit
+;Command: notepad
+;Arguments: "{}"
+
+// If you have an editor that doesn't update file timestamps on save, call it like this:
+;ResourceType: 0xFEEDF00D
+;Desc: Super feedf00d editor
+;Label: Edit
+;Command: X:\Path\To\Editor.exe
+;Arguments: "{}"
+;IgnoreWriteTimestamp: whatever
+
+// Maybe use a better editor for images?
+;Wrapper: ImageResource
+;Label: GIMP
+// This is where GIMP installs by default:
+;Command: C:\Program Files\GIMP-2.0\bin\gimp-2.6.exe
+;Arguments: "{}"

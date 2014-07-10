@@ -1,0 +1,389 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0663C11D-1A90-476F-A04D-34D93464A1E0}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>S4PIDemoFE</RootNamespace>
+    <AssemblyName>s4pe</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <ApplicationIcon>Resources\s3pe.ico</ApplicationIcon>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DDSPanel">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\s4pi Extras\DDSPanel\bin\Debug\DDSPanel.dll</HintPath>
+    </Reference>
+    <Reference Include="s4pi.Controls">
+      <HintPath>..\s4pi Extras\s3piControls\bin\Debug\s4pi.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="s4pi.CustomForms">
+      <HintPath>..\s4pi Extras\CustomForms\bin\Debug\s4pi.CustomForms.dll</HintPath>
+    </Reference>
+    <Reference Include="s4pi.Extensions">
+      <HintPath>..\s4pi Extras\Extensions\bin\Debug\s4pi.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="s4pi.Helpers">
+      <HintPath>..\s4pi Extras\Helpers\bin\Debug\s4pi.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="s4pi.Interfaces">
+      <HintPath>..\s4pi\build\bin\Debug\s4pi.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="s4pi.Package">
+      <HintPath>..\s4pi\build\bin\Debug\s4pi.Package.dll</HintPath>
+    </Reference>
+    <Reference Include="s4pi.Settings">
+      <HintPath>..\s4pi\build\bin\Debug\s4pi.Settings.dll</HintPath>
+    </Reference>
+    <Reference Include="s4pi.WrapperDealer">
+      <HintPath>..\s4pi\build\bin\Debug\s4pi.WrapperDealer.dll</HintPath>
+    </Reference>
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Custom">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\s4pi\build\bin\Debug\System.Custom.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BuiltInValueControl.cs" />
+    <Compile Include="ForceFocus.cs" />
+    <Compile Include="Import\ExperimentalDBCWarning.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Import\ExperimentalDBCWarning.Designer.cs">
+      <DependentUpon>ExperimentalDBCWarning.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Import\Import.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Import\ImportSettings.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Import\ImportSettings.Designer.cs">
+      <DependentUpon>ImportSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="s4pePropertyGrid\NewGridForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="s4pePropertyGrid\NewGridForm.Designer.cs">
+      <DependentUpon>NewGridForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="s4pePropertyGrid\ReaderEditorPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="s4pePropertyGrid\ReaderEditorPanel.Designer.cs">
+      <DependentUpon>ReaderEditorPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="s4pePropertyGrid\TGIBlockSelection.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="s4pePropertyGrid\TGIBlockSelection.Designer.cs">
+      <DependentUpon>TGIBlockSelection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyVersion.cs" />
+    <Compile Include="BrowserWidget\BrowserWidget.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BrowserWidget\BrowserWidget.Designer.cs">
+      <DependentUpon>BrowserWidget.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BrowserWidget\SortingListviews.cs" />
+    <Compile Include="ControlPanel\ControlPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ControlPanel\ControlPanel.designer.cs">
+      <DependentUpon>ControlPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Filter\FilterField.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Filter\FilterField.Designer.cs">
+      <DependentUpon>FilterField.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Filter\ResourceFilterWidget.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Filter\ResourceFilterWidget.Designer.cs">
+      <DependentUpon>ResourceFilterWidget.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Import\ImportBatch.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Import\ImportBatch.Designer.cs">
+      <DependentUpon>ImportBatch.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Import\ResourceDetails.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Import\ResourceDetails.designer.cs">
+      <DependentUpon>ResourceDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MenuBarWidget\MenuBarWidget.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MenuBarWidget\MenuBarWidget.Designer.cs">
+      <DependentUpon>MenuBarWidget.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PackageInfo\PackageInfoFields.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PackageInfo\PackageInfoWidget.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PackageInfo\PackageInfoWidget.Designer.cs">
+      <DependentUpon>PackageInfoWidget.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="BrowserWidget\BrowserWidget.resx">
+      <DependentUpon>BrowserWidget.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlPanel\ControlPanel.resx">
+      <DependentUpon>ControlPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Filter\FilterField.resx">
+      <DependentUpon>FilterField.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Filter\ResourceFilterWidget.resx">
+      <DependentUpon>ResourceFilterWidget.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Import\ExperimentalDBCWarning.resx">
+      <DependentUpon>ExperimentalDBCWarning.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Import\ImportBatch.resx">
+      <DependentUpon>ImportBatch.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Import\ImportSettings.resx">
+      <DependentUpon>ImportSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Import\ResourceDetails.resx">
+      <DependentUpon>ResourceDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MenuBarWidget\MenuBarWidget.resx">
+      <DependentUpon>MenuBarWidget.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="s4pePropertyGrid\NewGridForm.resx">
+      <DependentUpon>NewGridForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="s4pePropertyGrid\ReaderEditorPanel.resx">
+      <DependentUpon>ReaderEditorPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="s4pePropertyGrid\TGIBlockSelection.resx">
+      <DependentUpon>TGIBlockSelection.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PackageInfo\PackageInfoWidget.resx">
+      <DependentUpon>PackageInfoWidget.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\ExternalProgramsDialog.resx">
+      <DependentUpon>ExternalProgramsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\GetNumberDialog.resx">
+      <DependentUpon>GetNumberDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\ManageWrappersDialog.resx">
+      <DependentUpon>ManageWrappersDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\OrganiseBookmarksDialog.resx">
+      <DependentUpon>OrganiseBookmarksDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Splash\Splash.resx">
+      <DependentUpon>Splash.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tools\FNVHashDialog.resx">
+      <DependentUpon>FNVHashDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tools\SearchForm.resx">
+      <DependentUpon>SearchForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="s4pePropertyGrid\S4PIPropertyGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Settings.cs" />
+    <Compile Include="Settings\AutoUpdate.cs" />
+    <Compile Include="Settings\ExternalProgramsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\ExternalProgramsDialog.Designer.cs">
+      <DependentUpon>ExternalProgramsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\GetNumberDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\GetNumberDialog.Designer.cs">
+      <DependentUpon>GetNumberDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\ManageWrappersDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\ManageWrappersDialog.Designer.cs">
+      <DependentUpon>ManageWrappersDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\OrganiseBookmarksDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\OrganiseBookmarksDialog.Designer.cs">
+      <DependentUpon>OrganiseBookmarksDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Splash\Splash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Splash\Splash.designer.cs">
+      <DependentUpon>Splash.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tools\FNVHashDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Tools\FNVHashDialog.Designer.cs">
+      <DependentUpon>FNVHashDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tools\SearchForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Tools\SearchForm.Designer.cs">
+      <DependentUpon>SearchForm.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="gpl-3.0.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Helpers\Helpers.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="HelpFiles\Contents.htm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Acknowledgements-s3pe.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="s4pi.DefaultResource.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="squishinterface_Win32.dll" />
+    <Content Include="squishinterface_x64.dll" />
+    <None Include="App.config" />
+    <None Include="Helpers\MSPaint.helper">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Helpers\Notepad.helper">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\s3pe.ico" />
+    <Content Include="s3peUpdate.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>

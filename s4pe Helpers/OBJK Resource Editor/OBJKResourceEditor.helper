@@ -1,0 +1,6 @@
+// ObjKey editor, using the editor supplied with s3pe
+ResourceType: 0x02DC343F
+Label: Edit OBJK
+Command: OBJKResourceEditor.exe
+Arguments: "{}"
+Desc: Edit an OBJK Resource with the s3pe OBJKResourceEditor

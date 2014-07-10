@@ -1,0 +1,5 @@
+﻿ResourceType: 0x00B2D882 0x8FFB80F6
+Label: ViewDDS
+Command: ViewDDS.exe
+ReadOnly: yes
+Arguments: "{}"

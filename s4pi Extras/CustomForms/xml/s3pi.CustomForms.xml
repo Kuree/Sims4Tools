@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>s4pi.CustomForms</name>
+    </assembly>
+    <members>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxInternal.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBoxInternal.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBoxInternal.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:System.Windows.Forms.CopyableMessageBoxIcon">
+            <summary>
+            Specifies constants defining which symbol to display on a <see cref="T:System.Windows.Forms.CopyableMessageBox"/>.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.None">
+            <summary>
+            The message box contain no symbols.
+            </summary>
+            <remarks>This is the default for unknown values.</remarks>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.Information">
+            <summary>
+            The message box contains a symbol consisting of a lowercase letter i.
+            This is styled italic and displayed in blue on very pale blue.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.Asterisk">
+            <summary>
+            The message box contains a symbol consisting of a lowercase letter i.
+            This is styled italic and displayed in blue on very pale blue.
+            </summary>
+            <remarks>This is the same as <see cref="F:System.Windows.Forms.CopyableMessageBoxIcon.Information"/>.</remarks>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.Question">
+            <summary>
+            The message box contains a symbol consisting of a question mark.
+            This is styled regular and displayed in green on very pale green.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.Warning">
+            <summary>
+            The message box contains a symbol consisting of an exclamation mark.
+            This is styled bold and displayed in black on yellow.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.Exclamation">
+            <summary>
+            The message box contains a symbol consisting of an exclamation mark.
+            This is styled bold and displayed in black on yellow.
+            </summary>
+            <remarks>This is the same as <see cref="F:System.Windows.Forms.CopyableMessageBoxIcon.Warning"/>.</remarks>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.Error">
+            <summary>
+            The message box contains a symbol consisting of an uppercase letter X.
+            This is styled bold and displayed in white on red.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.Hand">
+            <summary>
+            The message box contains a symbol consisting of an uppercase letter X.
+            This is styled bold and displayed in white on red.
+            </summary>
+            <remarks>This is the same as <see cref="F:System.Windows.Forms.CopyableMessageBoxIcon.Error"/>.</remarks>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxIcon.Stop">
+            <summary>
+            The message box contains a symbol consisting of an uppercase letter X.
+            This is styled bold and displayed in white on red.
+            </summary>
+            <remarks>This is the same as <see cref="F:System.Windows.Forms.CopyableMessageBoxIcon.Error"/>.</remarks>
+        </member>
+        <member name="T:System.Windows.Forms.CopyableMessageBoxButtons">
+            <summary>
+            Specifies constants defining which buttons to display on a <see cref="T:System.Windows.Forms.CopyableMessageBox"/>.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxButtons.OK">
+            <summary>
+            The message box contains an OK button.
+            </summary>
+            <remarks>This is the default for unknown values.</remarks>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxButtons.OKCancel">
+            <summary>
+            The message box contains OK and Cancel buttons.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxButtons.AbortRetryIgnore">
+            <summary>
+            The message box contains Abort, Retry, and Ignore buttons.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxButtons.YesNoCancel">
+            <summary>
+            The message box contains Yes, No, and Cancel buttons.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxButtons.YesNo">
+            <summary>
+            The message box contains Yes and No buttons.
+            </summary>
+        </member>
+        <member name="F:System.Windows.Forms.CopyableMessageBoxButtons.RetryCancel">
+            <summary>
+            The message box contains Retry and Cancel buttons.
+            </summary>
+        </member>
+        <member name="T:System.Windows.Forms.CopyableMessageBox">
+            <summary>
+            Displays a message box from which the text can be copied.
+            </summary>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBox.Show(System.String)">
+            <summary>
+            Displays a message box with the specified text.
+            The text can be copied.
+            </summary>
+            <param name="message">The text to display in the message box.  This text can be copied.</param>
+            <returns>Always returns <c>0</c>.</returns>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBox.Show(System.String,System.String,System.Windows.Forms.CopyableMessageBoxButtons,System.Windows.Forms.CopyableMessageBoxIcon,System.Int32)">
+            <summary>
+            Displays a message box with the specified text, caption, buttons, icon and default button.
+            The text can be copied.
+            </summary>
+            <param name="message">The text to display in the message box.  This text can be copied.</param>
+            <param name="caption">The text to display in the title bar of the message box.</param>
+            <param name="buttons">One of the <see cref="T:System.Windows.Forms.CopyableMessageBoxButtons"/> values that specifies which buttons to display in the message box.
+            If not specified, <see cref="F:System.Windows.Forms.CopyableMessageBoxButtons.OK"/> is used.</param>
+            <param name="icon">One of the <see cref="T:System.Windows.Forms.CopyableMessageBoxIcon"/> values that specifies which icon to display in the message box.
+            If not specified, <see cref="F:System.Windows.Forms.CopyableMessageBoxIcon.None"/> is used.</param>
+            <param name="defBtn">The zero-based index of the default button.
+            If not specified, <c>0</c> is used.</param>
+            <returns>The zero-based index of the button pressed.</returns>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBox.Show(System.String,System.String,System.Windows.Forms.CopyableMessageBoxButtons,System.Windows.Forms.CopyableMessageBoxIcon,System.Int32,System.Int32)">
+            <summary>
+            Displays a message box with the specified text, caption, icon, buttons, default button and cancel button.
+            The text can be copied.
+            </summary>
+            <param name="message">The text to display in the message box.  This text can be copied.</param>
+            <param name="caption">The text to display in the title bar of the message box.</param>
+            <param name="buttons">One of the <see cref="T:System.Windows.Forms.CopyableMessageBoxButtons"/> values that specifies which buttons to display in the message box.</param>
+            <param name="icon">One of the <see cref="T:System.Windows.Forms.CopyableMessageBoxIcon"/> values that specifies which icon to display in the message box.</param>
+            <param name="defBtn">The zero-based index of the default button.</param>
+            <param name="cncBtn">The zero-based index of the cancel button.</param>
+            <returns>The zero-based index of the button pressed.</returns>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBox.Show(System.String,System.String,System.Windows.Forms.CopyableMessageBoxIcon,System.Collections.Generic.IList{System.String},System.Int32,System.Int32)">
+            <summary>
+            Displays a message box with the specified text, caption, icon, buttons, default button and cancel button.
+            The text can be copied.
+            </summary>
+            <param name="message">The text to display in the message box.  This text can be copied.</param>
+            <param name="caption">The text to display in the title bar of the message box.</param>
+            <param name="icon">One of the <see cref="T:System.Windows.Forms.CopyableMessageBoxIcon"/> values that specifies which icon to display in the message box.</param>
+            <param name="buttons">A <see cref="T:System.Collections.Generic.IList`1"/> (where <c>T</c> is <see cref="T:System.String"/>) to display as buttons in the message box.</param>
+            <param name="defBtn">The zero-based index of the default button.</param>
+            <param name="cncBtn">The zero-based index of the cancel button.</param>
+            <returns>The zero-based index of the button pressed.</returns>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBox.Show(System.Windows.Forms.IWin32Window,System.String,System.String,System.Windows.Forms.CopyableMessageBoxIcon,System.Collections.Generic.IList{System.String},System.Int32,System.Int32)">
+            <summary>
+            Displays a message box with the specified text, caption, icon, buttons, default button and cancel button.
+            The text can be copied.
+            </summary>
+            <param name="owner">An implementation of <see cref="T:System.Windows.Forms.IWin32Window"/> that will own the modal dialog box.</param>
+            <param name="message">The text to display in the message box.  This text can be copied.</param>
+            <param name="caption">The text to display in the title bar of the message box.</param>
+            <param name="icon">One of the <see cref="T:System.Windows.Forms.CopyableMessageBoxIcon"/> values that specifies which icon to display in the message box.</param>
+            <param name="buttons">A <see cref="T:System.Collections.Generic.IList`1"/> (where <c>T</c> is <see cref="T:System.String"/>) to display as buttons in the message box.</param>
+            <param name="defBtn">The zero-based index of the default button.</param>
+            <param name="cncBtn">The zero-based index of the cancel button.</param>
+            <returns>The zero-based index of the button pressed.</returns>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBox.IssueException(System.Exception)">
+            <summary>
+            Displays a message box containing the specified <see cref="T:System.Exception"/>
+            including a full traceback of inner exceptions.
+            The text can be copied.
+            </summary>
+            <param name="ex">A <see cref="T:System.Exception"/> to display.</param>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBox.IssueException(System.Exception,System.String)">
+            <summary>
+            Displays a message box containing the specified <see cref="T:System.Exception"/>
+            including a full traceback of inner exceptions, with the specified caption.
+            The text can be copied.
+            </summary>
+            <param name="ex">A <see cref="T:System.Exception"/> to display.</param>
+            <param name="caption">The text to display in the title bar of the message box.</param>
+        </member>
+        <member name="M:System.Windows.Forms.CopyableMessageBox.IssueException(System.Exception,System.String,System.String)">
+            <summary>
+            Displays a message box containing the specified <see cref="T:System.Exception"/>
+            including a full traceback of inner exceptions, with the specified caption.
+            The <paramref name="prefix"/> text is display before the exception trace.
+            The text can be copied.
+            </summary>
+            <param name="ex">A <see cref="T:System.Exception"/> to display.</param>
+            <param name="prefix">Text to display before the exception.</param>
+            <param name="caption">The text to display in the title bar of the message box.</param>
+        </member>
+    </members>
+</doc>

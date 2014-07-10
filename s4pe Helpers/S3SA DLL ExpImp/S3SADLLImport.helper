@@ -1,0 +1,8 @@
+// DLL Import
+
+ResourceType: 0x073FAA07
+Label: Import DLL
+Command: S3SADLLExpImp.exe
+Arguments: /import "{}"
+Desc: Import a DLL into a S3SA resource
+
