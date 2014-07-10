@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,7 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -81,7 +81,7 @@
       <Name>GenericRCOLResource</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\s3piRCOLChunks\s4piRCOLChunks.csproj">
+    <ProjectReference Include="..\s4piRCOLChunks\s4piRCOLChunks.csproj">
       <Project>{F2E30D04-82C7-487F-B9E8-E8BABB1C94E1}</Project>
       <Name>s4piRCOLChunks</Name>
       <Private>False</Private>
@@ -96,6 +96,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)CreateAssemblyVersion\$(OutDir)CreateAssemblyVersion" "$(ProjectDir)\"</PreBuildEvent>
+    <PreBuildEvent>"$(SolutionDir)s4pi\CreateAssemblyVersion\bin\Debug\CreateAssemblyVersion" "$(ProjectDir)\"</PreBuildEvent>
   </PropertyGroup>
 </Project>

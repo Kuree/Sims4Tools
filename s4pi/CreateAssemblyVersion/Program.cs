@@ -21,10 +21,18 @@ namespace CreateAssemblyVersion
                 Usage("Invalid arguments: '{0}'", String.Join(", ", args));
                 return 1;
             }
+            int i;
+            string path = args[0];
 
-            if (new System.Collections.Generic.List<char>(Path.GetInvalidPathChars()).FindAll(x => args[0].Contains(x.ToString())).Count > 0)
+            bool valid = true;
+            char[] invalidChars = Path.GetInvalidPathChars();
+            for (i = invalidChars.Length - 1; i >= 0 && valid; i--)
             {
-                Usage("'{0}' contains invalid characters.", args[0]);
+                valid &= path.IndexOf(invalidChars[i]) < 0;
+            }
+            if (!valid)
+            {
+                Usage("'{0}' contains invalid characters.", path);
                 return 2;
             }
 
@@ -35,7 +43,7 @@ namespace CreateAssemblyVersion
                 now.Day,
                 now.Hour, now.Minute);
 
-            string path = Path.Combine(args[0], "Properties/AssemblyVersion.cs");
+            path = Path.Combine(path, "Properties/AssemblyVersion.cs");
             FileStream s = new FileStream(path, FileMode.Create, FileAccess.Write);
             StreamWriter w = new StreamWriter(s);
 

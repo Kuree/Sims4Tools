@@ -34,7 +34,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -44,7 +44,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -52,39 +52,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DDSPanel">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\s4pi Extras\DDSPanel\bin\Debug\DDSPanel.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.Controls">
-      <HintPath>..\s4pi Extras\s3piControls\bin\Debug\s4pi.Controls.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.CustomForms">
-      <HintPath>..\s4pi Extras\CustomForms\bin\Debug\s4pi.CustomForms.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.Extensions">
-      <HintPath>..\s4pi Extras\Extensions\bin\Debug\s4pi.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.Helpers">
-      <HintPath>..\s4pi Extras\Helpers\bin\Debug\s4pi.Helpers.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.Interfaces">
-      <HintPath>..\s4pi\build\bin\Debug\s4pi.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.Package">
-      <HintPath>..\s4pi\build\bin\Debug\s4pi.Package.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.Settings">
-      <HintPath>..\s4pi\build\bin\Debug\s4pi.Settings.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.WrapperDealer">
-      <HintPath>..\s4pi\build\bin\Debug\s4pi.WrapperDealer.dll</HintPath>
-    </Reference>
     <Reference Include="System.configuration" />
-    <Reference Include="System.Custom">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\s4pi\build\bin\Debug\System.Custom.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -371,6 +339,48 @@
       <ProductName>Windows Installer 4.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CS System Classes\CS System Classes.csproj">
+      <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
+      <Name>CS System Classes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi Extras\CustomForms\CustomForms.csproj">
+      <Project>{7314C38A-1519-4C58-998E-C88E4DA91086}</Project>
+      <Name>CustomForms</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi Extras\DDSPanel\DDSPanel.csproj">
+      <Project>{901D5F73-7DAC-49C3-9A5F-33EEA1E97F22}</Project>
+      <Name>DDSPanel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi Extras\Extensions\Extensions.csproj">
+      <Project>{9B4C57BA-E09F-4439-98B4-B9B535A4ABF6}</Project>
+      <Name>Extensions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi Extras\Helpers\Helpers.csproj">
+      <Project>{D9B63641-D3BE-4120-9115-7D67B1238FBF}</Project>
+      <Name>Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi Extras\s4piControls\s4piControls.csproj">
+      <Project>{DF6E6825-5488-43EC-81A5-0EE87945228B}</Project>
+      <Name>s4piControls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi\Interfaces\Interfaces.csproj">
+      <Project>{51023BD2-9139-438D-B794-95E5EC023537}</Project>
+      <Name>Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi\Package\Package.csproj">
+      <Project>{9D8BB6F7-373E-4FBC-B5E8-9709B4CE9A37}</Project>
+      <Name>Package</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi\Settings\Settings.csproj">
+      <Project>{374F37CF-1F27-4613-96FD-9B956A3D82B1}</Project>
+      <Name>Settings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi\WrapperDealer\WrapperDealer.csproj">
+      <Project>{FE111523-3266-409B-BC72-F8D4A909A554}</Project>
+      <Name>WrapperDealer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

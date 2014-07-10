@@ -1,4 +1,22 @@
-﻿using System;
+﻿/***************************************************************************
+ *  Based on earlier work.                                                 *
+ *  Copyright (C) 2011 by Peter L Jones                                    *
+ *  pljones@users.sf.net                                                   *
+ *                                                                         *
+ *  This is free software: you can redistribute it and/or modify           *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation, either version 3 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  s3pi is distributed in the hope that it will be useful,                *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *  You should have received a copy of the GNU General Public License      *
+ *  along with this software.  If not, see <http://www.gnu.org/licenses/>. *
+ ***************************************************************************/
+using System;
 using System.IO;
 using s4pi.Interfaces;
 using System.Text;
@@ -224,6 +242,7 @@ namespace meshExpImp.ModelBlocks
             private GeometryStateList mGeometryStates;
             private UInt32 mParentName;
             private Vector4 mMirrorPlane;
+            private UInt32 mUnknown1;
             #endregion
 
             #region Constructors
@@ -251,7 +270,8 @@ namespace meshExpImp.ModelBlocks
                 basis.mStreamOffset, basis.mStartVertex, basis.mStartIndex, basis.mMinVertexIndex, basis.mVertexCount, basis.mPrimitiveCount,
                 basis.mBounds, basis.mSkinControllerIndex,
                 basis.mJointReferences, basis.mGeometryStates, basis.mScaleOffsetIndex,
-                basis.mParentName, basis.mMirrorPlane
+                basis.mParentName, basis.mMirrorPlane,
+                basis.mUnknown1
                 ) { }
             public Mesh(int APIversion, EventHandler handler, MLOD owner,
                 uint name,
@@ -261,7 +281,7 @@ namespace meshExpImp.ModelBlocks
                 uint streamOffset, int startVertex, int startIndex, int minVertexIndex, int vertexCount, int primitiveCount,
                 BoundingBox bounds, GenericRCOLResource.ChunkReference skinControllerIndex,
                 UIntList jointReferences, GeometryStateList geometryStates, GenericRCOLResource.ChunkReference scaleOffsetIndex,
-                uint parentName, Vector4 mirrorPlane
+                uint parentName, Vector4 mirrorPlane, uint unknown1
                 )
                 : base(APIversion, handler)
             {
@@ -289,6 +309,10 @@ namespace meshExpImp.ModelBlocks
                 {
                     mParentName = parentName;
                     mMirrorPlane = new Vector4(requestedApiVersion, handler, mirrorPlane);
+                }
+                if (mOwner.Version > 0x00000203)
+                {
+                    mUnknown1 = unknown1;
                 }
             }
             public Mesh(int APIversion, EventHandler handler, MLOD owner, Stream s) : base(APIversion, handler) { mOwner = owner; Parse(s); }
@@ -325,6 +349,10 @@ namespace meshExpImp.ModelBlocks
                     mParentName = br.ReadUInt32();
                     mMirrorPlane = new Vector4(0, handler, s);
                 }
+                if (mOwner.Version > 0x00000203)
+                {
+                    mUnknown1 = br.ReadUInt32();
+                }
                 long actualSize = s.Position - start;
                 if (checking && actualSize != expectedSize)
                     throw new Exception(String.Format("Expected end at {0}, actual end was {1}", expectedSize,
@@ -359,6 +387,10 @@ namespace meshExpImp.ModelBlocks
                     bw.Write(mParentName);
                     mMirrorPlane.UnParse(s);
                 }
+                if (mOwner.Version > 0x00000203)
+                {
+                    bw.Write(mUnknown1);
+                }
                 long end = s.Position;
                 long size = end - start;
                 s.Seek(sizeOffset, SeekOrigin.Begin);
@@ -378,6 +410,10 @@ namespace meshExpImp.ModelBlocks
                     {
                         fields.Remove("ParentName");
                         fields.Remove("MirrorPlane");
+                    }
+                    if (mOwner.Version < 0x00000204)
+                    {
+                        fields.Remove("Unknown1");
                     }
                     return fields;
                 }
@@ -411,6 +447,7 @@ namespace meshExpImp.ModelBlocks
                     && mGeometryStates.Equals(other.mGeometryStates)
                     && mParentName.Equals(other.mParentName)
                     && mMirrorPlane.Equals(other.mMirrorPlane)
+                    && mUnknown1.Equals(other.mUnknown1)
                     && mOwner.Equals(other.mOwner)
                     ;
             }
@@ -439,6 +476,7 @@ namespace meshExpImp.ModelBlocks
                     ^ mGeometryStates.GetHashCode()
                     ^ mParentName.GetHashCode()
                     ^ mMirrorPlane.GetHashCode()
+                    ^ mUnknown1.GetHashCode()
                     ^ mOwner.GetHashCode()
                     ;
             }
@@ -581,6 +619,12 @@ namespace meshExpImp.ModelBlocks
             {
                 get { if (mOwner.Version < 0x0202) throw new InvalidOperationException(); return mMirrorPlane; }
                 set { if (mOwner.Version < 0x0202) throw new InvalidOperationException(); if (mMirrorPlane != value) { mMirrorPlane = value; OnElementChanged(); } }
+            }
+            [ElementPriority(21)]
+            public UInt32 Unknown1
+            {
+                get { if (mOwner.Version < 0x0204) throw new InvalidOperationException(); return mUnknown1; }
+                set { if (mOwner.Version < 0x0204) throw new InvalidOperationException(); if (mUnknown1 != value) { mUnknown1 = value; OnElementChanged(); } }
             }
 
             public string Value { get { return ValueBuilder; } }

@@ -40,24 +40,24 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <DocumentationFile>bin\Debug\s4pi.Extensions.xml</DocumentationFile>
+    <DocumentationFile>..\..\bin\Debug\s4pi.Extensions.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <DocumentationFile>bin\Release\s4pi.Extensions.xml</DocumentationFile>
+    <DocumentationFile>..\..\bin\Release\s4pi.Extensions.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -115,6 +115,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)CreateAssemblyVersion\$(OutDir)CreateAssemblyVersion" "$(ProjectDir)\"</PreBuildEvent>
+    <PreBuildEvent>"$(SolutionDir)s4pi\CreateAssemblyVersion\bin\Debug\CreateAssemblyVersion" "$(ProjectDir)\"</PreBuildEvent>
   </PropertyGroup>
 </Project>
