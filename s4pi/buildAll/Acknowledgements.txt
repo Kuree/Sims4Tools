@@ -1,0 +1,20 @@
+﻿Acknowledgements for the s3pi library.
+
+Code copyright for most of the code in the library is mine - Peter L Jones.
+Exceptions to this are indicated in the source.
+
+However, without the input from all the people who have contributed
+knowledege about file formats - the Package and all the resources
+contained in it - there would be no s3pi library.  There are two many people
+to name them all but my thanks goes out to everyone who works on adding
+to the wiki:
+http://www.simswiki.info/wiki.php?title=Tutorials:TS3_Advanced_Coding_Tutorials
+
+One name I have to mention specifically is Tiger, without whom the compression
+code would still run incredibly slowly (and have errors).  Thanks for the code!
+
+Atavera has written some additional wrappers, not currently included in the
+s3pi binary distribution:
+http://code.google.com/p/s3pi-wrappers/
+
+Finally, thanks to ParsimoniousKate, Wes Howe, Karybdis and EA Games.

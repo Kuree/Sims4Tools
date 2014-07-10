@@ -63,7 +63,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DDSPanel", "s4pi Extras\DDS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Filetable", "s4pi Extras\Filetable\Filetable.csproj", "{FEAA8674-9363-4BC7-B016-7BE984A2D185}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "build", "s4pi\build\build.csproj", "{193F39E4-BD0D-41A6-B358-52DA235D60A9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "buildAll", "s4pi\buildAll\buildAll.csproj", "{193F39E4-BD0D-41A6-B358-52DA235D60A9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserCAStPresetResource", "s4pi Wrappers\UserCAStPresetResource\UserCAStPresetResource.csproj", "{FFD7447B-FE8C-4FD6-9E5B-7B960DCB2A9C}"
 EndProject
