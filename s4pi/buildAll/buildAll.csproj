@@ -110,6 +110,10 @@
       <Project>{AD53972B-D73E-4935-A4AD-3EBE0E3516F2}</Project>
       <Name>ImageResource</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\s4pi Wrappers\StblResource\StblResource.csproj">
+      <Project>{672d72ec-89da-4ef3-88cc-beec5ba478b2}</Project>
+      <Name>StblResource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\TextResource\TextResource.csproj">
       <Project>{C55762F3-6EEF-4E65-8A9A-CC6022ACAB79}</Project>
       <Name>TextResource</Name>

@@ -7,8 +7,9 @@ namespace StblResource
 {
     /// <summary>
     /// A resource wrapper that understands String Table resources
+    /// Currently not compatible with TS3
     /// </summary>
-    public class StblResource : AResource, IDictionary<ulong, string>, System.Collections.IDictionary
+    public class StblResource : AResource, IDictionary<uint, string>, System.Collections.IDictionary
     {
         const int recommendedApiVersion = 1;
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
@@ -18,9 +19,9 @@ namespace StblResource
 
         #region Attributes
         ushort unknown1;
-        ushort unknown2;
-        uint unknown3;
-        Dictionary<ulong, string> entries;
+        byte[] unknown2;
+        uint size;
+        Dictionary<uint, string> entries;
         #endregion
 
         public StblResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
@@ -35,7 +36,7 @@ namespace StblResource
                     throw new InvalidDataException(String.Format("Expected magic tag 0x{0:X8}; read 0x{1:X8}; position 0x{2:X8}",
                         FOURCC("STBL"), magic, s.Position));
             byte version = r.ReadByte();
-            if (checking) if (version != 0x02)
+            if (checking) if (version != 0x05)
                     throw new InvalidDataException(String.Format("Expected version 0x02; read 0x{0:X2}; position 0x{1:X8}",
                         version, s.Position));
             
@@ -43,17 +44,25 @@ namespace StblResource
 
             uint count = r.ReadUInt32();
 
-            unknown2 = r.ReadUInt16();
-            unknown3 = r.ReadUInt32();
+            unknown2 = r.ReadBytes(6);
+            size = r.ReadUInt32();
 
-            entries = new Dictionary<ulong, string>(); 
+            uint sizeCount = 0;
+
+            entries = new Dictionary<uint, string>(); 
             for (int i = 0; i < count; i++)
             {
-                ulong key = r.ReadUInt64();
-                string value = System.Text.Encoding.Unicode.GetString(r.ReadBytes(r.ReadInt32() * 2));
+                //ulong key = r.ReadUInt64();
+                //string value = System.Text.Encoding.Unicode.GetString(r.ReadBytes(r.ReadInt32() * 2));
+                uint key = r.ReadUInt32();
+                r.ReadByte();
+                string value = System.Text.Encoding.UTF7.GetString(r.ReadBytes(r.ReadInt16()));
+                sizeCount += (uint)value.Length + 1;
                 if (entries.ContainsKey(key)) continue; // Patch 1.6 has problems in the STBLs (World Adventures sneaked into the DeltaBuild0 file)
                 entries.Add(key, value);
             }
+
+            if (sizeCount != size) { throw new InvalidCastException(String.Format("Expected size 0x{0}; read 0x{1}", size, sizeCount)); }
         }
 
         protected override Stream UnParse()
@@ -63,42 +72,43 @@ namespace StblResource
             BinaryWriter w = new BinaryWriter(ms);
 
             w.Write((uint)FOURCC("STBL"));
-            w.Write((byte)0x02);
+            w.Write((byte)0x05);
 
             w.Write(unknown1);
 
-            if (entries == null) entries = new Dictionary<ulong, string>();
+            if (entries == null) entries = new Dictionary<uint, string>();
             w.Write(entries.Count);
 
             w.Write(unknown2);
-            w.Write(unknown3);
+            w.Write(size);
 
             foreach (var kvp in entries)
             {
                 w.Write(kvp.Key);
-                w.Write(kvp.Value.Length);
-                w.Write(System.Text.Encoding.Unicode.GetBytes(kvp.Value));
+                //w.Write(kvp.Value.Length);
+                w.Write((byte)0);
+                w.Write(System.Text.Encoding.ASCII.GetBytes(kvp.Value));
             }
 
             return ms;
         }
         #endregion
 
-        #region IDictionary<ulong,string> Members
+        #region IDictionary<uint,string> Members
 
-        public void Add(ulong key, string value) { entries.Add(key, value); OnResourceChanged(this, EventArgs.Empty); }
+        public void Add(uint key, string value) { entries.Add(key, value); OnResourceChanged(this, EventArgs.Empty); }
 
-        public bool ContainsKey(ulong key) { return entries.ContainsKey(key); }
+        public bool ContainsKey(uint key) { return entries.ContainsKey(key); }
 
-        public ICollection<ulong> Keys { get { return entries.Keys; } }
+        public ICollection<uint> Keys { get { return entries.Keys; } }
 
-        public bool Remove(ulong key) { try { return entries.Remove(key); } finally { OnResourceChanged(this, EventArgs.Empty); } }
+        public bool Remove(uint key) { try { return entries.Remove(key); } finally { OnResourceChanged(this, EventArgs.Empty); } }
 
-        public bool TryGetValue(ulong key, out string value) { return entries.TryGetValue(key, out value); }
+        public bool TryGetValue(uint key, out string value) { return entries.TryGetValue(key, out value); }
 
         public ICollection<string> Values { get { return entries.Values; } }
 
-        public string this[ulong key]
+        public string this[uint key]
         {
             get { return entries[key]; }
             set { if (entries[key] != value) { entries[key] = value; OnResourceChanged(this, EventArgs.Empty); } }
@@ -106,27 +116,27 @@ namespace StblResource
 
         #endregion
 
-        #region ICollection<KeyValuePair<ulong,string>> Members
+        #region ICollection<KeyValuePair<uint,string>> Members
 
-        public void Add(KeyValuePair<ulong, string> item) { entries.Add(item.Key, item.Value); }
+        public void Add(KeyValuePair<uint, string> item) { entries.Add(item.Key, item.Value); }
 
         public void Clear() { entries.Clear(); OnResourceChanged(this, EventArgs.Empty); }
 
-        public bool Contains(KeyValuePair<ulong, string> item) { return entries.ContainsKey(item.Key) && entries[item.Key].Equals(item.Value); }
+        public bool Contains(KeyValuePair<uint, string> item) { return entries.ContainsKey(item.Key) && entries[item.Key].Equals(item.Value); }
 
-        public void CopyTo(KeyValuePair<ulong, string>[] array, int arrayIndex) { foreach (var kvp in entries) array[arrayIndex++] = kvp; }
+        public void CopyTo(KeyValuePair<uint, string>[] array, int arrayIndex) { foreach (var kvp in entries) array[arrayIndex++] = kvp; }
 
         public int Count { get { return entries.Count; } }
 
         public bool IsReadOnly { get { return false; } }
 
-        public bool Remove(KeyValuePair<ulong, string> item) { try { return Contains(item) ? entries.Remove(item.Key) : false; } finally { OnResourceChanged(this, EventArgs.Empty); } }
+        public bool Remove(KeyValuePair<uint, string> item) { try { return Contains(item) ? entries.Remove(item.Key) : false; } finally { OnResourceChanged(this, EventArgs.Empty); } }
 
         #endregion
 
-        #region IEnumerable<KeyValuePair<ulong,string>> Members
+        #region IEnumerable<KeyValuePair<uint,string>> Members
 
-        public IEnumerator<KeyValuePair<ulong, string>> GetEnumerator() { return entries.GetEnumerator(); }
+        public IEnumerator<KeyValuePair<uint, string>> GetEnumerator() { return entries.GetEnumerator(); }
 
         #endregion
 
@@ -138,9 +148,9 @@ namespace StblResource
 
         #region IDictionary Members
 
-        public void Add(object key, object value) { this.Add((ulong)key, (string)value); }
+        public void Add(object key, object value) { this.Add((uint)key, (string)value); }
 
-        public bool Contains(object key) { return ContainsKey((ulong)key); }
+        public bool Contains(object key) { return ContainsKey((uint)key); }
 
         System.Collections.IDictionaryEnumerator System.Collections.IDictionary.GetEnumerator() { return entries.GetEnumerator(); }
 
@@ -148,17 +158,17 @@ namespace StblResource
 
         System.Collections.ICollection System.Collections.IDictionary.Keys { get { return entries.Keys; } }
 
-        public void Remove(object key) { Remove((ulong)key); }
+        public void Remove(object key) { Remove((uint)key); }
 
         System.Collections.ICollection System.Collections.IDictionary.Values { get { return entries.Values; } }
 
-        public object this[object key] { get { return this[(ulong)key]; } set { this[(ulong)key] = (string)value; } }
+        public object this[object key] { get { return this[(uint)key]; } set { this[(uint)key] = (string)value; } }
 
         #endregion
 
         #region ICollection Members
 
-        public void CopyTo(Array array, int index) { CopyTo((KeyValuePair<ulong, string>[])array, index); }
+        public void CopyTo(Array array, int index) { CopyTo((KeyValuePair<uint, string>[])array, index); }
 
         public bool IsSynchronized { get { return false; } }
 
@@ -170,12 +180,12 @@ namespace StblResource
         /// Return the default dictionary entry for this <c>IDictionary{TKey, TValue}</c>.
         /// </summary>
         /// <returns>The default dictionary entry for this <c>IDictionary{TKey, TValue}</c>.</returns>
-        public static System.Collections.DictionaryEntry GetDefault() { return new System.Collections.DictionaryEntry((ulong)0, ""); }
+        public static System.Collections.DictionaryEntry GetDefault() { return new System.Collections.DictionaryEntry((uint)0, ""); }
 
         #region Content Fields
         public ushort Unknown1 { get { return unknown1; } set { if (unknown1 != value) { unknown1 = value; OnResourceChanged(this, EventArgs.Empty); } } }
-        public ushort Unknown2 { get { return unknown2; } set { if (unknown2 != value) { unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } } }
-        public uint Unknown3 { get { return unknown3; } set { if (unknown3 != value) { unknown3 = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public byte[] Unknown2 { get { return unknown2; } set { if (unknown2 != value) { unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public uint Size { get { return size; } set { if (size != value) { size = value; OnResourceChanged(this, EventArgs.Empty); } } }
 
         public String Value { get { return ValueBuilder; } }
         #endregion
