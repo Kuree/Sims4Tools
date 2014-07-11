@@ -69,7 +69,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserCAStPresetResource", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "s4pe", "s4pe\s4pe.csproj", "{0663C11D-1A90-476F-A04D-34D93464A1E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiscellaneousResource", "MiscellaneousResource\MiscellaneousResource.csproj", "{8CBB25F3-E1F1-472B-989D-B14B98577F9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiscellaneousResource", "s4pi Wrappers\MiscellaneousResource\MiscellaneousResource.csproj", "{8CBB25F3-E1F1-472B-989D-B14B98577F9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
