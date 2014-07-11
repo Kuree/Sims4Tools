@@ -218,6 +218,7 @@ namespace s4pi.GenericRCOLResource
         dtFloat = 1,
         dtInt = 2,
         dtTexture = 4,
+        dtImageMap = 0x00010004
     }
 
     public abstract class ShaderData : AHandlerElement, IEquatable<ShaderData>
@@ -261,22 +262,28 @@ namespace s4pi.GenericRCOLResource
                             case 3: return new ElementFloat3(APIversion, handler, field, s);
                             case 4: return new ElementFloat4(APIversion, handler, field, s);
                         }
-                        throw new InvalidDataException(String.Format("Invalid count #{0}' for DataType 0x{1:X8} at 0x{2:X8}", count, sdType, s.Position));
+                        throw new InvalidDataException(String.Format("Invalid count #{0}' for DataType 0x{1:X8} at 0x{2:X8}", count, (uint)sdType, s.Position));
                     case DataType.dtInt:
                         switch (count)
                         {
                             case 1: return new ElementInt(APIversion, handler, field, s);
                         }
-                        throw new InvalidDataException(String.Format("Invalid count #{0}' for DataType 0x{1:X8} at 0x{2:X8}", count, sdType, s.Position));
+                        throw new InvalidDataException(String.Format("Invalid count #{0}' for DataType 0x{1:X8} at 0x{2:X8}", count, (uint)sdType, s.Position));
                     case DataType.dtTexture:
                         switch (count)
                         {
                             case 4: return new ElementTextureRef(APIversion, handler, field, s, _ParentTGIBlocks, _RCOLTag);
                             case 5: return new ElementTextureKey(APIversion, handler, field, s);
                         }
-                        throw new InvalidDataException(String.Format("Invalid count #{0}' for DataType 0x{1:X8} at 0x{2:X8}", count, sdType, s.Position));
+                        throw new InvalidDataException(String.Format("Invalid count #{0}' for DataType 0x{1:X8} at 0x{2:X8}", count, (uint)sdType, s.Position));
+                    case DataType.dtImageMap:
+                        switch (count)
+                        {
+                            case 4: return new ElementImageMapKey(APIversion, handler, field, s);
+                        }
+                        throw new InvalidDataException(String.Format("Invalid count #{0}' for DataType 0x{1:X8} at 0x{2:X8}", count, (uint)sdType, s.Position));
                 }
-                throw new InvalidDataException(String.Format("Unknown DataType 0x{0:X8} at 0x{1:X8}", sdType, s.Position));
+                throw new InvalidDataException(String.Format("Unknown DataType 0x{1:X8} with count #{0} at 0x{2:X8}", count, (uint)sdType, s.Position));
                 #endregion
             }
             finally { s.Position = pos; }
@@ -598,6 +605,7 @@ namespace s4pi.GenericRCOLResource
         #region Attributes
         int index; //GEOM
         GenericRCOLResource.ChunkReference data; //!GEOM
+        TGIBlock key; //The Sims 4
         #endregion
 
         #region Constructors
@@ -605,13 +613,39 @@ namespace s4pi.GenericRCOLResource
             : base(APIversion, handler, field) { _ParentTGIBlocks = ParentTGIBlocks; _RCOLTag = RCOLTag; }
 
         public ElementTextureRef(int APIversion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
-            : this(APIversion, handler, (FieldType)0, ParentTGIBlocks, RCOLTag) { if (_RCOLTag == "GEOM") index = 0; else data = new GenericRCOLResource.ChunkReference(0, handler); }
+            : this(APIversion, handler, (FieldType)0, ParentTGIBlocks, RCOLTag) 
+        {
+            /*if (false) // TS3
+            {
+                if (_RCOLTag == "GEOM")
+                    index = 0;
+                else
+                    data = new GenericRCOLResource.ChunkReference(0, handler);
+            }
+            else /* TS4 */
+            {
+                key = new TGIBlock(0, handler, "ITG");
+            }
+        }
 
         public ElementTextureRef(int APIversion, EventHandler handler, FieldType field, Stream s, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
             : this(APIversion, handler, field, ParentTGIBlocks, RCOLTag) { Parse(s); }
 
         public ElementTextureRef(int APIversion, EventHandler handler, ElementTextureRef basis, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = null)
-            : this(APIversion, handler, basis.field, ParentTGIBlocks ?? basis._ParentTGIBlocks, RCOLTag ?? basis._RCOLTag) { if (_RCOLTag == "GEOM") index = basis.index; else data = new GenericRCOLResource.ChunkReference(0, handler, basis.data); }
+            : this(APIversion, handler, basis.field, ParentTGIBlocks ?? basis._ParentTGIBlocks, RCOLTag ?? basis._RCOLTag) 
+        {
+            /*if (false) // TS3
+            {
+                if (_RCOLTag == "GEOM")
+                    index = basis.index;
+                else
+                    data = new GenericRCOLResource.ChunkReference(0, handler, basis.data);
+            }
+            else /* TS4 */
+            {
+                key = new TGIBlock(0, handler, basis.key);
+            }
+        }
 
         public ElementTextureRef(int APIversion, EventHandler handler, FieldType field, Int32 index, DependentList<TGIBlock> ParentTGIBlocks)
             : this(APIversion, handler, field, ParentTGIBlocks, "GEOM") { this.index = index; }
@@ -622,19 +656,35 @@ namespace s4pi.GenericRCOLResource
         #region Data I/O
         void Parse(Stream s)
         {
-            if (_RCOLTag == "GEOM")
-                index = new BinaryReader(s).ReadInt32();
-            else
-                data = new GenericRCOLResource.ChunkReference(0, handler, s);
-            ReadZeros(s, 12);
+            /*if (false) // TS3
+            {
+                if (_RCOLTag == "GEOM")
+                    index = new BinaryReader(s).ReadInt32();
+                else
+                    data = new GenericRCOLResource.ChunkReference(0, handler, s);
+                ReadZeros(s, 12);
+            }
+            else /* TS4 */
+            {
+                key = new TGIBlock(requestedApiVersion, handler, "ITG", s);
+            }
         }
         protected override void UnParse(Stream s)
         {
-            if (_RCOLTag == "GEOM")
-                new BinaryWriter(s).Write(index);
-            else
-                data.UnParse(s);
-            WriteZeros(s, 12);
+            /*if (false) // TS3
+            {
+                if (_RCOLTag == "GEOM")
+                    new BinaryWriter(s).Write(index);
+                else
+                    data.UnParse(s);
+                WriteZeros(s, 12);
+            }
+            else /* TS4 */
+            {
+                if (key == null) 
+                    key = new TGIBlock(requestedApiVersion, handler, "ITG"); 
+                key.UnParse(s);
+            }
         }
         protected override DataType DataTypeFromType { get { return DataType.dtTexture; } }
         protected override int CountFromType { get { return 4; } }
@@ -645,8 +695,17 @@ namespace s4pi.GenericRCOLResource
             get
             {
                 List<string> res = base.ContentFields;
-                if (_RCOLTag == "GEOM") res.Remove("Data");
-                else res.Remove("Index");
+                /*if (false) // TS3
+                {
+                    if (_RCOLTag == "GEOM") res.Remove("Data");
+                    else res.Remove("Index");
+                    res.Remove("Key");
+                }
+                else /* TS4 */
+                {
+                    res.Remove("Data");
+                    res.Remove("Index");
+                }
                 return res;
             }
         }
@@ -662,17 +721,31 @@ namespace s4pi.GenericRCOLResource
             if (_RCOLTag != _other._RCOLTag)
                 return false;
 
-            if (_RCOLTag == "GEOM")
-                return index.Equals(_other.index);
-            else
-                return data.Equals(_other.data);
+            /*if (false) // TS3
+            {
+                if (_RCOLTag == "GEOM")
+                    return index.Equals(_other.index);
+                else
+                    return data.Equals(_other.data);
+            }
+            else /* TS4 */
+            {
+                return key.Equals(_other.key);
+            }
         }
         public override int GetHashCode()
         {
-            if (_RCOLTag == "GEOM")
-                return base.GetHashCode() ^ index.GetHashCode();
-            else
-                return base.GetHashCode() ^ data.GetHashCode();
+            /*if (false) // TS3
+            {
+                if (_RCOLTag == "GEOM")
+                    return base.GetHashCode() ^ index.GetHashCode();
+                else
+                    return base.GetHashCode() ^ data.GetHashCode();
+            }
+            else /* TS4 */
+            {
+                return base.GetHashCode() ^ key.GetHashCode();
+            }
         }
 
         #endregion
@@ -689,6 +762,12 @@ namespace s4pi.GenericRCOLResource
         {
             get { if (_RCOLTag != "GEOM") throw new InvalidOperationException("Use Data not Index except for GEOM"); return index; }
             set { if (_RCOLTag != "GEOM") throw new InvalidOperationException("Use Data not Index except for GEOM"); if (index != value) { index = value; OnElementChanged(); } }
+        }
+        [ElementPriority(11)]
+        public IResourceKey Key 
+        { 
+            get { return key; } 
+            set { if (!key.Equals(value)) { key = new TGIBlock(requestedApiVersion, handler, "ITG", value); OnElementChanged(); } } 
         }
         #endregion
     }
@@ -728,6 +807,43 @@ namespace s4pi.GenericRCOLResource
         public IResourceKey Data { get { return data; } set { if (!data.Equals(value)) { data = new TGIBlock(requestedApiVersion, handler, "ITG", value); OnElementChanged(); } } }
         #endregion
     }
+    public class ElementImageMapKey : ShaderData
+    {
+        const int recommendedApiVersion = 1;
+
+        #region Attributes
+        TGIBlock data;
+        #endregion
+
+        #region Constructors
+        public ElementImageMapKey(int APIversion, EventHandler handler, FieldType field, Stream s) : base(APIversion, handler, field) { Parse(s); }
+        public ElementImageMapKey(int APIversion, EventHandler handler) : this(APIversion, handler, (FieldType)0, (uint)0, (uint)0, (ulong)0) { }
+        public ElementImageMapKey(int APIversion, EventHandler handler, ElementImageMapKey basis) : this(APIversion, handler, basis.field, basis.data) { }
+        public ElementImageMapKey(int APIversion, EventHandler handler, FieldType field, IResourceKey data) : base(APIversion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", data); }
+        public ElementImageMapKey(int APIversion, EventHandler handler, FieldType field, uint resourceType, uint resourceGroup, ulong instance) : base(APIversion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", resourceType, resourceGroup, instance); }
+        #endregion
+
+        #region Data I/O
+        void Parse(Stream s) { data = new TGIBlock(requestedApiVersion, handler, "ITG", s); }
+
+        protected override void UnParse(Stream s) { if (data == null) data = new TGIBlock(requestedApiVersion, handler, "ITG"); data.UnParse(s); }
+        protected override DataType DataTypeFromType { get { return DataType.dtImageMap; } }
+        protected override int CountFromType { get { return 4; } }
+        #endregion
+
+        #region IEquatable<Entry> Members
+
+        public override bool Equals(ShaderData other) { return base.Equals(other) && this.data == ((ElementImageMapKey)other).data; }
+        public override int GetHashCode() { return base.GetHashCode() ^ data.GetHashCode(); }
+
+        #endregion
+
+        #region Content Fields
+        [ElementPriority(11)]
+        public IResourceKey Data { get { return data; } set { if (!data.Equals(value)) { data = new TGIBlock(requestedApiVersion, handler, "ITG", value); OnElementChanged(); } } }
+        #endregion
+    }
+
 
     public class ShaderDataList : DependentList<ShaderData>
     {
