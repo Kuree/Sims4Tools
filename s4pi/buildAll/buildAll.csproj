@@ -78,6 +78,10 @@
       <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
       <Name>CS System Classes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\MiscellaneousResource\MiscellaneousResource.csproj">
+      <Project>{8cbb25f3-e1f1-472b-989d-b14b98577f9c}</Project>
+      <Name>MiscellaneousResource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Extras\DDSPanel\DDSPanel.csproj">
       <Project>{901D5F73-7DAC-49C3-9A5F-33EEA1E97F22}</Project>
       <Name>DDSPanel</Name>

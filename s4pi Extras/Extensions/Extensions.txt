@@ -154,6 +154,8 @@
 0xB1CC1AF6  _VID   .video
 0xB4DD716B  _INV   .inventory
 0xB52F5055  FBLN   .blendunit
+0xBDD82221  AUEV   .auev
+0xC202C770  _XML   .xml
 0xC582D2FB  _XML   .xml
 0xCD9DE247  THUM   .png
 0xCF9A4ACE  MDLR   .modular

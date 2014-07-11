@@ -19,6 +19,7 @@
 0x99D98089 Button UI event mapping
 0xA576C2E7 ? Sound?
 0xA8D58BE5 XML without encoding bytes -- <skills_store/>
+0xC202C770 Music data file
 0xC582D2FB ?
 0xD4D9FBE5 XML without encoding bytes -- <patternlist/>
 0xDD3223A7 XML without encoding bytes -- <buff_store/>
