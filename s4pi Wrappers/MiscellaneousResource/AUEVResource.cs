@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace MiscellaneousResource
+namespace s3pi.Miscellaneous
 {
     /// <summary>
     /// A resource wrapper that understands String Table resources
