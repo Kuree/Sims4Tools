@@ -128,6 +128,7 @@
 0x626F60CC  THUM   .png
 0x626F60CD  THUM   .png
 0x626F60CE  THUM   .png
+0x62ECC59A  _GFX   .gfx
 0x63A33EA7  ANIM   .animimg
 0x67771F5C  JSON   .json
 0x6B20C4F3  CLIP   .animation
@@ -182,3 +183,4 @@
 0xF609FD60  WPID   .wpackid
 0xFCEAB65B  THUM   .png
 *           UNKN   .bnry
+

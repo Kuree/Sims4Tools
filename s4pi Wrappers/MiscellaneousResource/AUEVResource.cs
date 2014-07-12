@@ -5,11 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace s3pi.Miscellaneous
+namespace s4pi.Miscellaneous
 {
     /// <summary>
-    /// A resource wrapper that understands String Table resources
-    /// Currently not compatible with TS3
+    /// A resource wrapper that understands AUEV resources
     /// </summary>
     public class AUEVResource : AResource
     {
