@@ -17,7 +17,7 @@ namespace meshExpImp.ModelBlocks
 
         #region Attributes
         uint tag = (uint)FOURCC("GEOM");
-        uint version = 0x00000005;
+        uint version = 0x0000000C;
         ShaderType shader;
         MTNF mtnf = null;
         uint mergeGroup;
@@ -26,6 +26,7 @@ namespace meshExpImp.ModelBlocks
         VertexDataList vertexData;
         FaceList faces;
         int skinIndex;
+        UnknownThingList unknownThings;
         UIntList boneHashes;
 
         TGIBlockList tgiBlockList;
@@ -38,12 +39,13 @@ namespace meshExpImp.ModelBlocks
             : this(APIversion, handler,
             basis.version, basis.shader, basis.mtnf, basis.mergeGroup, basis.sortOrder,
             basis.vertexFormats, basis.vertexData,
-            basis.faces, basis.skinIndex, basis.boneHashes,
+            basis.faces, basis.skinIndex, basis.unknownThings, basis.boneHashes,
             basis.tgiBlockList) { }
         public GEOM(int APIversion, EventHandler handler,
             uint version, ShaderType shader, MTNF mtnf, uint mergeGroup, uint sortOrder,
             IEnumerable<VertexFormat> vertexFormats, IEnumerable<VertexDataElement> vertexData,
-            IEnumerable<Face> facePoints, int skinIndex, IEnumerable<uint> boneHashes,
+            IEnumerable<Face> facePoints, int skinIndex, 
+            UnknownThingList unknownThings, IEnumerable<uint> boneHashes,
             IEnumerable<TGIBlock> tgiBlockList)
             : base(APIversion, handler, null)
         {
@@ -54,10 +56,11 @@ namespace meshExpImp.ModelBlocks
             this.mtnf = shader == 0 ? null : new MTNF(requestedApiVersion, handler, mtnf) { RCOLTag = "GEOM", };
             this.mergeGroup = mergeGroup;
             this.sortOrder = sortOrder;
-            this.vertexFormats = vertexFormats == null ? null : new VertexFormatList(handler, vertexFormats);
-            this.vertexData = vertexData == null ? null : new VertexDataList(handler, vertexData, this.vertexFormats);
+            this.vertexFormats = vertexFormats == null ? null : new VertexFormatList(handler, version, vertexFormats);
+            this.vertexData = vertexData == null ? null : new VertexDataList(handler, version, vertexData, this.vertexFormats);
             this.faces = facePoints == null ? null : new FaceList(handler, facePoints);
             this.skinIndex = skinIndex;
+            this.unknownThings = unknownThings;
             this.boneHashes = boneHashes == null ? null : new UIntList(handler, boneHashes);
             this.tgiBlockList = tgiBlockList == null ? null : new TGIBlockList(handler, tgiBlockList);
 
@@ -93,8 +96,8 @@ namespace meshExpImp.ModelBlocks
             if (checking) if (tag != (uint)FOURCC("GEOM"))
                     throw new InvalidDataException(String.Format("Invalid Tag read: '{0}'; expected: 'GEOM'; at 0x{1:X8}", FOURCC(tag), s.Position));
             version = r.ReadUInt32();
-            if (checking) if (version != 0x00000005)
-                    throw new InvalidDataException(String.Format("Invalid Version read: '{0}'; expected: '0x00000005'; at 0x{1:X8}", version, s.Position));
+            if (checking) if (version != 0x00000005 && version != 0x0000000C)
+                    throw new InvalidDataException(String.Format("Invalid Version read: '{0}'; expected: '0x00000005' or '0x0000000C'; at 0x{1:X8}", version, s.Position));
 
             long tgiPosn = r.ReadUInt32() + s.Position;
             long tgiSize = r.ReadUInt32();
@@ -115,8 +118,8 @@ namespace meshExpImp.ModelBlocks
             sortOrder = r.ReadUInt32();
 
             int numVertices = r.ReadInt32();//now write that down...
-            vertexFormats = new VertexFormatList(handler, s);
-            vertexData = new VertexDataList(handler, s, numVertices, vertexFormats);//...as you'll be needing it
+            vertexFormats = new VertexFormatList(handler, version, s);
+            vertexData = new VertexDataList(handler, version, s, numVertices, vertexFormats);//...as you'll be needing it
 
             int numFacePointSizes = r.ReadInt32();
             if (checking) if (numFacePointSizes != 1)
@@ -128,6 +131,10 @@ namespace meshExpImp.ModelBlocks
 
             faces = new FaceList(handler, s);
             skinIndex = r.ReadInt32();
+            if (version == 0x0000000C)
+            {
+                unknownThings = new UnknownThingList(handler, s);
+            }
             boneHashes = new UIntList(handler, s);
 
             tgiBlockList = new TGIBlockList(OnRCOLChanged, s, tgiPosn, tgiSize);
@@ -161,15 +168,20 @@ namespace meshExpImp.ModelBlocks
 
             if (vertexData == null) w.Write(0);
             else w.Write(vertexData.Count);
-            if (vertexFormats == null) vertexFormats = new VertexFormatList(handler);
+            if (vertexFormats == null) vertexFormats = new VertexFormatList(handler, version);
             vertexFormats.UnParse(ms);
-            if (vertexData == null) vertexData = new VertexDataList(handler, vertexFormats);
+            if (vertexData == null) vertexData = new VertexDataList(handler, version, vertexFormats);
             vertexData.UnParse(ms);
             w.Write((int)1);
             w.Write((byte)2);
             if (faces == null) faces = new FaceList(handler);
             faces.UnParse(ms);
             w.Write(skinIndex);
+            if (version == 0x0000000C)
+            {
+                if (unknownThings == null) unknownThings = new UnknownThingList(handler);
+                unknownThings.UnParse(ms);
+            }
             if (boneHashes == null) boneHashes = new UIntList(handler);
             boneHashes.UnParse(ms);
 
@@ -202,7 +214,7 @@ namespace meshExpImp.ModelBlocks
             Color = 0x07,
             VertexID = 0x0A,
         }
-        static uint[] expectedDataType = new uint[] {
+        static uint[] expectedDataType05 = new uint[] {
             /*Unknown*/ 0,
             /*Position*/ 1,
             /*Normal*/ 1,
@@ -216,7 +228,7 @@ namespace meshExpImp.ModelBlocks
             /*VertexID*/ 4,
             /**/
         };
-        static byte[] expectedElementSize = new byte[] {
+        static byte[] expectedElementSize05 = new byte[] {
             /*Unknown*/ 0,
             /*Position*/ 12,
             /*Normal*/ 12,
@@ -230,24 +242,73 @@ namespace meshExpImp.ModelBlocks
             /*VertexID*/ 4,
             /**/
         };
+        static uint[] expectedDataType0C = new uint[] {
+            /*Unknown*/ 0,
+            /*Position*/ 1,
+            /*Normal*/ 1,
+            /*UV*/ 1,
+            /*BoneAssignment*/ 2,
+            /*Unknown*/ 2, 
+            /*TangentNormal*/ 1,
+            /*Color*/ 3,
+            /*Unknown*/ 0,
+            /*Unknown*/ 0,
+            /*VertexID*/ 4,
+            /**/
+        };
+        static byte[] expectedElementSize0C = new byte[] {
+            /*Unknown*/ 0,
+            /*Position*/ 12,
+            /*Normal*/ 12,
+            /*UV*/ 8,
+            /*BoneAssignment*/ 4,
+            /*Unknown*/ 4, 
+            /*TangentNormal*/ 12,
+            /*Color*/ 4,
+            /*Unknown*/ 0,
+            /*Unknown*/ 0,
+            /*VertexID*/ 4,
+            /**/
+        };
         public class VertexFormat : AHandlerElement, IEquatable<VertexFormat>
         {
             const int recommendedApiVersion = 1;
 
+            uint version;
             UsageType usage;
 
-            public VertexFormat(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public VertexFormat(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public VertexFormat(int APIversion, EventHandler handler, uint version) : base(APIversion, handler) { this.version = version; }
+            public VertexFormat(int APIversion, EventHandler handler, uint version, Stream s) : base(APIversion, handler) { this.version = version; Parse(s); }
             public VertexFormat(int APIversion, EventHandler handler, VertexFormat basis)
-                : this(APIversion, handler, basis.usage) { }
-            public VertexFormat(int APIversion, EventHandler handler, UsageType usage)
+                : this(APIversion, handler, basis.version, basis.usage) { }
+            public VertexFormat(int APIversion, EventHandler handler, uint version, UsageType usage)
                 : base(APIversion, handler)
             {
+                this.version = version;
                 this.usage = usage;
             }
 
             private void Parse(Stream s)
             {
+                uint[] expectedDataType;
+                byte[] expectedElementSize;
+
+                switch (version)
+                {
+                    case 0x00000005:
+                        expectedDataType = expectedDataType0C;
+                        expectedElementSize = expectedElementSize0C;
+                        break;
+                    case 0x0000000C:
+                        expectedDataType = expectedDataType0C;
+                        expectedElementSize = expectedElementSize0C;
+                        break;
+                    default:
+                        expectedDataType = null;
+                        expectedElementSize = null;
+                        break;
+                }
+
                 BinaryReader r = new BinaryReader(s);
                 usage = (UsageType)r.ReadUInt32();
                 if (checking) if (usage == 0 || (uint)usage >= expectedDataType.Length)
@@ -264,6 +325,25 @@ namespace meshExpImp.ModelBlocks
 
             internal void UnParse(Stream s)
             {
+                uint[] expectedDataType;
+                byte[] expectedElementSize;
+
+                switch (version)
+                {
+                    case 0x00000005:
+                        expectedDataType = expectedDataType0C;
+                        expectedElementSize = expectedElementSize0C;
+                        break;
+                    case 0x0000000C:
+                        expectedDataType = expectedDataType0C;
+                        expectedElementSize = expectedElementSize0C;
+                        break;
+                    default:
+                        expectedDataType = null;
+                        expectedElementSize = null;
+                        break;
+                }
+
                 BinaryWriter w = new BinaryWriter(s);
                 w.Write((uint)usage);
                 w.Write(expectedDataType[(uint)usage]);
@@ -294,13 +374,23 @@ namespace meshExpImp.ModelBlocks
         }
         public class VertexFormatList : DependentList<VertexFormat>
         {
+            uint version;
+
             #region Constructors
-            public VertexFormatList(EventHandler handler) : base(handler) { }
-            public VertexFormatList(EventHandler handler, Stream s) : base(handler, s) { }
-            public VertexFormatList(EventHandler handler, IEnumerable<VertexFormat> le) : base(handler, le) { }
+            public VertexFormatList(EventHandler handler, uint version) : base(handler) { this.version = version; }
+            public VertexFormatList(EventHandler handler, uint version, Stream s) : base(null) { this.version = version; elementHandler = handler; Parse(s); this.handler = handler; }
+            public VertexFormatList(EventHandler handler, uint version, IEnumerable<VertexFormat> le) 
+                : base(null) 
+            {
+                elementHandler = handler; 
+                this.version = version; 
+                foreach (VertexFormat ve in le) 
+                    this.Add(new VertexFormat(0, elementHandler, version, ve.Usage)); 
+                this.handler = handler; 
+            }
             #endregion
 
-            protected override VertexFormat CreateElement(Stream s) { return new VertexFormat(0, elementHandler, s); }
+            protected override VertexFormat CreateElement(Stream s) { return new VertexFormat(0, elementHandler, this.version, s); }
             protected override void WriteElement(Stream s, VertexFormat element) { element.UnParse(s); }
 
             //public override void Add() { this.Add(new VertexFormat(0, elementHandler)); }
@@ -432,6 +522,32 @@ namespace meshExpImp.ModelBlocks
             [ElementPriority(4)]
             public float W4 { get { return w4; } set { if (!w4.Equals(value)) { w4 = value; OnElementChanged(); } } }
         }
+        public class WeightBytesElement : VertexElement
+        {
+            protected byte w1, w2, w3, w4;
+
+            public WeightBytesElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public WeightBytesElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
+            public WeightBytesElement(int APIversion, EventHandler handler, WeightBytesElement basis) : this(APIversion, handler, basis.w1, basis.w2, basis.w3, basis.w4) { }
+            public WeightBytesElement(int APIversion, EventHandler handler, byte w1, byte w2, byte w3, byte w4) : base(APIversion, handler) { this.w1 = w1; this.w2 = w2; this.w3 = w3; this.w4 = w4; }
+
+            protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); w1 = r.ReadByte(); w2 = r.ReadByte(); w3 = r.ReadByte(); w4 = r.ReadByte(); }
+            internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(w1); w.Write(w2); w.Write(w3); w.Write(w4); }
+
+            // public override AHandlerElement Clone(EventHandler handler) { return new WeightBytesElement(requestedApiVersion, handler, this); }
+            public override bool Equals(VertexElement other) { WeightBytesElement o = other as WeightBytesElement; return o != null && w1.Equals(o.w1) && w2.Equals(o.w2) && w3.Equals(o.w3) && w3.Equals(o.w4); }
+            public override bool Equals(object obj) { return obj is WeightBytesElement && this.Equals(obj as WeightBytesElement); }
+            public override int GetHashCode() { return w1.GetHashCode() ^ w2.GetHashCode() ^ w3.GetHashCode() ^ w4.GetHashCode(); }
+
+            [ElementPriority(1)]
+            public byte W1 { get { return w1; } set { if (!w1.Equals(value)) { w1 = value; OnElementChanged(); } } }
+            [ElementPriority(2)]
+            public byte W2 { get { return w2; } set { if (!w2.Equals(value)) { w2 = value; OnElementChanged(); } } }
+            [ElementPriority(3)]
+            public byte W3 { get { return w3; } set { if (!w3.Equals(value)) { w3 = value; OnElementChanged(); } } }
+            [ElementPriority(4)]
+            public byte W4 { get { return w4; } set { if (!w4.Equals(value)) { w4 = value; OnElementChanged(); } } }
+        }
         public class TangentNormalElement : PositionElement
         {
             public TangentNormalElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
@@ -446,20 +562,22 @@ namespace meshExpImp.ModelBlocks
         }
         public class ColorElement : VertexElement
         {
-            uint argb;
+            int argb;
 
             public ColorElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
             public ColorElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
             public ColorElement(int APIversion, EventHandler handler, ColorElement basis) : this(APIversion, handler, basis.argb) { }
-            public ColorElement(int APIversion, EventHandler handler, uint argb) : base(APIversion, handler) { this.argb = argb; }
+            public ColorElement(int APIversion, EventHandler handler, int argb) : base(APIversion, handler) { this.argb = argb; }
 
-            protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); argb = r.ReadUInt32(); }
+            protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); argb = r.ReadInt32(); }
             internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(argb); }
 
             // public override AHandlerElement Clone(EventHandler handler) { return new ColorElement(requestedApiVersion, handler, this); }
             public override bool Equals(VertexElement other) { ColorElement o = other as ColorElement; return o != null && argb.Equals(o.argb); }
             public override bool Equals(object obj) { return obj is PositionElement && this.Equals(obj as PositionElement); }
             public override int GetHashCode() { return argb.GetHashCode(); }
+
+            public override string Value { get { return Color.FromArgb(argb).ToString(); } }
         }
         public class VertexIDElement : BoneAssignmentElement
         {
@@ -475,13 +593,16 @@ namespace meshExpImp.ModelBlocks
         }
         public class ElementList : DependentList<VertexElement>
         {
+            private uint version;
+
             public DependentList<VertexFormat> ParentVertexFormats { get; private set; }
 
             #region Constructors
-            public ElementList(EventHandler handler) : base(handler) { }
-            public ElementList(EventHandler handler, Stream s, DependentList<VertexFormat> parentVertexFormats)
+            public ElementList(EventHandler handler, uint version) : base(handler) { }
+            public ElementList(EventHandler handler, uint version, Stream s, DependentList<VertexFormat> parentVertexFormats)
                 : base(null)
             {
+                this.version = version;
                 this.ParentVertexFormats = parentVertexFormats;
                 elementHandler = handler;
                 foreach (var fmt in parentVertexFormats)
@@ -492,7 +613,13 @@ namespace meshExpImp.ModelBlocks
                         case UsageType.Normal: this.Add(new NormalElement(0, handler, s)); break;
                         case UsageType.UV: this.Add(new UVElement(0, handler, s)); break;
                         case UsageType.BoneAssignment: this.Add(new BoneAssignmentElement(0, handler, s)); break;
-                        case UsageType.Weights: this.Add(new WeightsElement(0, handler, s)); break;
+                        case UsageType.Weights:
+                            switch (this.version)
+                            {
+                                case 0x00000005: this.Add(new WeightsElement(0, handler, s)); break;
+                                case 0x0000000C: this.Add(new WeightBytesElement(0, handler, s)); break;
+                            }
+                            break;
                         case UsageType.TangentNormal: this.Add(new TangentNormalElement(0, handler, s)); break;
                         case UsageType.Color: this.Add(new ColorElement(0, handler, s)); break;
                         case UsageType.VertexID: this.Add(new VertexIDElement(0, handler, s)); break;
@@ -500,9 +627,10 @@ namespace meshExpImp.ModelBlocks
                 }
                 this.handler = handler;
             }
-            public ElementList(EventHandler handler, IEnumerable<VertexElement> ilt, DependentList<VertexFormat> parentVertexFormats)
+            public ElementList(EventHandler handler, uint version, IEnumerable<VertexElement> ilt, DependentList<VertexFormat> parentVertexFormats)
                 : base(null)
             {
+                this.version = version;
                 this.ParentVertexFormats = parentVertexFormats;
                 elementHandler = handler;
                 foreach (var fmt in parentVertexFormats)
@@ -513,7 +641,13 @@ namespace meshExpImp.ModelBlocks
                         case UsageType.Normal: this.Add(ilt.FirstOrDefault(t => t is NormalElement) ?? new NormalElement(0, handler)); break;
                         case UsageType.UV: this.Add(ilt.FirstOrDefault(t => t is UVElement) ?? new UVElement(0, handler)); break;
                         case UsageType.BoneAssignment: this.Add(ilt.FirstOrDefault(t => t is BoneAssignmentElement) ?? new BoneAssignmentElement(0, handler)); break;
-                        case UsageType.Weights: this.Add(ilt.FirstOrDefault(t => t is WeightsElement) ?? new WeightsElement(0, handler)); break;
+                        case UsageType.Weights:
+                            switch (this.version)
+                            {
+                                case 0x00000005: this.Add(ilt.FirstOrDefault(t => t is WeightsElement) ?? new WeightsElement(0, handler)); break;
+                                case 0x0000000C: this.Add(ilt.FirstOrDefault(t => t is WeightBytesElement) ?? new WeightBytesElement(0, handler)); break;
+                            }
+                            break;
                         case UsageType.TangentNormal: this.Add(ilt.FirstOrDefault(t => t is TangentNormalElement) ?? new TangentNormalElement(0, handler)); break;
                         case UsageType.Color: this.Add(ilt.FirstOrDefault(t => t is ColorElement) ?? new ColorElement(0, handler)); break;
                         case UsageType.VertexID: this.Add(ilt.FirstOrDefault(t => t is VertexIDElement) ?? new VertexIDElement(0, handler)); break;
@@ -536,7 +670,13 @@ namespace meshExpImp.ModelBlocks
                         case UsageType.Normal: vtx = this.Find(e => e is NormalElement); break;
                         case UsageType.UV: vtx = this.Find(e => e is UVElement); break;
                         case UsageType.BoneAssignment: vtx = this.Find(e => e is BoneAssignmentElement); break;
-                        case UsageType.Weights: vtx = this.Find(e => e is WeightsElement); break;
+                        case UsageType.Weights:
+                            switch (this.version)
+                            {
+                                case 0x00000005: vtx = this.Find(e => e is WeightsElement); break;
+                                case 0x0000000C: vtx = this.Find(e => e is WeightBytesElement); break;
+                            }
+                            break;
                         case UsageType.TangentNormal: vtx = this.Find(e => e is TangentNormalElement); break;
                         case UsageType.Color: vtx = this.Find(e => e is ColorElement); break;
                         case UsageType.VertexID: vtx = this.Find(e => e is VertexIDElement); break;
@@ -563,7 +703,13 @@ namespace meshExpImp.ModelBlocks
                         case UsageType.Normal: return this.Find(x => x is NormalElement);
                         case UsageType.UV: return this.Find(x => x is UVElement);
                         case UsageType.BoneAssignment: return this.Find(x => x is BoneAssignmentElement);
-                        case UsageType.Weights: return this.Find(x => x is WeightsElement);
+                        case UsageType.Weights:
+                            switch (this.version)
+                            {
+                                case 0x00000005: return this.Find(x => x is WeightsElement);
+                                case 0x0000000C: return this.Find(x => x is WeightBytesElement);
+                            }
+                            break;
                         case UsageType.TangentNormal: return this.Find(x => x is TangentNormalElement);
                         case UsageType.Color: return this.Find(x => x is ColorElement);
                         case UsageType.VertexID: return this.Find(x => x is VertexIDElement);
@@ -587,21 +733,24 @@ namespace meshExpImp.ModelBlocks
         {
             const int recommendedApiVersion = 1;
 
-            ElementList elementList;
+            private uint version;
+            private ElementList elementList;
+
             public DependentList<VertexFormat> ParentVertexFormats { get; set; }
             public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); res.Remove("ParentVertexFormats"); return res; } }
 
-            public VertexDataElement(int APIversion, EventHandler handler, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.ParentVertexFormats = parentVertexFormats; }
-            public VertexDataElement(int APIversion, EventHandler handler, Stream s, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.ParentVertexFormats = parentVertexFormats; Parse(s); }
-            public VertexDataElement(int APIversion, EventHandler handler, VertexDataElement basis) : this(APIversion, handler, basis.elementList, basis.ParentVertexFormats) { }
-            public VertexDataElement(int APIversion, EventHandler handler, DependentList<VertexElement> elementList, DependentList<VertexFormat> parentVertexFormats)
+            public VertexDataElement(int APIversion, EventHandler handler, uint version, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.version = version;  this.ParentVertexFormats = parentVertexFormats; }
+            public VertexDataElement(int APIversion, EventHandler handler, uint version, Stream s, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.version = version;  this.ParentVertexFormats = parentVertexFormats; Parse(s); }
+            public VertexDataElement(int APIversion, EventHandler handler, uint version, VertexDataElement basis) : this(APIversion, handler, basis.version, basis.elementList, basis.ParentVertexFormats) { }
+            public VertexDataElement(int APIversion, EventHandler handler, uint version, DependentList<VertexElement> elementList, DependentList<VertexFormat> parentVertexFormats)
                 : base(APIversion, handler)
             {
+                this.version = version;
                 this.ParentVertexFormats = parentVertexFormats;//reference!
-                this.elementList = new ElementList(handler, elementList, ParentVertexFormats);
+                this.elementList = new ElementList(handler, version, elementList, ParentVertexFormats);
             }
 
-            private void Parse(Stream s) { elementList = new ElementList(handler, s, ParentVertexFormats); }
+            private void Parse(Stream s) { elementList = new ElementList(handler, version, s, ParentVertexFormats); }
             internal void UnParse(Stream s) { elementList.UnParse(s); }
 
             #region AHandlerElement
@@ -616,7 +765,7 @@ namespace meshExpImp.ModelBlocks
             public ElementList Vertex
             {
                 get { return elementList; }
-                set { if (!elementList.Equals(value)) { elementList = new ElementList(handler, value, ParentVertexFormats); OnElementChanged(); } }
+                set { if (!elementList.Equals(value)) { elementList = new ElementList(handler, version, value, ParentVertexFormats); OnElementChanged(); } }
             }
 
             public string Value
@@ -636,14 +785,16 @@ namespace meshExpImp.ModelBlocks
         public class VertexDataList : DependentList<VertexDataElement>
         {
             int origCount;
+            uint version;
             DependentList<VertexFormat> parentVertexFormats;
 
             #region Constructors
-            public VertexDataList(EventHandler handler, DependentList<VertexFormat> parentVertexFormats) : base(handler) { this.parentVertexFormats = parentVertexFormats; }
-            public VertexDataList(EventHandler handler, Stream s, int origCount, DependentList<VertexFormat> parentVertexFormats) : base(null) { this.origCount = origCount; this.parentVertexFormats = parentVertexFormats; elementHandler = handler; Parse(s); this.handler = handler; }
-            public VertexDataList(EventHandler handler, IEnumerable<VertexDataElement> ilt, DependentList<VertexFormat> parentVertexFormats)
+            public VertexDataList(EventHandler handler, uint version, DependentList<VertexFormat> parentVertexFormats) : base(handler) { this.version = version; this.parentVertexFormats = parentVertexFormats; }
+            public VertexDataList(EventHandler handler, uint version, Stream s, int origCount, DependentList<VertexFormat> parentVertexFormats) : base(null) { this.origCount = origCount; this.version = version; this.parentVertexFormats = parentVertexFormats; elementHandler = handler; Parse(s); this.handler = handler; }
+            public VertexDataList(EventHandler handler, uint version, IEnumerable<VertexDataElement> ilt, DependentList<VertexFormat> parentVertexFormats)
                 : base(null)
             {
+                this.version = version;
                 this.parentVertexFormats = parentVertexFormats;
                 elementHandler = handler;
                 foreach (var t in ilt)
@@ -653,12 +804,12 @@ namespace meshExpImp.ModelBlocks
             #endregion
 
             protected override int ReadCount(Stream s) { return origCount; }
-            protected override VertexDataElement CreateElement(Stream s) { return new VertexDataElement(0, elementHandler, s, parentVertexFormats); }
+            protected override VertexDataElement CreateElement(Stream s) { return new VertexDataElement(0, elementHandler, version, s, parentVertexFormats); }
 
             protected override void WriteCount(Stream s, int count) { }
             protected override void WriteElement(Stream s, VertexDataElement element) { element.UnParse(s); }
 
-            public override void Add() { this.Add(new VertexDataElement(0, elementHandler, parentVertexFormats)); }
+            public override void Add() { this.Add(new VertexDataElement(0, elementHandler, version, parentVertexFormats)); }
             public override void Add(VertexDataElement item) { item.ParentVertexFormats = parentVertexFormats; base.Add(item); }
         }
         #endregion
@@ -706,7 +857,7 @@ namespace meshExpImp.ModelBlocks
             public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
             #endregion
 
-            #region IEquatable<VertexFormat>
+            #region IEquatable<Face>
             public bool Equals(Face other)
             {
                 return this.vertexDataIndex0.Equals(other.vertexDataIndex0)
@@ -743,6 +894,94 @@ namespace meshExpImp.ModelBlocks
 
             //public override void Add() { this.Add(new Face(0, elementHandler)); }
         }
+        public class UnknownThing : AHandlerElement, IEquatable<UnknownThing>
+        {
+            const int recommendedApiVersion = 1;
+
+            #region Attributes
+            uint unknown1;
+            ushort unknown2;
+            ushort unknown3;
+            ushort unknown4;
+            DataBlobHandler unknown5;// 53 bytes
+            #endregion
+
+            public UnknownThing(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public UnknownThing(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public UnknownThing(int APIversion, EventHandler handler, UnknownThing basis)
+                : base(APIversion, handler)
+            {
+                this.unknown1 = basis.unknown1;
+                this.unknown2 = basis.unknown2;
+                this.unknown3 = basis.unknown3;
+                this.unknown4 = basis.unknown4;
+                this.unknown5 = new DataBlobHandler(APIversion, handler, basis.unknown5);
+            }
+
+            private void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                unknown1 = r.ReadUInt32();
+                unknown2 = r.ReadUInt16();
+                unknown3 = r.ReadUInt16();
+                unknown4 = r.ReadUInt16();
+                unknown5 = new DataBlobHandler(requestedApiVersion, handler, 53, s);
+            }
+            internal void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write(unknown1);
+                w.Write(unknown2);
+                w.Write(unknown3);
+                w.Write(unknown4);
+                if (unknown5 == null) unknown5 = new DataBlobHandler(0, null, 53);
+                unknown5.UnParse(s);
+            }
+
+            #region AHandlerElement
+            // public override UnknownThing Clone(EventHandler handler) { return new UnknownThing(requestedApiVersion, handler, this); }
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            #region IEquatable<UnknownThing>
+            public bool Equals(UnknownThing other)
+            {
+                return this.unknown1.Equals(other.unknown1)
+                    && this.unknown2.Equals(other.unknown2)
+                    && this.unknown3.Equals(other.unknown3)
+                    && this.unknown4.Equals(other.unknown4)
+                    && this.unknown5.Equals(other.unknown5);
+            }
+
+            public override bool Equals(object obj) { return obj is UnknownThing && Equals(obj as UnknownThing); }
+
+            public override int GetHashCode() { return unknown1.GetHashCode() ^ unknown2.GetHashCode() ^ unknown3.GetHashCode() ^ unknown4.GetHashCode() ^ unknown5.GetHashCode(); }
+            #endregion
+            [ElementPriority(1)]
+            public uint Unknown1 { get { return unknown1; } set { if (unknown1 != value) { unknown1 = value; OnElementChanged(); } } }
+            [ElementPriority(2)]
+            public ushort Unknown2 { get { return unknown2; } set { if (unknown2 != value) { unknown2 = value; OnElementChanged(); } } }
+            [ElementPriority(3)]
+            public ushort Unknown3 { get { return unknown3; } set { if (unknown3 != value) { unknown3 = value; OnElementChanged(); } } }
+            [ElementPriority(4)]
+            public ushort Unknown4 { get { return unknown4; } set { if (unknown4 != value) { unknown4 = value; OnElementChanged(); } } }
+            [ElementPriority(5)]
+            public DataBlobHandler Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) { unknown5 = new DataBlobHandler(requestedApiVersion, handler, value); OnElementChanged(); } } }
+
+            public string Value { get { return ValueBuilder; } }
+        }
+        public class UnknownThingList : DependentList<UnknownThing>
+        {
+            #region Constructors
+            public UnknownThingList(EventHandler handler) : base(handler) { }
+            public UnknownThingList(EventHandler handler, Stream s) : base(handler, s) {}
+            public UnknownThingList(EventHandler handler, IEnumerable<UnknownThing> le) : base(handler, le) { }
+            #endregion
+
+            protected override UnknownThing CreateElement(Stream s) { return new UnknownThing(0, elementHandler, s); }
+            protected override void WriteElement(Stream s, UnknownThing element) { element.UnParse(s); }
+        }
         #endregion
 
         #region Content Fields
@@ -772,13 +1011,13 @@ namespace meshExpImp.ModelBlocks
         public VertexFormatList VertexFormats
         {
             get { return vertexFormats; }
-            set { if (!vertexFormats.Equals(value)) { vertexFormats = value == null ? null : new VertexFormatList(OnRCOLChanged, value); OnRCOLChanged(this, EventArgs.Empty); } }
+            set { if (!vertexFormats.Equals(value)) { vertexFormats = value == null ? null : new VertexFormatList(OnRCOLChanged, version, value); OnRCOLChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(17)]
         public VertexDataList VertexData
         {
             get { return vertexData; }
-            set { if (!vertexData.Equals(value)) { vertexData = value == null ? null : new VertexDataList(OnRCOLChanged, value, this.vertexFormats); OnRCOLChanged(this, EventArgs.Empty); } }
+            set { if (!vertexData.Equals(value)) { vertexData = value == null ? null : new VertexDataList(OnRCOLChanged, version, value, this.vertexFormats); OnRCOLChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(18)]
         public FaceList Faces
@@ -789,12 +1028,14 @@ namespace meshExpImp.ModelBlocks
         [ElementPriority(19), TGIBlockListContentField("TGIBlocks")]
         public int SkinIndex { get { return skinIndex; } set { if (skinIndex != value) { skinIndex = value; OnRCOLChanged(this, EventArgs.Empty); } } }
         [ElementPriority(20)]
+        public UnknownThingList UnknownThings { get { return unknownThings; } set { if (!unknownThings.Equals(value)) { unknownThings = value == null ? null : new UnknownThingList(OnRCOLChanged, value); OnRCOLChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(21)]
         public UIntList BoneHashes
         {
             get { return boneHashes; }
             set { if (!boneHashes.Equals(value)) { boneHashes = value == null ? null : new UIntList(OnRCOLChanged, value); OnRCOLChanged(this, EventArgs.Empty); } }
         }
-        [ElementPriority(21)]
+        [ElementPriority(22)]
         public TGIBlockList TGIBlocks
         {
             get { return tgiBlockList; }

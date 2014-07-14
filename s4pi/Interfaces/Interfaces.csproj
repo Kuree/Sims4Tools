@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AApiVersionedFields.cs" />
+    <Compile Include="DataBlobHandler.cs" />
     <Compile Include="AResourceIndexEntry.cs" />
     <Compile Include="APackage.cs" />
     <Compile Include="AResource.cs" />
