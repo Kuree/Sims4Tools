@@ -27,6 +27,7 @@ namespace meshExpImp.ModelBlocks
         FaceList faces;
         int skinIndex;
         UnknownThingList unknownThings;
+        UnknownThing2List unknownThings2;
         UIntList boneHashes;
 
         TGIBlockList tgiBlockList;
@@ -39,13 +40,13 @@ namespace meshExpImp.ModelBlocks
             : this(APIversion, handler,
             basis.version, basis.shader, basis.mtnf, basis.mergeGroup, basis.sortOrder,
             basis.vertexFormats, basis.vertexData,
-            basis.faces, basis.skinIndex, basis.unknownThings, basis.boneHashes,
+            basis.faces, basis.skinIndex, basis.unknownThings, basis.unknownThings2, basis.boneHashes,
             basis.tgiBlockList) { }
         public GEOM(int APIversion, EventHandler handler,
             uint version, ShaderType shader, MTNF mtnf, uint mergeGroup, uint sortOrder,
             IEnumerable<VertexFormat> vertexFormats, IEnumerable<VertexDataElement> vertexData,
             IEnumerable<Face> facePoints, int skinIndex, 
-            UnknownThingList unknownThings, IEnumerable<uint> boneHashes,
+            UnknownThingList unknownThings, UnknownThing2List unknownThings2, IEnumerable<uint> boneHashes,
             IEnumerable<TGIBlock> tgiBlockList)
             : base(APIversion, handler, null)
         {
@@ -60,7 +61,8 @@ namespace meshExpImp.ModelBlocks
             this.vertexData = vertexData == null ? null : new VertexDataList(handler, version, vertexData, this.vertexFormats);
             this.faces = facePoints == null ? null : new FaceList(handler, facePoints);
             this.skinIndex = skinIndex;
-            this.unknownThings = unknownThings;
+            this.unknownThings = unknownThings == null ? null : new UnknownThingList(handler, unknownThings);
+            this.unknownThings2 = unknownThings2 == null ? null : new UnknownThing2List(handler, unknownThings2);
             this.boneHashes = boneHashes == null ? null : new UIntList(handler, boneHashes);
             this.tgiBlockList = tgiBlockList == null ? null : new TGIBlockList(handler, tgiBlockList);
 
@@ -85,6 +87,15 @@ namespace meshExpImp.ModelBlocks
                 List<string> res = base.ContentFields;
                 if (shader == 0)
                     res.Remove("Mtnf");
+                if (version == 0x00000005)
+                {
+                    res.Remove("UnknownThings");
+                    res.Remove("UnknownThings2");
+                }
+                else if (version == 0x0000000C)
+                {
+                    res.Remove("SkinIndex");
+                }
                 return res;
             }
         }
@@ -130,10 +141,14 @@ namespace meshExpImp.ModelBlocks
                     throw new InvalidDataException(String.Format("Expected face point size to be 2, read {0}, at 0x{1:X8}", facePointSize, s.Position));
 
             faces = new FaceList(handler, s);
-            skinIndex = r.ReadInt32();
-            if (version == 0x0000000C)
+            if (version == 0x00000005)
+            {
+                skinIndex = r.ReadInt32();
+            }
+            else if (version == 0x0000000C)
             {
                 unknownThings = new UnknownThingList(handler, s);
+                unknownThings2 = new UnknownThing2List(handler, s);
             }
             boneHashes = new UIntList(handler, s);
 
@@ -176,11 +191,16 @@ namespace meshExpImp.ModelBlocks
             w.Write((byte)2);
             if (faces == null) faces = new FaceList(handler);
             faces.UnParse(ms);
-            w.Write(skinIndex);
-            if (version == 0x0000000C)
+            if (version == 0x00000005)
+            {
+                w.Write(skinIndex);
+            }
+            else if (version == 0x0000000C)
             {
                 if (unknownThings == null) unknownThings = new UnknownThingList(handler);
                 unknownThings.UnParse(ms);
+                if (unknownThings2 == null) unknownThings2 = new UnknownThing2List(handler);
+                unknownThings2.UnParse(ms);
             }
             if (boneHashes == null) boneHashes = new UIntList(handler);
             boneHashes.UnParse(ms);
@@ -900,42 +920,31 @@ namespace meshExpImp.ModelBlocks
 
             #region Attributes
             uint unknown1;
-            ushort unknown2;
-            ushort unknown3;
-            ushort unknown4;
-            DataBlobHandler unknown5;// 53 bytes
+            Vector2List unknown2;
             #endregion
 
             public UnknownThing(int APIversion, EventHandler handler) : base(APIversion, handler) { }
             public UnknownThing(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public UnknownThing(int APIversion, EventHandler handler, UnknownThing basis)
+            public UnknownThing(int APIversion, EventHandler handler, UnknownThing basis) : this(APIversion, handler, basis.unknown1, basis.unknown2) { }
+            public UnknownThing(int APIversion, EventHandler handler, uint unknown1, IEnumerable<Vector2> unknown2)
                 : base(APIversion, handler)
             {
-                this.unknown1 = basis.unknown1;
-                this.unknown2 = basis.unknown2;
-                this.unknown3 = basis.unknown3;
-                this.unknown4 = basis.unknown4;
-                this.unknown5 = new DataBlobHandler(APIversion, handler, basis.unknown5);
+                this.unknown1 = unknown1;
+                this.unknown2 = unknown2 == null ? null : new Vector2List(handler, unknown2);
             }
 
             private void Parse(Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
                 unknown1 = r.ReadUInt32();
-                unknown2 = r.ReadUInt16();
-                unknown3 = r.ReadUInt16();
-                unknown4 = r.ReadUInt16();
-                unknown5 = new DataBlobHandler(requestedApiVersion, handler, 53, s);
+                unknown2 = new Vector2List(handler, s);
             }
             internal void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);
                 w.Write(unknown1);
-                w.Write(unknown2);
-                w.Write(unknown3);
-                w.Write(unknown4);
-                if (unknown5 == null) unknown5 = new DataBlobHandler(0, null, 53);
-                unknown5.UnParse(s);
+                if (unknown2 == null) unknown2 = new Vector2List(handler);
+                unknown2.UnParse(s);
             }
 
             #region AHandlerElement
@@ -947,14 +956,189 @@ namespace meshExpImp.ModelBlocks
             #region IEquatable<UnknownThing>
             public bool Equals(UnknownThing other)
             {
+                if (this.unknown1 != other.unknown1)
+                    return false;
+
+                if (this.unknown2 == null && other.unknown2 != null)
+                    return false;
+
+                if (this.unknown2 != null)
+                {
+                    if (other.unknown2 == null || this.unknown2.Count != other.unknown2.Count)
+                        return false;
+
+                    for (int i = this.unknown2.Count - 1; i >= 0; i--)
+                    {
+                        if (!this.unknown2[i].Equals(other.unknown2[i]))
+                            return false;
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+
+            public override bool Equals(object obj) { return obj is UnknownThing && Equals(obj as UnknownThing); }
+
+            public override int GetHashCode() { return unknown1.GetHashCode() ^ unknown2.GetHashCode(); }
+            #endregion
+            [ElementPriority(1)]
+            public uint Unknown1 { get { return unknown1; } set { if (unknown1 != value) { unknown1 = value; OnElementChanged(); } } }
+            [ElementPriority(2)]
+            public Vector2List Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) { unknown2 = value == null ? null : new Vector2List(handler, value); OnElementChanged(); } } }
+
+            public string Value { get { return ValueBuilder; } }
+        }
+        public class UnknownThingList : DependentList<UnknownThing>
+        {
+            #region Constructors
+            public UnknownThingList(EventHandler handler) : base(handler) { }
+            public UnknownThingList(EventHandler handler, Stream s) : base(handler, s) { }
+            public UnknownThingList(EventHandler handler, IEnumerable<UnknownThing> le) : base(handler, le) { }
+            #endregion
+
+            protected override UnknownThing CreateElement(Stream s) { return new UnknownThing(0, elementHandler, s); }
+            protected override void WriteElement(Stream s, UnknownThing element) { element.UnParse(s); }
+        }
+
+
+        public class UnknownThing2 : AHandlerElement, IEquatable<UnknownThing2>
+        {
+            const int recommendedApiVersion = 1;
+            const int unk5size = 53;//bytes;
+            // Sizes found: 53 (common), 245
+
+            #region Attributes
+            uint unknown1;
+            ushort unknown2;
+            ushort unknown3;
+            ushort unknown4;
+            float unknown5;
+            float unknown6;
+            float unknown7;
+            float unknown8;
+            float unknown9;
+            float unknown10;
+            float unknown11;
+            float unknown12;
+            float unknown13;
+            float unknown14;
+            float unknown15;
+            float unknown16;
+            float unknown17;
+            byte unknown18;
+            #endregion
+
+            public UnknownThing2(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public UnknownThing2(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public UnknownThing2(int APIversion, EventHandler handler, UnknownThing2 basis)
+                : this(APIversion, handler, basis.unknown1,
+                basis.unknown2, basis.unknown3, basis.unknown4, basis.unknown5,
+                basis.unknown6, basis.unknown7, basis.unknown8, basis.unknown9,
+                basis.unknown10, basis.unknown11, basis.unknown12, basis.unknown13,
+                basis.unknown14, basis.unknown15, basis.unknown16, basis.unknown17, basis.unknown18) { }
+            public UnknownThing2(int APIversion, EventHandler handler, uint unknown1,
+                ushort unknown2, ushort unknown3, ushort unknown4, float unknown5,
+                float unknown6, float unknown7, float unknown8, float unknown9,
+                float unknown10, float unknown11, float unknown12, float unknown13, 
+                float unknown14, float unknown15, float unknown16, float unknown17, byte unknown18)
+                : base(APIversion, handler)
+            {
+                this.unknown1 = unknown1;
+                this.unknown2 = unknown2;
+                this.unknown3 = unknown3;
+                this.unknown4 = unknown4;
+                this.unknown5 = unknown5;
+                this.unknown6 = unknown6;
+                this.unknown7 = unknown7;
+                this.unknown8 = unknown8;
+                this.unknown9 = unknown9;
+                this.unknown10 = unknown10;
+                this.unknown11 = unknown11;
+                this.unknown12 = unknown12;
+                this.unknown13 = unknown13;
+                this.unknown14 = unknown14;
+                this.unknown15 = unknown15;
+                this.unknown16 = unknown16;
+                this.unknown17 = unknown17;
+                this.unknown18 = unknown18;
+            }
+
+            private void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                unknown1 = r.ReadUInt32();
+                unknown2 = r.ReadUInt16();
+                unknown3 = r.ReadUInt16();
+                unknown4 = r.ReadUInt16();
+                unknown5 = r.ReadSingle();
+                unknown6 = r.ReadSingle();
+                unknown7 = r.ReadSingle();
+                unknown8 = r.ReadSingle();
+                unknown9 = r.ReadSingle();
+                unknown10 = r.ReadSingle();
+                unknown11 = r.ReadSingle();
+                unknown12 = r.ReadSingle();
+                unknown13 = r.ReadSingle();
+                unknown14 = r.ReadSingle();
+                unknown15 = r.ReadSingle();
+                unknown16 = r.ReadSingle();
+                unknown17 = r.ReadSingle();
+                unknown18 = r.ReadByte();
+            }
+            internal void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write(unknown1);
+                w.Write(unknown2);
+                w.Write(unknown3);
+                w.Write(unknown4);
+                w.Write(unknown5);
+                w.Write(unknown6);
+                w.Write(unknown7);
+                w.Write(unknown8);
+                w.Write(unknown9);
+                w.Write(unknown10);
+                w.Write(unknown11);
+                w.Write(unknown12);
+                w.Write(unknown13);
+                w.Write(unknown14);
+                w.Write(unknown15);
+                w.Write(unknown16);
+                w.Write(unknown17);
+                w.Write(unknown18);
+            }
+
+            #region AHandlerElement
+            // public override UnknownThing Clone(EventHandler handler) { return new UnknownThing(requestedApiVersion, handler, this); }
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            #region IEquatable<UnknownThing>
+            public bool Equals(UnknownThing2 other)
+            {
                 return this.unknown1.Equals(other.unknown1)
                     && this.unknown2.Equals(other.unknown2)
                     && this.unknown3.Equals(other.unknown3)
                     && this.unknown4.Equals(other.unknown4)
-                    && this.unknown5.Equals(other.unknown5);
+                    && this.unknown5.Equals(other.unknown5)
+                    && this.unknown6.Equals(other.unknown6)
+                    && this.unknown7.Equals(other.unknown7)
+                    && this.unknown8.Equals(other.unknown8)
+                    && this.unknown9.Equals(other.unknown9)
+                    && this.unknown10.Equals(other.unknown10)
+                    && this.unknown11.Equals(other.unknown11)
+                    && this.unknown12.Equals(other.unknown12)
+                    && this.unknown13.Equals(other.unknown13)
+                    && this.unknown14.Equals(other.unknown14)
+                    && this.unknown15.Equals(other.unknown15)
+                    && this.unknown16.Equals(other.unknown16)
+                    && this.unknown17.Equals(other.unknown17)
+                    && this.unknown18.Equals(other.unknown18);
             }
 
-            public override bool Equals(object obj) { return obj is UnknownThing && Equals(obj as UnknownThing); }
+            public override bool Equals(object obj) { return obj is UnknownThing2 && Equals(obj as UnknownThing2); }
 
             public override int GetHashCode() { return unknown1.GetHashCode() ^ unknown2.GetHashCode() ^ unknown3.GetHashCode() ^ unknown4.GetHashCode() ^ unknown5.GetHashCode(); }
             #endregion
@@ -967,20 +1151,46 @@ namespace meshExpImp.ModelBlocks
             [ElementPriority(4)]
             public ushort Unknown4 { get { return unknown4; } set { if (unknown4 != value) { unknown4 = value; OnElementChanged(); } } }
             [ElementPriority(5)]
-            public DataBlobHandler Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) { unknown5 = new DataBlobHandler(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            public float Unknown5 { get { return unknown5; } set { if (unknown5 != value) { unknown5 = value; OnElementChanged(); } } }
+            [ElementPriority(6)]
+            public float Unknown6 { get { return unknown6; } set { if (unknown6 != value) { unknown6 = value; OnElementChanged(); } } }
+            [ElementPriority(7)]
+            public float Unknown7 { get { return unknown7; } set { if (unknown7 != value) { unknown7 = value; OnElementChanged(); } } }
+            [ElementPriority(8)]
+            public float Unknown8 { get { return unknown8; } set { if (unknown8 != value) { unknown8 = value; OnElementChanged(); } } }
+            [ElementPriority(9)]
+            public float Unknown9 { get { return unknown9; } set { if (unknown9 != value) { unknown9 = value; OnElementChanged(); } } }
+            [ElementPriority(10)]
+            public float Unknown10 { get { return unknown10; } set { if (unknown10 != value) { unknown10 = value; OnElementChanged(); } } }
+            [ElementPriority(11)]
+            public float Unknown11 { get { return unknown11; } set { if (unknown11 != value) { unknown11 = value; OnElementChanged(); } } }
+            [ElementPriority(12)]
+            public float Unknown12 { get { return unknown12; } set { if (unknown12 != value) { unknown12 = value; OnElementChanged(); } } }
+            [ElementPriority(13)]
+            public float Unknown13 { get { return unknown13; } set { if (unknown13 != value) { unknown13 = value; OnElementChanged(); } } }
+            [ElementPriority(14)]
+            public float Unknown14 { get { return unknown14; } set { if (unknown14 != value) { unknown14 = value; OnElementChanged(); } } }
+            [ElementPriority(15)]
+            public float Unknown15 { get { return unknown15; } set { if (unknown15 != value) { unknown15 = value; OnElementChanged(); } } }
+            [ElementPriority(16)]
+            public float Unknown16 { get { return unknown16; } set { if (unknown16 != value) { unknown16 = value; OnElementChanged(); } } }
+            [ElementPriority(17)]
+            public float Unknown17 { get { return unknown17; } set { if (unknown17 != value) { unknown17 = value; OnElementChanged(); } } }
+            [ElementPriority(18)]
+            public byte Unknown18 { get { return unknown18; } set { if (unknown18 != value) { unknown18 = value; OnElementChanged(); } } }
 
             public string Value { get { return ValueBuilder; } }
         }
-        public class UnknownThingList : DependentList<UnknownThing>
+        public class UnknownThing2List : DependentList<UnknownThing2>
         {
             #region Constructors
-            public UnknownThingList(EventHandler handler) : base(handler) { }
-            public UnknownThingList(EventHandler handler, Stream s) : base(handler, s) {}
-            public UnknownThingList(EventHandler handler, IEnumerable<UnknownThing> le) : base(handler, le) { }
+            public UnknownThing2List(EventHandler handler) : base(handler) { }
+            public UnknownThing2List(EventHandler handler, Stream s) : base(handler, s) {}
+            public UnknownThing2List(EventHandler handler, IEnumerable<UnknownThing2> le) : base(handler, le) { }
             #endregion
 
-            protected override UnknownThing CreateElement(Stream s) { return new UnknownThing(0, elementHandler, s); }
-            protected override void WriteElement(Stream s, UnknownThing element) { element.UnParse(s); }
+            protected override UnknownThing2 CreateElement(Stream s) { return new UnknownThing2(0, elementHandler, s); }
+            protected override void WriteElement(Stream s, UnknownThing2 element) { element.UnParse(s); }
         }
         #endregion
 
@@ -1027,8 +1237,10 @@ namespace meshExpImp.ModelBlocks
         }
         [ElementPriority(19), TGIBlockListContentField("TGIBlocks")]
         public int SkinIndex { get { return skinIndex; } set { if (skinIndex != value) { skinIndex = value; OnRCOLChanged(this, EventArgs.Empty); } } }
-        [ElementPriority(20)]
+        [ElementPriority(19)]
         public UnknownThingList UnknownThings { get { return unknownThings; } set { if (!unknownThings.Equals(value)) { unknownThings = value == null ? null : new UnknownThingList(OnRCOLChanged, value); OnRCOLChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(20)]
+        public UnknownThing2List UnknownThings2 { get { return unknownThings2; } set { if (!unknownThings2.Equals(value)) { unknownThings2 = value == null ? null : new UnknownThing2List(OnRCOLChanged, value); OnRCOLChanged(this, EventArgs.Empty); } } }
         [ElementPriority(21)]
         public UIntList BoneHashes
         {
