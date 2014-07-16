@@ -107,7 +107,9 @@ namespace s4pi.Package
 
                 if (value.Length < newIE.Memsize)
                 {
-                    newIE.Compressed = 0xffff;
+                    // Move to TS4
+                    //newIE.Compressed = 0xffff;
+                    newIE.Compressed = 0x5A42;
                     newIE.Filesize = (uint)value.Length;
                 }
                 else
@@ -448,7 +450,7 @@ namespace s4pi.Package
         {
             if (!majors.Contains(major))
                 throw new InvalidDataException("Expected major version(s) '" + string.Join(", ", majors) + "'.  Found '" + major.ToString() + "'.");
-            
+
             this.requestedApiVersion = requestedVersion;
             header = new byte[96];
 

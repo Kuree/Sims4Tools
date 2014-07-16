@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "s4pe", "s4pe\s4pe.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiscellaneousResource", "s4pi Wrappers\MiscellaneousResource\MiscellaneousResource.csproj", "{8CBB25F3-E1F1-472B-989D-B14B98577F9C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataResource", "s4pi Wrappers\DataResource\DataResource.csproj", "{E8176722-BE4E-47FF-A8A6-BFF4BE7A5DE8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -213,6 +215,10 @@ Global
 		{8CBB25F3-E1F1-472B-989D-B14B98577F9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CBB25F3-E1F1-472B-989D-B14B98577F9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CBB25F3-E1F1-472B-989D-B14B98577F9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8176722-BE4E-47FF-A8A6-BFF4BE7A5DE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8176722-BE4E-47FF-A8A6-BFF4BE7A5DE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8176722-BE4E-47FF-A8A6-BFF4BE7A5DE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8176722-BE4E-47FF-A8A6-BFF4BE7A5DE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

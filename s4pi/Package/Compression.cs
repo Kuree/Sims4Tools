@@ -179,17 +179,24 @@ namespace s4pi.Package
         {
             using (MemoryStream result = new MemoryStream())
             {
+                if(uncompressed.Length == 0)
+                {
+                    res = null;
+                    return false;
+                }
                 BinaryWriter w = new BinaryWriter(result);
 
                 w.Write((byte)0x78);
                 w.Write((byte)0xDA);
-                using (DeflateStream ds = new DeflateStream(uncompressed, CompressionMode.Compress))
+                using (DeflateStream ds = new DeflateStream(result, CompressionMode.Compress, true))
                 {
-                    ds.CopyTo(result);
+                    uncompressed.CopyTo(ds);
+                    
                 }
 
                 if (result.Length < uncompressed.Length)
                 {
+
                     res = result.ToArray();
                     return true;
                 }
@@ -198,6 +205,8 @@ namespace s4pi.Package
                     res = null;
                     return false;
                 }
+
+                
             }
         }
     }

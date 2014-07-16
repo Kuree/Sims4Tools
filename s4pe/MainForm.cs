@@ -1104,7 +1104,7 @@ namespace S4PIDemoFE
             if (s4pi.Extensions.ExtList.Ext.ContainsKey(resType)) ext = s4pi.Extensions.ExtList.Ext[resType];
             else ext = s4pi.Extensions.ExtList.Ext["*"];
 
-            replaceResourceDialog.Filter = ext[0] + " by type|S3_" + rie.ResourceType.ToString("X8") + "*.*" +
+            replaceResourceDialog.Filter = ext[0] + " by type|S4_" + rie.ResourceType.ToString("X8") + "*.*" +
                 "|" + ext[0] + " by ext|*" + ext[ext.Count - 1] +
                 "|All files|*.*";
             int i = S4PIDemoFE.Properties.Settings.Default.ResourceReplaceFilterIndex;

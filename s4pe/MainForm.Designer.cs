@@ -248,7 +248,7 @@
             // 
             // importResourcesDialog
             // 
-            this.importResourcesDialog.Filter = "Exported files (S3_*.*)|S3_*.*|All files (*.*)|*.*";
+            this.importResourcesDialog.Filter = "Exported files (S4_*.*)|S4_*.*|All files (*.*)|*.*";
             this.importResourcesDialog.Multiselect = true;
             this.importResourcesDialog.Title = "Import Resources";
             // 

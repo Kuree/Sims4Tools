@@ -70,7 +70,7 @@ namespace s4pi.Extensions
 
             value = System.IO.Path.GetFileNameWithoutExtension(value);
 
-            int i = value.ToLower().IndexOf("s3_");
+            int i = value.ToLower().IndexOf("s4_");
             if (i == 0) value = value.Substring(3);
             i = value.IndexOf("%%+");
             if (i >= 0) value = value.Substring(0, i);
@@ -106,8 +106,8 @@ namespace s4pi.Extensions
                 extn = String.Join("", ExtList.Ext["*"].ToArray());
 
             return String.Format((value.ResName != null && value.ResName.Length > 0)
-                    ? "S3_{0:X8}_{1:X8}_{2:X16}_{3}%%+{4}"
-                    : "S3_{0:X8}_{1:X8}_{2:X16}%%+{4}"
+                    ? "S4_{0:X8}_{1:X8}_{2:X16}_{3}%%+{4}"
+                    : "S4_{0:X8}_{1:X8}_{2:X16}%%+{4}"
                     , value.ResType, value.ResGroup, value.ResInstance, value.ResName == null ? "" : escapeString(value.ResName), extn);
         }
 
