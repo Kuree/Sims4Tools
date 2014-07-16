@@ -233,6 +233,7 @@ s4pi Extras/s4piControls/Properties/AssemblyVersion.cs
 s4pi Wrappers/CASPartResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/CatalogResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/ComplateResource/Properties/AssemblyVersion.cs
+s4pi Wrappers/DataResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/DefaultResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/GenericRCOLResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/ImageResource/Properties/AssemblyVersion.cs
