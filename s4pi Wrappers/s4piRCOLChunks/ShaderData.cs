@@ -615,16 +615,20 @@ namespace s4pi.GenericRCOLResource
         public ElementTextureRef(int APIversion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
             : this(APIversion, handler, (FieldType)0, ParentTGIBlocks, RCOLTag) 
         {
-            /*if (false) // TS3
+            if (_RCOLTag == "GEOM")
             {
-                if (_RCOLTag == "GEOM")
-                    index = 0;
-                else
-                    data = new GenericRCOLResource.ChunkReference(0, handler);
+                index = 0;
             }
-            else /* TS4 */
+            else
             {
-                key = new TGIBlock(0, handler, "ITG");
+                /*if (false) // TS3
+                {
+                    data = new GenericRCOLResource.ChunkReference(0, handler);
+                }
+                else /* TS4 */
+                {
+                    key = new TGIBlock(0, handler, "ITG");
+                }
             }
         }
 
@@ -634,16 +638,20 @@ namespace s4pi.GenericRCOLResource
         public ElementTextureRef(int APIversion, EventHandler handler, ElementTextureRef basis, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = null)
             : this(APIversion, handler, basis.field, ParentTGIBlocks ?? basis._ParentTGIBlocks, RCOLTag ?? basis._RCOLTag) 
         {
-            /*if (false) // TS3
+            if (_RCOLTag == "GEOM")
             {
-                if (_RCOLTag == "GEOM")
-                    index = basis.index;
-                else
-                    data = new GenericRCOLResource.ChunkReference(0, handler, basis.data);
+                index = basis.index;
             }
-            else /* TS4 */
+            else
             {
-                key = new TGIBlock(0, handler, basis.key);
+                /*if (false) // TS3
+                {
+                    data = new GenericRCOLResource.ChunkReference(0, handler, basis.data);
+                }
+                else /* TS4 */
+                {
+                    key = new TGIBlock(0, handler, basis.key);
+                }
             }
         }
 
@@ -656,34 +664,44 @@ namespace s4pi.GenericRCOLResource
         #region Data I/O
         void Parse(Stream s)
         {
-            /*if (false) // TS3
+            if (_RCOLTag == "GEOM")
             {
-                if (_RCOLTag == "GEOM")
-                    index = new BinaryReader(s).ReadInt32();
-                else
-                    data = new GenericRCOLResource.ChunkReference(0, handler, s);
+                index = new BinaryReader(s).ReadInt32();
                 ReadZeros(s, 12);
             }
-            else /* TS4 */
+            else
             {
-                key = new TGIBlock(requestedApiVersion, handler, "ITG", s);
+                /*if (false) // TS3
+                {
+                    data = new GenericRCOLResource.ChunkReference(0, handler, s);
+                    ReadZeros(s, 12);
+                }
+                else /* TS4 */
+                {
+                    key = new TGIBlock(requestedApiVersion, handler, "ITG", s);
+                }
             }
         }
         protected override void UnParse(Stream s)
         {
-            /*if (false) // TS3
+            if (_RCOLTag == "GEOM")
             {
-                if (_RCOLTag == "GEOM")
-                    new BinaryWriter(s).Write(index);
-                else
-                    data.UnParse(s);
+                new BinaryWriter(s).Write(index);
                 WriteZeros(s, 12);
             }
-            else /* TS4 */
+            else
             {
-                if (key == null) 
-                    key = new TGIBlock(requestedApiVersion, handler, "ITG"); 
-                key.UnParse(s);
+                /*if (false) // TS3
+                {
+                    data.UnParse(s);
+                    WriteZeros(s, 12);
+                }
+                else /* TS4 */
+                {
+                    if (key == null)
+                        key = new TGIBlock(requestedApiVersion, handler, "ITG");
+                    key.UnParse(s);
+                }
             }
         }
         protected override DataType DataTypeFromType { get { return DataType.dtTexture; } }
@@ -695,16 +713,22 @@ namespace s4pi.GenericRCOLResource
             get
             {
                 List<string> res = base.ContentFields;
-                /*if (false) // TS3
-                {
-                    if (_RCOLTag == "GEOM") res.Remove("Data");
-                    else res.Remove("Index");
-                    res.Remove("Key");
-                }
-                else /* TS4 */
+                if (_RCOLTag == "GEOM")
                 {
                     res.Remove("Data");
+                    res.Remove("Key");
+                }
+                else
+                {
                     res.Remove("Index");
+                    /*if (false) // TS3
+                    {
+                        res.Remove("Key");
+                    }
+                    else /* TS4 */
+                    {
+                        res.Remove("Data");
+                    }
                 }
                 return res;
             }
@@ -721,30 +745,38 @@ namespace s4pi.GenericRCOLResource
             if (_RCOLTag != _other._RCOLTag)
                 return false;
 
-            /*if (false) // TS3
+            if (_RCOLTag == "GEOM")
             {
-                if (_RCOLTag == "GEOM")
-                    return index.Equals(_other.index);
-                else
-                    return data.Equals(_other.data);
+                return index.Equals(_other.index);
             }
-            else /* TS4 */
+            else
             {
-                return key.Equals(_other.key);
+                /*if (false) // TS3
+                {
+                    return data.Equals(_other.data);
+                }
+                else /* TS4 */
+                {
+                    return key.Equals(_other.key);
+                }
             }
         }
         public override int GetHashCode()
         {
-            /*if (false) // TS3
+            if (_RCOLTag == "GEOM")
             {
-                if (_RCOLTag == "GEOM")
-                    return base.GetHashCode() ^ index.GetHashCode();
-                else
-                    return base.GetHashCode() ^ data.GetHashCode();
+                return base.GetHashCode() ^ index.GetHashCode();
             }
-            else /* TS4 */
+            else
             {
-                return base.GetHashCode() ^ key.GetHashCode();
+                /*if (false) // TS3
+                {
+                    return base.GetHashCode() ^ data.GetHashCode();
+                }
+                else /* TS4 */
+                {
+                    return base.GetHashCode() ^ key.GetHashCode();
+                }
             }
         }
 
@@ -755,7 +787,7 @@ namespace s4pi.GenericRCOLResource
         public GenericRCOLResource.ChunkReference Data
         {
             get { if (_RCOLTag == "GEOM") throw new InvalidOperationException("Use Index not Data for GEOM"); return data; }
-            set { if (_RCOLTag == "GEOM") throw new InvalidOperationException("Use Index not Data for GEOM"); if (data != value) { data = new GenericRCOLResource.ChunkReference(0, handler, value); OnElementChanged(); } }
+            set { if (_RCOLTag == "GEOM") throw new InvalidOperationException("Use Index not Data for GEOM"); if (!data.Equals(value)) { data = new GenericRCOLResource.ChunkReference(0, handler, value); OnElementChanged(); } }
         }
         [ElementPriority(11), TGIBlockListContentField("ParentTGIBlocks")]
         public Int32 Index
@@ -765,9 +797,9 @@ namespace s4pi.GenericRCOLResource
         }
         [ElementPriority(11)]
         public IResourceKey Key 
-        { 
-            get { return key; } 
-            set { if (!key.Equals(value)) { key = new TGIBlock(requestedApiVersion, handler, "ITG", value); OnElementChanged(); } } 
+        {
+            get { if (_RCOLTag == "GEOM") throw new InvalidOperationException("Use Index not Key for GEOM"); return key; }
+            set { if (_RCOLTag == "GEOM") throw new InvalidOperationException("Use Index not Key for GEOM"); if (!key.Equals(value)) { key = new TGIBlock(0, handler, "ITG", value); OnElementChanged(); } } 
         }
         #endregion
     }
