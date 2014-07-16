@@ -11,6 +11,7 @@ namespace RigResource
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
 
         static bool checking = s4pi.Settings.Settings.Checking;
+        bool isTS4 = true;
 
         #region Attributes
         RigFormat rigFormat = 0;
@@ -70,9 +71,10 @@ namespace RigResource
             major = r.ReadUInt32();
             minor = r.ReadUInt32();
             bones = new BoneList(OnResourceChanged, s);
-            skeletonName = new String(r.ReadChars(r.ReadInt32()));
-            if (major >= 4)
-                ikChains = new IKChainList(OnResourceChanged, s);
+            if (major >= 4 || !isTS4)
+                skeletonName = new String(r.ReadChars(r.ReadInt32()));
+            if (major >= 4 || isTS4)
+                ikChains = new IKChainList(OnResourceChanged, this, s);
         }
 
         protected override Stream UnParse()
@@ -115,13 +117,15 @@ namespace RigResource
             if (bones == null) bones = new BoneList(OnResourceChanged);
             bones.UnParse(s);
 
-            if (skeletonName == null) skeletonName = "";
-            w.Write(skeletonName.Length);
-            w.Write(skeletonName.ToCharArray());
-
-            if (major >= 4)
+            if (major >= 4 || !isTS4)
             {
-                if (ikChains == null) ikChains = new IKChainList(OnResourceChanged);
+                if (skeletonName == null) skeletonName = "";
+                w.Write(skeletonName.Length);
+                w.Write(skeletonName.ToCharArray());
+            }
+            if (major >= 4 || isTS4)
+            {
+                if (ikChains == null) ikChains = new IKChainList(OnResourceChanged, this);
                 ikChains.UnParse(s);
             }
 
@@ -273,6 +277,8 @@ namespace RigResource
         {
             const int recommendedApiVersion = 1;
 
+            RigResource owner;
+
             #region Attributes
             IntList bones;
             int infoNode0Index;
@@ -293,20 +299,21 @@ namespace RigResource
             #endregion
 
             #region Constructors
-            public IKElement(int APIversion, EventHandler handler) : base(APIversion, handler)
+            public IKElement(int APIversion, EventHandler handler, RigResource owner) : base(APIversion, handler)
             {
-                bones = new IntList(handler);
+                this.owner = owner;
+                this.bones = new IntList(handler);
             }
-            public IKElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public IKElement(int APIversion, EventHandler handler, IKElement basis)
-                : this(APIversion, handler, basis.bones,
+            public IKElement(int APIversion, EventHandler handler, RigResource owner, Stream s) : base(APIversion, handler) { this.owner = owner; Parse(s); }
+            public IKElement(int APIversion, EventHandler handler, RigResource owner, IKElement basis)
+                : this(APIversion, handler, owner, basis.bones,
                 basis.infoNode0Index, basis.infoNode1Index,
                 basis.infoNode2Index, basis.infoNode3Index,
                 basis.infoNode4Index, basis.infoNode5Index, basis.infoNode6Index,
                 basis.infoNode7Index, basis.infoNode8Index,
                 basis.infoNode9Index, basis.infoNodeAIndex,
                 basis.poleVectorIndex, basis.slotInfoIndex, basis.slotOffsetIndex, basis.rootIndex) { }
-            public IKElement(int APIversion, EventHandler handler,
+            public IKElement(int APIversion, EventHandler handler, RigResource owner,
                 IntList bones,
                 int infoNode0Index, int infoNode1Index,
                 int infoNode2Index, int infoNode3Index,
@@ -340,19 +347,25 @@ namespace RigResource
             {
                 BinaryReader r = new BinaryReader(s);
                 this.bones = new IntList(handler, s);
-                this.infoNode0Index = r.ReadInt32();
-                this.infoNode1Index = r.ReadInt32();
-                this.infoNode2Index = r.ReadInt32();
-                this.infoNode3Index = r.ReadInt32();
-                this.infoNode4Index = r.ReadInt32();
-                this.infoNode5Index = r.ReadInt32();
-                this.infoNode6Index = r.ReadInt32();
-                this.infoNode7Index = r.ReadInt32();
-                this.infoNode8Index = r.ReadInt32();
-                this.infoNode9Index = r.ReadInt32();
-                this.infoNodeAIndex = r.ReadInt32();
+                if (this.owner.major >= 4)
+                {
+                    this.infoNode0Index = r.ReadInt32();
+                    this.infoNode1Index = r.ReadInt32();
+                    this.infoNode2Index = r.ReadInt32();
+                    this.infoNode3Index = r.ReadInt32();
+                    this.infoNode4Index = r.ReadInt32();
+                    this.infoNode5Index = r.ReadInt32();
+                    this.infoNode6Index = r.ReadInt32();
+                    this.infoNode7Index = r.ReadInt32();
+                    this.infoNode8Index = r.ReadInt32();
+                    this.infoNode9Index = r.ReadInt32();
+                    this.infoNodeAIndex = r.ReadInt32();
+                }
                 this.poleVectorIndex = r.ReadInt32();
-                this.slotInfoIndex = r.ReadInt32();
+                if (this.owner.major >= 4)
+                {
+                    this.slotInfoIndex = r.ReadInt32();
+                }
                 this.slotOffsetIndex = r.ReadInt32();
                 this.rootIndex = r.ReadInt32();
             }
@@ -362,19 +375,25 @@ namespace RigResource
                 BinaryWriter w = new BinaryWriter(s);
                 if (bones == null) bones = new IntList(handler);
                 bones.UnParse(s);
-                w.Write(infoNode0Index);
-                w.Write(infoNode1Index);
-                w.Write(infoNode2Index);
-                w.Write(infoNode3Index);
-                w.Write(infoNode4Index);
-                w.Write(infoNode5Index);
-                w.Write(infoNode6Index);
-                w.Write(infoNode7Index);
-                w.Write(infoNode8Index);
-                w.Write(infoNode9Index);
-                w.Write(infoNodeAIndex);
+                if (this.owner.major >= 4)
+                {
+                    w.Write(infoNode0Index);
+                    w.Write(infoNode1Index);
+                    w.Write(infoNode2Index);
+                    w.Write(infoNode3Index);
+                    w.Write(infoNode4Index);
+                    w.Write(infoNode5Index);
+                    w.Write(infoNode6Index);
+                    w.Write(infoNode7Index);
+                    w.Write(infoNode8Index);
+                    w.Write(infoNode9Index);
+                    w.Write(infoNodeAIndex);
+                }
                 w.Write(poleVectorIndex);
-                w.Write(slotInfoIndex);
+                if (this.owner.major >= 4)
+                {
+                    w.Write(slotInfoIndex);
+                }
                 w.Write(slotOffsetIndex);
                 w.Write(rootIndex);
             }
@@ -382,7 +401,29 @@ namespace RigResource
 
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            public override List<string> ContentFields 
+            { 
+                get 
+                { 
+                    List<string> res = GetContentFields(requestedApiVersion, this.GetType());
+                    if (this.owner.major < 4)
+                    {
+                        res.Remove("InfoNode0Index");
+                        res.Remove("InfoNode1Index");
+                        res.Remove("InfoNode2Index");
+                        res.Remove("InfoNode3Index");
+                        res.Remove("InfoNode4Index");
+                        res.Remove("InfoNode5Index");
+                        res.Remove("InfoNode6Index");
+                        res.Remove("InfoNode7Index");
+                        res.Remove("InfoNode8Index");
+                        res.Remove("InfoNode9Index");
+                        res.Remove("InfoNodeAIndex");
+                        res.Remove("SlotInfoIndex");
+                    }
+                    return res;
+                } 
+            }
             #endregion
 
             #region IEquatable<IKElement>
@@ -462,11 +503,20 @@ namespace RigResource
 
         public class IKChainList : DependentList<IKElement>
         {
-            public IKChainList(EventHandler handler) : base(handler) { }
-            public IKChainList(EventHandler handler, Stream s) : base(handler, s) { }
-            public IKChainList(EventHandler handler, IEnumerable<IKElement> lb) : base(handler, lb) { }
+            private RigResource owner;
 
-            protected override IKElement CreateElement(Stream s) { return new IKElement(0, elementHandler, s); }
+            public IKChainList(EventHandler handler, RigResource owner) : base(handler) { this.owner = owner; }
+            public IKChainList(EventHandler handler, RigResource owner, Stream s) : base(null) { elementHandler = handler; this.owner = owner; Parse(s); this.handler = handler; }
+            public IKChainList(EventHandler handler, RigResource owner, IEnumerable<IKElement> lb) : base(null) 
+            { 
+                elementHandler = handler; 
+                this.owner = owner;
+                foreach (var b in lb)
+                    this.Add(new IKElement(0, elementHandler, owner, b));
+                this.handler = handler;
+            }
+
+            protected override IKElement CreateElement(Stream s) { return new IKElement(0, elementHandler, owner, s); }
             protected override void WriteElement(Stream s, IKElement element) { element.UnParse(s); }
         }
 
@@ -487,7 +537,10 @@ namespace RigResource
                         res.Remove("RawGranny");
                         if (major < 4)
                         {
-                            res.Remove("IKChains");
+                            if (isTS4)
+                                res.Remove("SkeletonName");
+                            else
+                                res.Remove("IKChains");
                         }
                         return res;
                 }
@@ -522,9 +575,9 @@ namespace RigResource
         [ElementPriority(3)]
         public BoneList Bones { get { return bones; } set { if (!bones.Equals(value)) { bones = value == null ? null : new BoneList(OnResourceChanged, value); OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(4)]
-        public String SkeletonName { get { return skeletonName; } set { if (skeletonName != value) { skeletonName = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public String SkeletonName { get { if (major < 4 && isTS4) throw new InvalidOperationException(); return skeletonName; } set { if (major < 4 && isTS4) throw new InvalidOperationException(); if (skeletonName != value) { skeletonName = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(5)]
-        public IKChainList IKChains { get { if (major < 4) throw new InvalidOperationException(); return ikChains; } set { if (major < 4) throw new InvalidOperationException(); if (!ikChains.Equals(value)) { ikChains = value == null ? null : new IKChainList(OnResourceChanged, value); OnResourceChanged(this, EventArgs.Empty); } } }
+        public IKChainList IKChains { get { if (major < 4 && !isTS4) throw new InvalidOperationException(); return ikChains; } set { if (major < 4 && !isTS4) throw new InvalidOperationException(); if (!ikChains.Equals(value)) { ikChains = value == null ? null : new IKChainList(OnResourceChanged, this, value); OnResourceChanged(this, EventArgs.Empty); } } }
 
         public string Value { get { return ValueBuilder; } }
         #endregion

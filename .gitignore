@@ -238,6 +238,7 @@ s4pi Wrappers/GenericRCOLResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/ImageResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/JazzResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/MeshChunks/Properties/AssemblyVersion.cs
+s4pi Wrappers/MiscellaneousResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/ModularResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/NameMapResource/Properties/AssemblyVersion.cs
 s4pi Wrappers/NGMPHashMapResource/Properties/AssemblyVersion.cs
