@@ -224,6 +224,7 @@ namespace s4pi.Package
         /// </summary>
         /// <param name="APIversion">(unused)</param>
         /// <param name="pkg">IPackage reference to close</param>
+        [Obsolete("Package.ClosePackage is deprecated, please use using statement or Dispose instead")]
         public static new void ClosePackage(int APIversion, IPackage pkg)
         {
             Package p = pkg as Package;
@@ -440,6 +441,38 @@ namespace s4pi.Package
                 (rc as ResourceIndexEntry).Delete();
         }
         #endregion
+
+        #region IDisposable
+        private bool disposed = false;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="disposing">Set to true if the package is going to be released</param>
+        protected void Dispose(bool disposing)
+        {
+            if(!disposed)
+            {
+                if(disposing)
+                {
+                    if (packageStream != null) { try { packageStream.Close(); } catch { } packageStream = null; }
+                    header = null;
+                    index = null;
+                }
+                disposed = true;
+            }
+        }
+
+        /// <summary>
+        /// Releases all the resources used by <see cref="s4pi.Package"/>
+        /// </summary>
+        public override void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
         #endregion
 
 

@@ -205,6 +205,13 @@ namespace s4pi.Interfaces
         public abstract void DeleteResource(IResourceIndexEntry rc);
         #endregion
 
+        #region IDisposable
+        /// <summary>
+        /// Releases all the resources used by <see cref="s4pi.Interfaces.APackage"/>
+        /// </summary>
+        public abstract void Dispose();
+        #endregion
+
         #endregion
 
         // Static so cannot be defined on the interface

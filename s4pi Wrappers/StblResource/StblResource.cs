@@ -56,7 +56,7 @@ namespace StblResource
                 //string value = System.Text.Encoding.Unicode.GetString(r.ReadBytes(r.ReadInt32() * 2));
                 uint key = r.ReadUInt32();
                 r.ReadByte();
-                string value = System.Text.Encoding.UTF7.GetString(r.ReadBytes(r.ReadInt16()));
+                string value = System.Text.Encoding.UTF8.GetString(r.ReadBytes(r.ReadInt16()));
                 sizeCount += (uint)value.Length + 1;
                 if (entries.ContainsKey(key)) continue; // Patch 1.6 has problems in the STBLs (World Adventures sneaked into the DeltaBuild0 file)
                 entries.Add(key, value);
@@ -87,7 +87,7 @@ namespace StblResource
                 w.Write(kvp.Key);
                 //w.Write(kvp.Value.Length);
                 w.Write((byte)0);
-                w.Write(System.Text.Encoding.ASCII.GetBytes(kvp.Value));
+                w.Write(System.Text.Encoding.UTF8.GetBytes(kvp.Value));
             }
 
             return ms;

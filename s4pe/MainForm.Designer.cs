@@ -239,7 +239,7 @@
             // exportFileDialog
             // 
             this.exportFileDialog.AddExtension = false;
-            this.exportFileDialog.Filter = "Exported files (S3_*.*)|S3_*.*|All files (*.*)|*.*";
+            this.exportFileDialog.Filter = "Exported files (S4_*.*)|S4_*.*|All files (*.*)|*.*";
             this.exportFileDialog.Title = "Export File";
             // 
             // exportBatchTarget

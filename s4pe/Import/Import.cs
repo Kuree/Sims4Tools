@@ -263,13 +263,13 @@ namespace S4PIDemoFE
                                         tgin = rie as AResourceIndexEntry,
                                         data = res.AsBytes,
                                     };
-									
-									// dups Replace | Reject | Allow
-									// dupsList null | list of allowable dup types
-									DuplicateHandling dupThis =
-										dups == DuplicateHandling.allow
-											? dupsList == null || dupsList.Contains(rie.ResourceType) ? DuplicateHandling.allow : DuplicateHandling.replace
-											: dups;
+
+                                    // dups Replace | Reject | Allow
+                                    // dupsList null | list of allowable dup types
+                                    DuplicateHandling dupThis =
+                                        dups == DuplicateHandling.allow
+                                            ? dupsList == null || dupsList.Contains(rie.ResourceType) ? DuplicateHandling.allow : DuplicateHandling.replace
+                                            : dups;
 
                                     limp.Add(Tuple.Create(impres, dupThis));
                                     progressBar1.Value++;
@@ -299,7 +299,7 @@ namespace S4PIDemoFE
                         CopyableMessageBox.IssueException(ex, "Could not import all resources - aborting.\n", title);
                         break;
                     }
-                    finally { Package.ClosePackage(0, imppkg); }
+                    finally { imppkg.Dispose(); }//Package.ClosePackage(0, imppkg); }
                     if (autoSave) if (!fileSave()) break;
                 }
             }

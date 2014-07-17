@@ -479,7 +479,7 @@ namespace S4PIDemoFE
                     }
                     IsPackageDirty = false;
                 }
-                if (package != null) Package.ClosePackage(0, package);
+                if (package != null) package.Dispose();//Package.ClosePackage(0, package);
 
                 package = value;
                 OnPackageChanged(this, new EventArgs());
@@ -1282,7 +1282,7 @@ namespace S4PIDemoFE
                 {
                     target = Package.NewPackage(0);
                     target.SaveAs(exportToPackageDialog.FileName);
-                    Package.ClosePackage(0, target);
+                    target.Dispose(); // Package.ClosePackage(0, target);
                     isNew = true;
                 }
                 catch (Exception ex)
@@ -1402,9 +1402,9 @@ namespace S4PIDemoFE
                 lbProgress.Text = "Saving...";
                 Application.DoEvents();
                 target.SavePackage();
-                Package.ClosePackage(0, target);
+                target.Dispose(); //Package.ClosePackage(0, target);
             }
-            finally { Package.ClosePackage(0, target); lbProgress.Text = ""; Application.UseWaitCursor = false; Application.DoEvents(); }
+            finally { target.Dispose(); lbProgress.Text = ""; Application.UseWaitCursor = false; Application.DoEvents(); } //Package.ClosePackage(0, target)
         }
 
         private void exportResourceToPackage(IPackage tgtpkg, IResourceIndexEntry srcrie, bool replace)

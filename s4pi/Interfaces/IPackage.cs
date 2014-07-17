@@ -7,7 +7,7 @@ namespace s4pi.Interfaces
     /// <summary>
     /// Representation of a Sims 3 Package
     /// </summary>
-    public interface IPackage : IApiVersion, IContentFields
+    public interface IPackage : IApiVersion, IContentFields, IDisposable
     {
         #region Whole package
         /// <summary>
@@ -195,5 +195,6 @@ namespace s4pi.Interfaces
         /// <param name="rc">Target <see cref="IResourceIndexEntry"/>.</param>
         void DeleteResource(IResourceIndexEntry rc);
         #endregion
+
     }
 }
