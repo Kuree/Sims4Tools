@@ -77,7 +77,7 @@ namespace StblResource
             w.Write(unknown1);
 
             if (entries == null) entries = new Dictionary<uint, string>();
-            w.Write(entries.Count);
+            w.Write((uint)entries.Count);
 
             w.Write(unknown2);
             long sizePosition = w.BaseStream.Position;
@@ -86,10 +86,11 @@ namespace StblResource
             foreach (var kvp in entries)
             {
                 w.Write(kvp.Key);
-                w.Write((byte)0);
-                w.Write((ushort)kvp.Value.Length);
-                w.Write(System.Text.Encoding.UTF8.GetBytes(kvp.Value));
-                actualSize += kvp.Value.Length + 1;
+                w.Write((byte)0);                
+                byte[] str = System.Text.Encoding.UTF8.GetBytes(kvp.Value);
+                w.Write((ushort)str.Length);
+                w.Write(str);
+                actualSize += str.Length + 1;
             }
 
             w.BaseStream.Position = sizePosition;
