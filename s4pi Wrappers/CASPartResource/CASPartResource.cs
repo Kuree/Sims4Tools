@@ -525,14 +525,14 @@ namespace CASPartResource
         #endregion
     }
 
-    /// <summary>
-    /// ResourceHandler for CASPartResource wrapper
-    /// </summary>
-    public class CASPartResourceHandler : AResourceHandler
-    {
-        public CASPartResourceHandler()
-        {
-            this.Add(typeof(CASPartResource), new List<string>(new string[] { "0x034AEECB", }));
-        }
-    }
+    ///// <summary>
+    ///// ResourceHandler for CASPartResource wrapper
+    ///// </summary>
+    //public class CASPartResourceHandler : AResourceHandler
+    //{
+    //    public CASPartResourceHandler()
+    //    {
+    //        this.Add(typeof(CASPartResource), new List<string>(new string[] { "0x034AEECB", }));
+    //    }
+    //}
 }

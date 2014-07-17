@@ -78,6 +78,10 @@
       <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
       <Name>CS System Classes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\s4pi Wrappers\CASPartResource\CASPartResource.csproj">
+      <Project>{38d21f02-c139-43c8-8b74-d84e22b89f50}</Project>
+      <Name>CASPartResource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\MiscellaneousResource\MiscellaneousResource.csproj">
       <Project>{8cbb25f3-e1f1-472b-989d-b14b98577f9c}</Project>
       <Name>MiscellaneousResource</Name>

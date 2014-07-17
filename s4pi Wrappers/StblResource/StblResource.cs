@@ -29,6 +29,7 @@ namespace StblResource
         #region Data I/O
         void Parse(Stream s)
         {
+            s.Position = 0;
             BinaryReader r = new BinaryReader(s);
 
             uint magic = r.ReadUInt32();
@@ -52,13 +53,12 @@ namespace StblResource
             entries = new Dictionary<uint, string>(); 
             for (int i = 0; i < count; i++)
             {
-                //ulong key = r.ReadUInt64();
-                //string value = System.Text.Encoding.Unicode.GetString(r.ReadBytes(r.ReadInt32() * 2));
                 uint key = r.ReadUInt32();
                 r.ReadByte();
-                string value = System.Text.Encoding.UTF8.GetString(r.ReadBytes(r.ReadInt16()));
-                sizeCount += (uint)value.Length + 1;
-                if (entries.ContainsKey(key)) continue; // Patch 1.6 has problems in the STBLs (World Adventures sneaked into the DeltaBuild0 file)
+                Int16 length = r.ReadInt16();
+                string value = System.Text.Encoding.UTF8.GetString(r.ReadBytes(length));
+                sizeCount += (uint)length + 1;
+                if (entries.ContainsKey(key)) continue; 
                 entries.Add(key, value);
             }
 
@@ -80,15 +80,20 @@ namespace StblResource
             w.Write(entries.Count);
 
             w.Write(unknown2);
-            w.Write(size);
-
+            long sizePosition = w.BaseStream.Position;
+            w.Write(0x00000000); //w.Write(size);
+            int actualSize = 0;
             foreach (var kvp in entries)
             {
                 w.Write(kvp.Key);
-                //w.Write(kvp.Value.Length);
                 w.Write((byte)0);
+                w.Write((ushort)kvp.Value.Length);
                 w.Write(System.Text.Encoding.UTF8.GetBytes(kvp.Value));
+                actualSize += kvp.Value.Length + 1;
             }
+
+            w.BaseStream.Position = sizePosition;
+            w.Write(actualSize);
 
             return ms;
         }
@@ -185,7 +190,7 @@ namespace StblResource
         #region Content Fields
         public ushort Unknown1 { get { return unknown1; } set { if (unknown1 != value) { unknown1 = value; OnResourceChanged(this, EventArgs.Empty); } } }
         public byte[] Unknown2 { get { return unknown2; } set { if (unknown2 != value) { unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } } }
-        public uint Size { get { return size; } set { if (size != value) { size = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public uint ByteSize { get { return size; } set { if (size != value) { size = value; OnResourceChanged(this, EventArgs.Empty); } } }
 
         public String Value { get { return ValueBuilder; } }
         #endregion
