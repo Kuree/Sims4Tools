@@ -37,7 +37,7 @@ namespace s4pi.Interfaces
         /// <param name="s">The stream from which to read the data contained in the data blob.</param>
         /// <exception cref="ArgumentOutOfRangeException">The given <paramref name="length"/> is less than zero.</exception>
         /// <exception cref="ArgumentNullException">The given stream <paramref name="s"/> is null.</exception>
-        public DataBlobHandler(int APIversion, EventHandler handler, int length, Stream s)
+        public DataBlobHandler(int APIversion, EventHandler handler, long length, Stream s)
             : this(APIversion, handler, length)
         {
             if (s == null) throw new ArgumentNullException("s");
@@ -148,8 +148,9 @@ namespace s4pi.Interfaces
                         for (j = 0; j < 16; j++)
                         {
                             buffer[j] = conversionTable[this.data[k]];
+                            k++;
                         }
-                        sb.Append(buffer);
+                        sb.Append(buffer, 0, 16);
                     }
                 }
                 if (includeASCII && size % 16 != 0)
@@ -162,8 +163,9 @@ namespace s4pi.Interfaces
                     for (j = 0; j < size; j++)
                     {
                         buffer[j] = conversionTable[this.data[k]];
+                        k++;
                     }
-                    sb.Append(buffer);
+                    sb.Append(buffer, 0, size);
                 }
                 return sb.ToString();
             }
@@ -247,8 +249,8 @@ namespace s4pi.Interfaces
         #endregion
 
         /// <summary>
-        /// The results of <see cref="BuildHexDisplay(int,bool)"/> with zero indent and no included ASCII values.
+        /// The results of <see cref="BuildHexDisplay(int,bool)"/> with zero indent and included ASCII values.
         /// </summary>
-        public string Value { get { return string.Concat("\r\n", this.BuildHexDisplay(0, false)); } }
+        public string Value { get { return string.Concat("\r\n", this.BuildHexDisplay(0, true)); } }
     }
 }

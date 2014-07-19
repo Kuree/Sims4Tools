@@ -8,9 +8,12 @@ namespace s4pi.DataResource
 {
     public static class Util
     {
+        public const uint Zero32 = 0;
+        public const uint NullOffset = 0x80000000;
+
         public static string GetString(BinaryReader r, long nameOffset)
         {
-            if (nameOffset == 0x80000000) return "";
+            if (nameOffset == Util.NullOffset) return "";
             long startPosition = r.BaseStream.Position;
             r.BaseStream.Position = nameOffset;
             List<byte> array = new List<byte>();
@@ -25,10 +28,18 @@ namespace s4pi.DataResource
             return Encoding.ASCII.GetString(array.ToArray());
         }
 
+        public static void WriteString(BinaryWriter w, string str)
+        {
+            byte[] array = new byte[str.Length + 1];
+            Encoding.ASCII.GetBytes(str, 0, str.Length, array, 0);
+            array[str.Length] = 0;
+            w.Write(array);
+        }
+
         public static bool GetOffset(BinaryReader r, out uint offset)
         {
             offset = r.ReadUInt32();
-            if (offset == 0x80000000) return false;
+            if (offset == Util.NullOffset) return false;
             offset += (uint)r.BaseStream.Position - 4;
             return true;
         }

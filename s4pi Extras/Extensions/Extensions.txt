@@ -121,6 +121,7 @@
 0x4D1A5589  OBJN   .objn
 0x4E97BAD8  OBSC   .objscript
 0x515CA4CD  CWAL   .wall
+0x545AC67A  DATA   .data
 0x5B282D45  THUM   .png
 0x5DE9DBA0  THUM   .png
 0x5DE9DBA1  THUM   .png
