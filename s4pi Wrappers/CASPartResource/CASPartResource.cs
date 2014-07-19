@@ -528,11 +528,12 @@ namespace CASPartResource
     ///// <summary>
     ///// ResourceHandler for CASPartResource wrapper
     ///// </summary>
-    //public class CASPartResourceHandler : AResourceHandler
-    //{
-    //    public CASPartResourceHandler()
-    //    {
-    //        this.Add(typeof(CASPartResource), new List<string>(new string[] { "0x034AEECB", }));
-    //    }
-    //}
+    public class CASPartResourceHandler : AResourceHandler
+    {
+        public CASPartResourceHandler()
+        {
+            if(!s4pi.Settings.Settings.IsTS4)
+                this.Add(typeof(CASPartResource), new List<string>(new string[] { "0x034AEECB", }));
+        }
+    }
 }

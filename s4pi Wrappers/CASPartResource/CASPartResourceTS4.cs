@@ -18,21 +18,17 @@ namespace CASPartResource
 
         #region Attributes
         public uint version;
-        public uint tgiOffset { get; set; }
-        public uint presetCount { get; set; }
-        public string name { get; set; }
-        public float sortPriority { get; set; }
-        public byte[] unknown1 { get; set; }
-
-        public UInt32[] unknown2;
-        public DataBlobHandler unknown3 { get; set; }
-        public uint[] unknown4 { get; set; }
-        public DataBlobHandler unknown5 { get; set; }
-
-        public UnknownClass[] unknown6 { get; set; }
-
-        public DataBlobHandler unknown7 { get; set; }
-
+        uint tgiOffset;
+        uint presetCount;
+        string name;
+        float sortPriority;
+        byte[] unknown1;
+        IndexList<UInt32> unknown2;
+        DataBlobHandler unknown3;
+        uint[] unknown4;
+        DataBlobHandler unknown5;
+        List<UnknownClass> unknown6;
+        DataBlobHandler unknown7;
         public TGIBlockList tgiList { get; set; }
 
         #endregion
@@ -47,15 +43,16 @@ namespace CASPartResource
             version = r.ReadUInt32();
             tgiOffset = r.ReadUInt32() + 8;
             presetCount = r.ReadUInt32();
-            if (presetCount != 0) Debug.WriteLine("Found non-zero one");
+            if (presetCount != 0) throw new Exception("Found non-zero one");
             name = BigEndianUnicodeString.Read(s);
 
             sortPriority = r.ReadSingle();
             unknown1 = r.ReadBytes(23);
             uint count = r.ReadUInt32();
-            unknown2 = new uint[count];
+            uint[] unknown2List = new uint[count];
             for (uint i = 0; i < count; i++)
-                unknown2[i] = r.ReadUInt32();
+                unknown2List[i] = r.ReadUInt32();
+            unknown2 = new IndexList<uint>(OnResourceChanged, unknown2List);
 
             unknown3 = new DataBlobHandler(1, null, r.ReadBytes(2 * 3 * 4 + 1 + 2));
 
@@ -67,9 +64,10 @@ namespace CASPartResource
             unknown5 = new DataBlobHandler(1, null, r.ReadBytes(2 * 4));
 
             byte count3 = r.ReadByte();
-            unknown6 = new UnknownClass[count3];
+            UnknownClass[] unknown6List = new UnknownClass[count3];
             for (byte i = 0; i < count3; i++)
-                unknown6[i] = new UnknownClass(r);
+                unknown6[i] = new UnknownClass(recommendedApiVersion, OnResourceChanged, s);
+            //unknown6 = new IndexList<UnknownClass>(OnResourceChanged, unknown6List);
 
             unknown7 = new DataBlobHandler(1, null, r.ReadBytes(10));
 
@@ -88,27 +86,67 @@ namespace CASPartResource
 
 
         #region Content Fields
-        public uint Version { get { return version; } }
+        [ElementPriority(0)]
+        public uint Version { get { return version; } set { if (value != version)version = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(1)]
+        public uint TGIoffset { get { return tgiOffset; } set { if (value != tgiOffset) tgiOffset = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(2)]
+        public uint PresetCount { get { return presetCount; } set { if (value != presetCount) presetCount = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(3)]
+        public string Name { get { return name; } set { if (!value.Equals(name)) name = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(4)]
+        public float SortPriority { get { return sortPriority; } set { if (!value.Equals(sortPriority)) sortPriority = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(5)]
+        public byte[] Unknown1 { get { return unknown1; } set { if (!unknown1.Equals(value)) unknown1 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(6)]
+        public IndexList<UInt32> Unknown2 { get { return unknown2; } set { if (!value.Equals(unknown2)) unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        
+        
+        
         public String Value { get { return ValueBuilder; } }
         #endregion
 
 
 
         #region Sub-Class
-        public class UnknownClass
+        public class UnknownClass : AHandlerElement, IEquatable<UnknownClass>
         {
-            public uint unknown1 { get; set; }
+            const int recommendedApiVersion = 1;
+
+
+            public ushort unknown1 { get; set; }
             public DataBlobHandler unknown2 { get; set; }
             public byte[] indexList { get; set; }
-            public UnknownClass(BinaryReader r)
+            public UnknownClass(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public UnknownClass(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public void Parse(Stream s)
             {
-                unknown1 = r.ReadByte();
+                BinaryReader r = new BinaryReader(s);
+                unknown1 = r.ReadUInt16();
                 unknown2 = new DataBlobHandler(1, null, r.ReadBytes(16));
                 indexList = new byte[r.ReadByte()];
                 for (int i = 0; i < indexList.Length; i++)
                     indexList[i] = r.ReadByte();
             }
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            public string Value { get { return ValueBuilder; } }
+
+            public bool Equals(UnknownClass other)
+            {
+                return false;
+            }
         }
+
+        //public class UnknownClassList : DependentList<UnknownClass>
+        //{
+
+        //}
+
         #endregion
     }
 
@@ -116,7 +154,8 @@ namespace CASPartResource
     {
         public CASPartResourceTS4Handler()
         {
-            this.Add(typeof(CASPartResourceTS4), new List<string>(new string[] { "0x034AEECB", }));
+            if(s4pi.Settings.Settings.IsTS4)
+                this.Add(typeof(CASPartResourceTS4), new List<string>(new string[] { "0x034AEECB", }));
         }
     }
 
