@@ -1648,7 +1648,7 @@ namespace CASPartResource
     {
         public SimOutfitResourceHandler()
         {
-            this.Add(typeof(SimOutfitResource), new List<string>(new string[] { "0x025ED6F4", "0xDEA2951C", }));
+            //this.Add(typeof(SimOutfitResource), new List<string>(new string[] { "0x025ED6F4", "0xDEA2951C", }));
         }
     }
 
