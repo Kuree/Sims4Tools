@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
+using s4pi.ImageResource;
 
 namespace System.Windows.Forms
 {
@@ -274,7 +275,21 @@ namespace System.Windows.Forms
                     this.Enabled = false;
                     Application.UseWaitCursor = true;
                     Application.DoEvents();
-                    ddsFile.Load(stream, supportHSV);
+
+                    // Load RLE Image
+                    BinaryReader r = new BinaryReader(stream);
+                    string header = new string(r.ReadChars(7));
+                    if (header.Substring(0, 3) == "DXT" && header.Substring(4, 3) == "RLE")
+                    {
+                        stream.Position = 0;
+                        RLEResource rle = new RLEResource(1, stream);
+                        ddsFile.Load(rle.ToDDS(), supportHSV);
+                    }
+                    else
+                    {
+                        stream.Position = 0;
+                        ddsFile.Load(stream, supportHSV);
+                    }
                     loaded = true;
                 }
                 finally { this.Enabled = true; Application.UseWaitCursor = false; Application.DoEvents(); }

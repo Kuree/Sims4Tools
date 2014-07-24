@@ -69,6 +69,7 @@ namespace S4PIDemoFE
         static uint[] resourceTypes = new uint[] {
             0x00B2D882,
             0x8FFB80F6,
+            0x3453CF95,
         };
 
         static bool channel1 = true, channel2 = true, channel3 = true, channel4 = true, invertch4 = false;

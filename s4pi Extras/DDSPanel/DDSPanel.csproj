@@ -80,10 +80,18 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\s4pi Wrappers\ImageResource\ImageResource.csproj">
+      <Project>{ad53972b-d73e-4935-a4ad-3ebe0e3516f2}</Project>
+      <Name>ImageResource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi\CreateAssemblyVersion\CreateAssemblyVersion.csproj">
       <Project>{114622fb-d6bf-4ea7-9bb9-fb06b5a01212}</Project>
       <Name>CreateAssemblyVersion</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi\Interfaces\Interfaces.csproj">
+      <Project>{51023bd2-9139-438d-b794-95e5ec023537}</Project>
+      <Name>Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

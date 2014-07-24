@@ -82,6 +82,14 @@
       <Project>{38d21f02-c139-43c8-8b74-d84e22b89f50}</Project>
       <Name>CASPartResource</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\s4pi Wrappers\DataResource\DataResource.csproj">
+      <Project>{e8176722-be4e-47ff-a8a6-bff4be7a5de8}</Project>
+      <Name>DataResource</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi Wrappers\MeshChunks\MeshChunks.csproj">
+      <Project>{b1e4d2ec-5027-4f44-8c46-a0485dff7060}</Project>
+      <Name>MeshChunks</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\MiscellaneousResource\MiscellaneousResource.csproj">
       <Project>{8cbb25f3-e1f1-472b-989d-b14b98577f9c}</Project>
       <Name>MiscellaneousResource</Name>
