@@ -78,6 +78,14 @@
       <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
       <Name>CS System Classes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\s4pe Helpers\ModelViewer\ModelViewer.csproj">
+      <Project>{d31e7fc7-e51d-40e4-b2fb-49de645291e5}</Project>
+      <Name>ModelViewer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi Wrappers\AnimationResources\AnimationResources.csproj">
+      <Project>{b33f19de-f211-4d32-8d03-43024b88f177}</Project>
+      <Name>AnimationResources</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\CASPartResource\CASPartResource.csproj">
       <Project>{38d21f02-c139-43c8-8b74-d84e22b89f50}</Project>
       <Name>CASPartResource</Name>

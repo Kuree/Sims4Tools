@@ -1,0 +1,158 @@
+﻿<Window x:Class="s3piwrappers.ModelViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"        
+        xmlns:ModelViewer="clr-namespace:s3piwrappers.ModelViewer"        
+        xmlns:helix="http://helixtoolkit.codeplex.com" 
+        Title="Model Viewer"
+        Height="600"
+        Width="800"
+        MinHeight="480"
+        MinWidth="640">
+    <Window.Resources>
+        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}"
+                         Color="{x:Static SystemColors.HighlightColor}" />
+        <Style TargetType="ListView">
+            <Setter Property="Background"
+                    Value="DarkGray" />
+            <Setter Property="AlternationCount"
+                    Value="2" />
+        </Style>
+        <Style TargetType="Border">
+            <Setter Property="Background"
+                    Value="DarkGray" />
+            <Setter Property="BorderBrush"
+                    Value="LightGray" />
+            <Setter Property="BorderThickness"
+                    Value="2" />
+        </Style>
+        <Style TargetType="{x:Type ListViewItem}">
+            <Style.Triggers>
+                <Trigger Property="ItemsControl.AlternationIndex"
+                         Value="0">
+                    <Setter Property="Background"
+                            Value="DarkGray"></Setter>
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex"
+                         Value="1">
+                    <Setter Property="Background"
+                            Value="LightGray"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style
+            TargetType="{x:Type TextBlock}">
+            <Setter
+                Property="Margin"
+                Value="10,2" />
+            <Setter
+                Property="VerticalAlignment"
+                Value="Center" />
+        </Style>
+        <Style
+            TargetType="{x:Type RadioButton}">
+            <Setter
+                Property="Margin"
+                Value="10,2" />
+            <Setter
+                Property="VerticalAlignment"
+                Value="Center" />
+        </Style>
+        <Style
+            TargetType="Button">
+            <Setter
+                Property="Margin"
+                Value="12" />
+            <Setter
+                Property="Width"
+                Value="100" />
+        </Style>
+    </Window.Resources>
+    <Grid Width="Auto">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="150"
+                              Width="150"></ColumnDefinition>
+            <ColumnDefinition MinWidth="320"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Column="0"
+                    Grid.Row="0">
+                <StackPanel Focusable="True">
+                    <StackPanel Margin="5">
+
+                        <TextBlock>Shading:</TextBlock>
+                        <StackPanel Margin="2,0">
+                            <RadioButton
+                                    x:Name="rbSolid"
+                                    Content="Solid"
+                                    GroupName="Shading"
+                                    Checked="RadioButton_Checked" />
+                            <RadioButton
+                                    x:Name="rbTextured"
+                                    Content="Textured"
+                                    GroupName="Shading"
+                                    Checked="RadioButton_Checked" />
+                            <RadioButton
+                                    Content="UV"
+                                    GroupName="Shading"
+                                    Checked="RadioButton_Checked" />
+                        </StackPanel>
+                        <StackPanel
+                            x:Name="MeshesPanel">
+                            <TextBlock>Meshes:</TextBlock>
+                            <ListView x:Name="mMeshListView"
+                              SelectionChanged="mMeshListView_SelectionChanged"
+                                SelectionMode="Single"></ListView>
+                        </StackPanel>
+                        <StackPanel x:Name="GeostatesPanel">
+                            <TextBlock>States:</TextBlock>
+                            <ListView x:Name="mStateListView"
+                              SelectionChanged="mStateListView_SelectionChanged"
+                              SelectionMode="Single"
+                              AllowDrop="True"></ListView>
+
+                        </StackPanel>
+                        <TextBlock
+                            x:Name="VertexCount">
+                            Vertices: 500</TextBlock>
+                        <TextBlock
+                            x:Name="PolygonCount">
+                            Polygons: 1000</TextBlock>
+                        
+                        <TextBlock x:Name="Help">
+                            
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+        <DockPanel Grid.Column="1"
+                   VerticalAlignment="Stretch"
+                   Height="Auto"
+                   HorizontalAlignment="Stretch"
+                   Grid.ColumnSpan="1"
+                   Grid.Row="0"
+                   Margin="0,0,0,0"
+                   Grid.RowSpan="1"
+                   MinWidth="320"
+                   Background="#FF6F6F6F">
+            <helix:HelixViewport3D Name="mainViewport"
+                                ClipToBounds="True"
+                                Focusable="True" CameraRotationMode="Trackball"  ModelUpDirection="0,0,-1">
+                <helix:DefaultLights/>
+                <ModelVisual3D>
+                    <helix:GridLinesVisual3D MajorDistance="1" ></helix:GridLinesVisual3D>
+                    <ModelVisual3D.Content>
+                        <Model3DGroup x:Name="mGroupMeshes"></Model3DGroup>
+                    </ModelVisual3D.Content>
+                </ModelVisual3D>
+            </helix:HelixViewport3D>
+        </DockPanel>
+    </Grid>
+</Window>

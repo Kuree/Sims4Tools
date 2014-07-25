@@ -1,0 +1,5 @@
+﻿ResourceType: 0x01661233
+Label: MODL Preview
+Command: ModelViewer.exe
+Arguments: "{}"
+Desc: 3d Preview of MODL
