@@ -382,6 +382,8 @@ namespace s4pi.ImageResource
         //        }
         //    }
         //}
+
+        public byte[] RawData { get { return this.data; } }
         #endregion
 
         #region Sub-Types
