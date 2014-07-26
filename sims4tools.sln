@@ -77,6 +77,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelViewer", "s4pe Helpers
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationResources", "s4pi Wrappers\AnimationResources\AnimationResources.csproj", "{B33F19DE-F211-4D32-8D03-43024B88F177}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLEDDSHelper", "s4pe Helpers\RLEDDSHelper\RLEDDSHelper.csproj", "{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -457,6 +459,16 @@ Global
 		{B33F19DE-F211-4D32-8D03-43024B88F177}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{B33F19DE-F211-4D32-8D03-43024B88F177}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B33F19DE-F211-4D32-8D03-43024B88F177}.Release|x86.ActiveCfg = Release|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
