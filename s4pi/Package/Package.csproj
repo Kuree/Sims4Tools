@@ -63,12 +63,28 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Checksums\Adler32.cs" />
+    <Compile Include="Checksums\IChecksum.cs" />
+    <Compile Include="Compression\Deflater.cs" />
+    <Compile Include="Compression\DeflaterConstants.cs" />
+    <Compile Include="Compression\DeflaterEngine.cs" />
+    <Compile Include="Compression\DeflaterHuffman.cs" />
+    <Compile Include="Compression\DeflaterPending.cs" />
+    <Compile Include="Compression\Inflater.cs" />
+    <Compile Include="Compression\InflaterDynHeader.cs" />
+    <Compile Include="Compression\InflaterHuffmanTree.cs" />
+    <Compile Include="Compression\PendingBuffer.cs" />
+    <Compile Include="Compression\Streams\DeflaterOutputStream.cs" />
+    <Compile Include="Compression\Streams\InflaterInputStream.cs" />
+    <Compile Include="Compression\Streams\OutputWindow.cs" />
+    <Compile Include="Compression\Streams\StreamManipulator.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="Compression.cs" />
     <Compile Include="ResourceIndexEntry.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="PackageIndex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SharpZipException\SharpZipBaseException.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
