@@ -16,16 +16,38 @@ namespace RLEDDSHelper
     public partial class Import : Form, IRunHelper
     {
         public byte[] Result { get; private set; }
-        public Import()
+        private string filename;
+        public Import(Stream s)
         {
             InitializeComponent();
+            using (OpenFileDialog open = new OpenFileDialog() { Filter = "DDS File|*.dds" })
+            {
+                if (open.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    this.filename = open.FileName;
+                }
+                else
+                {
+                    this.filename = "";
+                }
+            }
         }
 
-        public Import(Stream s):this()
+        private void Import_Shown(object sender, EventArgs e)
         {
-            RLEResource r = new RLEResource(1, s);
-            this.Result = new byte[r.RawData.Length];
-            r.RawData.CopyTo(this.Result, 0);
+            if (this.filename != "")
+            {
+                using (FileStream fs = new FileStream(this.filename, FileMode.Open))
+                {
+                    RLEResource r = new RLEResource(1, null);
+                    r.ImportToRLE(fs);
+                    this.Result = new byte[r.RawData.Length];
+                    r.RawData.CopyTo(this.Result, 0);
+                    Environment.ExitCode = 0;
+                }
+            }
+            
+            this.Close();
         }
         
     }

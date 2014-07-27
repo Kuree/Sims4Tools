@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using s4pi.Helpers;
+using System.IO;
+using s4pi.ImageResource;
 
 namespace RLEDDSHelper
 {
@@ -15,17 +17,28 @@ namespace RLEDDSHelper
         [STAThread]
         static void Main(string[] args)
         {
-           if(args.Contains("import"))
+           if(args.Contains("/import"))
            {
-               RunHelper.Run(typeof(Import), args);
+               List<string> largs = new List<string>(args);
+               largs.Remove("/import");
+               s4pi.Helpers.RunHelper.Run(typeof(Import), largs.ToArray());
            }
-           else if(args.Contains("export"))
+           else if(args.Contains("/export"))
            {
-               RunHelper.Run(typeof(Export), args);
-           }
-           else
-           {
-               MessageBox.Show("nope");
+               using (FileStream fs = new FileStream(args[1], FileMode.Open))
+               {
+                   using (SaveFileDialog save = new SaveFileDialog() { Filter = "DDS DXT5|*.dds" })
+                   {
+                       if (save.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                       {
+                           using (FileStream fs2 = new FileStream(save.FileName, FileMode.Create))
+                           {
+                               RLEResource r = new RLEResource(1, fs);
+                               r.ToDDS().CopyTo(fs2);
+                           }
+                       }
+                   }
+               }
            }
         }
     }

@@ -442,7 +442,7 @@ namespace s4pi.ImageResource
                 uint size = r.ReadUInt32();
                 if (size != this.size) throw new InvalidDataException(string.Format("Expected size: 0x{0:X8}, read 0x{1:X8}", this.size, size));
                 this.headerFlags = (HeaderFlags)r.ReadUInt32();
-                if (this.headerFlags != HeaderFlags.Texture) throw new InvalidDataException(string.Format("Expected 0x{0:X8}, read 0x{1:X8}", HeaderFlags.Texture, this.headerFlags));
+                if ((this.headerFlags & HeaderFlags.Texture) != HeaderFlags.Texture) throw new InvalidDataException(string.Format("Expected 0x{0:X8}, read 0x{1:X8}", (uint)HeaderFlags.Texture, (uint)this.headerFlags));
                 this.Height = r.ReadInt32();
                 this.Width = r.ReadInt32();
                 if (this.Height > ushort.MaxValue || this.Width > ushort.MaxValue) throw new InvalidDataException("Invalid width or length");
