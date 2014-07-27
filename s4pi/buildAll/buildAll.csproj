@@ -83,6 +83,11 @@
       <Name>ModelViewer</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\s4pe Helpers\RLEDDSHelper\RLEDDSHelper.csproj">
+      <Project>{e86710e3-89dd-48e5-9be2-349fdfdd2d26}</Project>
+      <Name>RLEDDSHelper</Name>
+      <Private>False</Private>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\AnimationResources\AnimationResources.csproj">
       <Project>{b33f19de-f211-4d32-8d03-43024b88f177}</Project>
       <Name>AnimationResources</Name>

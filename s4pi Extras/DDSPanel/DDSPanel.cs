@@ -270,26 +270,64 @@ namespace System.Windows.Forms
         {
             if (stream != null)
             {
+                //try
+                //{
+                //    this.Enabled = false;
+                //    Application.UseWaitCursor = true;
+                //    Application.DoEvents();
+
+                //    // Load RLE Image
+                //    BinaryReader r = new BinaryReader(stream);
+                //    string header = new string(r.ReadChars(7));
+                //    if (header.Length > 0 && header.Substring(0, 3) == "DXT" && header.Substring(4, 3) == "RLE")
+                //    {
+                //        stream.Position = 0;
+                //        RLEResource rle = new RLEResource(1, stream);
+                //        ddsFile.Load(rle.ToDDS(), supportHSV);
+                //    }
+                //    else if(stream.Length > 0)
+                //    {
+                //        stream.Position = 0;
+                //        ddsFile.Load(stream, supportHSV);
+                //    }
+                //    else
+                //    {
+                //        return;
+                //    }
+                //    loaded = true;
+                //}
+                //finally { this.Enabled = true; Application.UseWaitCursor = false; Application.DoEvents(); }
+                //this.supportHSV = supportHSV;
+                //ckb_CheckedChanged(null, null);
+                try
+                {
+                    this.Enabled = false;
+                    Application.UseWaitCursor = true;
+                    Application.DoEvents();
+                    ddsFile.Load(stream, supportHSV);
+                    loaded = true;
+                }
+                finally { this.Enabled = true; Application.UseWaitCursor = false; Application.DoEvents(); }
+                this.supportHSV = supportHSV;
+                ckb_CheckedChanged(null, null);
+            }
+            else
+                Clear();
+        }
+
+        public void RLELoad(Stream stream, bool supportHSV = false)
+        {
+            if (stream != null && stream.Length > 0)
+            {
                 try
                 {
                     this.Enabled = false;
                     Application.UseWaitCursor = true;
                     Application.DoEvents();
 
-                    // Load RLE Image
-                    BinaryReader r = new BinaryReader(stream);
-                    string header = new string(r.ReadChars(7));
-                    if (header.Substring(0, 3) == "DXT" && header.Substring(4, 3) == "RLE")
-                    {
-                        stream.Position = 0;
-                        RLEResource rle = new RLEResource(1, stream);
-                        ddsFile.Load(rle.ToDDS(), supportHSV);
-                    }
-                    else
-                    {
-                        stream.Position = 0;
-                        ddsFile.Load(stream, supportHSV);
-                    }
+                    RLEResource rle = new RLEResource(1, stream);
+                    ddsFile.Load(rle.ToDDS(), supportHSV);
+
                     loaded = true;
                 }
                 finally { this.Enabled = true; Application.UseWaitCursor = false; Application.DoEvents(); }

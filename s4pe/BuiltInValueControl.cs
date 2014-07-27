@@ -69,7 +69,6 @@ namespace S4PIDemoFE
         static uint[] resourceTypes = new uint[] {
             0x00B2D882,
             0x8FFB80F6,
-            0x3453CF95,
         };
 
         static bool channel1 = true, channel2 = true, channel3 = true, channel4 = true, invertch4 = false;
@@ -177,6 +176,50 @@ namespace S4PIDemoFE
             DialogResult dr = fd.ShowDialog();
             if (dr != DialogResult.OK) yield break;
             yield return fd.FileName;
+        }
+    }
+
+    class RLEControl : ABuiltInValueControl
+    {
+        static uint[] resourceTypes = new uint[] {
+            0x3453CF95,
+        };
+
+        static bool channel1 = true, channel2 = true, channel3 = true, channel4 = true, invertch4 = false;
+        Stream resStream;
+        DDSPanel ddsPanel1;
+        public RLEControl(Stream s)
+            : base(s)
+        {
+            if (s == null || s == Stream.Null)
+                return;
+
+            resStream = s;
+            ddsPanel1 = new DDSPanel()
+            {
+                Fit = true,
+                Channel1 = channel1,
+                Channel2 = channel2,
+                Channel3 = channel3,
+                Channel4 = channel4,
+                InvertCh4 = invertch4,
+                Margin = new Padding(3),
+            };
+            ddsPanel1.Channel1Changed += (sn, e) => channel1 = ddsPanel1.Channel1;
+            ddsPanel1.Channel2Changed += (sn, e) => channel2 = ddsPanel1.Channel2;
+            ddsPanel1.Channel3Changed += (sn, e) => channel3 = ddsPanel1.Channel3;
+            ddsPanel1.Channel4Changed += (sn, e) => channel4 = ddsPanel1.Channel4;
+            ddsPanel1.InvertCh4Changed += (sn, e) => invertch4 = ddsPanel1.InvertCh4;
+            ddsPanel1.RLELoad(resStream);
+        }
+
+        public override bool IsAvailable { get { return S4PIDemoFE.Properties.Settings.Default.EnableDDSPreview; } }
+
+        public override Control ValueControl { get { return ddsPanel1; } }
+
+        public override IEnumerable<ToolStripItem> GetContextMenuItems(EventHandler cbk)
+        {
+            yield break;
         }
     }
 

@@ -1170,7 +1170,7 @@ namespace S4PIDemoFE
             rie = CurrentPackage.AddResource(rk, ms, false);//we do NOT want to search again...
             if (rie == null) return null;
 
-            rie.Compressed = (ushort)(compress ? 0xffff : 0);
+            rie.Compressed = (ushort)(compress ? 0x5A42 : 0);
 
             IsPackageDirty = true;
 

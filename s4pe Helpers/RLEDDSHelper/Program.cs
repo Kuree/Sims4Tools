@@ -23,6 +23,10 @@ namespace RLEDDSHelper
            {
                RunHelper.Run(typeof(Export), args);
            }
+           else
+           {
+               MessageBox.Show("nope");
+           }
         }
     }
 }
