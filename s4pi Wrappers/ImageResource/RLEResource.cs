@@ -43,7 +43,6 @@ namespace s4pi.ImageResource
                     Offset3 = r.ReadInt32(),
                     Offset0 = r.ReadInt32(),
                     Offset1 = r.ReadInt32(),
-                    Offset4 = this.info.HasSpecular ? r.ReadInt32() : 0
                 };
             }
 
@@ -53,8 +52,7 @@ namespace s4pi.ImageResource
                 Offset2 = MipHeaders[0].Offset3,
                 Offset3 = MipHeaders[0].Offset0,
                 Offset0 = MipHeaders[0].Offset1,
-                Offset1 = this.info.HasSpecular ? MipHeaders[0].Offset4 : (int)s.Length,
-                Offset4 = (int)s.Length
+                Offset1 = (int)s.Length,
             };
             s.Position = 0;
             this.data = r.ReadBytes((int)s.Length);
@@ -73,10 +71,16 @@ namespace s4pi.ImageResource
             w.Write(RLEInfo.Signature);
             this.info.UnParse(s);
 
+
+            // MEED TO BE WRITTEN IN STATIC
+            var fullTransparentAlpha = new byte[] { 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            var fullTransparentColor = new byte[] { 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            var fullOpaqueAlpha = new byte[] { 0x00, 0x05, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
             for (int i = 0; i < this.info.mipCount; i++)
             {
                 var mipHeader = this.MipHeaders[i];
-                var nextMipHeader = this.MipHeaders[i + 1];
+                var nextMipHeader = MipHeaders[i + 1];
 
                 int blockOffset2, blockOffset3, blockOffset0, blockOffset1;
                 blockOffset2 = mipHeader.Offset2;
@@ -84,31 +88,30 @@ namespace s4pi.ImageResource
                 blockOffset0 = mipHeader.Offset0;
                 blockOffset1 = mipHeader.Offset1;
 
-
-                for (int commandOffset = mipHeader.CommandOffset; commandOffset < nextMipHeader.CommandOffset; commandOffset += 2)
+                for (int commandOffset = mipHeader.CommandOffset;
+                    commandOffset < nextMipHeader.CommandOffset;
+                    commandOffset += 2)
                 {
                     var command = BitConverter.ToUInt16(this.data, commandOffset);
 
                     var op = command & 3;
                     var count = command >> 2;
+
                     if (op == 0)
                     {
                         for (int j = 0; j < count; j++)
                         {
-                            w.Write((ushort)0);
-
-                            w.Write((ushort)0);
-                            w.Write((short)0);
-                            w.Write((short)0);
-
-                            w.Write((uint)0);
-                            w.Write((uint)0);
+                            w.Write(fullTransparentAlpha, 0, 8);
+                            w.Write(fullTransparentAlpha, 0, 8);
                         }
                     }
                     else if (op == 1)
                     {
                         for (int j = 0; j < count; j++)
                         {
+                            //output.Write(fullOpaqueAlpha, 0, 8);
+                            //output.Write(fullTransparentColor, 0, 8);
+
                             w.Write(this.data, blockOffset0, 2);
                             w.Write(this.data, blockOffset1, 6);
                             w.Write(this.data, blockOffset2, 4);
@@ -123,20 +126,7 @@ namespace s4pi.ImageResource
                     {
                         for (int j = 0; j < count; j++)
                         {
-                            if (this.info.HasSpecular == false)
-                            {
-                                // TODO: fix me
-                                w.Write(0xFFFFFFFFFFFF0500ul);
-                                //w.WriteValueU64(0ul, endian);
-                            }
-                            else
-                            {
-                                w.Write(this.data, blockOffset0, 2);
-                                w.Write(this.data, blockOffset1, 6);
-                                blockOffset0 += 2;
-                                blockOffset1 += 6;
-                            }
-
+                            w.Write(fullOpaqueAlpha, 0, 8);
                             w.Write(this.data, blockOffset2, 4);
                             w.Write(this.data, blockOffset3, 4);
                             blockOffset2 += 4;
@@ -191,10 +181,10 @@ namespace s4pi.ImageResource
             using (var block0Data = new MemoryStream())
             using (var block1Data = new MemoryStream())
             {
-                BinaryWriter commandDataWriter = new BinaryWriter(commandData);
-                for (int i = 0; i < this.info.mipCount; i++)
+                BinaryWriter commonDataWriter = new BinaryWriter(commandData);
+                for (int mipIndex = 0; mipIndex < this.info.mipCount; mipIndex++)
                 {
-                    this.MipHeaders[i] = new MipHeader()
+                    this.MipHeaders[mipIndex] = new MipHeader()
                     {
                         CommandOffset = (int)commandData.Length,
                         Offset2 = (int)block2Data.Length,
@@ -203,55 +193,80 @@ namespace s4pi.ImageResource
                         Offset1 = (int)block1Data.Length,
                     };
 
-                    var mipWidth = Math.Max(4, this.info.Width >> i);
-                    var mipHeight = Math.Max(4, this.info.Height >> i);
-                    var mipDepth = Math.Max(1, this.info.Depth >> i);
+                    var mipWidth = Math.Max(4, this.info.Width >> mipIndex);
+                    var mipHeight = Math.Max(4, this.info.Height >> mipIndex);
+                    var mipDepth = Math.Max(1, this.info.Depth >> mipIndex);
 
                     var mipSize = Math.Max(1, (mipWidth + 3) / 4) * Math.Max(1, (mipHeight + 3) / 4) * 16;
                     var mipData = r.ReadBytes(mipSize);
 
-                    for (int j = 0; j < mipSize; )
+                    for (int offset = 0; offset < mipSize; )
                     {
-                        ushort nullCount = 0;
-                        while (nullCount < 0x3FFF &&
-                               j < mipSize &&
-                               TrueForAll(mipData, j, 16, b => b == 0) == true)
+                        ushort transparentCount = 0;
+                        while (transparentCount < 0x3FFF &&
+                               offset < mipSize &&
+                               TestAlphaAny(mipData, offset, a => a != 0) == false)
                         {
-                            nullCount++;
-                            j += 16;
+                            transparentCount++;
+                            offset += 16;
                         }
 
-                        if (nullCount > 0)
+                        if (transparentCount > 0)
                         {
-                            nullCount <<= 2;
-                            nullCount |= 0;
-                            commandDataWriter.Write(nullCount);
+                            transparentCount <<= 2;
+                            transparentCount |= 0;
+                            commonDataWriter.Write(transparentCount);
                             continue;
                         }
 
-                        var start = j;
-                        ushort fullCount = 0;
-                        while (fullCount < 0x3FFF &&
-                               j < mipSize &&
-                               TrueForAny(mipData, j, 16, b => b != 0) == true)
+                        var opaqueOffset = offset;
+                        ushort opaqueCount = 0;
+                        while (opaqueCount < 0x3FFF &&
+                               offset < mipSize &&
+                               TestAlphaAll(mipData, offset, a => a == 0xFF) == true)
                         {
-                            fullCount++;
-                            j += 16;
+                            opaqueCount++;
+                            offset += 16;
                         }
 
-                        if (fullCount > 0)
+                        if (opaqueCount > 0)
                         {
-                            for (int k = 0; k < fullCount; k++, start += 16)
+                            for (int i = 0; i < opaqueCount; i++, opaqueOffset += 16)
                             {
-                                block0Data.Write(mipData, start + 0, 2);
-                                block1Data.Write(mipData, start + 2, 6);
-                                block2Data.Write(mipData, start + 8, 4);
-                                block3Data.Write(mipData, start + 12, 4);
+                                block2Data.Write(mipData, opaqueOffset + 8, 4);
+                                block3Data.Write(mipData, opaqueOffset + 12, 4);
                             }
 
-                            fullCount <<= 2;
-                            fullCount |= 1;
-                            commandDataWriter.Write(fullCount);
+                            opaqueCount <<= 2;
+                            opaqueCount |= 2;
+                            commonDataWriter.Write(opaqueCount);
+                            continue;
+                        }
+
+                        var translucentOffset = offset;
+                        ushort translucentCount = 0;
+                        while (translucentCount < 0x3FFF &&
+                               offset < mipSize &&
+                               TestAlphaAny(mipData, offset, a => a != 0) == true &&
+                               TestAlphaAll(mipData, offset, a => a == 0xFF) == false)
+                        {
+                            translucentCount++;
+                            offset += 16;
+                        }
+
+                        if (translucentCount > 0)
+                        {
+                            for (int i = 0; i < translucentCount; i++, translucentOffset += 16)
+                            {
+                                block0Data.Write(mipData, translucentOffset + 0, 2);
+                                block1Data.Write(mipData, translucentOffset + 2, 6);
+                                block2Data.Write(mipData, translucentOffset + 8, 4);
+                                block3Data.Write(mipData, translucentOffset + 12, 4);
+                            }
+
+                            translucentCount <<= 2;
+                            translucentCount |= 1;
+                            commonDataWriter.Write(translucentCount);
                             continue;
                         }
 
@@ -291,9 +306,11 @@ namespace s4pi.ImageResource
                     w.Write(mipHeader.Offset0 + block0Offset);
                     w.Write(mipHeader.Offset1 + block1Offset);
                 }
+
                 this.data = output.ToArray();
             }
         }
+        
 
 
         private static bool TrueForAll<T>(T[] array, int offset, int count, Predicate<T> match)
@@ -361,28 +378,82 @@ namespace s4pi.ImageResource
             }
             return false;
         }
+
+        private static unsafe void UnpackAlpha(byte[] array, int offset, byte* alpha, out ulong bits)
+        {
+            alpha[0] = array[offset + 0];
+            alpha[1] = array[offset + 1];
+
+            if (alpha[0] > alpha[1])
+            {
+                alpha[2] = (byte)((6 * alpha[0] + 1 * alpha[1] + 3) / 7);
+                alpha[3] = (byte)((5 * alpha[0] + 2 * alpha[1] + 3) / 7);
+                alpha[4] = (byte)((4 * alpha[0] + 3 * alpha[1] + 3) / 7);
+                alpha[5] = (byte)((3 * alpha[0] + 4 * alpha[1] + 3) / 7);
+                alpha[6] = (byte)((2 * alpha[0] + 5 * alpha[1] + 3) / 7);
+                alpha[7] = (byte)((1 * alpha[0] + 6 * alpha[1] + 3) / 7);
+            }
+            else
+            {
+                alpha[2] = (byte)((4 * alpha[0] + 1 * alpha[1] + 2) / 5);
+                alpha[3] = (byte)((3 * alpha[0] + 2 * alpha[1] + 2) / 5);
+                alpha[4] = (byte)((2 * alpha[0] + 3 * alpha[1] + 2) / 5);
+                alpha[5] = (byte)((1 * alpha[0] + 4 * alpha[1] + 2) / 5);
+                alpha[6] = 0x00;
+                alpha[7] = 0xFF;
+            }
+
+            bits = 0;
+            for (int i = 7; i >= 2; i--)
+            {
+                bits <<= 8;
+                bits |= array[offset + i];
+            }
+        }
+
+        private static unsafe bool TestAlphaAll(byte[] array, int offset, Func<byte, bool> test)
+        {
+            var alpha = stackalloc byte[16];
+            ulong bits;
+
+            UnpackAlpha(array, offset, alpha, out bits);
+
+            for (int i = 0; i < 16; i++)
+            {
+                if (test(alpha[bits & 7]) == false)
+                {
+                    return false;
+                }
+
+                bits >>= 3;
+            }
+
+            return true;
+        }
+
+        private static unsafe bool TestAlphaAny(byte[] array, int offset, Func<byte, bool> test)
+        {
+            var alpha = stackalloc byte[16];
+            ulong bits;
+
+            UnpackAlpha(array, offset, alpha, out bits);
+
+            for (int i = 0; i < 16; i++)
+            {
+                if (test(alpha[bits & 7]) == true)
+                {
+                    return true;
+                }
+
+                bits >>= 3;
+            }
+
+            return false;
+        }
+
         #endregion
 
         #region Content Fields
-        //public String Value
-        //{
-        //    get
-        //    {
-        //        if (this.info == null)
-        //            return "Resource is null";
-        //        else
-        //        {
-        //            StringBuilder sb = new StringBuilder();
-        //            sb.AppendFormat("Image Width: {0}\n", this.info.Width);
-        //            sb.AppendFormat("Image Height: {0}\n", this.info.Height);
-        //            sb.AppendFormat("RLE Version: {0}\n", this.info.Version);
-        //            sb.AppendLine("-".PadRight(20, '-'));
-        //            sb.AppendLine("To see the image, please use the helper distributed with s4pe --Kuree");
-        //            return sb.ToString();
-        //        }
-        //    }
-        //}
-
         public byte[] RawData { get { return this.data; } }
         #endregion
 
@@ -421,6 +492,7 @@ namespace s4pi.ImageResource
 
             public RLEInfo(Stream s)
             {
+                s.Position = 0;
                 BinaryReader r = new BinaryReader(s);
                 uint fourcc = r.ReadUInt32();
                 if (fourcc != (uint)FourCC.DXT5) throw new NotImplementedException(string.Format("Expected format: 0x{0:X8}, read 0x{1:X8}", FourCC.DXT5, fourcc));
