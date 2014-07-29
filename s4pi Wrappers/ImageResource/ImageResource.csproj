@@ -60,6 +60,8 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DDS.cs" />
+    <Compile Include="DSTResource.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="ImageResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -3,10 +3,7 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Diagnostics;
 using s4pi.Interfaces;
 
 namespace s4pi.ImageResource
@@ -160,6 +157,7 @@ namespace s4pi.ImageResource
             BinaryWriter w = new BinaryWriter(output);
             this.info = new RLEInfo();
             this.info.Parse(input);
+            if (this.info.pixelFormat.Fourcc != FourCC.DXT5) throw new InvalidDataException(string.Format("Not a DXT5 format DDS, read {0}", this.info.pixelFormat.Fourcc));
 
             if (this.info.Depth == 0) this.info.Depth = 1;
 
@@ -549,15 +547,7 @@ namespace s4pi.ImageResource
             }
         }
 
-        public enum FourCC : uint
-        {
-            DST1 = 0x31545344,
-            DST3 = 0x33545344,
-            DST5 = 0x35545344,
-            DXT1 = 0x31545844,
-            DXT3 = 0x33545844,
-            DXT5 = 0x35545844
-        }
+        
 
 
         public enum RLEVersion : uint
@@ -574,66 +564,7 @@ namespace s4pi.ImageResource
             Pitch = 0x00000008, // DDSD_PITCH
             LinerSize = 0x00080000, // DDSD_LINEARSIZE
         }
-
-
-        public class PixelFormat
-        {
-            public uint size { get { return 32; } }
-            public PixelFormatFlags pixelFormatFlag = PixelFormatFlags.FourCC;
-            public uint fourCC = (uint)FourCC.DXT5;
-            public uint RGBBitCount { get; set; }
-            public uint redBitMask { get; set; }
-            public uint greenBitMask { get; set; }
-            public uint blueBitMask { get; set; }
-            public uint alphaBitMask { get; set; }
-
-
-            public static uint StructureSize
-            {
-                get { return 8 * 4; }
-            }
-
-            public PixelFormat() { }
-
-            public void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write(this.size);
-                w.Write((uint)this.pixelFormatFlag);
-                w.Write(this.fourCC);
-                w.Write(this.RGBBitCount);
-                w.Write(redBitMask);
-                w.Write(greenBitMask);
-                w.Write(blueBitMask);
-                w.Write(this.alphaBitMask);
-            }
-
-            public void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                uint size = r.ReadUInt32();
-                if (size != this.size) throw new InvalidDataException(string.Format("Expected size: 0x{0:X8}, read 0x{1:X8}", this.size, size));
-                this.pixelFormatFlag = (PixelFormatFlags)r.ReadUInt32();
-                if (this.pixelFormatFlag != PixelFormatFlags.FourCC) throw new InvalidDataException("Bad pixel format flag");
-                this.fourCC = r.ReadUInt32();
-                if (this.fourCC != (uint)FourCC.DXT5) throw new InvalidDataException("Expected DTX5");
-                this.RGBBitCount = r.ReadUInt32();
-                this.redBitMask = r.ReadUInt32();
-                this.greenBitMask = r.ReadUInt32();
-                this.blueBitMask = r.ReadUInt32();
-                this.alphaBitMask = r.ReadUInt32();
-            }
-        }
-
-        [Flags]
-        public enum PixelFormatFlags : uint
-        {
-            FourCC = 0x00000004,
-            RGB = 0x00000040,
-            RGBA = 0x00000041,
-            Luminance = 0x00020000,
-        }
-
+        
         #endregion
     }
 
