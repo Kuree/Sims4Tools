@@ -22,6 +22,8 @@ namespace CASPartResource
         uint presetCount;
         string name;
         float sortPriority;
+        byte colorCode;
+        private uint outfitGroup;
         DataBlobHandler unknown1;
         IndexList<UInt32> unknown2;
         DataBlobHandler unknown3;
@@ -46,7 +48,9 @@ namespace CASPartResource
             name = BigEndianUnicodeString.Read(s);
 
             sortPriority = r.ReadSingle();
-            unknown1 = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, r.ReadBytes(23));
+            colorCode = r.ReadByte();
+            outfitGroup = r.ReadUInt32();
+            unknown1 = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, r.ReadBytes(18));
             uint count = r.ReadUInt32();
             uint[] unknown2List = new uint[count];
             for (uint i = 0; i < count; i++)
@@ -86,6 +90,8 @@ namespace CASPartResource
             w.Write(presetCount);
             BigEndianUnicodeString.Write(s, name);
             w.Write(sortPriority);
+            w.Write(colorCode);
+            w.Write(outfitGroup);
             unknown1.UnParse(s);
             w.Write((uint)unknown2.Count);
             foreach (var value in unknown2) w.Write(value);
@@ -120,18 +126,22 @@ namespace CASPartResource
         [ElementPriority(4)]
         public float SortPriority { get { return sortPriority; } set { if (!value.Equals(sortPriority)) sortPriority = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(5)]
-        public DataBlobHandler Unknown1 { get { return unknown1; } set { if (!unknown1.Equals(value)) unknown1 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte ColorCode { get { return colorCode; } set { if (!value.Equals(colorCode)) colorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(6)]
-        public IndexList<UInt32> Unknown2 { get { return unknown2; } set { if (!value.Equals(unknown2)) unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint OutfitGroup { get { return outfitGroup; } set { if (!value.Equals(outfitGroup)) outfitGroup = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(7)]
-        public DataBlobHandler Unknown3 { get { return unknown3; } set { if (!unknown3.Equals(value)) unknown3 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public DataBlobHandler Unknown1 { get { return unknown1; } set { if (!unknown1.Equals(value)) unknown1 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(8)]
-        public UInt32[] Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) unknown4 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public IndexList<UInt32> Unknown2 { get { return unknown2; } set { if (!value.Equals(unknown2)) unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
-        public DataBlobHandler Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) unknown5 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public DataBlobHandler Unknown3 { get { return unknown3; } set { if (!unknown3.Equals(value)) unknown3 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(10)]
-        public UnknownClassList Unknown6 { get { return unknown6; } set { if (!unknown6.Equals(value)) unknown6 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public UInt32[] Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) unknown4 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(11)]
+        public DataBlobHandler Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) unknown5 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(12)]
+        public UnknownClassList Unknown6 { get { return unknown6; } set { if (!unknown6.Equals(value)) unknown6 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(13)]
         public DataBlobHandler Unknown7 { get { return unknown7; } set { if (!unknown7.Equals(value)) unknown7 = value; OnResourceChanged(this, EventArgs.Empty); } }
         public String Value { get { return ValueBuilder; } }
         #endregion
