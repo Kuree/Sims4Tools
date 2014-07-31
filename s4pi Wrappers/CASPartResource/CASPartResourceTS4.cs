@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CASPartResource
 {
-    class CASPartResourceTS4 : AResource
+    public class CASPartResourceTS4 : AResource
     {
         const int recommendedApiVersion = 1;
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
