@@ -11,7 +11,7 @@ using s4pi.Interfaces;
 using s4pi.Package;
 using s4pi.Extensions;
 using System.Text;
-
+using s4pi.ImageResource;
 namespace S4PIDemoFE
 {
     public interface IBuiltInValueControl
@@ -258,6 +258,7 @@ namespace S4PIDemoFE
             0x2E75C767, //  ICON   .png
             0x2F7D0002, //  IMAG   .jpg
             0x2F7D0004, //  IMAG   .png
+            0x5B282D45, //  THUM   .png
             0x5DE9DBA0, //  THUM   .png
             0x5DE9DBA1, //  THUM   .png
             0x5DE9DBA2, //  THUM   .png
@@ -302,7 +303,41 @@ namespace S4PIDemoFE
         }
     }
 
+    class ThumbnailControl : ABuiltInValueControl
+    {
+        //TODO: static constructor read this from file
+        //TODO: temporarily use the one from s4pi ImageResource wrapper source
+        static uint[] resourceTypes = new uint[] {
+            0x3C1AF1F2,
+            0xCD9DE247,
+        };
 
+        PictureBox pb = new PictureBox();
+
+        public ThumbnailControl(Stream s)
+            : base(s)
+        {
+            if (s == null || s == Stream.Null)
+                return;
+            ThumbnailResource r = new ThumbnailResource(1, s);
+            pb.Image = r.Image;
+        }
+
+        public override bool IsAvailable
+        {
+            get { return true; }
+        }
+
+        public override Control ValueControl
+        {
+            get { return pb; }
+        }
+
+        public override IEnumerable<ToolStripItem> GetContextMenuItems(EventHandler cbk)
+        {
+            yield break;
+        }
+    }
     //Used directly by MainForm, so needs to be public
     public class TextControl : ABuiltInValueControl
     {

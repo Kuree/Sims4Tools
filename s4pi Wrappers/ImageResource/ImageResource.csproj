@@ -71,6 +71,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="RLEResource.cs" />
+    <Compile Include="ThumbnailResource.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ImageResources.txt" />

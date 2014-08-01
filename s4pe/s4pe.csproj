@@ -365,6 +365,10 @@
       <Project>{DF6E6825-5488-43EC-81A5-0EE87945228B}</Project>
       <Name>s4piControls</Name>
     </ProjectReference>
+    <ProjectReference Include="..\s4pi Wrappers\ImageResource\ImageResource.csproj">
+      <Project>{ad53972b-d73e-4935-a4ad-3ebe0e3516f2}</Project>
+      <Name>ImageResource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\s4pi\Interfaces\Interfaces.csproj">
       <Project>{51023BD2-9139-438D-B794-95E5EC023537}</Project>
       <Name>Interfaces</Name>
