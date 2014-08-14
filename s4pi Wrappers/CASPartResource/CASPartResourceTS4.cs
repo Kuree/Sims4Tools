@@ -26,13 +26,15 @@ namespace CASPartResource
         byte unknown1;
         private uint outfitGroup;
         DataBlobHandler unknown2;
-        Flag[] flagList;
+        FlagList flagList;
+        byte unknown3;
+        byte swatchIndex;
         DataBlobHandler unknown4;
-        uint[] unknown5;
-        DataBlobHandler unknown6;
-        UnknownClassList unknown7;
-        DataBlobHandler unknown8;
-        public TGIBlockList tgiList { get; set; }
+        uint[] swatchColorCode;
+        DataBlobHandler unknown5;
+        UnknownClassList unknown6;
+        DataBlobHandler unknown7;
+        public TGIBlockList tgiList;
         #endregion
 
         public CASPartResourceTS4(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
@@ -53,19 +55,20 @@ namespace CASPartResource
             unknown1 = r.ReadByte();
             outfitGroup = r.ReadUInt32();
             unknown2 = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, r.ReadBytes(17));
-            uint count = r.ReadUInt32();
-            flagList = new Flag[count];
-            for (int i = 0; i < count; i++)
-                flagList[i] = new Flag(recommendedApiVersion, OnResourceChanged, s);
 
-            unknown4 = new DataBlobHandler(1, null, r.ReadBytes(2 * 3 * 4 + 1 + 2));
+            flagList = new FlagList(OnResourceChanged, s);
+
+            this.unknown3 = r.ReadByte();
+            this.swatchIndex = r.ReadByte();
+
+            unknown4 = new DataBlobHandler(1, null, r.ReadBytes(2 * 3 * 4 + 1));
 
             byte count2 = r.ReadByte();
-            unknown5 = new uint[count2];
+            swatchColorCode = new uint[count2];
             for (byte i = 0; i < count2; i++)
-                unknown5[i] = r.ReadUInt32();
+                swatchColorCode[i] = r.ReadUInt32();
 
-            unknown6 = new DataBlobHandler(1, null, r.ReadBytes(2 * 4));
+            unknown5 = new DataBlobHandler(1, null, r.ReadBytes(2 * 4));
 
             // TGI block list
             long currentPosition = r.BaseStream.Position;
@@ -76,9 +79,9 @@ namespace CASPartResource
                 tgiList.Add(new TGIBlock(1, null, "IGT", s));
             r.BaseStream.Position = currentPosition;
 
-            unknown7 = new UnknownClassList(null, s, tgiList);
+            unknown6 = new UnknownClassList(null, s, tgiList);
 
-            unknown8 = new DataBlobHandler(1, null, r.ReadBytes(10));            
+            unknown7 = new DataBlobHandler(1, null, r.ReadBytes(10));            
         }
 
         protected override Stream UnParse()
@@ -95,14 +98,15 @@ namespace CASPartResource
             w.Write(unknown1);
             w.Write(outfitGroup);
             unknown2.UnParse(s);
-            w.Write((uint)flagList.Length);
-            foreach (var value in flagList) value.UnParse(s);
+            flagList.UnParse(s);
+            w.Write(this.unknown3);
+            w.Write(this.swatchIndex);
             unknown4.UnParse(s);
-            w.Write((byte)unknown5.Length);
-            foreach(var value in unknown5) w.Write(value);
+            w.Write((byte)swatchColorCode.Length);
+            foreach(var value in swatchColorCode) w.Write(value);
+            unknown5.UnParse(s);
             unknown6.UnParse(s);
             unknown7.UnParse(s);
-            unknown8.UnParse(s);
 
             long tgiPosition = w.BaseStream.Position;
             w.BaseStream.Position = 4;
@@ -136,17 +140,23 @@ namespace CASPartResource
         [ElementPriority(8)]
         public DataBlobHandler Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
-        public Flag[] Unknown3 { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public FlagList CASFlagList { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(10)]
-        public DataBlobHandler Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) unknown4 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte Unknown3 { get { return unknown3; } set { if (!value.Equals(unknown3)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
         [ElementPriority(11)]
-        public UInt32[] Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) unknown5 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte SwatchIndex { get { return swatchIndex; } set { if (!swatchIndex.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.swatchIndex = value; } } }
         [ElementPriority(12)]
-        public DataBlobHandler Unknown6 { get { return unknown6; } set { if (!unknown6.Equals(value)) unknown6 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public DataBlobHandler Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) unknown4 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(13)]
-        public UnknownClassList Unknown7 { get { return unknown7; } set { if (!unknown7.Equals(value)) unknown7 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public UInt32[] SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(14)]
-        public DataBlobHandler Unknown8 { get { return unknown8; } set { if (!unknown8.Equals(value)) unknown8 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public DataBlobHandler Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) unknown5 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(15)]
+        public UnknownClassList Unknown6 { get { return unknown6; } set { if (!unknown6.Equals(value)) unknown6 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(16)]
+        public DataBlobHandler Unknown7 { get { return unknown7; } set { if (!unknown7.Equals(value)) unknown7 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(17)]
+        public TGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
         #endregion
 
@@ -199,10 +209,13 @@ namespace CASPartResource
             public string Value { get { return ValueBuilder; } }
 
             #endregion
+
+            #region IEquatable
             public bool Equals(UnknownClass other)
             {
                 return this.unknown1 == other.unknown1 && this.unknown2.Equals(other.unknown2) && this.indexList.Equals(other.indexList);
             }
+            #endregion
         }
 
         public class UnknownClassList : DependentList<UnknownClass>
@@ -273,14 +286,37 @@ namespace CASPartResource
                 return this.flagValue == other.flagValue && this.flagCatagory == other.flagCatagory;
             }
 
+            [ElementPriority(0)]
             public CASPFlags FlagCatagory { get { return this.flagCatagory; } set { if (value != this.flagCatagory) { OnElementChanged(); this.flagCatagory = value; } } }
+            [ElementPriority(1)]
             public ushort FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
             
         }
 
-        public class FlagList //: DependentList<Flag> NOT IMPLEMENTED YET
+        public class FlagList : DependentList<Flag> 
         {
+            public FlagList(EventHandler handler, Stream s) : base(handler, s) { }
 
+            #region Data I/O
+            void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                uint count = r.ReadUInt32();
+                for (int i = 0; i < count; i++)
+                    base.Add(new Flag(recommendedApiVersion, handler, s));
+            }
+
+            public void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write((uint)base.Count);
+                foreach (var flag in this)
+                    flag.UnParse(s);
+            }
+            #endregion
+
+            protected override Flag CreateElement(Stream s) { return new Flag(recommendedApiVersion, null, s); }
+            protected override void WriteElement(Stream s, Flag element) { element.UnParse(s); }
         }
 
         #region Flags
