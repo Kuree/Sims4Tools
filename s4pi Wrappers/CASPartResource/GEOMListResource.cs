@@ -41,7 +41,7 @@ namespace CASPartResource
             int count = r.ReadInt32();
             this.referenceBlockList = new ReferenceBlock[count];
             for (int i = 0; i < count; i++)
-                this.referenceBlockList[i] = new ReferenceBlock(s);
+                this.referenceBlockList[i] = new ReferenceBlock(recommendedApiVersion,OnResourceChanged, s);
         }
 
         protected override Stream UnParse()
@@ -66,13 +66,13 @@ namespace CASPartResource
 
         #region Sub-Class
 
-        public class ReferenceBlock
+        public class ReferenceBlock : AHandlerElement, IEquatable<ReferenceBlock>
         {
             public uint unknown1 { get; set; }
             public DataBlobHandler unknownBytes { get; set; }
-            TGIBlockList tgiList { get; set; }
+            public TGIBlockList tgiList { get; set; }
 
-            public ReferenceBlock(Stream s)
+            public ReferenceBlock(int APIversion, EventHandler handler, Stream s) :base(APIversion, handler)
             {
                 BinaryReader r = new BinaryReader(s);
                 this.unknown1 = r.ReadUInt32();
@@ -97,36 +97,28 @@ namespace CASPartResource
                     tgi.UnParse(s);
             }
 
-            public string Value
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            public bool Equals(ReferenceBlock other)
             {
-                get
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.AppendFormat("{0}Unknown1: 0x{1:X8}\n", "".PadLeft(5, ' '), this.unknown1);
-                    sb.AppendFormat("{0}{1}\n", "".PadLeft(5, ' '), this.unknownBytes.Value);
-                    sb.AppendFormat("{0}GEOM List Count: 0x{1:X8}\n", "".PadLeft(5, ' '), this.tgiList.Count);
-                    foreach (var tgi in this.tgiList)
-                        sb.AppendFormat("{0}{1}\n", "".PadLeft(10, ' '), tgi.Value);
-                    return sb.ToString();
-                }
+                return this.unknown1 == other.unknown1 && this.unknownBytes.Equals(other.unknownBytes) && this.tgiList.Equals(other.tgiList);
             }
+
+            public string Value { get { return ValueBuilder; } }
         }
+
+
+
         #endregion
 
         public string Value
         {
             get
             {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine(this.unknownHeader.Value);
-                sb.AppendLine(this.currentInstance.Value);
-                sb.AppendFormat("Unknown1: 0x{0:X8}\n", this.unknown1);
-                sb.AppendFormat("Unknown2: 0x{0:X8}\n", this.unknown2);
-                sb.AppendFormat("Unknown3: 0x{0:X8}\n", this.unknown3);
-                sb.AppendFormat("GEOM Reference List: Count: 0x{0:X8}\n", this.referenceBlockList.Length);
-                foreach (var block in this.referenceBlockList)
-                    sb.AppendLine(block.Value);
-                return sb.ToString();
+                return ValueBuilder;
             }
         }
     }

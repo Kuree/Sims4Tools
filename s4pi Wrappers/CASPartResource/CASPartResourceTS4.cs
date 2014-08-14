@@ -26,7 +26,7 @@ namespace CASPartResource
         byte unknown1;
         private uint outfitGroup;
         DataBlobHandler unknown2;
-        IndexList<UInt32> unknown3;
+        Flag[] flagList;
         DataBlobHandler unknown4;
         uint[] unknown5;
         DataBlobHandler unknown6;
@@ -54,10 +54,9 @@ namespace CASPartResource
             outfitGroup = r.ReadUInt32();
             unknown2 = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, r.ReadBytes(17));
             uint count = r.ReadUInt32();
-            uint[] unknown2List = new uint[count];
-            for (uint i = 0; i < count; i++)
-                unknown2List[i] = r.ReadUInt32();
-            unknown3 = new IndexList<uint>(OnResourceChanged, unknown2List);
+            flagList = new Flag[count];
+            for (int i = 0; i < count; i++)
+                flagList[i] = new Flag(recommendedApiVersion, OnResourceChanged, s);
 
             unknown4 = new DataBlobHandler(1, null, r.ReadBytes(2 * 3 * 4 + 1 + 2));
 
@@ -96,8 +95,8 @@ namespace CASPartResource
             w.Write(unknown1);
             w.Write(outfitGroup);
             unknown2.UnParse(s);
-            w.Write((uint)unknown3.Count);
-            foreach (var value in unknown3) w.Write(value);
+            w.Write((uint)flagList.Length);
+            foreach (var value in flagList) value.UnParse(s);
             unknown4.UnParse(s);
             w.Write((byte)unknown5.Length);
             foreach(var value in unknown5) w.Write(value);
@@ -137,7 +136,7 @@ namespace CASPartResource
         [ElementPriority(8)]
         public DataBlobHandler Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
-        public IndexList<UInt32> Unknown3 { get { return unknown3; } set { if (!value.Equals(unknown3)) unknown3 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public Flag[] Unknown3 { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(10)]
         public DataBlobHandler Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) unknown4 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(11)]
@@ -245,18 +244,41 @@ namespace CASPartResource
             
         }
 
-        public class Flag
+        public class Flag : AHandlerElement, IEquatable<Flag>
         {
-            short flagCatagory;
-            short flagValue;
+            CASPFlags flagCatagory;
+            ushort flagValue;
 
-            public Flag(short flagCatagory, short flagValue)
+            public Flag(int APIversion, EventHandler handler, Stream s) :base(APIversion, handler)
             {
-
+                BinaryReader r = new BinaryReader(s);
+                this.flagCatagory = (CASPFlags)r.ReadUInt16();
+                this.flagValue = r.ReadUInt16();
             }
+
+            public void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write((ushort)this.flagCatagory);
+                w.Write(this.flagValue);
+            }
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            public bool Equals(Flag other)
+            {
+                return this.flagValue == other.flagValue && this.flagCatagory == other.flagCatagory;
+            }
+
+            public CASPFlags FlagCatagory { get { return this.flagCatagory; } set { if (value != this.flagCatagory) { OnElementChanged(); this.flagCatagory = value; } } }
+            public ushort FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
+            
         }
 
-        public class FlagList //: DependentList<Flag>
+        public class FlagList //: DependentList<Flag> NOT IMPLEMENTED YET
         {
 
         }
@@ -276,7 +298,13 @@ namespace CASPartResource
             Hat = 0x004F,
             Top = 0x0051,
             Bottom = 0x0052,
-            Unknown5 = 0x0046,
+            Body = 0x0053,
+            Shoes = 0x0054,
+            Unknown5 = 0x005B,
+            ClothingMaterial = 0x0060,
+            Hair_Again = 0x0063,
+            Hair_Maybe = 0x0063,
+            Eyebrows_Maybe = 0x0063,
         }
         #endregion
 
