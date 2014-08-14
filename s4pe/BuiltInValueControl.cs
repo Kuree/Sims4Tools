@@ -308,7 +308,10 @@ namespace S4PIDemoFE
         //TODO: static constructor read this from file
         //TODO: temporarily use the one from s4pi ImageResource wrapper source
         static uint[] resourceTypes = new uint[] {
+            0x3BD45407,
             0x3C1AF1F2,
+            0x5B282D45,
+            0x56278554,
             0xCD9DE247,
         };
 
@@ -320,6 +323,7 @@ namespace S4PIDemoFE
             if (s == null || s == Stream.Null)
                 return;
             ThumbnailResource r = new ThumbnailResource(1, s);
+            r.TransformToPNG();
             pb.Image = r.Image;
         }
 

@@ -32,37 +32,43 @@ namespace s4pi.ImageResource
             return new MemoryStream(this.rawData);
         }
 
-
-        public Bitmap Image
+        public Stream ToImageStream()
         {
-            get
-            {
-                using (MemoryStream ms = new MemoryStream(this.rawData))
-                {
-                    BinaryReader r = new BinaryReader(ms);
-                    Bitmap colorImage = new Bitmap(ms);
-                    ms.Position = 0;
-                    r.ReadBytes(32);
-                    using (MemoryStream alphaStream = new MemoryStream(r.ReadBytes(this.rawData.Length - 32)))
-                    {
-                        Bitmap alphaImage = new Bitmap(alphaStream);
-                        if (colorImage.Width != alphaImage.Width || colorImage.Height != alphaImage.Height) throw new InvalidDataException("Not a proper TS4 Thumbnail image");
-                        int[,] rawImage = new int[colorImage.Width, colorImage.Height];
-                        for (int y = 0; y < colorImage.Height; y++)
-                        {
-                            for (int x = 0; x < colorImage.Width; x++)
-                            {
-                                Color color = colorImage.GetPixel(x, y);
-                                byte alpha = alphaImage.GetPixel(x, y).R;
-                                rawImage[x, y] = Color.FromArgb(alpha, color).ToArgb();
+            MemoryStream ms = new MemoryStream();
+            Image.Save(ms, ImageFormat.Png);
+            ms.Position = 0;
+            return ms;
+        }
 
-                            }
+        public void TransformToPNG()
+        {
+            using (MemoryStream ms = new MemoryStream(this.rawData))
+            {
+                BinaryReader r = new BinaryReader(ms);
+                Bitmap colorImage = new Bitmap(ms);
+                ms.Position = 0;
+                r.ReadBytes(32);
+                using (MemoryStream alphaStream = new MemoryStream(r.ReadBytes(this.rawData.Length - 32)))
+                {
+                    Bitmap alphaImage = new Bitmap(alphaStream);
+                    if (colorImage.Width != alphaImage.Width || colorImage.Height != alphaImage.Height) throw new InvalidDataException("Not a proper TS4 Thumbnail image");
+                    int[,] rawImage = new int[colorImage.Width, colorImage.Height];
+                    for (int y = 0; y < colorImage.Height; y++)
+                    {
+                        for (int x = 0; x < colorImage.Width; x++)
+                        {
+                            Color color = colorImage.GetPixel(x, y);
+                            byte alpha = alphaImage.GetPixel(x, y).R;
+                            rawImage[x, y] = Color.FromArgb(alpha, color).ToArgb();
+
                         }
-                        return ToBitmap(rawImage);
                     }
+                    this.Image = ToBitmap(rawImage);
                 }
             }
         }
+
+        public Bitmap Image { get; private set; }
 
 
         /// <summary>
@@ -158,7 +164,7 @@ namespace s4pi.ImageResource
     {
         public ThumbnailResourceHandler()
         {
-            this.Add(typeof(ThumbnailResource), new List<string>(new string[] { "0x3C1AF1F2", "0xCD9DE247"}));
+            this.Add(typeof(ThumbnailResource), new List<string>(new string[] { "0x3C1AF1F2", "0xCD9DE247", "0x5B282D45"}));
         }
     }
 }

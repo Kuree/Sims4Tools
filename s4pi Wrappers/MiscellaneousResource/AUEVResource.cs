@@ -101,7 +101,7 @@ namespace s4pi.Miscellaneous
     }
 
     /// <summary>
-    /// ResourceHandler for StblResource wrapper
+    /// ResourceHandler for AUEVResource wrapper
     /// </summary>
     public class AUEVResourceHandler : AResourceHandler
     {
