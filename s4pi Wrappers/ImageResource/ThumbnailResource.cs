@@ -158,7 +158,7 @@ namespace s4pi.ImageResource
     }
 
     /// <summary>
-    /// ResourceHandler for StblResource wrapper
+    /// ResourceHandler for ThumbnailResource wrapper
     /// </summary>
     public class ThumbnailResourceHandler : AResourceHandler
     {

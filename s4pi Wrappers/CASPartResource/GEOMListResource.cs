@@ -16,12 +16,12 @@ namespace CASPartResource
         static bool checking = s4pi.Settings.Settings.Checking;
 
         #region Attributes
-        public DataBlobHandler unknownHeader { get; set; }
-        public TGIBlock currentInstance { get; set; }
-        public uint unknown1 { get; set; }
-        public uint unknown2 { get; set; }
-        public uint unknown3 { get; set; }
-        public ReferenceBlock[] referenceBlockList { get; set; }
+        private DataBlobHandler unknownHeader { get; set; }
+        private TGIBlock currentInstance { get; set; }
+        private uint unknown1 { get; set; }
+        private uint unknown2 { get; set; }
+        private uint unknown3 { get; set; }
+        private ReferenceBlockList referenceBlockList { get; set; }
 
         #endregion
 
@@ -38,10 +38,7 @@ namespace CASPartResource
             this.unknown2 = r.ReadUInt32();
             this.unknown3 = r.ReadUInt32();
 
-            int count = r.ReadInt32();
-            this.referenceBlockList = new ReferenceBlock[count];
-            for (int i = 0; i < count; i++)
-                this.referenceBlockList[i] = new ReferenceBlock(recommendedApiVersion,OnResourceChanged, s);
+            this.referenceBlockList = new ReferenceBlockList(OnResourceChanged, s);
         }
 
         protected override Stream UnParse()
@@ -54,9 +51,7 @@ namespace CASPartResource
             w.Write(this.unknown1);
             w.Write(this.unknown2);
             w.Write(this.unknown3);
-            w.Write(this.referenceBlockList.Length);
-            foreach (var block in this.referenceBlockList)
-                block.UnParse(ms);
+            this.referenceBlockList.UnParse(ms);
 
             ms.Position = 0;
             return ms;
@@ -110,21 +105,61 @@ namespace CASPartResource
             public string Value { get { return ValueBuilder; } }
         }
 
+        public class ReferenceBlockList :DependentList<ReferenceBlock>
+        {
+            #region Constructor
+            public ReferenceBlockList(EventHandler handler, Stream s) : base(handler, s) { }
+            #endregion
 
+            #region Data I/O
+            public void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                int count = r.ReadInt32();
+                for(int i  = 0; i < count; i++)
+                {
+                    base.Add(new ReferenceBlock(recommendedApiVersion, handler, s));
+                }
+            }
+
+            public override void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write(base.Count);
+                foreach(var block in this)
+                {
+                    block.UnParse(s);
+                }
+            }
+            #endregion
+
+            protected override ReferenceBlock CreateElement(Stream s) { return new ReferenceBlock(recommendedApiVersion, handler, s); }
+            protected override void WriteElement(Stream s, ReferenceBlock element) { element.UnParse(s); }
+
+        }
 
         #endregion
 
-        public string Value
-        {
-            get
-            {
-                return ValueBuilder;
-            }
-        }
+        #region Content-Field
+        [ElementPriority(0)]
+        public DataBlobHandler UnknownHeader { get { return this.unknownHeader; } set { if (!value.Equals(this.unknownHeader)) { OnResourceChanged(this, EventArgs.Empty); this.unknownHeader = value; } } }
+        [ElementPriority(1)]
+        public TGIBlock CurrentInstance { get { return this.currentInstance; } set { if (!value.Equals(this.currentInstance)) { OnResourceChanged(this, EventArgs.Empty); this.currentInstance = value; } } }
+        [ElementPriority(2)]
+        public uint Unknown1 { get { return this.unknown1; } set { if (!value.Equals(this.unknown1)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
+        [ElementPriority(3)]
+        public uint Unknown2 { get { return this.unknown2; } set { if (!value.Equals(this.unknown2)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
+        [ElementPriority(4)]
+        public uint Unknown3 { get { return this.unknown3; } set { if (!value.Equals(this.unknown3)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
+        [ElementPriority(5)]
+        public ReferenceBlockList GEOMReferenceBlockList { get { return this.referenceBlockList; } set { if (!value.Equals(this.referenceBlockList)) { OnResourceChanged(this, EventArgs.Empty); this.referenceBlockList = value; } } }
+        #endregion
+
+        public string Value { get { return ValueBuilder; } }
     }
 
     /// <summary>
-    /// ResourceHandler for AUEVResource wrapper
+    /// ResourceHandler for GEOMListResource wrapper
     /// </summary>
     public class GEOMListResourceHandler : AResourceHandler
     {

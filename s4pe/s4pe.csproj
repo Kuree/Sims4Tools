@@ -397,7 +397,6 @@
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
-    <PreBuildEvent>
-    </PreBuildEvent>
+    <PreBuildEvent>"$(SolutionDir)s4pi\CreateAssemblyVersion\bin\Debug\CreateAssemblyVersion" "$(ProjectDir)\"</PreBuildEvent>
   </PropertyGroup>
 </Project>
