@@ -32,7 +32,7 @@ namespace CASPartResource
         DataBlobHandler unknown4;
         uint[] swatchColorCode;
         DataBlobHandler unknown5;
-        UnknownClassList unknown6;
+        LODBlockList lodBlockList;
         DataBlobHandler unknown7;
         public TGIBlockList tgiList;
         #endregion
@@ -79,7 +79,7 @@ namespace CASPartResource
                 tgiList.Add(new TGIBlock(1, null, "IGT", s));
             r.BaseStream.Position = currentPosition;
 
-            unknown6 = new UnknownClassList(null, s, tgiList);
+            lodBlockList = new LODBlockList(null, s, tgiList);
 
             unknown7 = new DataBlobHandler(1, null, r.ReadBytes(10));            
         }
@@ -105,7 +105,7 @@ namespace CASPartResource
             w.Write((byte)swatchColorCode.Length);
             foreach(var value in swatchColorCode) w.Write(value);
             unknown5.UnParse(s);
-            unknown6.UnParse(s);
+            lodBlockList.UnParse(s);
             unknown7.UnParse(s);
 
             long tgiPosition = w.BaseStream.Position;
@@ -152,7 +152,7 @@ namespace CASPartResource
         [ElementPriority(14)]
         public DataBlobHandler Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) unknown5 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(15)]
-        public UnknownClassList Unknown6 { get { return unknown6; } set { if (!unknown6.Equals(value)) unknown6 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(16)]
         public DataBlobHandler Unknown7 { get { return unknown7; } set { if (!unknown7.Equals(value)) unknown7 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(17)]
@@ -161,7 +161,7 @@ namespace CASPartResource
         #endregion
 
         #region Sub-Class
-        public class UnknownClass : AHandlerElement, IEquatable<UnknownClass>
+        public class LODBlock : AHandlerElement, IEquatable<LODBlock>
         {
             const int recommendedApiVersion = 1;
 
@@ -170,8 +170,8 @@ namespace CASPartResource
             ushort unknown1;
             DataBlobHandler unknown2;
             IndexList<byte> indexList;
-            public UnknownClass(int APIversion, EventHandler handler, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
-            public UnknownClass(int APIversion, EventHandler handler, Stream s, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
+            public LODBlock(int APIversion, EventHandler handler, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
+            public LODBlock(int APIversion, EventHandler handler, Stream s, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
             public void Parse(Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
@@ -211,22 +211,22 @@ namespace CASPartResource
             #endregion
 
             #region IEquatable
-            public bool Equals(UnknownClass other)
+            public bool Equals(LODBlock other)
             {
                 return this.unknown1 == other.unknown1 && this.unknown2.Equals(other.unknown2) && this.indexList.Equals(other.indexList);
             }
             #endregion
         }
 
-        public class UnknownClassList : DependentList<UnknownClass>
+        public class LODBlockList : DependentList<LODBlock>
         {
             #region Attributes
             TGIBlockList tgiList;
             #endregion
 
             #region Constructors
-            public UnknownClassList(EventHandler handler, TGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; }
-            public UnknownClassList(EventHandler handler, Stream s, TGIBlockList tgiList) : base(handler, s) { this.tgiList = tgiList; }
+            public LODBlockList(EventHandler handler, TGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; }
+            public LODBlockList(EventHandler handler, Stream s, TGIBlockList tgiList) : base(handler, s) { this.tgiList = tgiList; }
             #endregion
 
 
@@ -237,7 +237,7 @@ namespace CASPartResource
                 byte count = r.ReadByte();
                 for (int i = 0; i < count; i++)
                 {
-                    base.Add(new UnknownClass(1, handler, s, tgiList));
+                    base.Add(new LODBlock(1, handler, s, tgiList));
                 }
             }
 
@@ -251,8 +251,8 @@ namespace CASPartResource
                 }
             }
 
-            protected override UnknownClass CreateElement(Stream s) { return new UnknownClass(1, handler, tgiList); }
-            protected override void WriteElement(Stream s, UnknownClass element) { element.UnParse(s); }
+            protected override LODBlock CreateElement(Stream s) { return new LODBlock(1, handler, tgiList); }
+            protected override void WriteElement(Stream s, LODBlock element) { element.UnParse(s); }
             #endregion
             
         }
@@ -290,7 +290,8 @@ namespace CASPartResource
             public CASPFlags FlagCatagory { get { return this.flagCatagory; } set { if (value != this.flagCatagory) { OnElementChanged(); this.flagCatagory = value; } } }
             [ElementPriority(1)]
             public ushort FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
-            
+
+            public string Value { get { return ValueBuilder; } }
         }
 
         public class FlagList : DependentList<Flag> 

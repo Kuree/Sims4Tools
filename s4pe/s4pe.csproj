@@ -295,9 +295,6 @@
     <Content Include="Acknowledgements-s3pe.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="s4pi.DefaultResource.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="squishinterface_Win32.dll" />
     <Content Include="squishinterface_x64.dll" />
     <None Include="App.config" />

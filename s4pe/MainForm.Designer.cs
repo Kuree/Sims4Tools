@@ -293,7 +293,6 @@
             // 
             this.openFileDialog1.FileName = "*.package";
             this.openFileDialog1.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
-            this.openFileDialog1.ShowReadOnly = true;
             this.openFileDialog1.SupportMultiDottedExtensions = true;
             this.openFileDialog1.Title = "Open package";
             // 
