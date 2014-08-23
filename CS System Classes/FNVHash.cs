@@ -79,6 +79,26 @@ namespace System.Security.Cryptography
     }
 
     /// <summary>
+    /// FNV24 hash routine
+    /// </summary>
+    public class FNV24 : FNV32
+    {
+        private static uint FNV24Mask = 0xFFFFFF;
+        /// <summary>
+        /// Gets the value of the computed hash code.
+        /// </summary>
+        public override byte[] Hash { get { return BitConverter.GetBytes(ConverTo24BitFromUInt32((uint)hash)); } }
+        /// <summary>
+        /// Get the FNV24 hash for a string of text
+        /// </summary>
+        /// <param name="text">the text to get the hash for</param>
+        /// <returns>the hash value</returns>
+        public static new uint GetHash(string text) { var hash = BitConverter.ToUInt32(new System.Security.Cryptography.FNV24().ComputeHash(text), 0); ; return ConverTo24BitFromUInt32(hash); }
+
+        private static uint ConverTo24BitFromUInt32(uint hash) { return (hash) >> 24 ^ (hash & FNV24Mask); }
+    }
+
+    /// <summary>
     /// FNV64 hash routine
     /// </summary>
     public class FNV64 : FNVHash

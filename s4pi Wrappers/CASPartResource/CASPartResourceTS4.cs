@@ -161,32 +161,36 @@ namespace CASPartResource
         #endregion
 
         #region Sub-Class
-        public class LODBlock : AHandlerElement, IEquatable<LODBlock>
+        public class LODInfoEntryList : AHandlerElement, IEquatable<LODInfoEntryList>
         {
             const int recommendedApiVersion = 1;
 
             private TGIBlockList tgiList;
 
-            ushort unknown1;
+            byte lodNumber;
+            byte unknown1;
             DataBlobHandler unknown2;
-            IndexList<byte> indexList;
-            public LODBlock(int APIversion, EventHandler handler, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
-            public LODBlock(int APIversion, EventHandler handler, Stream s, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
+            ByteIndexList indexList;
+            public LODInfoEntryList(int APIversion, EventHandler handler, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
+            public LODInfoEntryList(int APIversion, EventHandler handler, Stream s, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
             public void Parse(Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
-                unknown1 = r.ReadUInt16();
+                this.lodNumber = r.ReadByte();
+                unknown1 = r.ReadByte();
                 unknown2 = new DataBlobHandler(1, null, r.ReadBytes(16));
                 byte[] byteList = new byte[r.ReadByte()];
                 for (int i = 0; i < byteList.Length; i++)
                     byteList[i] = r.ReadByte();
-                indexList = new IndexList<byte>(handler, byteList, ParentTGIBlocks: tgiList);
+                indexList = new ByteIndexList(handler, byteList, tgiList);
+                
                 
             }
 
             public void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);
+                w.Write(this.lodNumber);
                 w.Write(unknown1);
                 unknown2.UnParse(s);
                 w.Write((byte)indexList.Count);
@@ -201,24 +205,26 @@ namespace CASPartResource
 
             #region Content Fields
             [ElementPriority(0)]
-            public ushort Unknown1 { get { return unknown1; } set { if (value != unknown1) unknown1 = value; OnElementChanged(); } }
+            public byte LODNumber { get { return lodNumber; } set { if (!value.Equals(lodNumber)) { lodNumber = value; OnElementChanged(); } } }
             [ElementPriority(1)]
-            public DataBlobHandler Unknown2 { get { return unknown2; } set { if (!value.Equals(unknown2)) unknown2 = value; OnElementChanged(); } }
+            public byte Unknown1 { get { return unknown1; } set { if (value != unknown1) unknown1 = value; OnElementChanged(); } }
             [ElementPriority(2)]
-            public IndexList<byte> IndexList { get { return indexList; } set { if (!value.Equals(indexList)) value = indexList; OnElementChanged(); } }
+            public DataBlobHandler Unknown2 { get { return unknown2; } set { if (!value.Equals(unknown2)) unknown2 = value; OnElementChanged(); } }
+            [ElementPriority(3)]
+            public ByteIndexList IndexList { get { return indexList; } set { if (!value.Equals(indexList)) value = indexList; OnElementChanged(); } }
             public string Value { get { return ValueBuilder; } }
 
             #endregion
 
             #region IEquatable
-            public bool Equals(LODBlock other)
+            public bool Equals(LODInfoEntryList other)
             {
                 return this.unknown1 == other.unknown1 && this.unknown2.Equals(other.unknown2) && this.indexList.Equals(other.indexList);
             }
             #endregion
         }
 
-        public class LODBlockList : DependentList<LODBlock>
+        public class LODBlockList : DependentList<LODInfoEntryList>
         {
             #region Attributes
             TGIBlockList tgiList;
@@ -226,7 +232,7 @@ namespace CASPartResource
 
             #region Constructors
             public LODBlockList(EventHandler handler, TGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; }
-            public LODBlockList(EventHandler handler, Stream s, TGIBlockList tgiList) : base(handler, s) { this.tgiList = tgiList; }
+            public LODBlockList(EventHandler handler, Stream s, TGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; Parse(s); }
             #endregion
 
 
@@ -237,7 +243,7 @@ namespace CASPartResource
                 byte count = r.ReadByte();
                 for (int i = 0; i < count; i++)
                 {
-                    base.Add(new LODBlock(1, handler, s, tgiList));
+                    base.Add(new LODInfoEntryList(1, handler, s, tgiList));
                 }
             }
 
@@ -251,8 +257,8 @@ namespace CASPartResource
                 }
             }
 
-            protected override LODBlock CreateElement(Stream s) { return new LODBlock(1, handler, tgiList); }
-            protected override void WriteElement(Stream s, LODBlock element) { element.UnParse(s); }
+            protected override LODInfoEntryList CreateElement(Stream s) { return new LODInfoEntryList(1, handler, tgiList); }
+            protected override void WriteElement(Stream s, LODInfoEntryList element) { element.UnParse(s); }
             #endregion
             
         }
