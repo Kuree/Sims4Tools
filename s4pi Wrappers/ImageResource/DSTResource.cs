@@ -69,6 +69,7 @@ namespace s4pi.ImageResource
             if (header.pixelFormat.Fourcc == FourCC.DST1)
             {
                 header.pixelFormat.Fourcc = FourCC.DXT1;
+                w.Write(0x20534444);
                 header.UnParse(result);
 
                 var blockOffset2 = 0;
@@ -88,6 +89,7 @@ namespace s4pi.ImageResource
             else if (header.pixelFormat.Fourcc == FourCC.DST3) // DST3
             {
                 header.pixelFormat.Fourcc = FourCC.DXT3;
+                w.Write(0x20534444);
                 header.UnParse(result);
 
                 var blockOffset0 = 0;
@@ -99,6 +101,7 @@ namespace s4pi.ImageResource
             else if (header.pixelFormat.Fourcc ==  FourCC.DST5) // DST5
             {
                 header.pixelFormat.Fourcc = FourCC.DXT5;
+                w.Write(0x20534444);
                 header.UnParse(result);
 
                 var blockOffset0 = 0;

@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataFlags.cs" />
+    <Compile Include="DataValueClasses.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="DataResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

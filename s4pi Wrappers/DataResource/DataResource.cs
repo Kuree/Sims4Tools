@@ -91,8 +91,10 @@ namespace s4pi.DataResource
             w.Write(this.structureList.Count);
 
             // Padding between header and data table?
+            // Need more information
             w.Write(blank);
             w.Write(blank);
+
 
             // Write Data Table with blank Name and Structure offsets
             this.dataTablePosition = (uint)s.Position;
@@ -100,6 +102,10 @@ namespace s4pi.DataResource
 
             // Write Structure Table blank Name offsets
             this.structureTablePosition = (uint)s.Position;
+            this.structureList.UnParse(w);
+
+
+
 
             // Write Names and set Name positions in data
             foreach (Structure structure in this.structureList)
@@ -140,8 +146,15 @@ namespace s4pi.DataResource
             }
 
             // Go back, calculate and write offsets
+            
             this.structureList.WriteOffsets(w);
             this.dataList.WriteOffsets(w);
+
+            // write the data table offset
+            w.BaseStream.Position = 0x08;
+            w.Write(dataTablePosition - w.BaseStream.Position);
+            w.BaseStream.Position = 16;
+            w.Write(structureTablePosition - w.BaseStream.Position); // dirty hack
 
             return s;
         }
@@ -740,9 +753,17 @@ namespace s4pi.DataResource
                 {
                     this[i].UnParse(w);
                 }
+
+
                 // Padding between headers and data?
+                // Note: this quick fix is still problematic for big files
+                // The padding need to be fully explored
+                //w.Write(Util.Zero32);
                 w.Write(Util.Zero32);
-                w.Write(Util.Zero32);
+
+
+
+
                 // Write the data
                 Data data;
                 Stream s = w.BaseStream;

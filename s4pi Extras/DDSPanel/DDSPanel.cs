@@ -319,6 +319,38 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
+        /// Load a DST image from a <see cref="System.IO.Stream"/>;
+        /// if <paramref name="supportHSV"/> is passed and true (default is false), the image will
+        /// support HSV shift operations.
+        /// </summary>
+        /// <param name="stream">The <see cref="System.IO.Stream"/> containing the RLE image to display,<br/>
+        /// - or -<br/>
+        /// <c>null</c> to clear the image and free resources.</param>
+        /// <param name="supportHSV">Optional; when true, HSV operations will be supported on the image.</param>
+        public void DSTLoad(Stream stream, bool supportHSV = false)
+        {
+            if (stream != null && stream.Length > 0)
+            {
+                try
+                {
+                    this.Enabled = false;
+                    Application.UseWaitCursor = true;
+                    Application.DoEvents();
+
+                    DSTResource dst = new DSTResource(1, stream);
+                    ddsFile.Load(dst.ToDDS(), supportHSV);
+
+                    loaded = true;
+                }
+                finally { this.Enabled = true; Application.UseWaitCursor = false; Application.DoEvents(); }
+                this.supportHSV = supportHSV;
+                ckb_CheckedChanged(null, null);
+            }
+            else
+                Clear();
+        }
+
+        /// <summary>
         /// Sets the DDS image for this <see cref="DDSPanel"/> from the given <paramref name="ddsfile"/>.
         /// <see cref="SupportsHSV"/> is determined from the <see cref="DdsFile.SupportsHSV"/> value.
         /// </summary>

@@ -175,6 +175,21 @@ namespace s4pi.Interfaces
             }
         }
 
+        public byte[] GetRawData(int offset, int size)
+        {
+            if (offset >= this.data.Length || (offset + size) > this.data.Length) { return null; } // invalid operation
+            byte[] result = new byte[size];
+            Array.Copy(this.data, offset, result, 0, size); 
+            return result;
+        }
+
+        public void SetRawData(int offset, byte[] source)
+        {
+            if (source.Length + offset > this.data.Length) return; // invalid operation
+            for (int i = 0; i < source.Length; i++)
+                this.data[offset + i] = source[i];
+        }
+
         #region AHandlerElement
         // public override DataBlobHandler Clone(EventHandler handler) { return new DataBlobHandler(requestedApiVersion, handler, this.data); }
         /// <summary>
