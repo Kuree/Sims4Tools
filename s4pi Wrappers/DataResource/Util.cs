@@ -43,5 +43,10 @@ namespace s4pi.DataResource
             offset += (uint)r.BaseStream.Position - 4;
             return true;
         }
+
+        public static void Padding(BinaryWriter w, long count)
+        {
+            for (int i = 0; i < count; i++) w.Write((byte)0);
+        }
     }
 }

@@ -34,7 +34,7 @@ namespace CASPartResource
         DataBlobHandler unknown5;
         LODBlockList lodBlockList;
         DataBlobHandler unknown7;
-        public TGIBlockList tgiList;
+        private CountedTGIBlockList tgiList;
         #endregion
 
         public CASPartResourceTS4(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
@@ -72,16 +72,14 @@ namespace CASPartResource
 
             // TGI block list
             long currentPosition = r.BaseStream.Position;
-            r.BaseStream.Position = tgiOffset;
-            tgiList = new TGIBlockList(null);
+            r.BaseStream.Position = tgiOffset;            
             byte count4 = r.ReadByte();
-            for (int i = 0; i < count4; i++)
-                tgiList.Add(new TGIBlock(1, null, "IGT", s));
+            tgiList = new CountedTGIBlockList(OnResourceChanged, "IGT", count4, s);
             r.BaseStream.Position = currentPosition;
 
             lodBlockList = new LODBlockList(null, s, tgiList);
 
-            unknown7 = new DataBlobHandler(1, null, r.ReadBytes(10));            
+            unknown7 = new DataBlobHandler(1, null, r.ReadBytes(10));
         }
 
         protected override Stream UnParse()
@@ -156,7 +154,7 @@ namespace CASPartResource
         [ElementPriority(16)]
         public DataBlobHandler Unknown7 { get { return unknown7; } set { if (!unknown7.Equals(value)) unknown7 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(17)]
-        public TGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
+        public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
         #endregion
 
@@ -165,14 +163,14 @@ namespace CASPartResource
         {
             const int recommendedApiVersion = 1;
 
-            private TGIBlockList tgiList;
+            private CountedTGIBlockList tgiList;
 
             byte lodNumber;
             byte unknown1;
             DataBlobHandler unknown2;
             ByteIndexList indexList;
-            public LODInfoEntryList(int APIversion, EventHandler handler, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
-            public LODInfoEntryList(int APIversion, EventHandler handler, Stream s, TGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
+            public LODInfoEntryList(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
+            public LODInfoEntryList(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
             public void Parse(Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
@@ -227,12 +225,12 @@ namespace CASPartResource
         public class LODBlockList : DependentList<LODInfoEntryList>
         {
             #region Attributes
-            TGIBlockList tgiList;
+            CountedTGIBlockList tgiList;
             #endregion
 
             #region Constructors
-            public LODBlockList(EventHandler handler, TGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; }
-            public LODBlockList(EventHandler handler, Stream s, TGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; Parse(s); }
+            public LODBlockList(EventHandler handler, CountedTGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; }
+            public LODBlockList(EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; Parse(s); }
             #endregion
 
 
@@ -350,6 +348,7 @@ namespace CASPartResource
             Eyebrows_Maybe = 0x0063,
         }
         #endregion
+
 
         #endregion
     }

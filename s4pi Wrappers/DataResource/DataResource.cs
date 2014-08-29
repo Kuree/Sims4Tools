@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.IO;
 using s4pi.Interfaces;
+using System.Diagnostics;
 
 namespace s4pi.DataResource
 {
@@ -92,6 +93,8 @@ namespace s4pi.DataResource
 
             // Padding between header and data table?
             // Need more information
+            // Debug.WriteLine(w.BaseStream.Position.ToString("X16"));
+            //Util.Padding(w);
             w.Write(blank);
             w.Write(blank);
 
@@ -748,18 +751,22 @@ namespace s4pi.DataResource
             {
                 int i;
                 int count = this.Count;
+                long previousPosition = w.BaseStream.Position;
+
                 // Write the headers 
                 for (i = 0; i < count; i++)
                 {
                     this[i].UnParse(w);
                 }
 
+                Debug.WriteLine(w.BaseStream.Position - previousPosition);
 
                 // Padding between headers and data?
                 // Note: this quick fix is still problematic for big files
                 // The padding need to be fully explored
                 //w.Write(Util.Zero32);
-                w.Write(Util.Zero32);
+                Debug.WriteLine(w.BaseStream.Position.ToString("X16"));
+                Util.Padding(w, 16 - (w.BaseStream.Position - previousPosition) % 16);
 
 
 
