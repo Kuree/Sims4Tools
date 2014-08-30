@@ -93,6 +93,7 @@
 0x0C07456D  COLL   .bnry
 0x0C07469F  CLDR   .bnry
 0x0C37A5B5  LOOK   .lookuptab
+0x0D338A3A  THUM   .jpg
 0x11C258C0  CTRG   .bnry
 0x1A3201CD  _MOD   .override
 0x1F886EAD  _INI   .ini
@@ -116,7 +117,9 @@
 0x35A33E29  WDSH   .wdeschash
 0x376840D7  _AVI   .avi
 0x3A65AF29  MINF   .makeup
+0x3BD45407  THUM   .jpg
 0x3C1AF1F2  THUM   .png
+0x3C2A8647  THUM   .jpg
 0x4115F9D5  _XML   .xml
 0x4D1A5589  OBJN   .objn
 0x4E97BAD8  OBSC   .objscript

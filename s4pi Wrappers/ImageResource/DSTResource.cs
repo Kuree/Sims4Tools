@@ -134,7 +134,7 @@ namespace s4pi.ImageResource
     {
         public DSTResourceHandler()
         {
-            this.Add(typeof(DSTResource), new List<string>(new string[] { "0x00B2D882", }));
+            //this.Add(typeof(DSTResource), new List<string>(new string[] { "0x00B2D882", }));
         }
     }
 }
