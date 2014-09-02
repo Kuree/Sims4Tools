@@ -326,7 +326,6 @@ namespace S4PIDemoFE
             if (s == null || s == Stream.Null)
                 return;
             ThumbnailResource r = new ThumbnailResource(1, s);
-            r.TransformToPNG();
             pb.Image = r.Image;
         }
 

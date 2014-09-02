@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,7 +31,7 @@ namespace CASPartResource
         byte unknown3;
         byte swatchIndex;
         DataBlobHandler unknown4;
-        uint[] swatchColorCode;
+        SwatchColorList swatchColorCode;
         DataBlobHandler unknown5;
         LODBlockList lodBlockList;
         DataBlobHandler unknown7;
@@ -63,10 +64,7 @@ namespace CASPartResource
 
             unknown4 = new DataBlobHandler(1, null, r.ReadBytes(2 * 3 * 4 + 1));
 
-            byte count2 = r.ReadByte();
-            swatchColorCode = new uint[count2];
-            for (byte i = 0; i < count2; i++)
-                swatchColorCode[i] = r.ReadUInt32();
+            swatchColorCode = new SwatchColorList(OnResourceChanged, s);
 
             unknown5 = new DataBlobHandler(1, null, r.ReadBytes(2 * 4));
 
@@ -100,8 +98,7 @@ namespace CASPartResource
             w.Write(this.unknown3);
             w.Write(this.swatchIndex);
             unknown4.UnParse(s);
-            w.Write((byte)swatchColorCode.Length);
-            foreach(var value in swatchColorCode) w.Write(value);
+            swatchColorCode.UnParse(s);
             unknown5.UnParse(s);
             lodBlockList.UnParse(s);
             unknown7.UnParse(s);
@@ -146,7 +143,7 @@ namespace CASPartResource
         [ElementPriority(12)]
         public DataBlobHandler Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) unknown4 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(13)]
-        public UInt32[] SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public SwatchColorList SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(14)]
         public DataBlobHandler Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) unknown5 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(15)]
@@ -259,6 +256,56 @@ namespace CASPartResource
             protected override void WriteElement(Stream s, LODInfoEntryList element) { element.UnParse(s); }
             #endregion
             
+        }
+
+
+        public class SwatchColor : AHandlerElement, IEquatable<SwatchColor>
+        {
+            private Color color;
+            public SwatchColor(int APIversion, EventHandler handler, Stream s) :base(APIversion, handler)
+            {
+                BinaryReader r = new BinaryReader(s);
+                this.color = Color.FromArgb(r.ReadInt32());
+            }
+            public SwatchColor(int APIversion, EventHandler handler, Color color) : base(APIversion, handler) { this.color = color; }
+            public void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(this.color.ToArgb()); }
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            public bool Equals(SwatchColor other) { return other.Equals(this.color); }
+
+            public Color Color { get { return this.color; } set { if (!color.Equals(value)) { this.color = value; OnElementChanged(); } } }
+            public string Value { get { { return this.color.IsKnownColor? this.color.ToKnownColor().ToString(): this.color.Name; } } }
+        }
+
+        public class SwatchColorList : DependentList<SwatchColor>
+        {
+            public SwatchColorList(EventHandler handler) : base(handler) { }
+            public SwatchColorList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
+
+            #region Data I/O
+            protected override void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                byte count = r.ReadByte();
+                for (int i = 0; i < count; i++)
+                    base.Add(new SwatchColor(1, handler, s));
+            }
+
+            public override void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write((byte)base.Count);
+                foreach (var color in this)
+                    color.UnParse(s);
+            }
+
+            protected override SwatchColor CreateElement(Stream s) { return new SwatchColor(1, handler, Color.Black); }
+            protected override void WriteElement(Stream s, SwatchColor element) { element.UnParse(s); }
+            #endregion
         }
 
         public class Flag : AHandlerElement, IEquatable<Flag>

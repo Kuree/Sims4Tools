@@ -25,6 +25,7 @@ namespace s4pi.ImageResource
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
             rawData = r.ReadBytes((int)s.Length);
+            TransformToPNG();
         }
 
         protected override Stream UnParse()
@@ -40,67 +41,82 @@ namespace s4pi.ImageResource
             return ms;
         }
 
-        public void TransformToPNG()
+        private void TransformToPNG()
         {
             using (MemoryStream ms = new MemoryStream(this.rawData))
             {
                 BinaryReader r = new BinaryReader(ms);
                 Bitmap colorImage = new Bitmap(ms);
                 ms.Position = 0;
-                r.ReadBytes(32);
-                using (MemoryStream alphaStream = new MemoryStream(r.ReadBytes(this.rawData.Length - 32)))
+                r.ReadBytes(24);
+                if (r.ReadUInt32() == 0x41464C41U)
                 {
-                    Bitmap alphaImage = new Bitmap(alphaStream);
-                    if (colorImage.Width != alphaImage.Width || colorImage.Height != alphaImage.Height) throw new InvalidDataException("Not a proper TS4 Thumbnail image");
-                    int[,] rawImage = new int[colorImage.Width, colorImage.Height];
-                    for (int y = 0; y < colorImage.Height; y++)
+                    int length = r.ReadInt32();
+                    length = (int)((length & 0xFF000000) >> 24) | (int)((length & 0x00FF0000) >> 8) | (int)((length & 0x0000FF00) << 8) | (int)((length & 0x000000FF) << 24);
+                    using (MemoryStream alphaStream = new MemoryStream(r.ReadBytes(length)))
                     {
-                        for (int x = 0; x < colorImage.Width; x++)
-                        {
-                            Color color = colorImage.GetPixel(x, y);
-                            byte alpha = alphaImage.GetPixel(x, y).R;
-                            rawImage[x, y] = Color.FromArgb(alpha, color).ToArgb();
+                        Bitmap alphaImage = new Bitmap(alphaStream);
+                        if (colorImage.Width != alphaImage.Width || colorImage.Height != alphaImage.Height) throw new InvalidDataException("Not a proper TS4 Thumbnail image");
+                        //int[,] rawImage = new int[colorImage.Width, colorImage.Height];
+                        //for (int y = 0; y < colorImage.Height; y++)
+                        //{
+                        //    for (int x = 0; x < colorImage.Width; x++)
+                        //    {
+                        //        Color color = colorImage.GetPixel(x, y);
+                        //        byte alpha = alphaImage.GetPixel(x, y).R;
+                        //        rawImage[x, y] = Color.FromArgb(alpha, color).ToArgb();
 
-                        }
+                        //    }
+                        //}
+                        colorImage = UpdateAlpha(colorImage, alphaImage);
+
+                        this.Image = colorImage;
                     }
-                    this.Image = ToBitmap(rawImage);
                 }
+                this.Image = colorImage;
             }
         }
 
         public Bitmap Image { get; private set; }
 
-
-        /// <summary>
-        /// Based on discussion at http://stackoverflow.com/questions/13511661/create-bitmap-from-double-two-dimentional-array
-        /// and at https://code.google.com/p/renderterrain/source/browse/trunk/Utilities/FastBitmap.cs?r=18
-        /// </summary>
-        /// <param name="rawData">Integer array represents image ARGB</param>
-        /// <returns>Bitmap from raw color data</returns>
-        protected internal unsafe Bitmap ToBitmap(int[,] rawData)
+        protected internal unsafe Bitmap UpdateAlpha(Bitmap source, Bitmap alpha)
         {
-            int width = rawData.GetLength(0);
-            int height = rawData.GetLength(1);
+            int width = source.Width;
+            int height = source.Height;
             Bitmap img = new Bitmap(width, height);
-            BitmapData bitmapData = img.LockBits(
+
+            BitmapData imgBitmapData = img.LockBits(
                 new Rectangle(0, 0, width, height),
                 ImageLockMode.ReadWrite,
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb
             );
 
-            ColorARGB* startingPosition = (ColorARGB*)bitmapData.Scan0;
+            BitmapData sourceBitmapData = source.LockBits(
+                new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadWrite,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb
+            );
 
+            BitmapData alphaBitmapData = alpha.LockBits(
+                new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadOnly,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb
+            );
+
+            ColorARGB* imgStartingPosition = (ColorARGB*)imgBitmapData.Scan0;
+            ColorARGB* sourceStartingPosition = (ColorARGB*)sourceBitmapData.Scan0;
+            ColorARGB* alphaStartingPosition = (ColorARGB*)alphaBitmapData.Scan0;
 
             for (int i = 0; i < height; i++)
                 for (int j = 0; j < width; j++)
                 {
-                    int color = rawData[j, i];
-                    ColorARGB* position = startingPosition + j + i * width;
-                    *position = new ColorARGB(color);
+                    ColorARGB* sourcePosition = sourceStartingPosition + j + i * width;
+                    ColorARGB* alphaPosition = alphaStartingPosition + j + i * width;
+                    ColorARGB* imgPosition = imgStartingPosition + j + i * width;
+                    *imgPosition = new ColorARGB(sourcePosition, alphaPosition);
                 }
 
-            img.UnlockBits(bitmapData);
-
+            img.UnlockBits(imgBitmapData);
             return img;
         }
 
@@ -129,6 +145,19 @@ namespace s4pi.ImageResource
                 R = color.R;
                 G = color.G;
                 B = color.B;
+            }
+
+            public unsafe ColorARGB(ColorARGB* original, ColorARGB* alpha)
+            {
+                this.A = alpha->R;
+                this.R = original->R;
+                this.G = original->G;
+                this.B = original->B;
+            }
+
+            public unsafe void UpdateAlha(ColorARGB* alpha)
+            {
+                this.A = alpha->R;
             }
 
             public ColorARGB(byte a, byte r, byte g, byte b)
