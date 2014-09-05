@@ -147,21 +147,103 @@ namespace CatalogResource
 
         protected override Stream UnParse()
         {
-            MemoryStream s = new MemoryStream(this.data);
+            MemoryStream s = new MemoryStream();
             BinaryWriter w = new BinaryWriter(s);
 
+            w.Write(this.version);
+            w.Write(0U); // table position
+            List<long> positionTable = new List<long>(this.propertyIDList.Count);
 
-            //w.Write(this.version);
-            //w.Write(0U); // table position
-            //List<ulong> positionTable = new List<ulong>(this.propertyIDList.Count);
-            
+            for (int i = 0; i < this.propertyIDList.Count; i++)
+            {
+                positionTable.Add(w.BaseStream.Position);
+                PropertyID id = this.propertyIDList[i];
+                switch (id)
+                {
+                    case PropertyID.Name:
+                        WriteString(w, name);
+                        break;
+                    case PropertyID.Tuning:
+                        WriteString(w, tuning);
+                        break;
+                    case PropertyID.TuningID:
+                        w.Write(this.tuningID);
+                        break;
+                    case PropertyID.Icon:
+                        WriteTGIBlock(w, this.icon);
+                        break;
+                    case PropertyID.Rig:
+                        WriteTGIBlock(w, this.rig);
+                        break;
+                    case PropertyID.Slot:
+                        WriteTGIBlock(w, this.slot);
+                        break;
+                    case PropertyID.Model:
+                        WriteTGIBlock(w, this.model);
+                        break;
+                    case PropertyID.Footprint:
+                        WriteTGIBlock(w, this.footprint);
+                        break;
+                    case PropertyID.Components:
+                        WriteTGIBlock(w, this.components);
+                        break;
+                    case PropertyID.MaterialVariant:
+                        WriteString(w, this.materialVariant);
+                        break;
+                    case PropertyID.Unknown1:
+                        w.Write(this.unknown1);
+                        break;
+                    case PropertyID.SimoleonPrice:
+                        w.Write(this.simoleonPrice);
+                        break;
+                    case PropertyID.PositiveEnvironmentScore:
+                        w.Write(this.positiveEnvironmentScore);
+                        break;
+                    case PropertyID.NegativeEnvironmentScore:
+                        w.Write(this.negativeEnvironmentScore);
+                        break;
+                    case PropertyID.ThumbnailGeometryState:
+                        w.Write(this.thumbnailGeometryState);
+                        break;
+                    case PropertyID.Unknown2:
+                        w.Write(this.Unknown2);
+                        break;
+                    case PropertyID.EnvironmentScoreEmotionTags:
+                        w.Write(this.environmentScoreEmotionTags.Length);
+                        foreach (var value in this.environmentScoreEmotionTags) w.Write(value);
+                        break;
+                    case PropertyID.EnvironmentScores:
+                        w.Write(this.environmentScores.Length);
+                        foreach (var value in this.environmentScores) w.Write(value);
+                        break;
+                    case PropertyID.Unknown3:
+                        w.Write(this.unknown3);
+                        break;
+                    case PropertyID.IsBaby:
+                        w.Write(this.isBaby);
+                        break;
+                    case PropertyID.Unknown4:
+                        w.Write(this.unknown4.Length);
+                        foreach (var value in this.unknown4) w.Write(value);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            w.Write((ushort)this.propertyIDList.Count);
+            for (int i = 0; i < this.propertyIDList.Count; i++)
+            {
+                w.Write((uint)this.propertyIDList[i]);
+                w.Write((uint)positionTable[i]);
+            }
 
             s.Position = 0;
             return s;
         }
 
 
-        private static TGIBlockList ReadTGIBlock(BinaryReader r, EventHandler handler)
+        private TGIBlockList ReadTGIBlock(BinaryReader r, EventHandler handler)
         {
             int count = r.ReadInt32() / 4;
             List<TGIBlock> tgiblockList = new List<TGIBlock>(count);
@@ -177,11 +259,30 @@ namespace CatalogResource
             return result;
         }
 
-        private static string ReadString(BinaryReader r, EventHandler handler)
+        private string ReadString(BinaryReader r, EventHandler handler)
         {
             int count = r.ReadInt32();
             return Encoding.ASCII.GetString(r.ReadBytes(count));     
         }
+
+        private void WriteTGIBlock(BinaryWriter w, TGIBlockList value)
+        {
+            w.Write(value.Count * 4);
+            foreach (var tgi in value)
+            {
+                ulong instance = (tgi.Instance << 32) | (tgi.Instance >> 32);
+                w.Write(instance);
+                w.Write(tgi.ResourceType);
+                w.Write(tgi.ResourceGroup);
+            }
+        }
+
+        private void WriteString(BinaryWriter w, string value)
+        {
+            w.Write(value.Length);
+            w.Write(Encoding.ASCII.GetBytes(value));
+        }
+        
 
         #endregion
 
@@ -236,25 +337,45 @@ namespace CatalogResource
 
 
         #region Content Fields
-        public string Value { get { return ValueBuilder; } }
+        [ElementPriority(0)]
         public ushort Version { get { return version; } }
-        public string Name { get { return name; } }
-        public string Tuning { get { if (!this.propertyIDList.Contains(PropertyID.Tuning)) { throw new InvalidDataException(); } return this.tuning; } }
-        public ulong TuningID { get { if (!this.propertyIDList.Contains(PropertyID.TuningID)) { throw new InvalidDataException(); } return this.tuningID; } }
-        public TGIBlockList Icon { get { if (!this.propertyIDList.Contains(PropertyID.Icon)) { throw new InvalidDataException(); } return this.icon; } }
-        public TGIBlockList Rig { get { if (!this.propertyIDList.Contains(PropertyID.Rig)) { throw new InvalidDataException(); } return this.rig; } }
-        public TGIBlockList Slot { get { if (!this.propertyIDList.Contains(PropertyID.Slot)) { throw new InvalidDataException(); } return this.slot; } }
-        public TGIBlockList Model { get { if (!this.propertyIDList.Contains(PropertyID.Model)) { throw new InvalidDataException(); } return this.model; } }
-        public TGIBlockList Footprint { get { if (!this.propertyIDList.Contains(PropertyID.Footprint)) { throw new InvalidDataException(); } return this.footprint; } }
-        public TGIBlockList Components { get { if (!this.propertyIDList.Contains(PropertyID.Components)) { throw new InvalidDataException(); } return this.components; } }
-        public string MaterialVariant { get { if (!this.propertyIDList.Contains(PropertyID.MaterialVariant)) { throw new InvalidDataException(); } return this.materialVariant; } }
-        public UInt32 SimoleonPrice { get { if (!this.propertyIDList.Contains(PropertyID.SimoleonPrice)) { throw new InvalidDataException(); } return this.simoleonPrice; } }
-        public float PositiveEnvironmentScore { get { if (!this.propertyIDList.Contains(PropertyID.PositiveEnvironmentScore)) { throw new InvalidDataException(); } return this.positiveEnvironmentScore; } }
-        public float NegativeEnvironmentScore { get { if (!this.propertyIDList.Contains(PropertyID.NegativeEnvironmentScore)) { throw new InvalidDataException(); } return this.negativeEnvironmentScore; } }
-        public UInt32 ThumbnailGeometryState { get { if (!this.propertyIDList.Contains(PropertyID.ThumbnailGeometryState)) { throw new InvalidDataException(); } return this.thumbnailGeometryState; } }
-        public float[] EnvironmentScoreEmotionTags { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScoreEmotionTags)) { throw new InvalidDataException(); } return this.environmentScoreEmotionTags; } }
-        public float[] EnvironmentScores { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScores)) { throw new InvalidDataException(); } return this.environmentScores; } }
-        public bool IsBaby { get { if (!this.propertyIDList.Contains(PropertyID.IsBaby)) { throw new InvalidDataException(); } return this.isBaby; } }
+        [ElementPriority(1)]
+        public string Name { get { return name; } set { if (!value.Equals(this.name)) { this.name = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(2)]
+        public string Tuning { get { if (!this.propertyIDList.Contains(PropertyID.Tuning)) { throw new InvalidDataException(); } return this.tuning; } set { if (!value.Equals(this.tuning)) { this.tuning = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(3)]
+        public ulong TuningID { get { if (!this.propertyIDList.Contains(PropertyID.TuningID)) { throw new InvalidDataException(); } return this.tuningID; } set { if (!value.Equals(this.tuningID)) { this.tuningID = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(4)]
+        public bool IsBaby { get { if (!this.propertyIDList.Contains(PropertyID.IsBaby)) { throw new InvalidDataException(); } return this.isBaby; } set { if (!value.Equals(this.isBaby)) { this.isBaby = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(5)]
+        public TGIBlockList Components { get { if (!this.propertyIDList.Contains(PropertyID.Components)) { throw new InvalidDataException(); } return this.components; } set { if (!value.Equals(this.components)) { this.components = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(6)]
+        public string MaterialVariant { get { if (!this.propertyIDList.Contains(PropertyID.MaterialVariant)) { throw new InvalidDataException(); } return this.materialVariant; } set { if (!value.Equals(this.materialVariant)) { this.materialVariant = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(7)]
+        public UInt32 SimoleonPrice { get { if (!this.propertyIDList.Contains(PropertyID.SimoleonPrice)) { throw new InvalidDataException(); } return this.simoleonPrice; } set { if (!value.Equals(this.simoleonPrice)) { this.simoleonPrice = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(8)]
+        public float PositiveEnvironmentScore { get { if (!this.propertyIDList.Contains(PropertyID.PositiveEnvironmentScore)) { throw new InvalidDataException(); } return this.positiveEnvironmentScore; } set { if (!value.Equals(this.positiveEnvironmentScore)) { this.positiveEnvironmentScore = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(9)]
+        public float NegativeEnvironmentScore { get { if (!this.propertyIDList.Contains(PropertyID.NegativeEnvironmentScore)) { throw new InvalidDataException(); } return this.negativeEnvironmentScore; } set { if (!value.Equals(this.negativeEnvironmentScore)) { this.negativeEnvironmentScore = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(10)]
+        public UInt32 ThumbnailGeometryState { get { if (!this.propertyIDList.Contains(PropertyID.ThumbnailGeometryState)) { throw new InvalidDataException(); } return this.thumbnailGeometryState; } set { if (!value.Equals(this.thumbnailGeometryState)) { this.thumbnailGeometryState = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(11)]
+        public float[] EnvironmentScoreEmotionTags { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScoreEmotionTags)) { throw new InvalidDataException(); } return this.environmentScoreEmotionTags; } set { if (!value.Equals(this.environmentScoreEmotionTags)) { this.environmentScoreEmotionTags = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(12)]
+        public float[] EnvironmentScores { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScores)) { throw new InvalidDataException(); } return this.environmentScores; } set { if (!value.Equals(this.environmentScores)) { this.environmentScores = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(13)]
+        public TGIBlockList Icon { get { if (!this.propertyIDList.Contains(PropertyID.Icon)) { throw new InvalidDataException(); } return this.icon; } set { if (!value.Equals(this.icon)) { this.icon = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(14)]
+        public TGIBlockList Rig { get { if (!this.propertyIDList.Contains(PropertyID.Rig)) { throw new InvalidDataException(); } return this.rig; } set { if (!value.Equals(this.rig)) { this.rig = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(15)]
+        public TGIBlockList Slot { get { if (!this.propertyIDList.Contains(PropertyID.Slot)) { throw new InvalidDataException(); } return this.slot; } set { if (!value.Equals(this.slot)) { this.slot = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(16)]
+        public TGIBlockList Model { get { if (!this.propertyIDList.Contains(PropertyID.Model)) { throw new InvalidDataException(); } return this.model; } set { if (!value.Equals(this.model)) { this.model = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(17)]
+        public TGIBlockList Footprint { get { if (!this.propertyIDList.Contains(PropertyID.Footprint)) { throw new InvalidDataException(); } return this.footprint; } set { if (!value.Equals(this.footprint)) { this.footprint = value; OnResourceChanged(this, EventArgs.Empty); } } }
+
+
+        public string Value { get { return ValueBuilder; } }
         #endregion
     }
 

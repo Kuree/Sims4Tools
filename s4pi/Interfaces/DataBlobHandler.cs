@@ -174,7 +174,12 @@ namespace s4pi.Interfaces
                 return "{Empty Data Blob}";
             }
         }
-
+        /// <summary>
+        /// Returns raw bytes data with given size from given offset
+        /// </summary>
+        /// <param name="offset">where to read the raw data</param>
+        /// <param name="size">the size of bytes array</param>
+        /// <returns>byte array</returns>
         public byte[] GetRawData(int offset, int size)
         {
             if (offset >= this.data.Length || (offset + size) > this.data.Length) { return null; } // invalid operation
@@ -182,7 +187,11 @@ namespace s4pi.Interfaces
             Array.Copy(this.data, offset, result, 0, size); 
             return result;
         }
-
+        /// <summary>
+        /// Set raw data with given byte source
+        /// </summary>
+        /// <param name="offset">Where to override the raw data</param>
+        /// <param name="source">Byte array</param>
         public void SetRawData(int offset, byte[] source)
         {
             if (source.Length + offset > this.data.Length) return; // invalid operation
