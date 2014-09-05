@@ -98,6 +98,10 @@
       <Project>{38d21f02-c139-43c8-8b74-d84e22b89f50}</Project>
       <Name>CASPartResource</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\s4pi Wrappers\CatalogResource\CatalogResource.csproj">
+      <Project>{0e257ab5-b560-462b-8b6c-631a90380d9e}</Project>
+      <Name>CatalogResource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\DataResource\DataResource.csproj">
       <Project>{e8176722-be4e-47ff-a8a6-bff4be7a5de8}</Project>
       <Name>DataResource</Name>
