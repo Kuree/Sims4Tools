@@ -241,7 +241,7 @@ namespace CatalogResource
         public string Name { get { return name; } }
         public string Tuning { get { if (!this.propertyIDList.Contains(PropertyID.Tuning)) { throw new InvalidDataException(); } return this.tuning; } }
         public ulong TuningID { get { if (!this.propertyIDList.Contains(PropertyID.TuningID)) { throw new InvalidDataException(); } return this.tuningID; } }
-        public TGIBlockList Icon { get { if (!this.propertyIDList.Contains(PropertyID.TuningID)) { throw new InvalidDataException(); } return this.icon; } }
+        public TGIBlockList Icon { get { if (!this.propertyIDList.Contains(PropertyID.Icon)) { throw new InvalidDataException(); } return this.icon; } }
         public TGIBlockList Rig { get { if (!this.propertyIDList.Contains(PropertyID.Rig)) { throw new InvalidDataException(); } return this.rig; } }
         public TGIBlockList Slot { get { if (!this.propertyIDList.Contains(PropertyID.Slot)) { throw new InvalidDataException(); } return this.slot; } }
         public TGIBlockList Model { get { if (!this.propertyIDList.Contains(PropertyID.Model)) { throw new InvalidDataException(); } return this.model; } }
