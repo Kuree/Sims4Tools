@@ -163,7 +163,7 @@ namespace CatalogResource
 
         private static TGIBlockList ReadTGIBlock(BinaryReader r, EventHandler handler)
         {
-            int count = r.ReadInt32();
+            int count = r.ReadInt32() / 4;
             List<TGIBlock> tgiblockList = new List<TGIBlock>(count);
             for (int i = 0; i < count; i++)
             {
@@ -254,7 +254,7 @@ namespace CatalogResource
         public UInt32 ThumbnailGeometryState { get { if (!this.propertyIDList.Contains(PropertyID.ThumbnailGeometryState)) { throw new InvalidDataException(); } return this.thumbnailGeometryState; } }
         public float[] EnvironmentScoreEmotionTags { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScoreEmotionTags)) { throw new InvalidDataException(); } return this.environmentScoreEmotionTags; } }
         public float[] EnvironmentScores { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScores)) { throw new InvalidDataException(); } return this.environmentScores; } }
-        public bool IsBaby { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScores)) { throw new InvalidDataException(); } return this.isBaby; } }
+        public bool IsBaby { get { if (!this.propertyIDList.Contains(PropertyID.IsBaby)) { throw new InvalidDataException(); } return this.isBaby; } }
         #endregion
     }
 
