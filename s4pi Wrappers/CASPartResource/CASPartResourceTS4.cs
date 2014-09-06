@@ -46,7 +46,7 @@ namespace CASPartResource
         byte parentKey;
         int sortLayer;
         LODBlockList lodBlockList;
-        List<byte> slotKey;
+        byte[] slotKey;
         byte difussShadowKey;
         byte shadowKey;
         byte compositionMethod;
@@ -96,7 +96,7 @@ namespace CASPartResource
             this.varientThumbnailKey = r.ReadByte();
             this.nakedKey = r.ReadByte();
             this.parentKey = r.ReadByte();
-            this.sortLayer = r.ReadByte();
+            this.sortLayer = r.ReadInt32();
 
 
             // TGI block list
@@ -109,8 +109,8 @@ namespace CASPartResource
             lodBlockList = new LODBlockList(null, s, tgiList);
 
             byte count = r.ReadByte();
-            this.slotKey = new List<byte>(count);
-            for (byte i = 0; i < count; i++) this.slotKey.Add(r.ReadByte());
+            this.slotKey = new byte[count];
+            for (byte i = 0; i < count; i++) this.slotKey[i] = r.ReadByte();
 
             this.difussShadowKey = r.ReadByte();
             this.shadowKey = r.ReadByte();
@@ -155,7 +155,7 @@ namespace CASPartResource
             w.Write(sortLayer);
             lodBlockList.UnParse(s);
 
-            w.Write((byte)this.slotKey.Count);
+            w.Write((byte)this.slotKey.Length);
             foreach (var b in this.slotKey) w.Write(b);
             w.Write(difussShadowKey);
             w.Write(shadowKey);
@@ -181,27 +181,82 @@ namespace CASPartResource
         [ElementPriority(0)]
         public uint Version { get { return version; } set { if (value != version)version = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(1)]
-        public uint TGIoffset { get { return tgiOffset; } set { if (value != tgiOffset) tgiOffset = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint TGIoffset { get { return tgiOffset; } }
         [ElementPriority(2)]
         public uint PresetCount { get { return presetCount; } set { if (value != presetCount) presetCount = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(3)]
         public string Name { get { return name; } set { if (!value.Equals(name)) name = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(4)]
         public float SortPriority { get { return sortPriority; } set { if (!value.Equals(sortPriority)) sortPriority = value; OnResourceChanged(this, EventArgs.Empty); } }
-        public uint OutfitGroup { get { return propertyID; } set { if (!value.Equals(propertyID)) propertyID = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(5)]
+        public UInt16 SecondarySortIndex { get { return secondarySortIndex; } set { if (!value.Equals(secondarySortIndex)) sortPriority = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(6)]
+        public uint PropertyID { get { return propertyID; } set { if (!value.Equals(propertyID)) propertyID = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(7)]
+        public uint AuralMaterialHash { get { return auralMaterialHash; } set { if (!value.Equals(this.auralMaterialHash)) { this.auralMaterialHash = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(8)]
+        public PramFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
+        public ulong ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(10)]
+        public uint ExcludeModifierRegionFlags { get { return excludeModifierRegionFlags; } set { if (!value.Equals(excludeModifierRegionFlags)) excludeModifierRegionFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(11)]
         public FlagList CASFlagList { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(12)]
+        public uint SimlolencePrice { get { return simlolencePrice; } set { if (!value.Equals(simlolencePrice)) SimlolencePrice = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(13)]
-        public SwatchColorList SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint PartTitleKey { get { return partTitleKey; } set { if (!value.Equals(partTitleKey)) partTitleKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(14)]
+        public uint PartDesptionKey { get { return partDesptionKey; } set { if (!value.Equals(partDesptionKey)) partDesptionKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(15)]
-        public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte UniqueTextureSpace { get { return uniqueTextureSpace; } set { if (!value.Equals(uniqueTextureSpace)) uniqueTextureSpace = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(16)]
+        public int BodyType { get { return bodyType; } set { if (!value.Equals(bodyType)) bodyType = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(17)]
+        public int Unused1 { get { return unused1; } set { if (!value.Equals(unused1)) unused1 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(18)]
+        public uint AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(19)]
+        public byte Unused2 { get { return unused2; } set { if (!value.Equals(unused2)) unused2 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(20)]
+        public byte Unused3 { get { return unused3; } set { if (!value.Equals(unused3)) unused3 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(21)]
+        public SwatchColorList SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(22)]
+        public byte BuffResKey { get { return buffResKey; } set { if (!value.Equals(buffResKey)) buffResKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(23)]
+        public byte VarientThumbnailKey { get { return varientThumbnailKey; } set { if (!value.Equals(varientThumbnailKey)) varientThumbnailKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(24)]
+        public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(25)]
+        public byte ParentKey { get { return parentKey; } set { if (!value.Equals(parentKey)) parentKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(26)]
+        public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(27)]
+        public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(28)]
+        public byte[] SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(29)]
+        public byte DifussShadowKey { get { return difussShadowKey; } set { if (!value.Equals(difussShadowKey)) difussShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(30)]
+        public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(31)]
+        public byte CompositionMethod { get { return compositionMethod; } set { if (!value.Equals(compositionMethod)) compositionMethod = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(32)]
+        public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(33)]
+        public byte Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(34)]
+        public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(35)]
+        public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(36)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
         #endregion
 
         #region Sub-Class
-        public class LODInfoEntryList : AHandlerElement, IEquatable<LODInfoEntryList>
+        public class LODInfoEntry : AHandlerElement, IEquatable<LODInfoEntry>
         {
             const int recommendedApiVersion = 1;
 
@@ -209,26 +264,25 @@ namespace CASPartResource
 
             byte level;
             UInt32 unused;
-            LodAssets[] lodAssetList { get; set; }
-            byte[] lodKeyList { get; set; }
-            ByteIndexList indexList;
-            public LODInfoEntryList(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
-            public LODInfoEntryList(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
+            LODAssetList lodAssetList;
+            ByteIndexList lodKeyList;
+
+
+            public LODInfoEntry(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
+            public LODInfoEntry(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
             public void Parse(Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
                 this.level = r.ReadByte();
 
                 this.unused = r.ReadUInt32();
-                lodAssetList = new LodAssets[r.ReadByte()];
-                for (int i = 0; i < lodAssetList.Length; i++) lodAssetList[i] = new LodAssets();
-                lodKeyList = new byte[r.ReadByte()];
 
+                lodAssetList = new LODAssetList(null, s);
 
                 byte[] byteList = new byte[r.ReadByte()];
                 for (int i = 0; i < byteList.Length; i++)
                     byteList[i] = r.ReadByte();
-                indexList = new ByteIndexList(handler, byteList, tgiList);
+                lodKeyList = new ByteIndexList(handler, byteList, tgiList);
 
 
             }
@@ -237,10 +291,12 @@ namespace CASPartResource
             {
                 BinaryWriter w = new BinaryWriter(s);
                 w.Write(this.level);
-                w.Write(unknown1);
-                unknown2.UnParse(s);
-                w.Write((byte)indexList.Count);
-                foreach (byte b in indexList)
+                w.Write(this.unused);
+
+                this.lodAssetList.UnParse(s);
+
+                w.Write((byte)lodKeyList.Count);
+                foreach (byte b in lodKeyList)
                     w.Write(b);
             }
 
@@ -252,31 +308,39 @@ namespace CASPartResource
             #region Content Fields
             [ElementPriority(0)]
             public byte Level { get { return level; } set { if (!value.Equals(level)) { level = value; OnElementChanged(); } } }
-            [ElementPriority(1)]
-            public byte Unknown1 { get { return unknown1; } set { if (value != unknown1) unknown1 = value; OnElementChanged(); } }
-            [ElementPriority(2)]
-            public DataBlobHandler Unknown2 { get { return unknown2; } set { if (!value.Equals(unknown2)) unknown2 = value; OnElementChanged(); } }
+            public uint Unused { get { return unused; } set { if (!value.Equals(this.unused)) { this.unused = value; OnElementChanged(); } } }
             [ElementPriority(3)]
-            public ByteIndexList IndexList { get { return indexList; } set { if (!value.Equals(indexList)) value = indexList; OnElementChanged(); } }
+            public LODAssetList LodAssetList { get { return this.lodAssetList; } set { if (!value.Equals(this.lodAssetList)) { this.lodAssetList = value; OnElementChanged(); } } }
+            [ElementPriority(4)]
+            public ByteIndexList LODKeyList { get { return lodKeyList; } set { if (!value.Equals(lodKeyList)) value = lodKeyList; OnElementChanged(); } }
             public string Value { get { return ValueBuilder; } }
 
             #endregion
 
             #region IEquatable
-            public bool Equals(LODInfoEntryList other)
+            public bool Equals(LODInfoEntry other)
             {
-                return this.unknown1 == other.unknown1 && this.unknown2.Equals(other.unknown2) && this.indexList.Equals(other.indexList);
+                return this.level == other.level && this.unused == other.unused && this.lodKeyList.Equals(other.lodKeyList);
             }
             #endregion
 
             #region Sub-class
             public class LodAssets : AHandlerElement, IEquatable<LodAssets>
             {
+                #region Attribute
                 const int recommendedApiVersion = 1;
-                // this part need to be implemented entirely
-                public int sorting { get; set; }
-                public int specLevel { get; set; }
-                public int castShadow { get; set; }
+
+                int sorting;
+                int specLevel;
+                int castShadow;
+
+                #endregion
+
+                #region Constructor
+                public LodAssets(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+                public LodAssets(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+
+                #endregion
 
                 #region AHandlerElement Members
                 public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
@@ -291,6 +355,14 @@ namespace CASPartResource
                     this.specLevel = r.ReadInt32();
                     this.castShadow = r.ReadInt32();
                 }
+
+                public void UnParse(Stream s)
+                {
+                    BinaryWriter w = new BinaryWriter(s);
+                    w.Write(this.sorting);
+                    w.Write(this.specLevel);
+                    w.Write(this.castShadow);
+                }
                 #endregion
 
                 #region IEquatable
@@ -299,11 +371,47 @@ namespace CASPartResource
                     return this.sorting == other.sorting && this.specLevel == other.specLevel && this.castShadow == other.castShadow;
                 }
                 #endregion
+
+
+                #region Content Fields
+                public int Sorting { get { return this.sorting; } set { if (!value.Equals(this.sorting)) { OnElementChanged(); this.sorting = value; } } }
+                public int SpecLevel { get { return this.specLevel; } set { if (!value.Equals(this.specLevel)) { OnElementChanged(); this.specLevel = value; } } }
+                public int CastShadow { get { return this.castShadow; } set { if (!value.Equals(this.castShadow)) { OnElementChanged(); this.castShadow = value; } } }
+
+                public string Value { get { return ValueBuilder; } }
+                #endregion
+            }
+
+            public class LODAssetList : DependentList<LodAssets>
+            {
+                public LODAssetList(EventHandler handler) : base(handler) { }
+                public LODAssetList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
+
+                #region Data I/O
+                protected override void Parse(Stream s)
+                {
+                    BinaryReader r = new BinaryReader(s);
+                    byte count = r.ReadByte();
+                    for (int i = 0; i < count; i++)
+                        base.Add(new LodAssets(1, handler, s));
+                }
+
+                public override void UnParse(Stream s)
+                {
+                    BinaryWriter w = new BinaryWriter(s);
+                    w.Write((byte)base.Count);
+                    foreach (var asset in this)
+                        asset.UnParse(s);
+                }
+
+                protected override LodAssets CreateElement(Stream s) { return new LodAssets(1, handler, s); }
+                protected override void WriteElement(Stream s, LodAssets element) { element.UnParse(s); }
+                #endregion
             }
             #endregion
         }
 
-        public class LODBlockList : DependentList<LODInfoEntryList>
+        public class LODBlockList : DependentList<LODInfoEntry>
         {
             #region Attributes
             CountedTGIBlockList tgiList;
@@ -322,7 +430,7 @@ namespace CASPartResource
                 byte count = r.ReadByte();
                 for (int i = 0; i < count; i++)
                 {
-                    base.Add(new LODInfoEntryList(1, handler, s, tgiList));
+                    base.Add(new LODInfoEntry(1, handler, s, tgiList));
                 }
             }
 
@@ -336,8 +444,8 @@ namespace CASPartResource
                 }
             }
 
-            protected override LODInfoEntryList CreateElement(Stream s) { return new LODInfoEntryList(1, handler, tgiList); }
-            protected override void WriteElement(Stream s, LODInfoEntryList element) { element.UnParse(s); }
+            protected override LODInfoEntry CreateElement(Stream s) { return new LODInfoEntry(1, handler, tgiList); }
+            protected override void WriteElement(Stream s, LODInfoEntry element) { element.UnParse(s); }
             #endregion
             
         }
