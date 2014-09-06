@@ -61,7 +61,7 @@
   <ItemGroup>
     <Compile Include="FountainPoolCatalogResource.cs" />
     <Compile Include="FoundationCatalogResource.cs" />
-    <Compile Include="ObjectCatalogResourceTS%24.cs" />
+    <Compile Include="ObjectCatalogResourceTS4.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="CatalogResource.cs" />
     <Compile Include="FenceCatalogResource.cs" />

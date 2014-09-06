@@ -28,7 +28,7 @@ namespace s4pi.GenericRCOLResource
         {
             this.nameHash = nameHash;
             this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
-            this.list = list == null ? null : new EntryList(OnRCOLChanged, list);
+            this.list = list == null ? null : new EntryList(OnRCOLChanged, list, version);
         }
         #endregion
 
@@ -46,12 +46,12 @@ namespace s4pi.GenericRCOLResource
             if (checking) if (tag != (uint)FOURCC("MTST"))
                     throw new InvalidDataException(String.Format("Invalid Tag read: '{0}'; expected: 'MTST'; at 0x{1:X8}", FOURCC(tag), s.Position));
             version = r.ReadUInt32();
-            if (checking) if (version != 0x00000200)
-                    throw new InvalidDataException(String.Format("Invalid Version read: 0x{0:X8}; expected 0x00000200; at 0x{1:X8}", version, s.Position));
+            //if (checking) if (version != 0x00000200)
+            //        throw new InvalidDataException(String.Format("Invalid Version read: 0x{0:X8}; expected 0x00000200; at 0x{1:X8}", version, s.Position));
 
             nameHash = r.ReadUInt32();
             index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, s);
-            list = new EntryList(OnRCOLChanged, s);
+            list = new EntryList(OnRCOLChanged, s, version);
         }
 
         public override Stream UnParse()
@@ -90,11 +90,13 @@ namespace s4pi.GenericRCOLResource
             #region Attributes
             GenericRCOLResource.ChunkReference index;
             State materialState = 0;
+            uint unknown = 0;
+            private uint version;
             #endregion
 
             #region Constructors
             public Entry(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Entry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public Entry(int APIversion, EventHandler handler, Stream s, uint version) : base(APIversion, handler) { this.version = version;  Parse(s); }
             public Entry(int APIversion, EventHandler handler, Entry basis) : this(APIversion, handler, basis.index, basis.materialState) { }
             public Entry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet)
                 : base(APIversion, handler)
@@ -105,15 +107,15 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Data I/O
-            void Parse(Stream s) { index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, s); materialState = (State)new BinaryReader(s).ReadUInt32(); }
+            void Parse(Stream s) { index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, s); BinaryReader r = new BinaryReader(s); materialState = (State)r.ReadUInt32(); if (this.version == 0x00000300) { this.unknown = r.ReadUInt32(); } }
 
-            internal void UnParse(Stream s) { index.UnParse(s); new BinaryWriter(s).Write((uint)materialState); }
+            internal void UnParse(Stream s) { index.UnParse(s); BinaryWriter w = new BinaryWriter(s); w.Write((uint)materialState); if (this.version == 0x00000300) { w.Write(this.unknown); } }
             #endregion
 
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
 
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); if (version != 0x00000300) { res.Remove("Unknown"); }; return res; } }
             #endregion
 
             #region IEquatable<Entry> Members
@@ -135,20 +137,21 @@ namespace s4pi.GenericRCOLResource
             public GenericRCOLResource.ChunkReference Index { get { return index; } set { if (index != value) { new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, value); OnElementChanged(); } } }
             [ElementPriority(2)]
             public State MaterialState { get { return materialState; } set { if (materialState != value) { materialState = value; OnElementChanged(); } } }
-
+            public uint Unknown { get { return this.unknown; } }
             public string Value { get { return ValueBuilder.Replace("\n", "; "); } }
             #endregion
         }
         public class EntryList : DependentList<Entry>
         {
+            private uint version;
             #region Constructors
             public EntryList(EventHandler handler) : base(handler) { }
-            public EntryList(EventHandler handler, Stream s) : base(handler, s) { }
-            public EntryList(EventHandler handler, IEnumerable<Entry> le) : base(handler, le) { }
+            public EntryList(EventHandler handler, Stream s, uint version) : base(handler, s) { this.version = version; }
+            public EntryList(EventHandler handler, IEnumerable<Entry> le, uint version) : base(handler, le) { this.version = version; }
             #endregion
 
             #region Data I/O
-            protected override Entry CreateElement(Stream s) { return new Entry(0, elementHandler, s); }
+            protected override Entry CreateElement(Stream s) { return new Entry(0, elementHandler, s, this.version); }
             protected override void WriteElement(Stream s, Entry element) { element.UnParse(s); }
             #endregion
         }
@@ -162,7 +165,7 @@ namespace s4pi.GenericRCOLResource
         [ElementPriority(13)]
         public GenericRCOLResource.ChunkReference Index { get { return index; } set { if (index != value) { new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, value); OnRCOLChanged(this, EventArgs.Empty); } } }
         [ElementPriority(14)]
-        public EntryList Entries { get { return list; } set { if (list != value) { list = value == null ? null : new EntryList(OnRCOLChanged, value); OnRCOLChanged(this, EventArgs.Empty); } } }
+        public EntryList Entries { get { return list; } set { if (list != value) { list = value == null ? null : new EntryList(OnRCOLChanged, value, version); OnRCOLChanged(this, EventArgs.Empty); } } }
 
         public string Value { get { return ValueBuilder; } }
         #endregion

@@ -243,16 +243,30 @@ namespace CatalogResource
         }
 
 
-        private TGIBlockList ReadTGIBlock(BinaryReader r, EventHandler handler)
+        private TGIBlockList ReadTGIBlock(BinaryReader r, EventHandler handler, TGIBlock.Order order = TGIBlock.Order.ITG)
         {
             int count = r.ReadInt32() / 4;
             List<TGIBlock> tgiblockList = new List<TGIBlock>(count);
             for (int i = 0; i < count; i++)
             {
-                ulong instance = r.ReadUInt64();
-                instance = (instance << 32) | (instance >> 32); // swap instance
-                uint type = r.ReadUInt32();
-                uint group = r.ReadUInt32();
+                ulong instance = 0;
+                uint type = 0;
+                uint group = 0;
+                if (order == TGIBlock.Order.ITG)
+                {
+                    instance = r.ReadUInt64();
+                    instance = (instance << 32) | (instance >> 32); // swap instance
+                    type = r.ReadUInt32();
+                    group = r.ReadUInt32();
+                    
+                }
+                else if(order == TGIBlock.Order.TGI)
+                {
+                    type = r.ReadUInt32();
+                    group = r.ReadUInt32();
+                    instance = r.ReadUInt64();
+                    instance = (instance << 32) | (instance >> 32); // swap instance
+                }
                 tgiblockList.Add(new TGIBlock(recommendedApiVersion, handler, type, group, instance));
             }
             TGIBlockList result = new TGIBlockList(handler, tgiblockList);
@@ -265,15 +279,24 @@ namespace CatalogResource
             return Encoding.ASCII.GetString(r.ReadBytes(count));     
         }
 
-        private void WriteTGIBlock(BinaryWriter w, TGIBlockList value)
+        private void WriteTGIBlock(BinaryWriter w, TGIBlockList value, TGIBlock.Order order = TGIBlock.Order.ITG)
         {
             w.Write(value.Count * 4);
             foreach (var tgi in value)
             {
                 ulong instance = (tgi.Instance << 32) | (tgi.Instance >> 32);
-                w.Write(instance);
-                w.Write(tgi.ResourceType);
-                w.Write(tgi.ResourceGroup);
+                if (order == TGIBlock.Order.ITG)
+                {                    
+                    w.Write(instance);
+                    w.Write(tgi.ResourceType);
+                    w.Write(tgi.ResourceGroup);
+                }
+                else if(order == TGIBlock.Order.TGI)
+                {
+                    w.Write(tgi.ResourceType);
+                    w.Write(tgi.ResourceGroup);
+                    w.Write(instance);
+                }
             }
         }
 
