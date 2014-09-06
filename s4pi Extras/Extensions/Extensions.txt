@@ -93,6 +93,7 @@
 0x0C07456D  COLL   .bnry
 0x0C07469F  CLDR   .bnry
 0x0C37A5B5  LOOK   .lookuptab
+0x0C772E27  _XML   .xml
 0x0D338A3A  THUM   .jpg
 0x11C258C0  CTRG   .bnry
 0x1A3201CD  _MOD   .override
@@ -128,6 +129,7 @@
 0x5DE9DBA0  THUM   .png
 0x5DE9DBA1  THUM   .png
 0x5DE9DBA2  THUM   .png
+0x6017E896  _XML   .xml
 0x626F60CC  THUM   .png
 0x626F60CD  THUM   .png
 0x626F60CE  THUM   .png
@@ -158,10 +160,12 @@
 0xB1CC1AF6  _VID   .video
 0xB4DD716B  _INV   .inventory
 0xB52F5055  FBLN   .blendunit
+0xB61DE6B4  _XML   .xml
 0xBDD82221  AUEV   .auev
 0xC0DB5AE7  OBJD   .object
 0xC202C770  _XML   .xml
 0xC582D2FB  _XML   .xml
+0xCB5FDDC7  _XML   .xml
 0xCD9DE247  THUM   .png
 0xCF9A4ACE  MDLR   .modular
 0xD063545B  LDES   .lotdesc
@@ -180,6 +184,7 @@
 0xE5105066  _XML   .xml
 0xE5105067  RMLS   .xml
 0xE5105068  _XML   .xml
+0xE882D22F  _XML   .xml 
 0xEA5118B0  _SWB   .effects
 0xF0FF5598  TRIG   .triggers
 0xF1EDBD86  CRMT   .roofmatrl

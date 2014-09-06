@@ -10,17 +10,21 @@
 0x03B33DDF XML without encoding bytes -- <base/>
 0x0604ABDA XML with encoding bytes -- <DreamTree/>
 0x0A98EAF0 SimCity5 UI JavaScript Object
+0x0C772E27 ?
 0x1A8506C5 Modal music wrappings
 0x1B25A024 Sound properties
 0x1F886EAD Various configuration bits
 0x2B6CAB5F Spore Note in UI.package
 0x4115F9D5 Various sound configs
+0x6017E896 ?
 0x67771F5C SimCity5 UI JavaScript Object
 0x73E93EEB XML without encoding bytes -- <manifest/>
 0x99D98089 Button UI event mapping
 0xA576C2E7 ? Sound?
 0xA8D58BE5 XML without encoding bytes -- <skills_store/>
+0xB61DE6B4 ?
 0xC202C770 Music data file
+0xCB5FDDC7 ?
 0xC582D2FB ?
 0xD4D9FBE5 XML without encoding bytes -- <patternlist/>
 0xDD3223A7 XML without encoding bytes -- <buff_store/>
@@ -29,4 +33,5 @@
 0xE5105066 ?
 0xE5105067 XML without encoding bytes -- <RecipeMasterList_store/>
 0xE5105068 ?
+0xE882D22F ?
 0xF0FF5598 Shortcut definitions
