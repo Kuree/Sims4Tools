@@ -23,18 +23,37 @@ namespace CASPartResource
         uint presetCount;
         string name;
         float sortPriority;
-        byte colorCode;
-        byte unknown1;
-        private uint outfitGroup;
-        DataBlobHandler unknown2;
+        ushort secondarySortIndex;
+        private uint propertyID;
+        uint auralMaterialHash;
+        PramFlag parmFlags;
+        ulong excludePartFlags;
+        uint excludeModifierRegionFlags;
         FlagList flagList;
-        byte unknown3;
-        byte swatchIndex;
-        DataBlobHandler unknown4;
+        uint simlolencePrice;
+        uint partTitleKey;
+        uint partDesptionKey;
+        byte uniqueTextureSpace;
+        int bodyType;
+        int unused1;
+        uint ageGender;
+        byte unused2;
+        byte unused3;
         SwatchColorList swatchColorCode;
-        DataBlobHandler unknown5;
+        byte buffResKey;
+        byte varientThumbnailKey;
+        byte nakedKey;
+        byte parentKey;
+        int sortLayer;
         LODBlockList lodBlockList;
-        DataBlobHandler unknown7;
+        List<byte> slotKey;
+        byte difussShadowKey;
+        byte shadowKey;
+        byte compositionMethod;
+        byte regionMapKey;
+        byte overrides;
+        byte normalMapKey;
+        byte specularMapKey;
         private CountedTGIBlockList tgiList;
         #endregion
 
@@ -52,21 +71,33 @@ namespace CASPartResource
             name = BigEndianUnicodeString.Read(s);
 
             sortPriority = r.ReadSingle();
-            colorCode = r.ReadByte();
-            unknown1 = r.ReadByte();
-            outfitGroup = r.ReadUInt32();
-            unknown2 = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, r.ReadBytes(17));
-
+            this.secondarySortIndex = r.ReadUInt16();
+            propertyID = r.ReadUInt32();
+            this.auralMaterialHash = r.ReadUInt32();
+            this.parmFlags = (PramFlag)r.ReadByte();
+            this.excludePartFlags = r.ReadUInt64();
+            this.excludeModifierRegionFlags = r.ReadUInt32();
+            
             flagList = new FlagList(OnResourceChanged, s);
 
-            this.unknown3 = r.ReadByte();
-            this.swatchIndex = r.ReadByte();
-
-            unknown4 = new DataBlobHandler(1, null, r.ReadBytes(2 * 3 * 4 + 1));
+            this.simlolencePrice = r.ReadUInt32();
+            this.partTitleKey = r.ReadUInt32();
+            this.partDesptionKey = r.ReadUInt32();
+            this.uniqueTextureSpace = r.ReadByte();
+            this.bodyType = r.ReadInt32();
+            this.unused1 = r.ReadInt32();
+            this.ageGender = r.ReadUInt32();
+            this.unused2 = r.ReadByte();
+            this.unused3 = r.ReadByte();
 
             swatchColorCode = new SwatchColorList(OnResourceChanged, s);
 
-            unknown5 = new DataBlobHandler(1, null, r.ReadBytes(2 * 4));
+            this.buffResKey = r.ReadByte();
+            this.varientThumbnailKey = r.ReadByte();
+            this.nakedKey = r.ReadByte();
+            this.parentKey = r.ReadByte();
+            this.sortLayer = r.ReadByte();
+
 
             // TGI block list
             long currentPosition = r.BaseStream.Position;
@@ -77,7 +108,17 @@ namespace CASPartResource
 
             lodBlockList = new LODBlockList(null, s, tgiList);
 
-            unknown7 = new DataBlobHandler(1, null, r.ReadBytes(10));
+            byte count = r.ReadByte();
+            this.slotKey = new List<byte>(count);
+            for (byte i = 0; i < count; i++) this.slotKey.Add(r.ReadByte());
+
+            this.difussShadowKey = r.ReadByte();
+            this.shadowKey = r.ReadByte();
+            this.compositionMethod = r.ReadByte();
+            this.regionMapKey = r.ReadByte();
+            this.overrides = r.ReadByte();
+            this.normalMapKey = r.ReadByte();
+            this.specularMapKey = r.ReadByte();
         }
 
         protected override Stream UnParse()
@@ -90,18 +131,39 @@ namespace CASPartResource
             w.Write(presetCount);
             BigEndianUnicodeString.Write(s, name);
             w.Write(sortPriority);
-            w.Write(colorCode);
-            w.Write(unknown1);
-            w.Write(outfitGroup);
-            unknown2.UnParse(s);
+            w.Write(secondarySortIndex);
+            w.Write(propertyID);
+            w.Write(auralMaterialHash);
+            w.Write((byte)parmFlags);
+            w.Write(excludePartFlags);
+            w.Write(excludeModifierRegionFlags);
             flagList.UnParse(s);
-            w.Write(this.unknown3);
-            w.Write(this.swatchIndex);
-            unknown4.UnParse(s);
+            w.Write(simlolencePrice);
+            w.Write(partTitleKey);
+            w.Write(partDesptionKey);
+            w.Write(uniqueTextureSpace);
+            w.Write(bodyType);
+            w.Write(unused1);
+            w.Write(ageGender);
+            w.Write(unused2);
+            w.Write(unused3);
             swatchColorCode.UnParse(s);
-            unknown5.UnParse(s);
+            w.Write(buffResKey);
+            w.Write(varientThumbnailKey);
+            w.Write(nakedKey);
+            w.Write(parentKey);
+            w.Write(sortLayer);
             lodBlockList.UnParse(s);
-            unknown7.UnParse(s);
+
+            w.Write((byte)this.slotKey.Count);
+            foreach (var b in this.slotKey) w.Write(b);
+            w.Write(difussShadowKey);
+            w.Write(shadowKey);
+            w.Write(compositionMethod);
+            w.Write(regionMapKey);
+            w.Write(overrides);
+            w.Write(normalMapKey);
+            w.Write(specularMapKey);
 
             long tgiPosition = w.BaseStream.Position;
             w.BaseStream.Position = 4;
@@ -126,30 +188,13 @@ namespace CASPartResource
         public string Name { get { return name; } set { if (!value.Equals(name)) name = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(4)]
         public float SortPriority { get { return sortPriority; } set { if (!value.Equals(sortPriority)) sortPriority = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(5)]
-        public byte ColorCode { get { return colorCode; } set { if (!value.Equals(colorCode)) colorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(6)]
-        public byte Unknown1 { get { return unknown1; } set { if (!value.Equals(unknown1)) unknown1 = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(7)]
-        public uint OutfitGroup { get { return outfitGroup; } set { if (!value.Equals(outfitGroup)) outfitGroup = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(8)]
-        public DataBlobHandler Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint OutfitGroup { get { return propertyID; } set { if (!value.Equals(propertyID)) propertyID = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
         public FlagList CASFlagList { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(10)]
-        public byte Unknown3 { get { return unknown3; } set { if (!value.Equals(unknown3)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
-        [ElementPriority(11)]
-        public byte SwatchIndex { get { return swatchIndex; } set { if (!swatchIndex.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.swatchIndex = value; } } }
-        [ElementPriority(12)]
-        public DataBlobHandler Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) unknown4 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(13)]
         public SwatchColorList SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(14)]
-        public DataBlobHandler Unknown5 { get { return unknown5; } set { if (!unknown5.Equals(value)) unknown5 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(15)]
         public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(16)]
-        public DataBlobHandler Unknown7 { get { return unknown7; } set { if (!unknown7.Equals(value)) unknown7 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(17)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
@@ -162,30 +207,36 @@ namespace CASPartResource
 
             private CountedTGIBlockList tgiList;
 
-            byte lodNumber;
-            byte unknown1;
-            DataBlobHandler unknown2;
+            byte level;
+            UInt32 unused;
+            LodAssets[] lodAssetList { get; set; }
+            byte[] lodKeyList { get; set; }
             ByteIndexList indexList;
             public LODInfoEntryList(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
             public LODInfoEntryList(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
             public void Parse(Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
-                this.lodNumber = r.ReadByte();
-                unknown1 = r.ReadByte();
-                unknown2 = new DataBlobHandler(1, null, r.ReadBytes(16));
+                this.level = r.ReadByte();
+
+                this.unused = r.ReadUInt32();
+                lodAssetList = new LodAssets[r.ReadByte()];
+                for (int i = 0; i < lodAssetList.Length; i++) lodAssetList[i] = new LodAssets();
+                lodKeyList = new byte[r.ReadByte()];
+
+
                 byte[] byteList = new byte[r.ReadByte()];
                 for (int i = 0; i < byteList.Length; i++)
                     byteList[i] = r.ReadByte();
                 indexList = new ByteIndexList(handler, byteList, tgiList);
-                
-                
+
+
             }
 
             public void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);
-                w.Write(this.lodNumber);
+                w.Write(this.level);
                 w.Write(unknown1);
                 unknown2.UnParse(s);
                 w.Write((byte)indexList.Count);
@@ -200,7 +251,7 @@ namespace CASPartResource
 
             #region Content Fields
             [ElementPriority(0)]
-            public byte LODNumber { get { return lodNumber; } set { if (!value.Equals(lodNumber)) { lodNumber = value; OnElementChanged(); } } }
+            public byte Level { get { return level; } set { if (!value.Equals(level)) { level = value; OnElementChanged(); } } }
             [ElementPriority(1)]
             public byte Unknown1 { get { return unknown1; } set { if (value != unknown1) unknown1 = value; OnElementChanged(); } }
             [ElementPriority(2)]
@@ -215,6 +266,39 @@ namespace CASPartResource
             public bool Equals(LODInfoEntryList other)
             {
                 return this.unknown1 == other.unknown1 && this.unknown2.Equals(other.unknown2) && this.indexList.Equals(other.indexList);
+            }
+            #endregion
+
+            #region Sub-class
+            public class LodAssets : AHandlerElement, IEquatable<LodAssets>
+            {
+                const int recommendedApiVersion = 1;
+                // this part need to be implemented entirely
+                public int sorting { get; set; }
+                public int specLevel { get; set; }
+                public int castShadow { get; set; }
+
+                #region AHandlerElement Members
+                public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+                public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+                #endregion
+
+                #region Data I/O
+                protected void Parse(Stream s)
+                {
+                    BinaryReader r = new BinaryReader(s);
+                    this.sorting = r.ReadInt32();
+                    this.specLevel = r.ReadInt32();
+                    this.castShadow = r.ReadInt32();
+                }
+                #endregion
+
+                #region IEquatable
+                public bool Equals(LodAssets other)
+                {
+                    return this.sorting == other.sorting && this.specLevel == other.specLevel && this.castShadow == other.castShadow;
+                }
+                #endregion
             }
             #endregion
         }
@@ -417,6 +501,17 @@ namespace CASPartResource
             TerrainPaint = 0x0068,
             EyebrowThickness = 0x0069,
             EyebrowShape = 0x006A,
+        }
+
+        [Flags]
+        public enum PramFlag : byte
+        {
+            ShowInCASDemo = 1 << 5,
+            ShowInSimInfoDemo = 1 << 4,
+            ShowInUI = 1 << 3,
+            AllowForRandom = 1 << 2,
+            DefaultThumbnailPart = 1 << 1,
+            DefaultForBodyType = 1
         }
         #endregion
 
