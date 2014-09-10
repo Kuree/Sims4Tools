@@ -221,10 +221,12 @@ namespace s4pi.Animation
             UInt32 next = br.ReadUInt32();
             bool end = false;
             var events = new List<ClipEvent>();
-            while (stream.Position+ next != stream.Length) {
-                var evt = ClipEvent.Create(next,this.OnResourceChanged,next);       
+            while (stream.Position+ next != stream.Length)
+            {
+                var size = br.ReadUInt32();
+                var evt = ClipEvent.Create(next,this.OnResourceChanged,size);       
              
-                var evt_end =br.ReadInt32()+ br.BaseStream.Position ;
+                var evt_end =size+ br.BaseStream.Position ;
                 evt.Parse(s);
                 events.Add(evt);
                 if (Settings.Settings.Checking && br.BaseStream.Position != evt_end)
