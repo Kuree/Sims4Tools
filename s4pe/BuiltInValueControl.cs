@@ -315,7 +315,10 @@ namespace S4PIDemoFE
             0xCD9DE247,
             0x0D338A3A,
             0x3BD45407,
-            0x3C2A8647
+            0x3C2A8647,
+            0xE254AE6E,
+            0x16CCF748,
+            0xE18CAEE2,
         };
 
         PictureBox pb = new PictureBox();

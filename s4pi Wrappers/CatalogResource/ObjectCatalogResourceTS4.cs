@@ -21,7 +21,7 @@ namespace CatalogResource
         TGIBlockList slot;
         TGIBlockList model;
         TGIBlockList footprint;
-        TGIBlockList components;
+        SimpleList<UInt32> components;
         string materialVariant;
         byte unknown1;
         uint simoleonPrice;
@@ -89,7 +89,9 @@ namespace CatalogResource
                         this.footprint = ReadTGIBlock(r, OnResourceChanged);
                         break;
                     case PropertyID.Components:
-                        this.components = ReadTGIBlock(r, OnResourceChanged);
+                        int componentCount = r.ReadInt32();
+                        this.components = new SimpleList<uint>(OnResourceChanged);
+                        for (int m = 0; m < componentCount; m++) this.components.Add(r.ReadUInt32());
                         break;
                     case PropertyID.MaterialVariant:
                         this.materialVariant = ReadString(r, OnResourceChanged);
@@ -185,7 +187,8 @@ namespace CatalogResource
                         WriteTGIBlock(w, this.footprint);
                         break;
                     case PropertyID.Components:
-                        WriteTGIBlock(w, this.components);
+                        w.Write(this.components.Count);
+                        foreach (var m in this.components) w.Write(m);
                         break;
                     case PropertyID.MaterialVariant:
                         WriteString(w, this.materialVariant);
@@ -342,7 +345,7 @@ namespace CatalogResource
             Slot = 0x8A85AFF3, // swapped ITG list
             Model = 0x8D20ACC6, // swapped ITG list
             Footprint = 0x6C737AD8, // swapped ITG list
-            Components = 0xE6E421FB,  // swapped ITG list
+            Components = 0xE6E421FB,  // UInt32 List
             MaterialVariant = 0xECD5A95F, // string
             Unknown1 = 0xAC8E1BC0 , //uint8 byte
             SimoleonPrice = 0xE4F4FAA4, // uint32
@@ -356,6 +359,8 @@ namespace CatalogResource
             IsBaby = 0xAEE67A1C, // bool
             Unknown4 = 0xF3936A90, // byte array
         }
+
+        
         #endregion
 
 
@@ -371,7 +376,7 @@ namespace CatalogResource
         [ElementPriority(4)]
         public bool IsBaby { get { if (!this.propertyIDList.Contains(PropertyID.IsBaby)) { throw new InvalidDataException(); } return this.isBaby; } set { if (!value.Equals(this.isBaby)) { this.isBaby = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(5)]
-        public TGIBlockList Components { get { if (!this.propertyIDList.Contains(PropertyID.Components)) { throw new InvalidDataException(); } return this.components; } set { if (!value.Equals(this.components)) { this.components = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public SimpleList<UInt32> Components { get { if (!this.propertyIDList.Contains(PropertyID.Components)) { throw new InvalidDataException(); } return this.components; } set { if (!value.Equals(this.components)) { this.components = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(6)]
         public string MaterialVariant { get { if (!this.propertyIDList.Contains(PropertyID.MaterialVariant)) { throw new InvalidDataException(); } return this.materialVariant; } set { if (!value.Equals(this.materialVariant)) { this.materialVariant = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(7)]

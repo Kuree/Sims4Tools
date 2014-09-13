@@ -30,7 +30,20 @@ namespace s4pi.ImageResource
 
         protected override Stream UnParse()
         {
-            return new MemoryStream(this.rawData);
+            Bitmap alpha;
+            Bitmap img = ComputeAlpha(this.Image, out alpha);
+            MemoryStream ms = new MemoryStream();
+            BinaryWriter w = new BinaryWriter(ms);
+            using(MemoryStream imgStream = new MemoryStream(), alphaStream = new MemoryStream())
+            {
+                img.Save(imgStream, ImageFormat.Jpeg);
+                imgStream.Position = 0;
+                BinaryReader r = new BinaryReader(imgStream);
+                w.Write(r.ReadBytes(24));
+                w.Write(0x41464C41U);
+
+            }
+            return ms;
         }
 
         public Stream ToImageStream()
@@ -57,17 +70,6 @@ namespace s4pi.ImageResource
                     {
                         Bitmap alphaImage = new Bitmap(alphaStream);
                         if (colorImage.Width != alphaImage.Width || colorImage.Height != alphaImage.Height) throw new InvalidDataException("Not a proper TS4 Thumbnail image");
-                        //int[,] rawImage = new int[colorImage.Width, colorImage.Height];
-                        //for (int y = 0; y < colorImage.Height; y++)
-                        //{
-                        //    for (int x = 0; x < colorImage.Width; x++)
-                        //    {
-                        //        Color color = colorImage.GetPixel(x, y);
-                        //        byte alpha = alphaImage.GetPixel(x, y).R;
-                        //        rawImage[x, y] = Color.FromArgb(alpha, color).ToArgb();
-
-                        //    }
-                        //}
                         colorImage = UpdateAlpha(colorImage, alphaImage);
 
                         this.Image = colorImage;
@@ -78,6 +80,51 @@ namespace s4pi.ImageResource
         }
 
         public Bitmap Image { get; private set; }
+
+
+        protected internal unsafe Bitmap ComputeAlpha(Bitmap source, out Bitmap alpha)
+        {
+            int width = source.Width;
+            int height = source.Height;
+            alpha = new Bitmap(width, height);
+            Bitmap img = new Bitmap(width, height);
+
+            BitmapData imgBitmapData = img.LockBits(
+                new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadWrite,
+                System.Drawing.Imaging.PixelFormat.Format24bppRgb
+            );
+            BitmapData alphaBitmapData = alpha.LockBits(
+                new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadWrite,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb
+            );
+
+            BitmapData sourceBitmapData = source.LockBits(
+                new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadWrite,
+                System.Drawing.Imaging.PixelFormat.Format32bppArgb
+            );
+
+            ColorARGB* imgStartingPosition = (ColorARGB*)imgBitmapData.Scan0;
+            ColorARGB* sourceStartingPosition = (ColorARGB*)sourceBitmapData.Scan0;
+            ColorARGB* alphaStartingPosition = (ColorARGB*)alphaBitmapData.Scan0;
+
+
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                {
+                    ColorARGB* sourcePosition = sourceStartingPosition + j + i * width;
+                    ColorARGB* alphaPosition = alphaStartingPosition + j + i * width;
+                    ColorARGB* imgPosition = imgStartingPosition + j + i * width;
+                    *imgPosition = new ColorARGB(sourcePosition);
+                    *alphaPosition = new ColorARGB(255, sourcePosition->A, sourcePosition->A, sourcePosition->A);
+                }
+
+            img.UnlockBits(imgBitmapData);
+            alpha.UnlockBits(alphaBitmapData);
+            return img;
+        }
 
         protected internal unsafe Bitmap UpdateAlpha(Bitmap source, Bitmap alpha)
         {
@@ -150,6 +197,14 @@ namespace s4pi.ImageResource
             public unsafe ColorARGB(ColorARGB* original, ColorARGB* alpha)
             {
                 this.A = alpha->R;
+                this.R = original->R;
+                this.G = original->G;
+                this.B = original->B;
+            }
+
+            public unsafe ColorARGB(ColorARGB* original)
+            {
+                this.A = 255;
                 this.R = original->R;
                 this.G = original->G;
                 this.B = original->B;

@@ -96,6 +96,7 @@
 0x0C772E27  _XML   .xml
 0x0D338A3A  THUM   .jpg
 0x11C258C0  CTRG   .bnry
+0x16CCF748  THUM   .jpg
 0x1A3201CD  _MOD   .override
 0x1F886EAD  _INI   .ini
 0x220557DA  STBL   .stbl
@@ -180,7 +181,9 @@
 0xDD3223A7  BUFF   .xml
 0xDD6233D6  HTML   .html
 0xDEA2951C  PETB   .breed
+0xE18CAEE2  THUM   .jpg
 0xE231B3D8  _XML   .xml
+0xE254AE6E  THUM   .jpg
 0xE5105066  _XML   .xml
 0xE5105067  RMLS   .xml
 0xE5105068  _XML   .xml

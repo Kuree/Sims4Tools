@@ -554,7 +554,11 @@ namespace S4PIDemoFE
             openFileDialog1.FileName = "";
             openFileDialog1.FilterIndex = 1;
 
+            // CAS demo path
             string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Electronic Arts", "The Sims 4 Create A Sim Demo", "Mods");
+            if (System.IO.Directory.Exists(path)) openFileDialog1.CustomPlaces.Add(path);
+            // actual game path
+            path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Electronic Arts", "The Sims 4", "Mods");
             if (System.IO.Directory.Exists(path)) openFileDialog1.CustomPlaces.Add(path);
 
             DialogResult dr = openFileDialog1.ShowDialog();
