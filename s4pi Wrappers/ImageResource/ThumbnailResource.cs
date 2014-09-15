@@ -41,8 +41,15 @@ namespace s4pi.ImageResource
                 BinaryReader r = new BinaryReader(imgStream);
                 w.Write(r.ReadBytes(24));
                 w.Write(0x41464C41U);
-
+                alpha.Save(alphaStream, ImageFormat.Png);
+                alphaStream.Position = 0;
+                int length = (int)alphaStream.Length;
+                length = (int)((length & 0xFF000000) >> 24) | (int)((length & 0x00FF0000) >> 8) | (int)((length & 0x0000FF00) << 8) | (int)((length & 0x000000FF) << 24);
+                w.Write(length);
+                w.Write(alphaStream.ToArray());
+                w.Write(r.ReadBytes((int)imgStream.Length - 24));
             }
+            ms.Position = 0;
             return ms;
         }
 
