@@ -46,7 +46,7 @@ namespace CASPartResource
         byte parentKey;
         int sortLayer;
         LODBlockList lodBlockList;
-        byte[] slotKey;
+        SimpleList<byte> slotKey;
         byte difussShadowKey;
         byte shadowKey;
         byte compositionMethod;
@@ -109,8 +109,8 @@ namespace CASPartResource
             lodBlockList = new LODBlockList(null, s, tgiList);
 
             byte count = r.ReadByte();
-            this.slotKey = new byte[count];
-            for (byte i = 0; i < count; i++) this.slotKey[i] = r.ReadByte();
+            this.slotKey = new SimpleList<byte>(null);
+            for (byte i = 0; i < count; i++) this.slotKey.Add(r.ReadByte());
 
             this.difussShadowKey = r.ReadByte();
             this.shadowKey = r.ReadByte();
@@ -155,7 +155,7 @@ namespace CASPartResource
             w.Write(sortLayer);
             lodBlockList.UnParse(s);
 
-            w.Write((byte)this.slotKey.Length);
+            w.Write((byte)this.slotKey.Count);
             foreach (var b in this.slotKey) w.Write(b);
             w.Write(difussShadowKey);
             w.Write(shadowKey);
@@ -222,33 +222,33 @@ namespace CASPartResource
         public byte Unused3 { get { return unused3; } set { if (!value.Equals(unused3)) unused3 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(21)]
         public SwatchColorList SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(22)]
+        [ElementPriority(22), TGIBlockListContentField("TGIList")]
         public byte BuffResKey { get { return buffResKey; } set { if (!value.Equals(buffResKey)) buffResKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(23)]
+        [ElementPriority(23), TGIBlockListContentField("TGIList")]
         public byte VarientThumbnailKey { get { return varientThumbnailKey; } set { if (!value.Equals(varientThumbnailKey)) varientThumbnailKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(24)]
+        [ElementPriority(24), TGIBlockListContentField("TGIList")]
         public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(25)]
+        [ElementPriority(25), TGIBlockListContentField("TGIList")]
         public byte ParentKey { get { return parentKey; } set { if (!value.Equals(parentKey)) parentKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(26)]
         public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(27)]
         public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(28)]
-        public byte[] SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(29)]
+        [ElementPriority(28), TGIBlockListContentField("TGIList")]
+        public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(29), TGIBlockListContentField("TGIList")]
         public byte DifussShadowKey { get { return difussShadowKey; } set { if (!value.Equals(difussShadowKey)) difussShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(30)]
+        [ElementPriority(30), TGIBlockListContentField("TGIList")]
         public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(31)]
+        [ElementPriority(31), TGIBlockListContentField("TGIList")]
         public byte CompositionMethod { get { return compositionMethod; } set { if (!value.Equals(compositionMethod)) compositionMethod = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(32)]
+        [ElementPriority(32), TGIBlockListContentField("TGIList")]
         public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(33)]
+        [ElementPriority(33), TGIBlockListContentField("TGIList")]
         public byte Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(34)]
+        [ElementPriority(34), TGIBlockListContentField("TGIList")]
         public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(35)]
+        [ElementPriority(35), TGIBlockListContentField("TGIList")]
         public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(36)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
