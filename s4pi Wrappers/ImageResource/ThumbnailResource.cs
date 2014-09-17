@@ -6,6 +6,7 @@ using s4pi.Interfaces;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace s4pi.ImageResource
 {
@@ -113,7 +114,7 @@ namespace s4pi.ImageResource
                 System.Drawing.Imaging.PixelFormat.Format32bppArgb
             );
 
-            ColorARGB* imgStartingPosition = (ColorARGB*)imgBitmapData.Scan0;
+            ColorRGB* imgStartingPosition = (ColorRGB*)imgBitmapData.Scan0;
             ColorARGB* sourceStartingPosition = (ColorARGB*)sourceBitmapData.Scan0;
             ColorARGB* alphaStartingPosition = (ColorARGB*)alphaBitmapData.Scan0;
 
@@ -123,14 +124,22 @@ namespace s4pi.ImageResource
                 {
                     ColorARGB* sourcePosition = sourceStartingPosition + j + i * width;
                     ColorARGB* alphaPosition = alphaStartingPosition + j + i * width;
-                    ColorARGB* imgPosition = imgStartingPosition + j + i * width;
-                    *imgPosition = new ColorARGB(sourcePosition);
+                    ColorRGB* imgPosition = imgStartingPosition + j + i * width;
+                    *imgPosition = new ColorRGB(sourcePosition);
                     *alphaPosition = new ColorARGB(255, sourcePosition->A, sourcePosition->A, sourcePosition->A);
                 }
-
-            img.UnlockBits(imgBitmapData);
-            alpha.UnlockBits(alphaBitmapData);
-            return img;
+            try
+            {
+                img.UnlockBits(imgBitmapData);
+                alpha.UnlockBits(alphaBitmapData);
+                source.UnlockBits(sourceBitmapData);
+                return img;
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+                return new Bitmap(new MemoryStream(this.rawData));
+            }
         }
 
         protected internal unsafe Bitmap UpdateAlpha(Bitmap source, Bitmap alpha)
@@ -175,6 +184,22 @@ namespace s4pi.ImageResource
         }
 
         #region Sub-Type
+
+
+        protected internal struct ColorRGB
+        {
+
+            public byte B;
+            public byte G;
+            public byte R;
+
+            public unsafe ColorRGB(ColorARGB* original)
+            {
+                this.R = original->R;
+                this.G = original->G;
+                this.B = original->B;
+            }
+        }
 
         /// <summary>
         /// Basic ARGB color for Write into memory
