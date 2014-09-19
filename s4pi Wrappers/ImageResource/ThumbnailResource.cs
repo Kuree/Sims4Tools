@@ -31,24 +31,34 @@ namespace s4pi.ImageResource
 
         protected override Stream UnParse()
         {
+            if (this.rawData != null)
+                return new MemoryStream(this.rawData);
             Bitmap alpha;
-            Bitmap img = ComputeAlpha(this.Image, out alpha);
+            Bitmap img = ComputeAlpha(this.image, out alpha);
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
-            using(MemoryStream imgStream = new MemoryStream(), alphaStream = new MemoryStream())
+            using (MemoryStream imgStream = new MemoryStream(), alphaStream = new MemoryStream())
             {
                 img.Save(imgStream, ImageFormat.Jpeg);
                 imgStream.Position = 0;
                 BinaryReader r = new BinaryReader(imgStream);
-                w.Write(r.ReadBytes(24));
-                w.Write(0x41464C41U);
+                w.Write(r.ReadBytes(12));
+
                 alpha.Save(alphaStream, ImageFormat.Png);
                 alphaStream.Position = 0;
                 int length = (int)alphaStream.Length;
                 length = (int)((length & 0xFF000000) >> 24) | (int)((length & 0x00FF0000) >> 8) | (int)((length & 0x0000FF00) << 8) | (int)((length & 0x000000FF) << 24);
+
+                w.Write(0x01000001U);
+                w.Write(0x00000100U);
+                w.Write((ushort)(0xE0FF));
+                int newLength = (int)(alphaStream.Length + 10);
+                newLength = newLength << 8 | newLength >> 8;
+                w.Write((ushort)(newLength));
+                w.Write(0x41464C41U);
                 w.Write(length);
                 w.Write(alphaStream.ToArray());
-                w.Write(r.ReadBytes((int)imgStream.Length - 24));
+                w.Write(r.ReadBytes((int)imgStream.Length - 12));
             }
             ms.Position = 0;
             return ms;
@@ -57,7 +67,7 @@ namespace s4pi.ImageResource
         public Stream ToImageStream()
         {
             MemoryStream ms = new MemoryStream();
-            Image.Save(ms, ImageFormat.Png);
+            image.Save(ms, ImageFormat.Png);
             ms.Position = 0;
             return ms;
         }
@@ -80,14 +90,14 @@ namespace s4pi.ImageResource
                         if (colorImage.Width != alphaImage.Width || colorImage.Height != alphaImage.Height) throw new InvalidDataException("Not a proper TS4 Thumbnail image");
                         colorImage = UpdateAlpha(colorImage, alphaImage);
 
-                        this.Image = colorImage;
+                        //this.Image = colorImage;
                     }
                 }
-                this.Image = colorImage;
+                this.image = colorImage;
             }
         }
-
-        public Bitmap Image { get; private set; }
+        private Bitmap image;
+        public Bitmap Image { get { return image; } set { if (value != null) { this.image = value; this.rawData = null; } } }
 
 
         protected internal unsafe Bitmap ComputeAlpha(Bitmap source, out Bitmap alpha)

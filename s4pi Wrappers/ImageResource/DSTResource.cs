@@ -130,11 +130,11 @@ namespace s4pi.ImageResource
         }
     }
 
-    public class DSTResourceHandler : AResourceHandler
-    {
-        public DSTResourceHandler()
-        {
-            //this.Add(typeof(DSTResource), new List<string>(new string[] { "0x00B2D882", }));
-        }
-    }
+    //public class DSTResourceHandler : AResourceHandler
+    //{
+    //    public DSTResourceHandler()
+    //    {
+    //        //this.Add(typeof(DSTResource), new List<string>(new string[] { "0x00B2D882", }));
+    //    }
+    //}
 }

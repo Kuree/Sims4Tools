@@ -488,12 +488,15 @@ namespace s4pi.ImageResource
             public uint mipCount { get; internal set; }
             public ushort Unknown0E { get; internal set; }
 
-            public RLEInfo(Stream s)
+            public RLEInfo(Stream s, bool check = true)
+                : this(s, FourCC.DXT5, check) { }
+
+            public RLEInfo(Stream s, FourCC fourCC, bool check)
             {
                 s.Position = 0;
                 BinaryReader r = new BinaryReader(s);
                 uint fourcc = r.ReadUInt32();
-                if (fourcc != (uint)FourCC.DXT5) throw new NotImplementedException(string.Format("Expected format: 0x{0:X8}, read 0x{1:X8}", FourCC.DXT5, fourcc));
+                if (check) if (fourcc != (uint)fourCC) throw new NotImplementedException(string.Format("Expected format: 0x{0:X8}, read 0x{1:X8}", (uint)fourCC, fourcc));
                 this.Version = (RLEVersion)r.ReadUInt32();
                 this.Width = r.ReadUInt16();
                 this.Height = r.ReadUInt16();
@@ -503,6 +506,7 @@ namespace s4pi.ImageResource
                 if (this.Unknown0E != 0) throw new InvalidDataException(string.Format("Expected 0, read 0x{0:X8}", this.Unknown0E));
                 this.pixelFormat = new PixelFormat();
             }
+
 
             public void Parse(Stream s)
             {

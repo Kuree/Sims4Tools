@@ -81,6 +81,17 @@ namespace S4PIDemoFE
                 return;
 
             resStream = s;
+            s.Position = 0;
+            RLEResource.RLEInfo header = new RLEResource.RLEInfo();
+            header.Parse(s);
+            if (header.pixelFormat.Fourcc == FourCC.DST1 || header.pixelFormat.Fourcc == FourCC.DST3 || header.pixelFormat.Fourcc == FourCC.DST5)
+            {
+                s.Position = 0;
+                resStream = (new DSTResource(1, s)).ToDDS();
+            }
+
+            resStream.Position = 0;
+
             ddsPanel1 = new DDSPanel()
             {
                 Fit = true,

@@ -59,6 +59,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="COBJResource.cs" />
     <Compile Include="FountainPoolCatalogResource.cs" />
     <Compile Include="FoundationCatalogResource.cs" />
     <Compile Include="ObjectCatalogResourceTS4.cs" />

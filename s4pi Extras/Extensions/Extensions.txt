@@ -115,6 +115,7 @@
 0x2F7D0006  IMAG   .tga
 0x2F7D0008  UITX   .uitexture
 0x316C78F2  CFND   .foundation
+0x319E4F1D  COBJ   .cobj
 0x35A33E29  WDSH   .wdeschash
 0x376840D7  _AVI   .avi
 0x3A65AF29  MINF   .makeup
