@@ -117,77 +117,78 @@ namespace AutoUpdate
 
         public static bool GetUpdate(bool autoCheck)
         {
-            UpdateInfo ui = null;
-            string ini = PortableSettingsProvider.GetApplicationIniFile("Update");
-            if (!File.Exists(ini))
-            {
-                CopyableMessageBox.Show(
-                    "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
-                    + ini + " - not found"
-                    , PortableSettingsProvider.ExecutableName + " AutoUpdate"
-                    , CopyableMessageBoxButtons.OK
-                    , CopyableMessageBoxIcon.Error);
-                return true;
-            }
-            try
-            {
-                string url = new StreamReader(ini).ReadLine();
-                if (url == null)
-                    throw new IOException(ini + " - failed to read url");
-                url = url.Trim();
-                try
-                {
-                    using (S4PIDemoFE.Splash splash = new S4PIDemoFE.Splash("Checking for updates..."))
-                    {
-                        splash.Show();
-                        Application.DoEvents();
-                        ui = new UpdateInfo(url);
-                    }
-                }
-                catch (System.Net.WebException we)
-                {
-                    if (we != null)
-                    {
-                        CopyableMessageBox.Show(
-                            "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
-                            + (we.Response != null ? "\nURL: " + we.Response.ResponseUri : "")
-                            + "\n" + we.Message
-                            , PortableSettingsProvider.ExecutableName + " AutoUpdate"
-                            , CopyableMessageBoxButtons.OK
-                            , CopyableMessageBoxIcon.Error);
-                        return true;
-                    }
-                }
-            }
-            catch (IOException ioe)
-            {
-                CopyableMessageBox.Show(
-                    "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
-                    + ioe.Message
-                    , PortableSettingsProvider.ExecutableName + " AutoUpdate"
-                    , CopyableMessageBoxButtons.OK
-                    , CopyableMessageBoxIcon.Error);
-                return true;
-            }
+            return true;
+            //UpdateInfo ui = null;
+            //string ini = PortableSettingsProvider.GetApplicationIniFile("Update");
+            //if (!File.Exists(ini))
+            //{
+            //    CopyableMessageBox.Show(
+            //        "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
+            //        + ini + " - not found"
+            //        , PortableSettingsProvider.ExecutableName + " AutoUpdate"
+            //        , CopyableMessageBoxButtons.OK
+            //        , CopyableMessageBoxIcon.Error);
+            //    return true;
+            //}
+            //try
+            //{
+            //    string url = new StreamReader(ini).ReadLine();
+            //    if (url == null)
+            //        throw new IOException(ini + " - failed to read url");
+            //    url = url.Trim();
+            //    try
+            //    {
+            //        using (S4PIDemoFE.Splash splash = new S4PIDemoFE.Splash("Checking for updates..."))
+            //        {
+            //            splash.Show();
+            //            Application.DoEvents();
+            //            ui = new UpdateInfo(url);
+            //        }
+            //    }
+            //    catch (System.Net.WebException we)
+            //    {
+            //        if (we != null)
+            //        {
+            //            CopyableMessageBox.Show(
+            //                "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
+            //                + (we.Response != null ? "\nURL: " + we.Response.ResponseUri : "")
+            //                + "\n" + we.Message
+            //                , PortableSettingsProvider.ExecutableName + " AutoUpdate"
+            //                , CopyableMessageBoxButtons.OK
+            //                , CopyableMessageBoxIcon.Error);
+            //            return true;
+            //        }
+            //    }
+            //}
+            //catch (IOException ioe)
+            //{
+            //    CopyableMessageBox.Show(
+            //        "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
+            //        + ioe.Message
+            //        , PortableSettingsProvider.ExecutableName + " AutoUpdate"
+            //        , CopyableMessageBoxButtons.OK
+            //        , CopyableMessageBoxIcon.Error);
+            //    return true;
+            //}
 
-            if (UpdateApplicable(ui, autoCheck))
-            {
-                int dr = CopyableMessageBox.Show(
-                    String.Format("{0}\n{3}\n\nCurrent version: {1}\nAvailable version: {2}",
-                    ui.Message, Version.CurrentVersion, ui.AvailableVersion, ui.UpdateURL)
-                    , PortableSettingsProvider.ExecutableName + " update available"
-                    , CopyableMessageBoxIcon.Question
-                    , new List<string>(new string[] { "&Visit link", "&Later", "&Skip version", }), 1, 2
-                    );
+            //if (UpdateApplicable(ui, autoCheck))
+            //{
+            //    int dr = CopyableMessageBox.Show(
+            //        String.Format("{0}\n{3}\n\nCurrent version: {1}\nAvailable version: {2}",
+            //        ui.Message, Version.CurrentVersion, ui.AvailableVersion, ui.UpdateURL)
+            //        , PortableSettingsProvider.ExecutableName + " update available"
+            //        , CopyableMessageBoxIcon.Question
+            //        , new List<string>(new string[] { "&Visit link", "&Later", "&Skip version", }), 1, 2
+            //        );
 
-                switch (dr)
-                {
-                    case 0: System.Diagnostics.Process.Start(ui.UpdateURL); break;
-                    case 2: pgmSettings.AULastIgnoredVsn = ui.AvailableVersion; pgmSettings.Save(); break;
-                }
-                return true;
-            }
-            return false;
+            //    switch (dr)
+            //    {
+            //        case 0: System.Diagnostics.Process.Start(ui.UpdateURL); break;
+            //        case 2: pgmSettings.AULastIgnoredVsn = ui.AvailableVersion; pgmSettings.Save(); break;
+            //    }
+            //    return true;
+            //}
+            //return false;
         }
 
         private static bool UpdateApplicable(UpdateInfo ui, bool autoCheck)

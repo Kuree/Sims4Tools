@@ -25,9 +25,10 @@ using System.IO;
 using System.Windows.Forms;
 using StblResource;
 
+
 namespace s3pi_STBL_Resource_Editor
 {
-    public partial class MainForm : Form, s3pi.Helpers.IRunHelper
+    public partial class MainForm : Form, s4pi.Helpers.IRunHelper
     {
         public MainForm()
         {
@@ -52,15 +53,15 @@ namespace s3pi_STBL_Resource_Editor
         public byte[] Result { get { return result; } }
 
         StblResource.StblResource stbl;
-        List<ulong> stblKeys;
-        IDictionary<ulong, string> map;
+        List<uint> stblKeys;
+        IDictionary<uint, string> map;
         void loadStbl(Stream data)
         {
             stbl = new StblResource.StblResource(0, data);
-            map = (IDictionary<ulong, string>)stbl;
-            stblKeys = new List<ulong>(map.Keys);
-            foreach (ulong key in map.Keys)
-                lbStrings.Items.Add("0x" + key.ToString("X16") + ": " + partValue(map[key]));
+            map = (IDictionary<uint, string>)stbl;
+            stblKeys = new List<uint>(map.Keys);
+            foreach (uint key in map.Keys)
+                lbStrings.Items.Add("0x" + key.ToString("X8") + ": " + partValue(map[key]));
         }
         string partValue(string value)
         {
@@ -103,13 +104,13 @@ namespace s3pi_STBL_Resource_Editor
                 if (currentIndex >= 0)
                 {
                     internalchg = true;
-                    lbStrings.Items[currentIndex] = "0x" + stblKeys[currentIndex].ToString("X16") + ": " + partValue(rtbValue.Text);
+                    lbStrings.Items[currentIndex] = "0x" + stblKeys[currentIndex].ToString("X8") + ": " + partValue(rtbValue.Text);
                     internalchg = false;
                 }
 
                 currentIndex = lbStrings.SelectedIndex;
                 rtbValue.Text = map[stblKeys[currentIndex]];
-                tbGUID.Text = "0x" + stblKeys[currentIndex].ToString("X16");
+                tbGUID.Text = "0x" + stblKeys[currentIndex].ToString("X8");
                 btnDelete.Enabled = true;
                 btnChange.Enabled = tbGUID.Text.Length > 0;
             }
@@ -136,10 +137,10 @@ namespace s3pi_STBL_Resource_Editor
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            ulong newGUID = getGUID();
+            uint newGUID = getGUID();
             if (map.ContainsKey(newGUID)) { tbGUID.Focus(); tbGUID.SelectAll(); return; }
 
-            lbStrings.Items.Add("0x" + newGUID.ToString("X16"));
+            lbStrings.Items.Add("0x" + newGUID.ToString("X8"));
             map.Add(newGUID, "");
             stblKeys.Add(newGUID);
 
@@ -148,8 +149,8 @@ namespace s3pi_STBL_Resource_Editor
 
         private void btnChange_Click(object sender, EventArgs e)
         {
-            ulong newGUID = getGUID();
-            ulong oldGUID = stblKeys[currentIndex];
+            uint newGUID = getGUID();
+            uint oldGUID = stblKeys[currentIndex];
             if (newGUID == oldGUID || map.ContainsKey(newGUID)) { tbGUID.Focus(); tbGUID.SelectAll(); return; }
 
             int i = currentIndex;
@@ -160,32 +161,32 @@ namespace s3pi_STBL_Resource_Editor
             map.Remove(oldGUID);
             stblKeys.Remove(oldGUID);
 
-            lbStrings.Items.Insert(i, "0x" + newGUID.ToString("X16") + ": " + partValue(value));
+            lbStrings.Items.Insert(i, "0x" + newGUID.ToString("X8") + ": " + partValue(value));
             map.Add(newGUID, value);
             stblKeys.Insert(i, newGUID);
 
             lbStrings.SelectedIndex = i;
         }
 
-        ulong getGUID()
+        uint getGUID()
         {
-            ulong newGUID;
+            uint newGUID;
             bool res = false;
             if (tbGUID.Text.StartsWith("0x"))
-                res = ulong.TryParse(tbGUID.Text.Substring(2), System.Globalization.NumberStyles.HexNumber, null, out newGUID);
+                res = uint.TryParse(tbGUID.Text.Substring(2), System.Globalization.NumberStyles.HexNumber, null, out newGUID);
             else
-                res = ulong.TryParse(tbGUID.Text, System.Globalization.NumberStyles.Integer, null, out newGUID);
+                res = uint.TryParse(tbGUID.Text, System.Globalization.NumberStyles.Integer, null, out newGUID);
 
             if (!res)
             {
-                newGUID = System.Security.Cryptography.FNV64.GetHash(tbGUID.Text);
+                newGUID = System.Security.Cryptography.FNV32.GetHash(tbGUID.Text);
             }
             return newGUID;
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            ulong oldGUID = stblKeys[currentIndex];
+            uint oldGUID = stblKeys[currentIndex];
             if (map.ContainsKey(oldGUID))
             {
                 int i = currentIndex;

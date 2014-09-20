@@ -42,18 +42,26 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="s3pi.Helpers">
-      <HintPath>..\..\s3pi\build\bin\Release\s3pi.Helpers.dll</HintPath>
+    <Reference Include="s4pi.Helpers">
+      <HintPath>..\..\bin\Debug\s4pi.Helpers.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="s3pi.Interfaces">
-      <HintPath>..\..\s3pi\build\bin\Release\s3pi.Interfaces.dll</HintPath>
+    <Reference Include="s4pi.Interfaces">
+      <HintPath>..\..\bin\Debug\s4pi.Interfaces.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="s3pi.StblResource">
-      <HintPath>..\..\s3pi\build\bin\Release\s3pi.StblResource.dll</HintPath>
+    <Reference Include="s4pi.Settings">
+      <HintPath>..\..\bin\Debug\s4pi.Settings.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="s4pi.StblResource">
+      <HintPath>..\..\bin\Debug\s4pi.StblResource.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Custom">
-      <HintPath>..\..\s3pi\build\bin\Release\System.Custom.dll</HintPath>
+      <HintPath>..\..\bin\Debug\System.Custom.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -84,7 +92,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="App.config" />
     <None Include="Resources\s3pe.ico" />
     <Content Include="STBLResourceEditor.helper" />
   </ItemGroup>
@@ -97,6 +105,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)..\..\s3pi\CreateAssemblyVersion\bin\Release\CreateAssemblyVersion.exe" "$(ProjectDir)\"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

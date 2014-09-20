@@ -1703,15 +1703,14 @@ namespace S4PIDemoFE
         private void helpAbout()
         {
             string copyright = "\n" +
-                myName + "  Copyright (C) 2009  Peter L Jones\n" +
+                myName + "  Copyright (C) 2014  Sims4Group. Built by Kuree\n" +
                 "\n" +
                 "This program comes with ABSOLUTELY NO WARRANTY; for details see Help->Warranty.\n" +
                 "\n" +
                 "This is free software, and you are welcome to redistribute it\n" +
                 "under certain conditions; see Help->Licence for details.\n" +
                 "\n" +
-                "Please see Acknowledgements.txt and Acknowledgements-s3pe.txt\n" +
-                "for acknowledgements and licence details of libraries used.\n";
+                "Special thanks to Peter L Jones, without whose work the program won't be done.\n";
             CopyableMessageBox.Show(String.Format(
                 "{0}\n" +
                 "Front-end Distribution: {1}\n" +
