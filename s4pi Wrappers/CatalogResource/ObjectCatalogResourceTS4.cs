@@ -38,7 +38,7 @@ namespace CatalogResource
         #endregion
 
         #region Constructors
-        public ObjectCatalogResourceTS4(int APIversion, Stream s) : base(APIversion, s) { Parse(s); }   
+        public ObjectCatalogResourceTS4(int APIversion, Stream s) : base(APIversion, s) { Parse(s); }
         #endregion
 
         #region Data I/O
@@ -52,7 +52,7 @@ namespace CatalogResource
             r.BaseStream.Position = tablePosition;
             ushort entryCount = r.ReadUInt16();
             propertyIDList = new List<PropertyID>();
-            for(ushort i  = 0; i < entryCount; i++)
+            for (ushort i = 0; i < entryCount; i++)
             {
                 uint type = r.ReadUInt32();
                 PropertyID id = (PropertyID)type;
@@ -64,7 +64,7 @@ namespace CatalogResource
                 switch (id)
                 {
                     case PropertyID.Name:
-                        this.name = ReadString(r, OnResourceChanged);                 
+                        this.name = ReadString(r, OnResourceChanged);
                         break;
                     case PropertyID.Tuning:
                         count = r.ReadInt32();
@@ -153,6 +153,7 @@ namespace CatalogResource
             BinaryWriter w = new BinaryWriter(s);
 
             w.Write(this.version);
+            long position1 = s.Position;
             w.Write(0U); // table position
             List<long> positionTable = new List<long>(this.propertyIDList.Count);
 
@@ -233,15 +234,18 @@ namespace CatalogResource
                         break;
                 }
             }
-
+            long position2 = s.Position;
             w.Write((ushort)this.propertyIDList.Count);
             for (int i = 0; i < this.propertyIDList.Count; i++)
             {
                 w.Write((uint)this.propertyIDList[i]);
                 w.Write((uint)positionTable[i]);
             }
-
-            s.Position = 0;
+            long position3 = s.Position;
+            uint pos2 = Convert.ToUInt32(position2);
+            s.Position = position1;
+            w.Write(pos2); // table position
+            s.Position = position3;
             return s;
         }
 
@@ -261,9 +265,9 @@ namespace CatalogResource
                     instance = (instance << 32) | (instance >> 32); // swap instance
                     type = r.ReadUInt32();
                     group = r.ReadUInt32();
-                    
+
                 }
-                else if(order == TGIBlock.Order.TGI)
+                else if (order == TGIBlock.Order.TGI)
                 {
                     type = r.ReadUInt32();
                     group = r.ReadUInt32();
@@ -279,7 +283,7 @@ namespace CatalogResource
         private string ReadString(BinaryReader r, EventHandler handler)
         {
             int count = r.ReadInt32();
-            return Encoding.ASCII.GetString(r.ReadBytes(count));     
+            return Encoding.ASCII.GetString(r.ReadBytes(count));
         }
 
         private void WriteTGIBlock(BinaryWriter w, TGIBlockList value, TGIBlock.Order order = TGIBlock.Order.ITG)
@@ -289,12 +293,12 @@ namespace CatalogResource
             {
                 ulong instance = (tgi.Instance << 32) | (tgi.Instance >> 32);
                 if (order == TGIBlock.Order.ITG)
-                {                    
+                {
                     w.Write(instance);
                     w.Write(tgi.ResourceType);
                     w.Write(tgi.ResourceGroup);
                 }
-                else if(order == TGIBlock.Order.TGI)
+                else if (order == TGIBlock.Order.TGI)
                 {
                     w.Write(tgi.ResourceType);
                     w.Write(tgi.ResourceGroup);
@@ -308,7 +312,7 @@ namespace CatalogResource
             w.Write(value.Length);
             w.Write(Encoding.ASCII.GetBytes(value));
         }
-        
+
 
         #endregion
 
@@ -321,9 +325,9 @@ namespace CatalogResource
             get
             {
                 List<string> res = base.ContentFields;
-                foreach(var flag in Enum.GetValues(typeof(PropertyID)))
+                foreach (var flag in Enum.GetValues(typeof(PropertyID)))
                 {
-                    if(!this.propertyIDList.Contains((PropertyID)flag))
+                    if (!this.propertyIDList.Contains((PropertyID)flag))
                     {
                         res.Remove(((PropertyID)flag).ToString());
                     }
@@ -335,7 +339,7 @@ namespace CatalogResource
         #endregion
 
         #region Sub-classes
-        public enum PropertyID: uint
+        public enum PropertyID : uint
         {
             Name = 0xE7F07786, // string
             Tuning = 0x790FA4BC, //string
@@ -347,12 +351,12 @@ namespace CatalogResource
             Footprint = 0x6C737AD8, // swapped ITG list
             Components = 0xE6E421FB,  // UInt32 List
             MaterialVariant = 0xECD5A95F, // string
-            Unknown1 = 0xAC8E1BC0 , //uint8 byte
+            Unknown1 = 0xAC8E1BC0, //uint8 byte
             SimoleonPrice = 0xE4F4FAA4, // uint32
-            PositiveEnvironmentScore = 0x7236BEEA , // float
+            PositiveEnvironmentScore = 0x7236BEEA, // float
             NegativeEnvironmentScore = 0x44FC7512, // float
             ThumbnailGeometryState = 0x4233F8A0,  // uint 32
-            Unknown2 = 0xEC3712E6 , // bool
+            Unknown2 = 0xEC3712E6, // bool
             EnvironmentScoreEmotionTags = 0x2172AEBE, // uint16 array
             EnvironmentScores = 0xDCD08394, // float array
             Unknown3 = 0x52F7F4BC,  // ulong
@@ -360,7 +364,7 @@ namespace CatalogResource
             Unknown4 = 0xF3936A90, // byte array
         }
 
-        
+
         #endregion
 
 

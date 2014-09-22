@@ -20,6 +20,7 @@ namespace s4pi.DataResource
         private uint structureTablePosition;
         private StructureList structureList;
         private DataList dataList;
+        private byte[] rawData;
         #endregion
 
         #region Constructors
@@ -69,12 +70,16 @@ namespace s4pi.DataResource
             this.structureList = new StructureList(OnResourceChanged, structureTablePosition, structureCount, r);
 
             this.dataList = new DataList(OnResourceChanged, this, dataCount, r);
+
+            s.Position = 0;
+            this.rawData = r.ReadBytes((int)s.Length);
         }
 
         private const uint blank = 0;
 
         protected override Stream UnParse()
         {
+            return new MemoryStream(this.rawData);
             Stream s = new MemoryStream();
             BinaryWriter w = new BinaryWriter(s);
 

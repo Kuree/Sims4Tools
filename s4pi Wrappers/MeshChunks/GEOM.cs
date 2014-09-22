@@ -45,7 +45,7 @@ namespace meshExpImp.ModelBlocks
         public GEOM(int APIversion, EventHandler handler,
             uint version, ShaderType shader, MTNF mtnf, uint mergeGroup, uint sortOrder,
             IEnumerable<VertexFormat> vertexFormats, IEnumerable<VertexDataElement> vertexData,
-            IEnumerable<Face> facePoints, int skinIndex, 
+            IEnumerable<Face> facePoints, int skinIndex,
             UnknownThingList unknownThings, UnknownThing2List unknownThings2, IEnumerable<uint> boneHashes,
             IEnumerable<TGIBlock> tgiBlockList)
             : base(APIversion, handler, null)
@@ -120,8 +120,8 @@ namespace meshExpImp.ModelBlocks
                 long posn = s.Position;
                 mtnf = new MTNF(requestedApiVersion, handler, s, "GEOM");
                 if (checking) if (s.Position != posn + size)
-                    throw new InvalidDataException(String.Format("MTNF chunk size invalid; expected 0x{0:X8} bytes, read 0x{1:X8} bytes; at 0x{2:X8}",
-                        size, s.Position - posn, s.Position));
+                        throw new InvalidDataException(String.Format("MTNF chunk size invalid; expected 0x{0:X8} bytes, read 0x{1:X8} bytes; at 0x{2:X8}",
+                            size, s.Position - posn, s.Position));
             }
             else mtnf = null;
 
@@ -332,15 +332,15 @@ namespace meshExpImp.ModelBlocks
                 BinaryReader r = new BinaryReader(s);
                 usage = (UsageType)r.ReadUInt32();
                 if (checking) if (usage == 0 || (uint)usage >= expectedDataType.Length)
-                    throw new InvalidDataException(string.Format("Unexpected usage code 0x{0:X8} at 0x{1:X8}", (uint)usage, s.Position));
+                        throw new InvalidDataException(string.Format("Unexpected usage code 0x{0:X8} at 0x{1:X8}", (uint)usage, s.Position));
 
                 uint dataType = r.ReadUInt32();
                 if (checking) if (dataType != expectedDataType[(uint)usage])
-                    throw new InvalidDataException(string.Format("Expected data type 0x{0:X8}, read 0x{1:X8}, at 0x{2:X8}", expectedDataType[(uint)usage], dataType, s.Position));
+                        throw new InvalidDataException(string.Format("Expected data type 0x{0:X8}, read 0x{1:X8}, at 0x{2:X8}", expectedDataType[(uint)usage], dataType, s.Position));
 
                 byte elementSize = r.ReadByte();
                 if (checking) if (elementSize != expectedElementSize[(uint)usage])
-                    throw new InvalidDataException(String.Format("Expected element size 0x{0:X2}, read 0x{1:X2}, at {2:X8}", expectedElementSize[(uint)usage], elementSize, s.Position));
+                        throw new InvalidDataException(String.Format("Expected element size 0x{0:X2}, read 0x{1:X2}, at {2:X8}", expectedElementSize[(uint)usage], elementSize, s.Position));
             }
 
             internal void UnParse(Stream s)
@@ -399,14 +399,14 @@ namespace meshExpImp.ModelBlocks
             #region Constructors
             public VertexFormatList(EventHandler handler, uint version) : base(handler) { this.version = version; }
             public VertexFormatList(EventHandler handler, uint version, Stream s) : base(null) { this.version = version; elementHandler = handler; Parse(s); this.handler = handler; }
-            public VertexFormatList(EventHandler handler, uint version, IEnumerable<VertexFormat> le) 
-                : base(null) 
+            public VertexFormatList(EventHandler handler, uint version, IEnumerable<VertexFormat> le)
+                : base(null)
             {
-                elementHandler = handler; 
-                this.version = version; 
-                foreach (VertexFormat ve in le) 
-                    this.Add(new VertexFormat(0, elementHandler, version, ve.Usage)); 
-                this.handler = handler; 
+                elementHandler = handler;
+                this.version = version;
+                foreach (VertexFormat ve in le)
+                    this.Add(new VertexFormat(0, elementHandler, version, ve.Usage));
+                this.handler = handler;
             }
             #endregion
 
@@ -481,10 +481,10 @@ namespace meshExpImp.ModelBlocks
             public UVElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
             public UVElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
             public UVElement(int APIversion, EventHandler handler, UVElement basis) : this(APIversion, handler, basis.u, basis.v) { }
-            public UVElement(int APIversion, EventHandler handler, float u, float v) : base(APIversion, handler) { this.u = u; this.v = v;  }
+            public UVElement(int APIversion, EventHandler handler, float u, float v) : base(APIversion, handler) { this.u = u; this.v = v; }
 
             protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); u = r.ReadSingle(); v = r.ReadSingle(); }
-            internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(u); w.Write(v);  }
+            internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(u); w.Write(v); }
 
             // public override AHandlerElement Clone(EventHandler handler) { return new UVElement(requestedApiVersion, handler, this); }
             public override bool Equals(VertexElement other) { UVElement o = other as UVElement; return o != null && u.Equals(o.u) && v.Equals(o.v); }
@@ -653,24 +653,41 @@ namespace meshExpImp.ModelBlocks
                 this.version = version;
                 this.ParentVertexFormats = parentVertexFormats;
                 elementHandler = handler;
-                foreach (var fmt in parentVertexFormats)
+                //foreach (var fmt in parentVertexFormats)
+                for (int i = 0; i < parentVertexFormats.Count; i++)
                 {
+                    VertexElement vtx = (i < ilt.Count()) ? ilt.ElementAt(i) : null;
+                    VertexFormat fmt = parentVertexFormats[i];
                     switch (fmt.Usage)
                     {
-                        case UsageType.Position: this.Add(ilt.FirstOrDefault(t => t is PositionElement) ?? new PositionElement(0, handler)); break;
-                        case UsageType.Normal: this.Add(ilt.FirstOrDefault(t => t is NormalElement) ?? new NormalElement(0, handler)); break;
-                        case UsageType.UV: this.Add(ilt.FirstOrDefault(t => t is UVElement) ?? new UVElement(0, handler)); break;
-                        case UsageType.BoneAssignment: this.Add(ilt.FirstOrDefault(t => t is BoneAssignmentElement) ?? new BoneAssignmentElement(0, handler)); break;
+                        case UsageType.Position: this.Add(vtx is PositionElement ? vtx : new PositionElement(0, handler)); break;
+
+                        //case UsageType.Position: this.Add(ilt.FirstOrDefault(t => t is PositionElement) ?? new PositionElement(0, handler)); break;
+                        case UsageType.Normal: this.Add(vtx is NormalElement ? vtx : new NormalElement(0, handler)); break;
+                        case UsageType.UV: this.Add(vtx is UVElement ? vtx : new UVElement(0, handler)); break;
+                        case UsageType.BoneAssignment: this.Add(vtx is BoneAssignmentElement ? vtx : new BoneAssignmentElement(0, handler)); break;
+
+                        //case UsageType.Normal: this.Add(ilt.FirstOrDefault(t => t is NormalElement) ?? new NormalElement(0, handler)); break;
+                        //case UsageType.UV: this.Add(ilt.FirstOrDefault(t => t is UVElement) ?? new UVElement(0, handler)); break;
+                        //case UsageType.BoneAssignment: this.Add(ilt.FirstOrDefault(t => t is BoneAssignmentElement) ?? new BoneAssignmentElement(0, handler)); break;
+                        //case UsageType.Weights: this.Add(vtx is WeightsElement ? vtx : new WeightsElement(0, handler)); break;
+
                         case UsageType.Weights:
                             switch (this.version)
                             {
-                                case 0x00000005: this.Add(ilt.FirstOrDefault(t => t is WeightsElement) ?? new WeightsElement(0, handler)); break;
-                                case 0x0000000C: this.Add(ilt.FirstOrDefault(t => t is WeightBytesElement) ?? new WeightBytesElement(0, handler)); break;
+                                case 0x00000005: this.Add(vtx is WeightsElement ? vtx : new WeightsElement(0, handler)); break;
+                                case 0x0000000C: this.Add(vtx is WeightBytesElement ? vtx : new WeightBytesElement(0, handler)); break;
+                                //case 0x0000000C: this.Add(ilt.FirstOrDefault(t => t is WeightBytesElement) ?? new WeightBytesElement(0, handler)); break;
                             }
                             break;
-                        case UsageType.TangentNormal: this.Add(ilt.FirstOrDefault(t => t is TangentNormalElement) ?? new TangentNormalElement(0, handler)); break;
-                        case UsageType.Color: this.Add(ilt.FirstOrDefault(t => t is ColorElement) ?? new ColorElement(0, handler)); break;
-                        case UsageType.VertexID: this.Add(ilt.FirstOrDefault(t => t is VertexIDElement) ?? new VertexIDElement(0, handler)); break;
+
+                        //case UsageType.TangentNormal: this.Add(ilt.FirstOrDefault(t => t is TangentNormalElement) ?? new TangentNormalElement(0, handler)); break;
+                        //case UsageType.Color: this.Add(ilt.FirstOrDefault(t => t is ColorElement) ?? new ColorElement(0, handler)); break;
+                        //case UsageType.VertexID: this.Add(ilt.FirstOrDefault(t => t is VertexIDElement) ?? new VertexIDElement(0, handler)); break;
+                        case UsageType.TangentNormal: this.Add(vtx is TangentNormalElement ? vtx : new TangentNormalElement(0, handler)); break;
+                        case UsageType.Color: this.Add(vtx is ColorElement ? vtx : new ColorElement(0, handler)); break;
+                        case UsageType.VertexID: this.Add(vtx is VertexIDElement ? vtx : new VertexIDElement(0, handler)); break;
+
                     }
                 }
                 this.handler = handler;
@@ -681,6 +698,29 @@ namespace meshExpImp.ModelBlocks
 
             public override void UnParse(Stream s)
             {
+                for (int i = 0; i < ParentVertexFormats.Count; i++)
+                {
+                    VertexElement vtx = (i < this.Count) ? this[i] : null;
+                    VertexFormat fmt = ParentVertexFormats[i];
+                    switch (fmt.Usage)
+                    {
+                        case UsageType.Position: (vtx is PositionElement ? vtx : new PositionElement(0, null)).UnParse(s); break;
+                        case UsageType.Normal: (vtx is NormalElement ? vtx : new NormalElement(0, null)).UnParse(s); break;
+                        case UsageType.UV: (vtx is UVElement ? vtx : new UVElement(0, null)).UnParse(s); break;
+                        case UsageType.BoneAssignment: (vtx is BoneAssignmentElement ? vtx : new BoneAssignmentElement(0, null)).UnParse(s); break;
+                        case UsageType.Weights:
+                            switch (this.version)
+                            {
+                                case 0x00000005: (vtx is WeightsElement ? vtx : new WeightsElement(0, null)).UnParse(s); break;
+                                case 0x0000000C: (vtx is WeightBytesElement ? vtx : new WeightBytesElement(0, null)).UnParse(s); break;
+                            }
+                            break;
+                        case UsageType.TangentNormal: (vtx is TangentNormalElement ? vtx : new TangentNormalElement(0, null)).UnParse(s); break;
+                        case UsageType.Color: (vtx is ColorElement ? vtx : new ColorElement(0, null)).UnParse(s); break;
+                        case UsageType.VertexID: (vtx is VertexIDElement ? vtx : new VertexIDElement(0, null)).UnParse(s); break;
+                    }
+                }
+                /*
                 foreach (var fmt in ParentVertexFormats)
                 {
                     VertexElement vtx = null;
@@ -705,6 +745,8 @@ namespace meshExpImp.ModelBlocks
                         throw new InvalidOperationException();
                     vtx.UnParse(s);
                 }
+                 * */
+
             }
 
             protected override void WriteElement(Stream s, VertexElement element) { throw new NotImplementedException(); }
@@ -759,8 +801,8 @@ namespace meshExpImp.ModelBlocks
             public DependentList<VertexFormat> ParentVertexFormats { get; set; }
             public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); res.Remove("ParentVertexFormats"); return res; } }
 
-            public VertexDataElement(int APIversion, EventHandler handler, uint version, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.version = version;  this.ParentVertexFormats = parentVertexFormats; }
-            public VertexDataElement(int APIversion, EventHandler handler, uint version, Stream s, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.version = version;  this.ParentVertexFormats = parentVertexFormats; Parse(s); }
+            public VertexDataElement(int APIversion, EventHandler handler, uint version, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.version = version; this.ParentVertexFormats = parentVertexFormats; }
+            public VertexDataElement(int APIversion, EventHandler handler, uint version, Stream s, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.version = version; this.ParentVertexFormats = parentVertexFormats; Parse(s); }
             public VertexDataElement(int APIversion, EventHandler handler, uint version, VertexDataElement basis) : this(APIversion, handler, basis.version, basis.elementList, basis.ParentVertexFormats) { }
             public VertexDataElement(int APIversion, EventHandler handler, uint version, DependentList<VertexElement> elementList, DependentList<VertexFormat> parentVertexFormats)
                 : base(APIversion, handler)
@@ -788,7 +830,8 @@ namespace meshExpImp.ModelBlocks
                 set { if (!elementList.Equals(value)) { elementList = new ElementList(handler, version, value, ParentVertexFormats); OnElementChanged(); } }
             }
 
-            public string Value
+            /*
+            private string zValue
             {
                 get
                 {
@@ -796,6 +839,38 @@ namespace meshExpImp.ModelBlocks
                     foreach (var fmt in ParentVertexFormats)
                     {
                         sb.AppendLine(fmt.Usage.ToString() + ": " + elementList[fmt.Usage].Value);
+                    }
+                    return sb.ToString();
+                }
+            }
+             * */
+            public string Value
+            {
+                get
+                {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < ParentVertexFormats.Count; i++)
+                    {
+                        VertexElement vtx = (i < elementList.Count) ? elementList[i] : null;
+                        VertexFormat fmt = ParentVertexFormats[i];
+                        switch (fmt.Usage)
+                        {
+                            case UsageType.Position: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is PositionElement ? vtx : new PositionElement(0, null)).Value); break;
+                            case UsageType.Normal: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is NormalElement ? vtx : new NormalElement(0, null)).Value); break;
+                            case UsageType.UV: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is UVElement ? vtx : new UVElement(0, null)).Value); break;
+                            case UsageType.BoneAssignment: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is BoneAssignmentElement ? vtx : new BoneAssignmentElement(0, null)).Value); break;
+                            case UsageType.Weights:
+                                switch (this.version)
+                                {
+                                    case 0x00000005: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is WeightsElement ? vtx : new WeightsElement(0, null)).Value); break;
+                                    case 0x0000000C: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is WeightBytesElement ? vtx : new WeightBytesElement(0, null)).Value); break;
+                                }
+                                break;
+
+                            case UsageType.TangentNormal: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is TangentNormalElement ? vtx : new TangentNormalElement(0, null)).Value); break;
+                            case UsageType.Color: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is ColorElement ? vtx : new ColorElement(0, null)).Value); break;
+                            case UsageType.VertexID: sb.AppendLine(fmt.Usage.ToString() + ": " + (vtx is VertexIDElement ? vtx : new VertexIDElement(0, null)).Value); break;
+                        }
                     }
                     return sb.ToString();
                 }
@@ -903,7 +978,7 @@ namespace meshExpImp.ModelBlocks
         {
             #region Constructors
             public FaceList(EventHandler handler) : base(handler) { }
-            public FaceList(EventHandler handler, Stream s) : base(handler, s) {}
+            public FaceList(EventHandler handler, Stream s) : base(handler, s) { }
             public FaceList(EventHandler handler, IEnumerable<Face> le) : base(handler, le) { }
             #endregion
 
@@ -1040,7 +1115,7 @@ namespace meshExpImp.ModelBlocks
             public UnknownThing2(int APIversion, EventHandler handler, uint unknown1,
                 ushort unknown2, ushort unknown3, ushort unknown4, float unknown5,
                 float unknown6, float unknown7, float unknown8, float unknown9,
-                float unknown10, float unknown11, float unknown12, float unknown13, 
+                float unknown10, float unknown11, float unknown12, float unknown13,
                 float unknown14, float unknown15, float unknown16, float unknown17, byte unknown18)
                 : base(APIversion, handler)
             {
@@ -1185,7 +1260,7 @@ namespace meshExpImp.ModelBlocks
         {
             #region Constructors
             public UnknownThing2List(EventHandler handler) : base(handler) { }
-            public UnknownThing2List(EventHandler handler, Stream s) : base(handler, s) {}
+            public UnknownThing2List(EventHandler handler, Stream s) : base(handler, s) { }
             public UnknownThing2List(EventHandler handler, IEnumerable<UnknownThing2> le) : base(handler, le) { }
             #endregion
 
