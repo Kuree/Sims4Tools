@@ -1,9 +1,10 @@
 ﻿/***************************************************************************
- *  Based on earlier work.                                                 *
- *  Copyright (C) 2011 by Peter L Jones                                    *
+ *  Copyright (C) 2009, 2010 by Peter L Jones                              *
  *  pljones@users.sf.net                                                   *
  *                                                                         *
- *  This is free software: you can redistribute it and/or modify           *
+ *  This file is part of the Sims 3 Package Interface (s3pi)               *
+ *                                                                         *
+ *  s3pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
@@ -14,8 +15,9 @@
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with this software.  If not, see <http://www.gnu.org/licenses/>. *
+ *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using System;
 using System.IO;
 using s4pi.Interfaces;

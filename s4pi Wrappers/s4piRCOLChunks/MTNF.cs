@@ -1,5 +1,5 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2012 by Peter L Jones                                    *
+ *  Copyright (C) 2009, 2010 by Peter L Jones                              *
  *  pljones@users.sf.net                                                   *
  *                                                                         *
  *  This file is part of the Sims 3 Package Interface (s3pi)               *
@@ -17,6 +17,7 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
