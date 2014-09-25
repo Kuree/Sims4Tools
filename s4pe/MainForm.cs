@@ -1,6 +1,6 @@
 /***************************************************************************
- *  Copyright (C) 2009, 2010 by Peter L Jones                              *
- *  pljones@users.sf.net                                                   *
+ *  Copyright (C) 2009, 2010 by Peter L Jones, 2014 By Keyi Zhang          *
+ *  pljones@users.sf.net, kz005@bucknell.edu                               *
  *                                                                         *
  *  This file is part of the Sims 3 Package Interface (s3pi)               *
  *                                                                         *
