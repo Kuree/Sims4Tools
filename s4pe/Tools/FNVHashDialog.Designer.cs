@@ -56,9 +56,11 @@ namespace S4PIDemoFE.Tools
             this.tbFNV32 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tbFNV64 = new System.Windows.Forms.TextBox();
-            this.btnClose = new System.Windows.Forms.Button();
             this.tbCLIPIID = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.btnClose = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.tbFVV24 = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,6 +72,8 @@ namespace S4PIDemoFE.Tools
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.tbFVV24, 14, 5);
+            this.tableLayoutPanel1.Controls.Add(this.label5, 0, 5);
             this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.tbInput, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnCalc, 1, 1);
@@ -88,7 +92,7 @@ namespace S4PIDemoFE.Tools
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(292, 140);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(292, 156);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // label1
@@ -160,18 +164,6 @@ namespace S4PIDemoFE.Tools
             this.tbFNV64.Size = new System.Drawing.Size(214, 20);
             this.tbFNV64.TabIndex = 7;
             // 
-            // btnClose
-            // 
-            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClose.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnClose.Location = new System.Drawing.Point(229, 158);
-            this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(75, 23);
-            this.btnClose.TabIndex = 2;
-            this.btnClose.Text = "Close";
-            this.btnClose.UseVisualStyleBackColor = true;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
-            // 
             // tbCLIPIID
             // 
             this.tbCLIPIID.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -192,13 +184,45 @@ namespace S4PIDemoFE.Tools
             this.label4.TabIndex = 6;
             this.label4.Text = "CLIP &IID";
             // 
+            // btnClose
+            // 
+            this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClose.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btnClose.Location = new System.Drawing.Point(229, 174);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(75, 23);
+            this.btnClose.TabIndex = 2;
+            this.btnClose.Text = "Close";
+            this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
+            // label5
+            // 
+            this.label5.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(29, 138);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(40, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "FNV24";
+            // 
+            // tbFVV24
+            // 
+            this.tbFVV24.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbFVV24.BackColor = System.Drawing.Color.White;
+            this.tbFVV24.Location = new System.Drawing.Point(75, 136);
+            this.tbFVV24.Name = "tbFVV24";
+            this.tbFVV24.ReadOnly = true;
+            this.tbFVV24.Size = new System.Drawing.Size(214, 20);
+            this.tbFVV24.TabIndex = 9;
+            // 
             // FNVHashDialog
             // 
             this.AcceptButton = this.btnCalc;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
-            this.ClientSize = new System.Drawing.Size(316, 193);
+            this.ClientSize = new System.Drawing.Size(316, 209);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.tableLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
@@ -224,5 +248,7 @@ namespace S4PIDemoFE.Tools
         private System.Windows.Forms.TextBox tbFNV64;
         private System.Windows.Forms.TextBox tbCLIPIID;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox tbFVV24;
+        private System.Windows.Forms.Label label5;
     }
 }
