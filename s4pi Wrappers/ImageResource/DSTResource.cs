@@ -104,7 +104,8 @@ namespace s4pi.ImageResource
             {
                 BinaryWriter w = new BinaryWriter(ms);
                 w.Write(DDSHeader.Signature);
-                this.header.UnParse(ms);
+                header.UnParse(ms);
+                this.header = header;
                 this.Width = this.header.Width;
                 this.Height = this.header.Height;
                 Shuffle(this.header, input, ms);
@@ -159,8 +160,8 @@ namespace s4pi.ImageResource
                     }
 
                     w.Write(ms0.ToArray());
-                    w.Write(ms1.ToArray());
                     w.Write(ms2.ToArray());
+                    w.Write(ms1.ToArray());
                     w.Write(ms3.ToArray());
 
                 }
