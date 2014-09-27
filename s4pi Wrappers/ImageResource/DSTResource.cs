@@ -52,6 +52,9 @@ namespace s4pi.ImageResource
             {
                 throw new InvalidDataException("Texture does not need to be un-shuffled");
             }
+            this.Width = header.Width;
+            this.Height = header.Height;
+
             BinaryReader r = new BinaryReader(s);
             s.Position = 0;
             this.data = r.ReadBytes((int)s.Length);
@@ -79,25 +82,35 @@ namespace s4pi.ImageResource
             return new MemoryStream(this.data);
         }
 
-        public void InputToDST(Stream input)
+        public void ImportToDST(Stream input)
         {
             var header = new DDSHeader();
             header.Parse(input);
             switch (header.pixelFormat.Fourcc)
             {
-                case FourCC.DST1:
+                case FourCC.DXT1:
                     header.pixelFormat.Fourcc = FourCC.DST1;
                     break;
-                case FourCC.DST3:
+                case FourCC.DXT3:
                     throw new Exception("No sample yet");
-                case FourCC.DST5:
+                case FourCC.DXT5:
                     header.pixelFormat.Fourcc = FourCC.DST5;
                     break;
                 default:
                     throw new Exception("Not supported format. Read " + header.pixelFormat.Fourcc.ToString());
             }
 
-
+            using (MemoryStream ms = new MemoryStream())
+            {
+                BinaryWriter w = new BinaryWriter(ms);
+                w.Write(DDSHeader.Signature);
+                this.header.UnParse(ms);
+                this.Width = this.header.Width;
+                this.Height = this.header.Height;
+                Shuffle(this.header, input, ms);
+                this.data = ms.ToArray();
+            }
+            
         }
         
 
@@ -230,6 +243,9 @@ namespace s4pi.ImageResource
             result.Position = 0;
             return result;
         }
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
     }
 
     //public class DSTResourceHandler : AResourceHandler
