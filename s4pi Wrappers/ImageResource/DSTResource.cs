@@ -38,7 +38,7 @@ namespace s4pi.ImageResource
         #endregion
         private DDSHeader header;
         private byte[] data;
-        private byte[] unShuffledData;
+        private bool isShuffled;
 
         public DSTResource(int APIversion, Stream s) : base(APIversion, s) { if (s == null) { OnResourceChanged(this, EventArgs.Empty); } else { Parse(s); } }
 
@@ -50,7 +50,11 @@ namespace s4pi.ImageResource
                          header.pixelFormat.Fourcc != FourCC.DST3 &&
                          header.pixelFormat.Fourcc != FourCC.DST5)
             {
-                throw new InvalidDataException("Texture does not need to be un-shuffled");
+                this.isShuffled = false;
+            }
+            else
+            {
+                this.isShuffled = true;
             }
             this.Width = header.Width;
             this.Height = header.Height;
@@ -62,23 +66,23 @@ namespace s4pi.ImageResource
 
         public Stream ToDDS()
         {
-            using (MemoryStream ms = new MemoryStream(this.data))
+            if (!this.isShuffled)
             {
-                MemoryStream result = (MemoryStream)Unshuffle(this.header, ms);
-                this.unShuffledData = result.ToArray();
-                return result;
+                return new MemoryStream(this.data);
+            }
+            else
+            {
+                using (MemoryStream ms = new MemoryStream(this.data))
+                {
+                    MemoryStream result = (MemoryStream)Unshuffle(this.header, ms);
+                    result.Position = 0;
+                    return result;
+                }
             }
         }
 
         protected override Stream UnParse()
         {
-            //MemoryStream ms = new MemoryStream();
-            //BinaryWriter w = new BinaryWriter(ms);
-            //w.Write(DDSHeader.Signature);
-            //this.header.UnParse(ms);
-            //MemoryStream input = new MemoryStream(this.data);
-            //Shuffle(this.header, input, ms);
-            //return ms;
             return new MemoryStream(this.data);
         }
 
@@ -98,6 +102,14 @@ namespace s4pi.ImageResource
                     break;
                 default:
                     throw new Exception("Not supported format. Read " + header.pixelFormat.Fourcc.ToString());
+            }
+
+            if(!this.isShuffled)
+            {
+                input.Position = 0;
+                BinaryReader r = new BinaryReader(input);
+                this.data = r.ReadBytes((int)input.Length);
+                return;
             }
 
             using (MemoryStream ms = new MemoryStream())
