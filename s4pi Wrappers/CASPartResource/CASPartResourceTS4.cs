@@ -208,7 +208,7 @@ namespace CASPartResource
         [ElementPriority(4)]
         public float SortPriority { get { return sortPriority; } set { if (!value.Equals(sortPriority)) sortPriority = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(5)]
-        public UInt16 SecondarySortIndex { get { return secondarySortIndex; } set { if (!value.Equals(secondarySortIndex)) sortPriority = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public UInt16 SecondarySortIndex { get { return secondarySortIndex; } set { if (!value.Equals(secondarySortIndex)) secondarySortIndex = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(6)]
         public uint PropertyID { get { return propertyID; } set { if (!value.Equals(propertyID)) propertyID = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(7)]
