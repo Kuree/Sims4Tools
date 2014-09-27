@@ -38,6 +38,7 @@ namespace s4pi.ImageResource
         #endregion
         private DDSHeader header;
         private byte[] data;
+        private byte[] unShuffledData;
 
         public DSTResource(int APIversion, Stream s) : base(APIversion, s) { if (s == null) { OnResourceChanged(this, EventArgs.Empty); } else { Parse(s); } }
 
@@ -51,26 +52,108 @@ namespace s4pi.ImageResource
             {
                 throw new InvalidDataException("Texture does not need to be un-shuffled");
             }
-            this.data = new byte[s.Length];
-            s.Read(this.data, 0, (int)s.Length);
+            BinaryReader r = new BinaryReader(s);
+            s.Position = 0;
+            this.data = r.ReadBytes((int)s.Length);
         }
 
         public Stream ToDDS()
         {
             using (MemoryStream ms = new MemoryStream(this.data))
             {
-                return Unshuffle(this.header, ms);
+                MemoryStream result = (MemoryStream)Unshuffle(this.header, ms);
+                this.unShuffledData = result.ToArray();
+                return result;
             }
         }
 
         protected override Stream UnParse()
         {
+            //MemoryStream ms = new MemoryStream();
+            //BinaryWriter w = new BinaryWriter(ms);
+            //w.Write(DDSHeader.Signature);
+            //this.header.UnParse(ms);
+            //MemoryStream input = new MemoryStream(this.data);
+            //Shuffle(this.header, input, ms);
+            //return ms;
             return new MemoryStream(this.data);
         }
 
+        public void InputToDST(Stream input)
+        {
+            var header = new DDSHeader();
+            header.Parse(input);
+            switch (header.pixelFormat.Fourcc)
+            {
+                case FourCC.DST1:
+                    header.pixelFormat.Fourcc = FourCC.DST1;
+                    break;
+                case FourCC.DST3:
+                    throw new Exception("No sample yet");
+                case FourCC.DST5:
+                    header.pixelFormat.Fourcc = FourCC.DST5;
+                    break;
+                default:
+                    throw new Exception("Not supported format. Read " + header.pixelFormat.Fourcc.ToString());
+            }
+
+
+        }
+        
+
         private static void Shuffle(DDSHeader header, Stream input, Stream output)
         {
-            throw new NotImplementedException();
+            BinaryWriter w = new BinaryWriter(output);
+            BinaryReader r = new BinaryReader(input);
+            input.Position = 128;
+            if(header.pixelFormat.Fourcc == FourCC.DST1)
+            {
+                using(MemoryStream block1 = new MemoryStream(), block2 = new MemoryStream())
+                {
+                    BinaryWriter w1 = new BinaryWriter(block1), w2 = new BinaryWriter(block2);
+                    int count = ((int)input.Length - 128) / 8;
+
+                    for(int i = 0; i < count; i++)
+                    {
+                        w1.Write(r.ReadBytes(4));
+                        w2.Write(r.ReadBytes(4));
+                    }
+
+                    w.Write(block1.ToArray());
+                    w.Write(block2.ToArray());
+                }
+            }
+            else if(header.pixelFormat.Fourcc == FourCC.DST3)
+            {
+                throw new Exception("No sample yet");
+            }
+            else if(header.pixelFormat.Fourcc == FourCC.DST5) // dst5
+            {
+                using(MemoryStream ms0 = new MemoryStream(), ms1 = new MemoryStream(), ms2 = new MemoryStream(), ms3 = new MemoryStream())
+                {
+                    BinaryWriter w0 = new BinaryWriter(ms0);
+                    BinaryWriter w1 = new BinaryWriter(ms1);
+                    BinaryWriter w2 = new BinaryWriter(ms2);
+                    BinaryWriter w3 = new BinaryWriter(ms3);
+
+                    int count = (int)(input.Length - 128) / 16;
+                    for (int i = 0; i < count; i++)
+                    {
+                        w0.Write(r.ReadBytes(2));
+                        w1.Write(r.ReadBytes(6));
+                        w2.Write(r.ReadBytes(4));
+                        w3.Write(r.ReadBytes(4));
+                    }
+
+                    w.Write(ms0.ToArray());
+                    w.Write(ms1.ToArray());
+                    w.Write(ms2.ToArray());
+                    w.Write(ms3.ToArray());
+
+                }
+                
+            }
+
         }
 
         private Stream Unshuffle(DDSHeader header, Stream s)
@@ -88,7 +171,7 @@ namespace s4pi.ImageResource
             if (header.pixelFormat.Fourcc == FourCC.DST1)
             {
                 header.pixelFormat.Fourcc = FourCC.DXT1;
-                w.Write(0x20534444);
+                w.Write(0x20534444); // DDS header
                 header.UnParse(result);
 
                 var blockOffset2 = 0;
@@ -153,7 +236,7 @@ namespace s4pi.ImageResource
     //{
     //    public DSTResourceHandler()
     //    {
-    //        //this.Add(typeof(DSTResource), new List<string>(new string[] { "0x00B2D882", }));
+    //        this.Add(typeof(DSTResource), new List<string>(new string[] { "0x00B2D882", }));
     //    }
     //}
 }
