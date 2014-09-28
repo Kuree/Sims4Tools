@@ -42,6 +42,12 @@ namespace s4pi.ImageResource
 
         private void Parse(Stream s)
         {
+            if (s == null)
+            {
+                this.rawData = new byte[0];
+                this.image = new Bitmap(1, 1); // empty image
+                return;
+            }
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
             rawData = r.ReadBytes((int)s.Length);

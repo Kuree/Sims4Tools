@@ -155,6 +155,7 @@
 0x94C5D14A  SIGR   .signature
 0x99D98089  _XML   .xml
 0x9C925813  THUM   .png
+0xA1FF2FC4  THUM   .jpg
 0xA576C2E7  _XML   .xml
 0xA8D58BE5  SKIL   .xml
 0xAD366F95  THUM   .png
