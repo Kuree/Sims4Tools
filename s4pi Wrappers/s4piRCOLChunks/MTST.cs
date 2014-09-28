@@ -41,7 +41,14 @@ namespace s4pi.GenericRCOLResource
         public MTST(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
         public MTST(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
         public MTST(int APIversion, EventHandler handler, MTST basis)
-            : this(APIversion, handler, basis.nameHash, basis.index, basis.list) { }
+            : base(APIversion, handler, null)
+        {
+            this.version = basis.version;
+            this.nameHash = basis.nameHash;
+            this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion,
+            handler, basis.index);
+            this.list = basis.list == null ? null : new EntryList(OnRCOLChanged, basis.list, basis.version);
+        }
         public MTST(int APIversion, EventHandler handler, uint nameHash, GenericRCOLResource.ChunkReference index, IEnumerable<Entry> list)
             : base(APIversion, handler, null)
         {
