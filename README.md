@@ -45,10 +45,15 @@ Coming soon
 
 How to Contribute
 -----------
-* Fork the project, modify it, and send us pull request!
-* Edit the [wiki] page if you discover something!
-* Star the project if you like it!
-* if you are very generous, you can even [donate] money to me! 
+- Fork the project, modify it, and send us pull request!
+- Edit the [wiki] page if you discover something!
+- Star the project if you like it!
+
+DONATION
+------------
+- If you are very generous, you can even buy me some coffee to me! 
+- Buy me a cup of coffe via Paypal [![Buy me a cup of coffee via PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9FZDXF39BVWMS&lc=US&item_name=s4pe%2dproject%2ddonation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
+- Or send me coffee every day via [gratipay]!
 
 
 License
@@ -70,5 +75,4 @@ Without peter's help and work on s3pe/s3pi project, there won't be this project,
 [granthes]:https://github.com/granthes
 [s4pe-helper]: https://github.com/Kuree/s4p4-helper
 [wiki]:https://github.com/Kuree/s4p4-helper/wiki
-[donate]: https://gratipay.com/Kuree/
-[donate]: https://gratipay.com/Kuree/
+[gratipay]: https://gratipay.com/Kuree/
