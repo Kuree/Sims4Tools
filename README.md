@@ -51,7 +51,7 @@ How to Contribute
 
 DONATION
 ------------
-- If you are very generous, you can even buy me some coffee to me! 
+- If you are very generous, you can even buy me some coffee! 
 - Buy me a cup of coffe via Paypal [![Buy me a cup of coffee via PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9FZDXF39BVWMS&lc=US&item_name=s4pe%2dproject%2ddonation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
 - Or send me coffee every day via [gratipay]!
 
@@ -60,7 +60,7 @@ License
 ----
 GPLV3
 
-Ohters
+Others
 ----
 #### Special thanks:
 Without peter's help and work on s3pe/s3pi project, there won't be this project, which highly depends on his two projects. His philosophy to share and distribute open source project will be carried on.
