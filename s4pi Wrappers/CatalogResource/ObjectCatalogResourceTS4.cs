@@ -63,6 +63,7 @@ namespace CatalogResource
         #region Data I/O
         protected void Parse(Stream s)
         {
+            if (s == null) s = this.UnParse();
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
             this.version = r.ReadUInt16();

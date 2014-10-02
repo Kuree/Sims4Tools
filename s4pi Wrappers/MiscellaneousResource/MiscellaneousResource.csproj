@@ -41,6 +41,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
+      <Project>{00200e76-c245-42a7-b567-5c30edbce977}</Project>
+      <Name>CS System Classes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi\Interfaces\Interfaces.csproj">
       <Project>{51023bd2-9139-438d-b794-95e5ec023537}</Project>
       <Name>Interfaces</Name>

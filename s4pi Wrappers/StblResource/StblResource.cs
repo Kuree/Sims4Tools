@@ -48,6 +48,7 @@ namespace StblResource
         #region Data I/O
         void Parse(Stream s)
         {
+            if (s == null) s = this.UnParse();
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
 
