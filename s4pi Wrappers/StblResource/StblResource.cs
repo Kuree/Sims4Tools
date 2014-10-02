@@ -99,7 +99,9 @@ namespace StblResource
             if (entries == null) entries = new Dictionary<uint, string>();
             w.Write((uint)entries.Count);
 
+            if (this.unknown2 == null) this.unknown2 = new byte[6];
             w.Write(unknown2);
+
             long sizePosition = w.BaseStream.Position;
             w.Write(0x00000000); //w.Write(size);
             int actualSize = 0;

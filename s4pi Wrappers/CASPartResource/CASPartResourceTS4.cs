@@ -32,7 +32,20 @@ namespace CASPartResource
     {
         const int recommendedApiVersion = 1;
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        //public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        public override List<string> ContentFields
+        {
+            get
+            {
+                List<string> res = base.ContentFields;
+                if (this.version < 0x0000001b)
+                {
+                    res.Remove("Unk4B");
+                }
+                return res;
+            }
+        }
+
 
         static bool checking = s4pi.Settings.Settings.Checking;
 
@@ -73,6 +86,7 @@ namespace CASPartResource
         byte overrides;
         byte normalMapKey;
         byte specularMapKey;
+        uint unk4B;
         private CountedTGIBlockList tgiList;
         #endregion
 
@@ -96,7 +110,7 @@ namespace CASPartResource
             this.parmFlags = (PramFlag)r.ReadByte();
             this.excludePartFlags = r.ReadUInt64();
             this.excludeModifierRegionFlags = r.ReadUInt32();
-            
+
             flagList = new FlagList(OnResourceChanged, s);
 
             this.simlolencePrice = r.ReadUInt32();
@@ -117,15 +131,15 @@ namespace CASPartResource
             this.parentKey = r.ReadByte();
             this.sortLayer = r.ReadInt32();
 
-
+            // Don't move any of this before the -----
             // TGI block list
             long currentPosition = r.BaseStream.Position;
-            r.BaseStream.Position = tgiOffset;            
+            r.BaseStream.Position = tgiOffset;
             byte count4 = r.ReadByte();
             tgiList = new CountedTGIBlockList(OnResourceChanged, "IGT", count4, s);
             r.BaseStream.Position = currentPosition;
-
             lodBlockList = new LODBlockList(null, s, tgiList);
+            //-------------
 
             byte count = r.ReadByte();
             this.slotKey = new SimpleList<byte>(null);
@@ -138,6 +152,12 @@ namespace CASPartResource
             this.overrides = r.ReadByte();
             this.normalMapKey = r.ReadByte();
             this.specularMapKey = r.ReadByte();
+            if (this.version >= 0x1b)
+            {
+                this.unk4B = r.ReadUInt32();
+            }
+
+
         }
 
         protected override Stream UnParse()
@@ -183,6 +203,10 @@ namespace CASPartResource
             w.Write(overrides);
             w.Write(normalMapKey);
             w.Write(specularMapKey);
+            if (this.version >= 0x1b)
+            {
+                w.Write(unk4B);
+            }
 
             long tgiPosition = w.BaseStream.Position;
             w.BaseStream.Position = 4;
@@ -195,7 +219,7 @@ namespace CASPartResource
             return s;
         }
         #endregion
-        
+
         #region Content Fields
         [ElementPriority(0)]
         public uint Version { get { return version; } set { if (value != version)version = value; OnResourceChanged(this, EventArgs.Empty); } }
@@ -270,6 +294,24 @@ namespace CASPartResource
         [ElementPriority(35), TGIBlockListContentField("TGIList")]
         public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(36)]
+        public uint Unk4B
+        {
+            get
+            {
+                if (version < 0x0000001b) throw new InvalidOperationException();
+                return unk4B;
+            }
+            set
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                if (unk4B != value)
+                {
+                    unk4B = value; OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(37)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
         #endregion
@@ -457,7 +499,7 @@ namespace CASPartResource
             {
                 BinaryWriter w = new BinaryWriter(s);
                 w.Write((byte)base.Count);
-                foreach(var unknownClass in this)
+                foreach (var unknownClass in this)
                 {
                     unknownClass.UnParse(s);
                 }
@@ -466,14 +508,15 @@ namespace CASPartResource
             protected override LODInfoEntry CreateElement(Stream s) { return new LODInfoEntry(1, handler, tgiList); }
             protected override void WriteElement(Stream s, LODInfoEntry element) { element.UnParse(s); }
             #endregion
-            
+
         }
 
 
         public class SwatchColor : AHandlerElement, IEquatable<SwatchColor>
         {
             private Color color;
-            public SwatchColor(int APIversion, EventHandler handler, Stream s) :base(APIversion, handler)
+            public SwatchColor(int APIversion, EventHandler handler, Stream s)
+                : base(APIversion, handler)
             {
                 BinaryReader r = new BinaryReader(s);
                 this.color = Color.FromArgb(r.ReadInt32());
@@ -489,7 +532,7 @@ namespace CASPartResource
             public bool Equals(SwatchColor other) { return other.Equals(this.color); }
 
             public Color Color { get { return this.color; } set { if (!color.Equals(value)) { this.color = value; OnElementChanged(); } } }
-            public string Value { get { { return this.color.IsKnownColor? this.color.ToKnownColor().ToString(): this.color.Name; } } }
+            public string Value { get { { return this.color.IsKnownColor ? this.color.ToKnownColor().ToString() : this.color.Name; } } }
         }
 
         public class SwatchColorList : DependentList<SwatchColor>
@@ -524,7 +567,8 @@ namespace CASPartResource
             CASPFlags flagCatagory;
             ushort flagValue;
 
-            public Flag(int APIversion, EventHandler handler, Stream s) :base(APIversion, handler)
+            public Flag(int APIversion, EventHandler handler, Stream s)
+                : base(APIversion, handler)
             {
                 BinaryReader r = new BinaryReader(s);
                 this.flagCatagory = (CASPFlags)r.ReadUInt16();
@@ -556,7 +600,7 @@ namespace CASPartResource
             public string Value { get { return ValueBuilder; } }
         }
 
-        public class FlagList : DependentList<Flag> 
+        public class FlagList : DependentList<Flag>
         {
             public FlagList(EventHandler handler, Stream s) : base(handler, s) { }
 
@@ -650,7 +694,7 @@ namespace CASPartResource
     {
         public CASPartResourceTS4Handler()
         {
-            if(s4pi.Settings.Settings.IsTS4)
+            if (s4pi.Settings.Settings.IsTS4)
                 this.Add(typeof(CASPartResourceTS4), new List<string>(new string[] { "0x034AEECB", }));
         }
     }
