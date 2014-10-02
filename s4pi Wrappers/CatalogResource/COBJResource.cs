@@ -23,7 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using s4pi.Interfaces;
- 
+
 namespace CatalogResource
 {
     public class COBJResource : AResource
@@ -45,7 +45,7 @@ namespace CatalogResource
             this.unknown2 = br.ReadUInt64();
             this.unknown3 = br.ReadUInt32();
             int tgi_count = br.ReadByte();
-            this.ct_prduct_styles = new StyleList(this.OnResourceChanged, TGIBlock.Order.ITG, tgi_count, s );
+            this.ct_prduct_styles = new StyleList(this.OnResourceChanged, TGIBlock.Order.ITG, tgi_count, s);
             this.unknown4 = br.ReadUInt16();
             this.unknown5 = new UnknownShortList(this.OnResourceChanged, s);
             this.selling_points = new SellingPointList(this.OnResourceChanged, s);
@@ -75,6 +75,13 @@ namespace CatalogResource
             this.unknown25 = br.ReadByte();
             this.unknown26 = br.ReadByte();
             this.build_buy = br.ReadByte();
+            if (this.version >= 0x19)
+            {
+                this.unknown28 = br.ReadUInt32();
+                this.unknown29 = br.ReadUInt32();
+                this.unknown30 = br.ReadUInt32();
+                this.unknown31 = br.ReadUInt32();
+            }
             /*
             */
 
@@ -121,14 +128,38 @@ namespace CatalogResource
             bw.Write(this.unknown25);
             bw.Write(this.unknown26);
             bw.Write(this.build_buy);
+            if (this.version >= 0x19)
+            {
+                bw.Write(this.unknown28);
+                bw.Write(this.unknown29);
+                bw.Write(this.unknown30);
+                bw.Write(this.unknown31);
+            }
+
             /*
             */
             return s;
         }
         #endregion
 
+        /// 
+        public override List<string> ContentFields
+        {
+            get
+            {
+                List<string> res = base.ContentFields;
+                if (this.version < 0x00000019)
+                {
+                    res.Remove("Unknown28");
+                    res.Remove("Unknown29");
+                    res.Remove("Unknown30");
+                    res.Remove("Unknown31");
+                }
+                return res;
+            }
+        }
 
- 
+
         #region Sub-classes
 
 
@@ -138,8 +169,8 @@ namespace CatalogResource
             // ITG resourcekey
 
             public StyleList(EventHandler handler, TGIBlock.Order o, int count, Stream s)
-                : base(handler, TGIBlock.Order.ITG, count, s, 255) 
-            { 
+                : base(handler, TGIBlock.Order.ITG, count, s, 255)
+            {
             }
 
             public StyleList(EventHandler handler)
@@ -147,8 +178,8 @@ namespace CatalogResource
             {
             }
 
-            public override void UnParse(Stream s) 
-            { 
+            public override void UnParse(Stream s)
+            {
                 byte ncount = Convert.ToByte(Count);
                 new BinaryWriter(s).Write(ncount);
                 foreach (TGIBlock rk in this)
@@ -163,29 +194,29 @@ namespace CatalogResource
         {
             // BYTE count
             // DWORD value
-            public ColorList(EventHandler handler, Stream s) 
-                : base(handler, s, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) 
-            { 
+            public ColorList(EventHandler handler, Stream s)
+                : base(handler, s, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount)
+            {
             }
             public ColorList(EventHandler handler) : base(handler, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) { }
             public ColorList(EventHandler handler, IList<UInt32> le) : base(handler, le, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) { }
 
-            static uint ReadItem(Stream s) 
-            { 
-                return new BinaryReader(s).ReadUInt32(); 
+            static uint ReadItem(Stream s)
+            {
+                return new BinaryReader(s).ReadUInt32();
             }
-            static void WriteItem(Stream s, uint value) 
-            { 
-                new BinaryWriter(s).Write(value); 
+            static void WriteItem(Stream s, uint value)
+            {
+                new BinaryWriter(s).Write(value);
             }
-            static int ReadListCount(Stream s) 
-            { 
-                return new BinaryReader(s).ReadByte(); 
+            static int ReadListCount(Stream s)
+            {
+                return new BinaryReader(s).ReadByte();
             }
-            static void WriteListCount(Stream s, int count) 
+            static void WriteListCount(Stream s, int count)
             {
                 byte ncount = Convert.ToByte(count);
-                new BinaryWriter(s).Write(ncount); 
+                new BinaryWriter(s).Write(ncount);
             }
         }
 
@@ -194,30 +225,30 @@ namespace CatalogResource
             // DWORD count
             // WORD value
 
-            public UnknownShortList(EventHandler handler, Stream s) 
-                : base(handler, s, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) 
-            { 
+            public UnknownShortList(EventHandler handler, Stream s)
+                : base(handler, s, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount)
+            {
             }
             public UnknownShortList(EventHandler handler) : base(handler, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) { }
             public UnknownShortList(EventHandler handler, IList<ushort> le) : base(handler, le, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) { }
 
-            static ushort ReadItem(Stream s) 
-            { 
+            static ushort ReadItem(Stream s)
+            {
                 ushort foo = new BinaryReader(s).ReadUInt16();
                 return foo;
             }
-            static void WriteItem(Stream s, ushort value) 
-            { 
-                new BinaryWriter(s).Write(value); 
+            static void WriteItem(Stream s, ushort value)
+            {
+                new BinaryWriter(s).Write(value);
             }
-            static int ReadListCount(Stream s) 
-            { 
+            static int ReadListCount(Stream s)
+            {
                 UInt32 count = new BinaryReader(s).ReadUInt32();
                 return (int)count;
             }
-            static void WriteListCount(Stream s, int count) 
+            static void WriteListCount(Stream s, int count)
             {
-                new BinaryWriter(s).Write((UInt32)count); 
+                new BinaryWriter(s).Write((UInt32)count);
             }
         }
 
@@ -229,22 +260,22 @@ namespace CatalogResource
                 : base(handler, maxSize)
             {
             }
- 
+
             public SellingPointList(EventHandler handler, IEnumerable<SellingPoint> ilt, long maxSize = -1)
                 : base(handler, ilt, maxSize)
             {
             }
- 
+
             public SellingPointList(EventHandler handler, Stream s, long maxSize = -1)
                 : base(handler, s, maxSize)
             {
             }
- 
+
             protected override SellingPoint CreateElement(Stream s)
             {
                 return new SellingPoint(kRecommendedApiVersion, this.elementHandler, s);
             }
- 
+
             protected override void WriteElement(Stream s, SellingPoint element)
             {
                 element.UnParse(s);
@@ -257,7 +288,7 @@ namespace CatalogResource
         {
             private ushort commodity;
             private int amount;
- 
+
             public SellingPoint(int APIversion, EventHandler handler, SellingPoint other)
                 : this(APIversion, handler, other.commodity, other.amount)
             {
@@ -266,7 +297,7 @@ namespace CatalogResource
                 : base(APIversion, handler)
             {
             }
- 
+
             public SellingPoint(int APIversion, EventHandler handler, Stream s)
                 : this(APIversion, handler)
             {
@@ -296,12 +327,12 @@ namespace CatalogResource
             {
                 get { return kRecommendedApiVersion; }
             }
- 
+
             public override List<string> ContentFields
             {
                 get { return GetContentFields(0, GetType()); }
             }
- 
+
             void Parse(Stream s)
             {
                 var br = new BinaryReader(s);
@@ -322,9 +353,9 @@ namespace CatalogResource
             }
         }
         #endregion
- 
+
         #region Attributes
- 
+
         private uint version;
         private uint unknown1;
         private uint name_hash;
@@ -335,13 +366,13 @@ namespace CatalogResource
         private StyleList ct_prduct_styles;
         private ushort unknown4;
         private SimpleList<ushort> unknown5;
- 
+
         private SellingPointList selling_points;
- 
+
         private ulong unknown6;
         private ushort unknown7;
         private ulong unknown8;
- 
+
         private uint unknown9;
         private uint unknown10;
         private uint unknown11;
@@ -349,29 +380,33 @@ namespace CatalogResource
         private uint unknown13;
         private uint unknown14;
         private uint unknown15;
- 
+        private uint unknown28;
+        private uint unknown29;
+        private uint unknown30;
+        private uint unknown31;
+
         private uint unknown16_flags;
         private uint category_flags;
         private uint unknown17_flags;
         private uint unknown18_flags;
         private uint placement_flags;
- 
+
         private ulong unknown19_iid;
         private byte unknown20;
         private ulong unknown21_iid;
         private byte unknown27;
- 
+
         private ColorList colors;
- 
+
         private byte unknown22;
         private byte unknown23;
         private byte unknown24;
         private byte unknown25;
         private byte unknown26;
         private byte build_buy;
- 
+
         #endregion
- 
+
         #region Constructors
         public COBJResource(int APIversion, Stream s)
             : base(APIversion, s)
@@ -384,6 +419,78 @@ namespace CatalogResource
         #region Content Fields
         /*
 */
+        [ElementPriority(41)]
+        public uint Unknown31
+        {
+            get
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                return unknown31;
+            }
+            set
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                if (unknown31 != value)
+                {
+                    unknown31 = value; OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(40)]
+        public uint Unknown30
+        {
+            get
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                return unknown30;
+            }
+            set
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                if (unknown30 != value)
+                {
+                    unknown30 = value; OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(39)]
+        public uint Unknown29
+        {
+            get
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                return unknown29;
+            }
+            set
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                if (unknown29 != value)
+                {
+                    unknown29 = value; OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(38)]
+        public uint Unknown28
+        {
+            get
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                return unknown28;
+            }
+            set
+            {
+                if (version < 0x00000019) throw new InvalidOperationException();
+                if (unknown28 != value)
+                {
+                    unknown28 = value; OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
         [ElementPriority(37)]
         public byte BuildBuy
         {
