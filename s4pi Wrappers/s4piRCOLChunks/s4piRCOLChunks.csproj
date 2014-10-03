@@ -53,11 +53,6 @@
       <Name>CS System Classes</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\GenericRCOLResource\GenericRCOLResource.csproj">
-      <Project>{47693A2A-1F86-47CA-A170-CC0C195A53B7}</Project>
-      <Name>GenericRCOLResource</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\s4pi\Interfaces\Interfaces.csproj">
       <Project>{51023BD2-9139-438D-B794-95E5EC023537}</Project>
       <Name>Interfaces</Name>

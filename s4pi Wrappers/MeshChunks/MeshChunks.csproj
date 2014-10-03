@@ -76,11 +76,6 @@
       <Name>Settings</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\GenericRCOLResource\GenericRCOLResource.csproj">
-      <Project>{47693A2A-1F86-47CA-A170-CC0C195A53B7}</Project>
-      <Name>GenericRCOLResource</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\s4piRCOLChunks\s4piRCOLChunks.csproj">
       <Project>{F2E30D04-82C7-487F-B9E8-E8BABB1C94E1}</Project>
       <Name>s4piRCOLChunks</Name>

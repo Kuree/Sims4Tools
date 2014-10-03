@@ -80,11 +80,6 @@
       <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
       <Name>CS System Classes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s4pe Helpers\ModelViewer\ModelViewer.csproj">
-      <Project>{d31e7fc7-e51d-40e4-b2fb-49de645291e5}</Project>
-      <Name>ModelViewer</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\s4pe Helpers\RLEDDSHelper\RLEDDSHelper.csproj">
       <Project>{e86710e3-89dd-48e5-9be2-349fdfdd2d26}</Project>
       <Name>RLEDDSHelper</Name>
@@ -105,10 +100,6 @@
     <ProjectReference Include="..\..\s4pi Wrappers\DataResource\DataResource.csproj">
       <Project>{e8176722-be4e-47ff-a8a6-bff4be7a5de8}</Project>
       <Name>DataResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s4pi Wrappers\MeshChunks\MeshChunks.csproj">
-      <Project>{b1e4d2ec-5027-4f44-8c46-a0485dff7060}</Project>
-      <Name>MeshChunks</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\MiscellaneousResource\MiscellaneousResource.csproj">
       <Project>{8cbb25f3-e1f1-472b-989d-b14b98577f9c}</Project>
@@ -142,10 +133,6 @@
       <Project>{06330E2B-9F3F-4A45-8B47-11795F5100FB}</Project>
       <Name>DefaultResource</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\s4pi Wrappers\GenericRCOLResource\GenericRCOLResource.csproj">
-      <Project>{47693a2a-1f86-47ca-a170-cc0c195a53b7}</Project>
-      <Name>GenericRCOLResource</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\ImageResource\ImageResource.csproj">
       <Project>{AD53972B-D73E-4935-A4AD-3EBE0E3516F2}</Project>
       <Name>ImageResource</Name>
@@ -153,10 +140,6 @@
     <ProjectReference Include="..\..\s4pi Wrappers\RigResource\RigResource.csproj">
       <Project>{77ad91d9-4bd8-4899-9308-e6209265f636}</Project>
       <Name>RigResource</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s4pi Wrappers\s4piRCOLChunks\s4piRCOLChunks.csproj">
-      <Project>{f2e30d04-82c7-487f-b9e8-e8babb1c94e1}</Project>
-      <Name>s4piRCOLChunks</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\StblResource\StblResource.csproj">
       <Project>{672d72ec-89da-4ef3-88cc-beec5ba478b2}</Project>

@@ -88,11 +88,6 @@
       <Name>Settings</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\GenericRCOLResource\GenericRCOLResource.csproj">
-      <Project>{47693A2A-1F86-47CA-A170-CC0C195A53B7}</Project>
-      <Name>GenericRCOLResource</Name>
-      <Private>False</Private>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
