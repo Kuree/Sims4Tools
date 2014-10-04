@@ -46,6 +46,10 @@
     <Compile Include="RCOLHeader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CS System Classes\CS System Classes.csproj">
+      <Project>{00200e76-c245-42a7-b567-5c30edbce977}</Project>
+      <Name>CS System Classes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\s4pi\Interfaces\Interfaces.csproj">
       <Project>{51023bd2-9139-438d-b794-95e5ec023537}</Project>
       <Name>Interfaces</Name>
@@ -56,6 +60,9 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)s4pi\CreateAssemblyVersion\bin\Debug\CreateAssemblyVersion" "$(ProjectDir)\"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using s4pi.Interfaces;
 using System.IO;
+using System.Reflection;
 
 namespace RCOLResource
 {
@@ -33,8 +34,9 @@ namespace RCOLResource
 
         #region Attributes
         const int recommendedApiVersion = 1;
-        uint version { get; set; }
-        RCOLHeader rcolHeader;
+        public RCOLHeader rcolHeader { get; set; }
+        byte[] data;
+        public RCOLChunk[] rcolChunkList { get; set; } // will be improved later
         #endregion
 
         #region Constructor
@@ -44,17 +46,96 @@ namespace RCOLResource
         #region Data I/O
         void Parse(Stream s)
         {
+            BinaryReader r = new BinaryReader(s);
             this.rcolHeader = new RCOLHeader(RecommendedApiVersion, OnResourceChanged, s);
+            this.rcolChunkList = new RCOLChunk[this.rcolHeader.internalCount];
+            for (int i = 0; i < this.rcolChunkList.Length; i++)
+            {
+                uint position = r.ReadUInt32();
+                int size = r.ReadInt32();
+                long tempPosition = s.Position;
+                s.Position = position;
+                MemoryStream ms = new MemoryStream(r.ReadBytes(size));
+                BinaryReader headerReader = new BinaryReader(ms);
+                uint fourcc = headerReader.ReadUInt32();
+                ms.Position = 0;
+                Type rcolType = GetRCOLChunk(fourcc);
+                RCOLChunk chunk = (RCOLChunk)Activator.CreateInstance(rcolType, new object[] { 1, null, ms });    // this part needs to be fixed
+                this.rcolChunkList[i] = chunk;
+                s.Position = tempPosition;
+            }
+
+
+
+            // won't break it
+            s.Position = 0;
+            this.data = r.ReadBytes((int)s.Length);
+        }
+
+        private static Type GetRCOLChunk(uint fourcc)
+        {
+            if (!Enum.IsDefined(typeof(RCOLChunkType), fourcc))
+            {
+                return typeof(RCOLChunk);
+            }
+            else
+            {
+                foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+                {
+                    if (t.IsSubclassOf(typeof(RCOLChunk)))
+                    {
+                        if ((uint)(t.GetProperty("RCOLType").GetValue(null, null)) == fourcc)
+                        {
+                            return t;
+                        }
+                    }
+                }
+                return typeof(RCOLChunk);
+            }
         }
 
         protected override Stream UnParse()
         {
-            throw new NotImplementedException();
+            return new MemoryStream(this.data);
         }
+
         #endregion
 
         #region Content Fields
-
+        public string Value { get { return ValueBuilder; } }
         #endregion
+
+        #region Sub-Class
+        public enum RCOLChunkType :uint
+        {
+            GEOM = 0x4d4f4547u,
+            MODL = 0x4c444f4d,
+            MATD = 0x4454414d,
+            /// <summary>
+            /// This is used only for developing.
+            /// It will be removed once all the resource has been implemented
+            /// </summary>
+            None = 0
+            //MLOD = FOURCC("MLOD"),
+            //MTST = FOURCC("MTST"),
+            //TREE = FOURCC("TREE"),
+            //S_SM = FOURCC("S_SM"),
+            //TkMk = FOURCC("TkMk"),
+            //BOND = FOURCC("BOND"),
+            //LITE = FOURCC("LITE"),
+            //ANIM = FOURCC("ANIM"),
+            //VPXY = FOURCC("VPXY"),
+            //RSLT = FOURCC("RSLT"),
+            //FTPT = FOURCC("FTPT")
+        }
+        #endregion
+    }
+
+    public class RCOLResourceHandler : AResourceHandler
+    {
+        public RCOLResourceHandler()
+        {
+            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", }));
+        }
     }
 }

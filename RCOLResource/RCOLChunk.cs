@@ -21,11 +21,45 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using s4pi.Interfaces;
+using System.IO;
 
 namespace RCOLResource
 {
-    public class RCOLChunk
+    public class RCOLChunk : AHandlerElement
     {
+        
+        public RCOLChunk(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+        public RCOLChunk(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
 
+        #region Attributes
+        const int recommendedApiVersion = 1;
+        private byte[] rawData;
+        #endregion
+
+
+        #region Data I/O
+        protected virtual void Parse(Stream s)
+        {
+            BinaryReader r = new BinaryReader(s);
+            this.rawData = r.ReadBytes((int)s.Length);
+        }
+
+        protected virtual void UnParse(Stream s)
+        {
+            BinaryWriter w = new BinaryWriter(s);
+            w.Write(this.rawData);
+        }
+        #endregion
+
+        #region AHandlerElement Members
+        public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        #endregion
+
+        #region Content Fields
+        public string Value { get { return ValueBuilder; } }
+        public virtual RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.None; } }
+        #endregion
     }
 }

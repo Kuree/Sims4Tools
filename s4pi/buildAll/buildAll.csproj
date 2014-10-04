@@ -80,6 +80,10 @@
       <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
       <Name>CS System Classes</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\RCOLResource\RCOLResource.csproj">
+      <Project>{dd8fb36a-ac4f-4cb5-8fd4-0e0d5d8eae49}</Project>
+      <Name>RCOLResource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pe Helpers\RLEDDSHelper\RLEDDSHelper.csproj">
       <Project>{e86710e3-89dd-48e5-9be2-349fdfdd2d26}</Project>
       <Name>RLEDDSHelper</Name>

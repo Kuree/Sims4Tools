@@ -30,11 +30,11 @@ namespace RCOLResource
     {
         #region Attributes
         const int recommendedApiVersion = 1;
-        uint version { get; set; }
-        uint internalPublicChunkCount { get; set; }
-        uint index3 { get; set; }
-        int externalCount { get; set; }
-        int internalCount { get; set; }
+        public uint version { get; set; }
+        public uint internalPublicChunkCount { get; set; }
+        public uint index3 { get; set; }
+        public int externalCount { get; set; }
+        public int internalCount { get; set; }
         CountedTGIBlockList externalTGIList { get; set; }
         CountedTGIBlockList internalTGIList { get; set; }
         #endregion
@@ -75,7 +75,7 @@ namespace RCOLResource
         #endregion
 
         #region Content Fields
-
+        public string Value { get { return ValueBuilder; } }
         #endregion
     }
 }
