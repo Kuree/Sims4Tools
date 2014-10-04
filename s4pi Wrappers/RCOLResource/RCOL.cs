@@ -58,7 +58,6 @@ namespace RCOLResource
                 MemoryStream ms = new MemoryStream(r.ReadBytes(size));
                 BinaryReader headerReader = new BinaryReader(ms);
                 uint fourcc = headerReader.ReadUInt32();
-                ms.Position = 0;
                 Type rcolType = GetRCOLChunk(fourcc);
                 RCOLChunk chunk = (RCOLChunk)Activator.CreateInstance(rcolType, new object[] { 1, null, ms });    // this part needs to be fixed
                 this.rcolChunkList[i] = chunk;
@@ -115,7 +114,7 @@ namespace RCOLResource
             /// This is used only for developing.
             /// It will be removed once all the resource has been implemented
             /// </summary>
-            None = 0
+            None = 0,
             //MLOD = FOURCC("MLOD"),
             //MTST = FOURCC("MTST"),
             //TREE = FOURCC("TREE"),
@@ -126,7 +125,7 @@ namespace RCOLResource
             //ANIM = FOURCC("ANIM"),
             //VPXY = FOURCC("VPXY"),
             //RSLT = FOURCC("RSLT"),
-            //FTPT = FOURCC("FTPT")
+            FTPT = 0x54505446U
         }
         #endregion
     }
@@ -135,7 +134,7 @@ namespace RCOLResource
     {
         public RCOLResourceHandler()
         {
-            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", }));
+            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", "0xD382BF57" }));
         }
     }
 }

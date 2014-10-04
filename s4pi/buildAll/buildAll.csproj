@@ -80,18 +80,10 @@
       <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
       <Name>CS System Classes</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\RCOLResource\RCOLResource.csproj">
-      <Project>{dd8fb36a-ac4f-4cb5-8fd4-0e0d5d8eae49}</Project>
-      <Name>RCOLResource</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\s4pe Helpers\RLEDDSHelper\RLEDDSHelper.csproj">
       <Project>{e86710e3-89dd-48e5-9be2-349fdfdd2d26}</Project>
       <Name>RLEDDSHelper</Name>
       <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s4pi Wrappers\AnimationResources\AnimationResources.csproj">
-      <Project>{b33f19de-f211-4d32-8d03-43024b88f177}</Project>
-      <Name>AnimationResources</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\CASPartResource\CASPartResource.csproj">
       <Project>{38d21f02-c139-43c8-8b74-d84e22b89f50}</Project>
@@ -140,6 +132,10 @@
     <ProjectReference Include="..\..\s4pi Wrappers\ImageResource\ImageResource.csproj">
       <Project>{AD53972B-D73E-4935-A4AD-3EBE0E3516F2}</Project>
       <Name>ImageResource</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi Wrappers\RCOLResource\RCOLResource.csproj">
+      <Project>{dd8fb36a-ac4f-4cb5-8fd4-0e0d5d8eae49}</Project>
+      <Name>RCOLResource</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\RigResource\RigResource.csproj">
       <Project>{77ad91d9-4bd8-4899-9308-e6209265f636}</Project>

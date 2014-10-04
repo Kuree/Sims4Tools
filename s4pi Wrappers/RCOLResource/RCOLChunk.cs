@@ -59,7 +59,7 @@ namespace RCOLResource
 
         #region Content Fields
         public string Value { get { return ValueBuilder; } }
-        public virtual RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.None; } }
+        //public static RCOL.RCOLChunkType RCOLType =  RCOL.RCOLChunkType.None;
         #endregion
     }
 }
