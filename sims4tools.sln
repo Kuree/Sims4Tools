@@ -63,7 +63,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationResources", "s4pi 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RLEDDSHelper", "s4pe Helpers\RLEDDSHelper\RLEDDSHelper.csproj", "{E86710E3-89DD-48E5-9BE2-349FDFDD2D26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RCOLResource", "RCOLResource\RCOLResource.csproj", "{DD8FB36A-AC4F-4CB5-8FD4-0E0D5D8EAE49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RCOLResource", "s4pi Wrappers\RCOLResource\RCOLResource.csproj", "{DD8FB36A-AC4F-4CB5-8FD4-0E0D5D8EAE49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
