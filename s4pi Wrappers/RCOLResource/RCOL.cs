@@ -59,6 +59,7 @@ namespace RCOLResource
                 BinaryReader headerReader = new BinaryReader(ms);
                 uint fourcc = headerReader.ReadUInt32();
                 Type rcolType = GetRCOLChunk(fourcc);
+                ms.Position = 0;
                 RCOLChunk chunk = (RCOLChunk)Activator.CreateInstance(rcolType, new object[] { 1, null, ms });    // this part needs to be fixed
                 this.rcolChunkList[i] = chunk;
                 s.Position = tempPosition;

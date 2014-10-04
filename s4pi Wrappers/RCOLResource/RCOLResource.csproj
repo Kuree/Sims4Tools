@@ -41,10 +41,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FTPT.cs" />
+    <Compile Include="MATD.cs" />
+    <Compile Include="MTNF.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RCOL.cs" />
     <Compile Include="RCOLChunk.cs" />
     <Compile Include="RCOLHeader.cs" />
+    <Compile Include="ShaderData.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
