@@ -37,11 +37,16 @@ namespace RCOLResource
         private byte[] rawData;
         #endregion
 
+        [ElementPriority(0)]
+        public virtual string RCOLTag { get; private set; }
 
         #region Data I/O
         protected virtual void Parse(Stream s)
         {
+            s.Position = 0;
             BinaryReader r = new BinaryReader(s);
+            this.RCOLTag = FOURCC((ulong)r.ReadInt32());
+            s.Position = 0;
             this.rawData = r.ReadBytes((int)s.Length);
         }
 

@@ -135,7 +135,7 @@ namespace RCOLResource
     {
         public RCOLResourceHandler()
         {
-            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", "0xD382BF57" }));
+            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", "0xD382BF57", "0x01D10F34", "0x01661233" }));
         }
     }
 }

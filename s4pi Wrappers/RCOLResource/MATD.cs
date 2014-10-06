@@ -20,6 +20,7 @@ namespace RCOLResource
         public bool isVideoSurface { get; set; }
         public bool isPaintingSurface { get; set; }
         private byte[] data { get; set; }
+        public MTNF Mtnf { get; set; }
         #endregion
 
         #region Data I/O
@@ -38,7 +39,7 @@ namespace RCOLResource
             // Ignore old version here
             this.isVideoSurface = r.ReadUInt32() != 0;
             this.isPaintingSurface = r.ReadUInt32() != 0;
-
+            this.Mtnf = new MTNF(RecommendedApiVersion, null, s, RCOLType);
 
         }
         #endregion

@@ -8,23 +8,122 @@ using System.IO;
 namespace RCOLResource
 {
     // Will be implemented later
-    //public class ShaderData : AHandlerElement
-    //{
-    //    public ShaderData(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+    public class ShaderData : AHandlerElement, IEquatable<ShaderData>
+    {
+        public ShaderData(int APIversion, EventHandler handler, FieldType field, DataType dataType, Object data) : base(APIversion, handler)
+        {
+            this.field = field; this.shaderDataType = dataType; this.Data = data;
+        }
 
-    //    public FieldType field { get; set; }
-    //    public DataType shaderDataType { get; set; }
+        public FieldType field { get; set; }
+        public DataType shaderDataType { get; set; }
+        public Object Data { get; set; }
 
-    //    private void Parse(Stream s)
-    //    {
-    //        BinaryReader r = new BinaryReader(s);
-    //        this.field = (FieldType)r.ReadUInt32();
-    //        this.shaderDataType = (DataType)r.ReadUInt32();
-    //        int count = r.ReadInt32();
-    //        uint offset = r.ReadUInt32();
-    //        long pos = s.Position;
-    //    }
-    //}
+        const int recommendedApiVersion = 1;
+
+        #region AHandlerElement Members
+        public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        #endregion
+
+        public static ShaderData CreateShaderData(Stream s, long start, EventHandler handler, RCOL.RCOLChunkType rcolType)
+        {
+            BinaryReader r = new BinaryReader(s);
+            var field = (FieldType)r.ReadUInt32();
+            var shaderDataType = (DataType)r.ReadUInt32();
+            int count = r.ReadInt32();
+            uint offset = r.ReadUInt32();
+            long pos = s.Position;
+            s.Position = offset + start;
+            Object data = null;
+            switch(shaderDataType)
+            {
+                case DataType.dtFloat:
+                    switch(count)
+                    {
+                        case 1:
+                            data = Tuple.Create(r.ReadSingle());
+                            break;
+                        case 2:
+                            data = Tuple.Create(r.ReadSingle(), r.ReadSingle());
+                            break;
+                        case 3:
+                            data = Tuple.Create(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                            break;
+                        case 4:
+                            data = Tuple.Create(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case DataType.dtImageMap:
+
+                    data = new TGIBlock(1, handler, "ITG", s);
+                    
+                    break;
+                case DataType.dtInt:
+                    switch(count)
+                    {
+                        case 1:
+                            data = Tuple.Create(r.ReadInt32());
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case DataType.dtTexture:
+                    if(rcolType == RCOL.RCOLChunkType.GEOM)
+                    {
+                        data = r.ReadInt32();
+                    }
+                    else
+                    {
+                        data = new TGIBlock(1, handler, "ITG", s);
+                    }
+                    break;
+                case DataType.dtUnknown:
+                    break;
+                default:
+                    break;
+                
+            }
+            return new ShaderData(1, handler, field, shaderDataType, data);
+        }
+
+        public bool Equals(ShaderData other)
+        {
+            return this.field == other.field && this.Data == other.Data && this.shaderDataType == other.shaderDataType;
+        }
+    }
+
+    public class ShaderDataList : DependentList<ShaderData>
+    {
+        RCOL.RCOLChunkType rcolType;
+        public ShaderDataList(EventHandler handler, Stream s, RCOL.RCOLChunkType type, long start) : base(handler) { this.rcolType = type; Parse(s, start); }
+
+        #region Data I/O
+        void Parse(Stream s, long start)
+        {
+            BinaryReader r = new BinaryReader(s);
+            r.ReadInt32();
+            int count = r.ReadInt32();
+            for(int i = 0; i < count; i++)
+            {
+                this.Add(ShaderData.CreateShaderData(s, start, elementHandler, this.rcolType));
+            }
+            
+        }
+
+        public void UnParse(Stream s)
+        {
+            return;
+        }
+        #endregion
+
+        protected override ShaderData CreateElement(Stream s) { throw new NotSupportedException(); }
+        protected override void WriteElement(Stream s, ShaderData element) { throw new NotSupportedException(); }
+    }
 
     public enum ShaderType : uint
     {
