@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="COBJResource.cs" />
+    <Compile Include="WallCatalogResourceTS4.cs" />
     <Compile Include="FountainPoolCatalogResource.cs" />
     <Compile Include="FoundationCatalogResource.cs" />
     <Compile Include="ObjectCatalogResourceTS4.cs" />

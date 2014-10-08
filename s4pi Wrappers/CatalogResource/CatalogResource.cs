@@ -1471,7 +1471,7 @@ namespace CatalogResource
             this.Add(typeof(StairsCatalogResource), new List<string>(new string[] { "0x049CA4CD" }));
             this.Add(typeof(TerrainGeometryWaterBrushCatalogResource), new List<string>(new string[] { "0x04B30669", "0x060B390C" }));
             this.Add(typeof(TerrainPaintBrushCatalogResource), new List<string>(new string[] { "0x04ED4BB2" }));
-            this.Add(typeof(WallCatalogResource), new List<string>(new string[] { "0x9151E6BC" }));
+            if (!s4pi.Settings.Settings.IsTS4) { this.Add(typeof(WallCatalogResource), new List<string>(new string[] { "0x9151E6BC" })); }
             this.Add(typeof(WallFloorPatternCatalogResource), new List<string>(new string[] { "0x515CA4CD" }));
         }
     }

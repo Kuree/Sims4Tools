@@ -177,6 +177,7 @@
 0xD382BF57  FTPT   .footprint
 0xD4D9FBE5  PTRN   .patternlist
 0xD55F7CAF  LRIG   .lightrig
+0xD5F0F921  CWAL   .wall
 0xD84E7FC5  ICON   .png
 0xD84E7FC6  ICON   .png
 0xD84E7FC7  ICON   .png
