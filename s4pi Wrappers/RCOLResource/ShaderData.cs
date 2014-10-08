@@ -1,4 +1,23 @@
-﻿using System;
+﻿/***************************************************************************
+ *  Copyright (C) 2014 by Keyi Zhang                                       *
+ *  kz005@bucknell.edu                                                     *
+ *                                                                         *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation, either version 3 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  s3pi is distributed in the hope that it will be useful,                *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *  You should have received a copy of the GNU General Public License      *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ ***************************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +26,7 @@ using System.IO;
 
 namespace RCOLResource
 {
-    // Will be implemented later
+
     public class ShaderData : AHandlerElement, IEquatable<ShaderData>
     {
         public ShaderData(int APIversion, EventHandler handler, FieldType field, DataType dataType, Object data) : base(APIversion, handler)
@@ -19,6 +38,7 @@ namespace RCOLResource
         public DataType shaderDataType { get; set; }
         public Object Data { get; set; }
 
+
         const int recommendedApiVersion = 1;
 
         #region AHandlerElement Members
@@ -26,6 +46,7 @@ namespace RCOLResource
         public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
         #endregion
 
+        #region Data I/O
         public static ShaderData CreateShaderData(Stream s, long start, EventHandler handler, RCOL.RCOLChunkType rcolType)
         {
             BinaryReader r = new BinaryReader(s);
@@ -88,13 +109,33 @@ namespace RCOLResource
                     break;
                 
             }
+            s.Position = pos;
             return new ShaderData(1, handler, field, shaderDataType, data);
         }
+
+
+        protected internal void UnParse(Stream s, long start)
+        {
+
+        }
+
+        private int GetByteSize()
+        {
+            if(typeof(this.Data) == null)
+            {
+
+            }
+            return 0;
+        }
+        #endregion
 
         public bool Equals(ShaderData other)
         {
             return this.field == other.field && this.Data == other.Data && this.shaderDataType == other.shaderDataType;
         }
+
+
+        public string Value { get { return ValueBuilder; } }
     }
 
     public class ShaderDataList : DependentList<ShaderData>
@@ -106,18 +147,20 @@ namespace RCOLResource
         void Parse(Stream s, long start)
         {
             BinaryReader r = new BinaryReader(s);
-            r.ReadInt32();
+            int size = r.ReadInt32();
             int count = r.ReadInt32();
             for(int i = 0; i < count; i++)
             {
-                this.Add(ShaderData.CreateShaderData(s, start, elementHandler, this.rcolType));
+                this.Add(ShaderData.CreateShaderData(s, start, size, elementHandler, this.rcolType));
             }
             
         }
 
-        public void UnParse(Stream s)
+        public void UnParse(Stream s, long start)
         {
-            return;
+            BinaryWriter w = new BinaryWriter(s);
+            w.Write(0); // will be written later
+            w.Write(this.Count);
         }
         #endregion
 
