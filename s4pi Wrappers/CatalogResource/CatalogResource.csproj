@@ -59,7 +59,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CFLRResource.cs" />
     <Compile Include="COBJResource.cs" />
+    <Compile Include="TRPTResource.cs" />
     <Compile Include="WallCatalogResourceTS4.cs" />
     <Compile Include="FountainPoolCatalogResource.cs" />
     <Compile Include="FoundationCatalogResource.cs" />
