@@ -116,6 +116,7 @@
 0x2F7D0008  UITX   .uitexture
 0x316C78F2  CFND   .foundation
 0x319E4F1D  COBJ   .cobj
+0x3453CF95  RLE2   .rle2
 0x35A33E29  WDSH   .wdeschash
 0x376840D7  _AVI   .avi
 0x3A65AF29  MINF   .makeup
@@ -163,8 +164,10 @@
 0xAD366F96  THUM   .png
 0xB1CC1AF6  _VID   .video
 0xB4DD716B  _INV   .inventory
+0xB4F762C9  CFLR   .cflr
 0xB52F5055  FBLN   .blendunit
 0xB61DE6B4  _XML   .xml
+0xBA856C78  RLES   .rles
 0xBDD82221  AUEV   .auev
 0xC0DB5AE7  OBJD   .object
 0xC202C770  _XML   .xml
@@ -177,6 +180,7 @@
 0xD382BF57  FTPT   .footprint
 0xD4D9FBE5  PTRN   .patternlist
 0xD55F7CAF  LRIG   .lightrig
+0xD5F0F921  CWAL   .wall
 0xD84E7FC5  ICON   .png
 0xD84E7FC6  ICON   .png
 0xD84E7FC7  ICON   .png
@@ -192,6 +196,7 @@
 0xE5105068  _XML   .xml
 0xE882D22F  _XML   .xml 
 0xEA5118B0  _SWB   .effects
+0xEBCBB16C  TRPT   .trpt
 0xF0FF5598  TRIG   .triggers
 0xF1EDBD86  CRMT   .roofmatrl
 0xF3A38370  NGMP   .guidmap

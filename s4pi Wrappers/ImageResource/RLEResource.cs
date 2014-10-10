@@ -48,14 +48,14 @@ namespace s4pi.ImageResource
         #region Data I/O
         public void Parse(Stream s)
         {
-            if (s == null) return;
+            if (s == null) s = this.UnParse();
             BinaryReader r = new BinaryReader(s);
             info = new RLEInfo(s);
             this.MipHeaders = new MipHeader[this.info.mipCount + 1];
 
             for (int i = 0; i < this.info.mipCount; i++)
             {
-                MipHeaders[i] = new MipHeader
+                var header = new MipHeader
                 {
                     CommandOffset = r.ReadInt32(),
                     Offset2 = r.ReadInt32(),
@@ -63,6 +63,8 @@ namespace s4pi.ImageResource
                     Offset0 = r.ReadInt32(),
                     Offset1 = r.ReadInt32(),
                 };
+                if (this.info.Version == RLEVersion.RLES) header.Offset4 = r.ReadInt32();
+                MipHeaders[i] = header;
             }
 
             this.MipHeaders[this.info.mipCount] = new MipHeader
@@ -71,8 +73,18 @@ namespace s4pi.ImageResource
                 Offset2 = MipHeaders[0].Offset3,
                 Offset3 = MipHeaders[0].Offset0,
                 Offset0 = MipHeaders[0].Offset1,
-                Offset1 = (int)s.Length,
             };
+
+            if (this.info.Version == RLEVersion.RLES)
+            {
+                this.MipHeaders[this.info.mipCount].Offset1 = this.MipHeaders[0].Offset4;
+                this.MipHeaders[this.info.mipCount].Offset4 = (int)s.Length;
+            }
+            else
+            {
+                this.MipHeaders[this.info.mipCount].Offset1 = (int)s.Length;
+            }
+
             s.Position = 0;
             this.data = r.ReadBytes((int)s.Length);
         }
@@ -96,75 +108,161 @@ namespace s4pi.ImageResource
             var fullTransparentColor = new byte[] { 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             var fullOpaqueAlpha = new byte[] { 0x00, 0x05, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-            for (int i = 0; i < this.info.mipCount; i++)
+            if (this.info.Version == RLEVersion.RLE2)
             {
-                var mipHeader = this.MipHeaders[i];
-                var nextMipHeader = MipHeaders[i + 1];
-
-                int blockOffset2, blockOffset3, blockOffset0, blockOffset1;
-                blockOffset2 = mipHeader.Offset2;
-                blockOffset3 = mipHeader.Offset3;
-                blockOffset0 = mipHeader.Offset0;
-                blockOffset1 = mipHeader.Offset1;
-
-                for (int commandOffset = mipHeader.CommandOffset;
-                    commandOffset < nextMipHeader.CommandOffset;
-                    commandOffset += 2)
+                for (int i = 0; i < this.info.mipCount; i++)
                 {
-                    var command = BitConverter.ToUInt16(this.data, commandOffset);
+                    var mipHeader = this.MipHeaders[i];
+                    var nextMipHeader = MipHeaders[i + 1];
 
-                    var op = command & 3;
-                    var count = command >> 2;
+                    int blockOffset2, blockOffset3, blockOffset0, blockOffset1;
+                    blockOffset2 = mipHeader.Offset2;
+                    blockOffset3 = mipHeader.Offset3;
+                    blockOffset0 = mipHeader.Offset0;
+                    blockOffset1 = mipHeader.Offset1;
 
-                    if (op == 0)
+                    for (int commandOffset = mipHeader.CommandOffset;
+                        commandOffset < nextMipHeader.CommandOffset;
+                        commandOffset += 2)
                     {
-                        for (int j = 0; j < count; j++)
+                        var command = BitConverter.ToUInt16(this.data, commandOffset);
+
+                        var op = command & 3;
+                        var count = command >> 2;
+
+                        if (op == 0)
                         {
-                            w.Write(fullTransparentAlpha, 0, 8);
-                            w.Write(fullTransparentAlpha, 0, 8);
+                            for (int j = 0; j < count; j++)
+                            {
+                                w.Write(fullTransparentAlpha, 0, 8);
+                                w.Write(fullTransparentAlpha, 0, 8);
+                            }
+                        }
+                        else if (op == 1)
+                        {
+                            for (int j = 0; j < count; j++)
+                            {
+                                //output.Write(fullOpaqueAlpha, 0, 8);
+                                //output.Write(fullTransparentColor, 0, 8);
+
+                                w.Write(this.data, blockOffset0, 2);
+                                w.Write(this.data, blockOffset1, 6);
+                                w.Write(this.data, blockOffset2, 4);
+                                w.Write(this.data, blockOffset3, 4);
+                                blockOffset2 += 4;
+                                blockOffset3 += 4;
+                                blockOffset0 += 2;
+                                blockOffset1 += 6;
+                            }
+                        }
+                        else if (op == 2)
+                        {
+                            for (int j = 0; j < count; j++)
+                            {
+                                w.Write(fullOpaqueAlpha, 0, 8);
+                                w.Write(this.data, blockOffset2, 4);
+                                w.Write(this.data, blockOffset3, 4);
+                                blockOffset2 += 4;
+                                blockOffset3 += 4;
+                            }
+                        }
+                        else
+                        {
+                            throw new NotSupportedException();
                         }
                     }
-                    else if (op == 1)
-                    {
-                        for (int j = 0; j < count; j++)
-                        {
-                            //output.Write(fullOpaqueAlpha, 0, 8);
-                            //output.Write(fullTransparentColor, 0, 8);
 
-                            w.Write(this.data, blockOffset0, 2);
-                            w.Write(this.data, blockOffset1, 6);
-                            w.Write(this.data, blockOffset2, 4);
-                            w.Write(this.data, blockOffset3, 4);
-                            blockOffset2 += 4;
-                            blockOffset3 += 4;
-                            blockOffset0 += 2;
-                            blockOffset1 += 6;
-                        }
-                    }
-                    else if (op == 2)
+                    if (blockOffset0 != nextMipHeader.Offset0 ||
+                        blockOffset1 != nextMipHeader.Offset1 ||
+                        blockOffset2 != nextMipHeader.Offset2 ||
+                        blockOffset3 != nextMipHeader.Offset3)
                     {
-                        for (int j = 0; j < count; j++)
+                        throw new InvalidOperationException();
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < this.info.mipCount; i++)
+                {
+                    var mipHeader = this.MipHeaders[i];
+                    var nextMipHeader = MipHeaders[i + 1];
+
+                    int blockOffset2, blockOffset3, blockOffset0, blockOffset1, blockOffset4;
+                    blockOffset2 = mipHeader.Offset2;
+                    blockOffset3 = mipHeader.Offset3;
+                    blockOffset0 = mipHeader.Offset0;
+                    blockOffset1 = mipHeader.Offset1;
+                    blockOffset4 = mipHeader.Offset4;
+                    var off4 = 0;
+                    for (int commandOffset = mipHeader.CommandOffset;
+                        commandOffset < nextMipHeader.CommandOffset;
+                        commandOffset += 2)
+                    {
+                        var command = BitConverter.ToUInt16(this.data, commandOffset);
+
+                        var op = command & 3;
+                        var count = command >> 2;
+
+                        if (op == 0)
                         {
-                            w.Write(fullOpaqueAlpha, 0, 8);
-                            w.Write(this.data, blockOffset2, 4);
-                            w.Write(this.data, blockOffset3, 4);
-                            blockOffset2 += 4;
-                            blockOffset3 += 4;
+                            for (int j = 0; j < count; j++)
+                            {
+                                w.Write(fullTransparentAlpha, 0, 8);
+                                w.Write(fullTransparentAlpha, 0, 8);
+                            }
+                        }
+                        else if (op == 1)
+                        {
+                            for (int j = 0; j < count; j++)
+                            {
+                                //output.Write(fullOpaqueAlpha, 0, 8);
+                                //output.Write(fullTransparentColor, 0, 8);
+
+                                w.Write(this.data, blockOffset0, 2);
+                                w.Write(this.data, blockOffset1, 6);
+                                blockOffset0 += 2;
+                                blockOffset1 += 6;
+
+                                w.Write(this.data, blockOffset2, 4);
+                                w.Write(this.data, blockOffset3, 4);
+                                blockOffset2 += 4;
+                                blockOffset3 += 4;
+
+                                blockOffset4 += 16;
+                                off4 += 16;
+                            }
+                        }
+                        else if (op == 2)
+                        {
+                            for (int j = 0; j < count; j++)
+                            {
+                                w.Write(this.data, blockOffset0, 2);
+                                w.Write(this.data, blockOffset1, 6);
+                                w.Write(this.data, blockOffset2, 4);
+                                w.Write(this.data, blockOffset3, 4);
+                                blockOffset2 += 4;
+                                blockOffset3 += 4;
+                                blockOffset0 += 2;
+                                blockOffset1 += 6;
+                            }
+                        }
+                        else
+                        {
+                            throw new NotSupportedException();
                         }
                     }
-                    else
+
+                    if (blockOffset0 != nextMipHeader.Offset0 ||
+                        blockOffset1 != nextMipHeader.Offset1 ||
+                        blockOffset2 != nextMipHeader.Offset2 ||
+                        blockOffset3 != nextMipHeader.Offset3 ||
+                        blockOffset4 != nextMipHeader.Offset4)
                     {
-                        throw new NotSupportedException();
+                        throw new InvalidOperationException();
                     }
                 }
 
-                if (blockOffset0 != nextMipHeader.Offset0 ||
-                    blockOffset1 != nextMipHeader.Offset1 ||
-                    blockOffset2 != nextMipHeader.Offset2 ||
-                    blockOffset3 != nextMipHeader.Offset3)
-                {
-                    throw new InvalidOperationException();
-                }
             }
             s.Position = 0;
             return s;
@@ -172,7 +270,7 @@ namespace s4pi.ImageResource
         }
 
 
-        public void ImportToRLE(Stream input)
+        public void ImportToRLE(Stream input, RLEVersion rleVersion = RLEVersion.RLE2)
         {
             MemoryStream output = new MemoryStream();
             BinaryReader r = new BinaryReader(input);
@@ -195,139 +293,281 @@ namespace s4pi.ImageResource
             var dataOffset = 16 + (20 * this.info.mipCount);
             this.MipHeaders = new MipHeader[this.info.mipCount];
 
-            using (var commandData = new MemoryStream())
-            using (var block2Data = new MemoryStream())
-            using (var block3Data = new MemoryStream())
-            using (var block0Data = new MemoryStream())
-            using (var block1Data = new MemoryStream())
+            if (rleVersion == RLEVersion.RLE2)
             {
-                BinaryWriter commonDataWriter = new BinaryWriter(commandData);
-                for (int mipIndex = 0; mipIndex < this.info.mipCount; mipIndex++)
+                using (var commandData = new MemoryStream())
+                using (var block2Data = new MemoryStream())
+                using (var block3Data = new MemoryStream())
+                using (var block0Data = new MemoryStream())
+                using (var block1Data = new MemoryStream())
                 {
-                    this.MipHeaders[mipIndex] = new MipHeader()
+                    BinaryWriter commonDataWriter = new BinaryWriter(commandData);
+                    for (int mipIndex = 0; mipIndex < this.info.mipCount; mipIndex++)
                     {
-                        CommandOffset = (int)commandData.Length,
-                        Offset2 = (int)block2Data.Length,
-                        Offset3 = (int)block3Data.Length,
-                        Offset0 = (int)block0Data.Length,
-                        Offset1 = (int)block1Data.Length,
-                    };
-
-                    var mipWidth = Math.Max(4, this.info.Width >> mipIndex);
-                    var mipHeight = Math.Max(4, this.info.Height >> mipIndex);
-                    var mipDepth = Math.Max(1, this.info.Depth >> mipIndex);
-
-                    var mipSize = Math.Max(1, (mipWidth + 3) / 4) * Math.Max(1, (mipHeight + 3) / 4) * 16;
-                    var mipData = r.ReadBytes(mipSize);
-
-                    for (int offset = 0; offset < mipSize; )
-                    {
-                        ushort transparentCount = 0;
-                        while (transparentCount < 0x3FFF &&
-                               offset < mipSize &&
-                               TestAlphaAny(mipData, offset, a => a != 0) == false)
+                        this.MipHeaders[mipIndex] = new MipHeader()
                         {
-                            transparentCount++;
-                            offset += 16;
-                        }
+                            CommandOffset = (int)commandData.Length,
+                            Offset2 = (int)block2Data.Length,
+                            Offset3 = (int)block3Data.Length,
+                            Offset0 = (int)block0Data.Length,
+                            Offset1 = (int)block1Data.Length,
+                        };
 
-                        if (transparentCount > 0)
-                        {
-                            transparentCount <<= 2;
-                            transparentCount |= 0;
-                            commonDataWriter.Write(transparentCount);
-                            continue;
-                        }
+                        var mipWidth = Math.Max(4, this.info.Width >> mipIndex);
+                        var mipHeight = Math.Max(4, this.info.Height >> mipIndex);
+                        var mipDepth = Math.Max(1, this.info.Depth >> mipIndex);
 
-                        var opaqueOffset = offset;
-                        ushort opaqueCount = 0;
-                        while (opaqueCount < 0x3FFF &&
-                               offset < mipSize &&
-                               TestAlphaAll(mipData, offset, a => a == 0xFF) == true)
-                        {
-                            opaqueCount++;
-                            offset += 16;
-                        }
+                        var mipSize = Math.Max(1, (mipWidth + 3) / 4) * Math.Max(1, (mipHeight + 3) / 4) * 16;
+                        var mipData = r.ReadBytes(mipSize);
 
-                        if (opaqueCount > 0)
+                        for (int offset = 0; offset < mipSize; )
                         {
-                            for (int i = 0; i < opaqueCount; i++, opaqueOffset += 16)
+                            ushort transparentCount = 0;
+                            while (transparentCount < 0x3FFF &&
+                                   offset < mipSize &&
+                                   TestAlphaAny(mipData, offset, a => a != 0) == false)
                             {
-                                block2Data.Write(mipData, opaqueOffset + 8, 4);
-                                block3Data.Write(mipData, opaqueOffset + 12, 4);
+                                transparentCount++;
+                                offset += 16;
                             }
 
-                            opaqueCount <<= 2;
-                            opaqueCount |= 2;
-                            commonDataWriter.Write(opaqueCount);
-                            continue;
-                        }
-
-                        var translucentOffset = offset;
-                        ushort translucentCount = 0;
-                        while (translucentCount < 0x3FFF &&
-                               offset < mipSize &&
-                               TestAlphaAny(mipData, offset, a => a != 0) == true &&
-                               TestAlphaAll(mipData, offset, a => a == 0xFF) == false)
-                        {
-                            translucentCount++;
-                            offset += 16;
-                        }
-
-                        if (translucentCount > 0)
-                        {
-                            for (int i = 0; i < translucentCount; i++, translucentOffset += 16)
+                            if (transparentCount > 0)
                             {
-                                block0Data.Write(mipData, translucentOffset + 0, 2);
-                                block1Data.Write(mipData, translucentOffset + 2, 6);
-                                block2Data.Write(mipData, translucentOffset + 8, 4);
-                                block3Data.Write(mipData, translucentOffset + 12, 4);
+                                transparentCount <<= 2;
+                                transparentCount |= 0;
+                                commonDataWriter.Write(transparentCount);
+                                continue;
                             }
 
-                            translucentCount <<= 2;
-                            translucentCount |= 1;
-                            commonDataWriter.Write(translucentCount);
-                            continue;
-                        }
+                            var opaqueOffset = offset;
+                            ushort opaqueCount = 0;
+                            while (opaqueCount < 0x3FFF &&
+                                   offset < mipSize &&
+                                   TestAlphaAll(mipData, offset, a => a == 0xFF) == true)
+                            {
+                                opaqueCount++;
+                                offset += 16;
+                            }
 
-                        throw new NotImplementedException();
+                            if (opaqueCount > 0)
+                            {
+                                for (int i = 0; i < opaqueCount; i++, opaqueOffset += 16)
+                                {
+                                    block2Data.Write(mipData, opaqueOffset + 8, 4);
+                                    block3Data.Write(mipData, opaqueOffset + 12, 4);
+                                }
+
+                                opaqueCount <<= 2;
+                                opaqueCount |= 2;
+                                commonDataWriter.Write(opaqueCount);
+                                continue;
+                            }
+
+                            var translucentOffset = offset;
+                            ushort translucentCount = 0;
+                            while (translucentCount < 0x3FFF &&
+                                   offset < mipSize &&
+                                   TestAlphaAny(mipData, offset, a => a != 0) == true &&
+                                   TestAlphaAll(mipData, offset, a => a == 0xFF) == false)
+                            {
+                                translucentCount++;
+                                offset += 16;
+                            }
+
+                            if (translucentCount > 0)
+                            {
+                                for (int i = 0; i < translucentCount; i++, translucentOffset += 16)
+                                {
+                                    block0Data.Write(mipData, translucentOffset + 0, 2);
+                                    block1Data.Write(mipData, translucentOffset + 2, 6);
+                                    block2Data.Write(mipData, translucentOffset + 8, 4);
+                                    block3Data.Write(mipData, translucentOffset + 12, 4);
+                                }
+
+                                translucentCount <<= 2;
+                                translucentCount |= 1;
+                                commonDataWriter.Write(translucentCount);
+                                continue;
+                            }
+
+                            throw new NotImplementedException();
+                        }
                     }
+
+                    output.Position = dataOffset;
+
+                    commandData.Position = 0;
+                    var commandOffset = (int)output.Position;
+                    output.Write(commandData.ToArray(), 0, (int)commandData.Length);
+
+                    block2Data.Position = 0;
+                    var block2Offset = (int)output.Position;
+                    output.Write(block2Data.ToArray(), 0, (int)block2Data.Length);
+
+                    block3Data.Position = 0;
+                    var block3Offset = (int)output.Position;
+                    output.Write(block3Data.ToArray(), 0, (int)block3Data.Length);
+
+                    block0Data.Position = 0;
+                    var block0Offset = (int)output.Position;
+                    output.Write(block0Data.ToArray(), 0, (int)block0Data.Length);
+
+                    block1Data.Position = 0;
+                    var block1Offset = (int)output.Position;
+                    output.Write(block1Data.ToArray(), 0, (int)block1Data.Length);
+
+                    output.Position = headerOffset;
+                    for (int i = 0; i < this.info.mipCount; i++)
+                    {
+                        var mipHeader = this.MipHeaders[i];
+                        w.Write(mipHeader.CommandOffset + commandOffset);
+                        w.Write(mipHeader.Offset2 + block2Offset);
+                        w.Write(mipHeader.Offset3 + block3Offset);
+                        w.Write(mipHeader.Offset0 + block0Offset);
+                        w.Write(mipHeader.Offset1 + block1Offset);
+                    }
+
+                    this.data = output.ToArray();
                 }
-
-                output.Position = dataOffset;
-
-                commandData.Position = 0;
-                var commandOffset = (int)output.Position;
-                output.Write(commandData.ToArray(), 0, (int)commandData.Length);
-
-                block2Data.Position = 0;
-                var block2Offset = (int)output.Position;
-                output.Write(block2Data.ToArray(), 0, (int)block2Data.Length);
-
-                block3Data.Position = 0;
-                var block3Offset = (int)output.Position;
-                output.Write(block3Data.ToArray(), 0, (int)block3Data.Length);
-
-                block0Data.Position = 0;
-                var block0Offset = (int)output.Position;
-                output.Write(block0Data.ToArray(), 0, (int)block0Data.Length);
-
-                block1Data.Position = 0;
-                var block1Offset = (int)output.Position;
-                output.Write(block1Data.ToArray(), 0, (int)block1Data.Length);
-
-                output.Position = headerOffset;
-                for (int i = 0; i < this.info.mipCount; i++)
+            }
+            else
+            {
+                using (var commandData = new MemoryStream())
+                using (var block2Data = new MemoryStream())
+                using (var block3Data = new MemoryStream())
+                using (var block0Data = new MemoryStream())
+                using (var block1Data = new MemoryStream())
+                using (var block4Data = new MemoryStream())
                 {
-                    var mipHeader = this.MipHeaders[i];
-                    w.Write(mipHeader.CommandOffset + commandOffset);
-                    w.Write(mipHeader.Offset2 + block2Offset);
-                    w.Write(mipHeader.Offset3 + block3Offset);
-                    w.Write(mipHeader.Offset0 + block0Offset);
-                    w.Write(mipHeader.Offset1 + block1Offset);
-                }
+                    BinaryWriter commonDataWriter = new BinaryWriter(commandData);
+                    for (int mipIndex = 0; mipIndex < this.info.mipCount; mipIndex++)
+                    {
+                        this.MipHeaders[mipIndex] = new MipHeader()
+                        {
+                            CommandOffset = (int)commandData.Length,
+                            Offset2 = (int)block2Data.Length,
+                            Offset3 = (int)block3Data.Length,
+                            Offset0 = (int)block0Data.Length,
+                            Offset1 = (int)block1Data.Length,
+                            Offset4 = (int)block4Data.Length
+                        };
 
-                this.data = output.ToArray();
+                        var mipWidth = Math.Max(4, this.info.Width >> mipIndex);
+                        var mipHeight = Math.Max(4, this.info.Height >> mipIndex);
+                        var mipDepth = Math.Max(1, this.info.Depth >> mipIndex);
+
+                        var mipSize = Math.Max(1, (mipWidth + 3) / 4) * Math.Max(1, (mipHeight + 3) / 4) * 16;
+                        var mipData = r.ReadBytes(mipSize);
+
+                        for (int offset = 0; offset < mipSize; )
+                        {
+                            ushort transparentCount = 0;
+                            while (transparentCount < 0x3FFF &&
+                                   offset < mipSize &&
+                                   TestAlphaAny(mipData, offset, a => a != 0) == false)
+                            {
+                                transparentCount++;
+                                offset += 16;
+                            }
+
+                            if (transparentCount > 0)
+                            {
+                                transparentCount <<= 2;
+                                transparentCount |= 0;
+                                commonDataWriter.Write(transparentCount);
+                                continue;
+                            }
+
+                            var opaqueOffset = offset;
+                            ushort opaqueCount = 0;
+                            while (opaqueCount < 0x3FFF &&
+                                   offset < mipSize &&
+                                   TestAlphaAll(mipData, offset, a => a == 0xFF) == true)
+                            {
+                                opaqueCount++;
+                                offset += 16;
+                            }
+
+                            if (opaqueCount > 0)
+                            {
+                                for (int i = 0; i < opaqueCount; i++, opaqueOffset += 16)
+                                {
+                                    block2Data.Write(mipData, opaqueOffset + 8, 4);
+                                    block3Data.Write(mipData, opaqueOffset + 12, 4);
+                                }
+
+                                opaqueCount <<= 2;
+                                opaqueCount |= 2;
+                                commonDataWriter.Write(opaqueCount);
+                                continue;
+                            }
+
+                            var translucentOffset = offset;
+                            ushort translucentCount = 0;
+                            while (translucentCount < 0x3FFF &&
+                                   offset < mipSize &&
+                                   TestAlphaAny(mipData, offset, a => a != 0) == true &&
+                                   TestAlphaAll(mipData, offset, a => a == 0xFF) == false)
+                            {
+                                translucentCount++;
+                                offset += 16;
+                            }
+
+                            if (translucentCount > 0)
+                            {
+                                for (int i = 0; i < translucentCount; i++, translucentOffset += 16)
+                                {
+                                    block0Data.Write(mipData, translucentOffset + 0, 2);
+                                    block1Data.Write(mipData, translucentOffset + 2, 6);
+                                    block2Data.Write(mipData, translucentOffset + 8, 4);
+                                    block3Data.Write(mipData, translucentOffset + 12, 4);
+                                }
+
+                                translucentCount <<= 2;
+                                translucentCount |= 1;
+                                commonDataWriter.Write(translucentCount);
+                                continue;
+                            }
+
+                            throw new NotImplementedException();
+                        }
+                    }
+
+                    output.Position = dataOffset;
+
+                    commandData.Position = 0;
+                    var commandOffset = (int)output.Position;
+                    output.Write(commandData.ToArray(), 0, (int)commandData.Length);
+
+                    block2Data.Position = 0;
+                    var block2Offset = (int)output.Position;
+                    output.Write(block2Data.ToArray(), 0, (int)block2Data.Length);
+
+                    block3Data.Position = 0;
+                    var block3Offset = (int)output.Position;
+                    output.Write(block3Data.ToArray(), 0, (int)block3Data.Length);
+
+                    block0Data.Position = 0;
+                    var block0Offset = (int)output.Position;
+                    output.Write(block0Data.ToArray(), 0, (int)block0Data.Length);
+
+                    block1Data.Position = 0;
+                    var block1Offset = (int)output.Position;
+                    output.Write(block1Data.ToArray(), 0, (int)block1Data.Length);
+
+                    output.Position = headerOffset;
+                    for (int i = 0; i < this.info.mipCount; i++)
+                    {
+                        var mipHeader = this.MipHeaders[i];
+                        w.Write(mipHeader.CommandOffset + commandOffset);
+                        w.Write(mipHeader.Offset2 + block2Offset);
+                        w.Write(mipHeader.Offset3 + block3Offset);
+                        w.Write(mipHeader.Offset0 + block0Offset);
+                        w.Write(mipHeader.Offset1 + block1Offset);
+                    }
+
+                    this.data = output.ToArray();
+                }
             }
         }
         
@@ -598,7 +838,7 @@ namespace s4pi.ImageResource
     {
         public RLEResourceTS4Handler()
         {
-            this.Add(typeof(RLEResource), new List<string>(new string[] { "0x3453CF95", }));
+            this.Add(typeof(RLEResource), new List<string>(new string[] { "0x3453CF95","0xBA856C78", }));
         }
     }
 }
