@@ -23,7 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using s4pi.Interfaces;
- 
+
 namespace CatalogResource
 {
     public class WallCatalogResourceTS4 : AResource
@@ -52,7 +52,7 @@ namespace CatalogResource
         private uint unk12;
         private uint unk13;
         private UInt16 unk14;
-        private MLODEntryList mlodList;
+        private MATDEntryList matdList;
         private ImgGroupList imgGroupList;
         private uint unk15;
         private ColorList colors;
@@ -63,7 +63,7 @@ namespace CatalogResource
 
         #region Content Fields
 
-        
+
         [ElementPriority(1)]
         public uint Version
         {
@@ -167,10 +167,10 @@ namespace CatalogResource
             set { unk14 = value; this.OnResourceChanged(this, EventArgs.Empty); }
         }
         [ElementPriority(20)]
-        public MLODEntryList LODList
+        public MATDEntryList MATDList
         {
-            get { return mlodList; }
-            set { mlodList = value; this.OnResourceChanged(this, EventArgs.Empty); }
+            get { return matdList; }
+            set { matdList = value; this.OnResourceChanged(this, EventArgs.Empty); }
         }
         [ElementPriority(22)]
         public ImgGroupList ImgList
@@ -236,7 +236,7 @@ namespace CatalogResource
             this.unk06 = br.ReadUInt32();
             this.unk07 = br.ReadUInt32();
             int tgi_count = br.ReadByte();
-            this.ct_prduct_styles = new StyleList(this.OnResourceChanged, TGIBlock.Order.ITG, tgi_count, s );
+            this.ct_prduct_styles = new StyleList(this.OnResourceChanged, TGIBlock.Order.ITG, tgi_count, s);
             this.unk08 = br.ReadUInt16();
             this.tagList = new UnknownShortList(this.OnResourceChanged, s);
             this.unk09 = br.ReadUInt32();
@@ -245,7 +245,7 @@ namespace CatalogResource
             this.unk12 = br.ReadUInt32();
             this.unk13 = br.ReadUInt32();
             this.unk14 = br.ReadUInt16();
-            this.mlodList = new MLODEntryList(this.OnResourceChanged, s);
+            this.matdList = new MATDEntryList(this.OnResourceChanged, s);
             this.imgGroupList = new ImgGroupList(this.OnResourceChanged, s);
             this.unk15 = br.ReadUInt32();
             this.colors = new ColorList(this.OnResourceChanged, s);
@@ -273,7 +273,7 @@ namespace CatalogResource
             bw.Write(this.unk12);
             bw.Write(this.unk13);
             bw.Write(this.unk14);
-            this.mlodList.UnParse(s);
+            this.matdList.UnParse(s);
             this.imgGroupList.UnParse(s);
             bw.Write(this.unk15);
             this.colors.UnParse(s);
@@ -285,7 +285,7 @@ namespace CatalogResource
 
         /// 
 
- 
+
         #region Sub-classes
 
 
@@ -295,8 +295,8 @@ namespace CatalogResource
             // ITG resourcekey
 
             public StyleList(EventHandler handler, TGIBlock.Order o, int count, Stream s)
-                : base(handler, TGIBlock.Order.ITG, count, s, 255) 
-            { 
+                : base(handler, TGIBlock.Order.ITG, count, s, 255)
+            {
             }
 
             public StyleList(EventHandler handler)
@@ -304,8 +304,8 @@ namespace CatalogResource
             {
             }
 
-            public override void UnParse(Stream s) 
-            { 
+            public override void UnParse(Stream s)
+            {
                 byte ncount = Convert.ToByte(Count);
                 new BinaryWriter(s).Write(ncount);
                 foreach (TGIBlock rk in this)
@@ -316,41 +316,41 @@ namespace CatalogResource
 
         }
 
-        public class MLODEntryList : DependentList<MLODEntry>
+        public class MATDEntryList : DependentList<MATDEntry>
         {
-            public MLODEntryList(EventHandler handler, long maxSize = -1)
+            public MATDEntryList(EventHandler handler, long maxSize = -1)
                 : base(handler, maxSize)
             {
             }
- 
-            public MLODEntryList(EventHandler handler, IEnumerable<MLODEntry> ilt, long maxSize = -1)
+
+            public MATDEntryList(EventHandler handler, IEnumerable<MATDEntry> ilt, long maxSize = -1)
                 : base(handler, ilt, maxSize)
             {
             }
 
-            public MLODEntryList(EventHandler handler, Stream s)
+            public MATDEntryList(EventHandler handler, Stream s)
                 : base(handler, s)
             {
             }
 
-            protected override MLODEntry CreateElement(Stream s)
+            protected override MATDEntry CreateElement(Stream s)
             {
-                return new MLODEntry(kRecommendedApiVersion, this.elementHandler, s);
+                return new MATDEntry(kRecommendedApiVersion, this.elementHandler, s);
             }
 
-            protected override void WriteElement(Stream s, MLODEntry element)
+            protected override void WriteElement(Stream s, MATDEntry element)
             {
                 element.UnParse(s);
             }
         }
 
-        public class MLODEntry : AHandlerElement, IEquatable<MLODEntry>
+        public class MATDEntry : AHandlerElement, IEquatable<MATDEntry>
         {
             byte mlodLabel = 0;
             TGIBlock mlodRef;
 
             public override int RecommendedApiVersion { get { return kRecommendedApiVersion; } }
-            
+
             [ElementPriority(1)]
             public byte MLODLabel
             {
@@ -364,20 +364,20 @@ namespace CatalogResource
                 set { mlodRef = value; OnElementChanged(); }
             }
 
-            public MLODEntry(int APIversion, EventHandler handler, MLODEntry other)
+            public MATDEntry(int APIversion, EventHandler handler, MATDEntry other)
                 : this(APIversion, handler, other.mlodLabel, other.mlodRef)
             {
             }
-            public MLODEntry(int APIversion, EventHandler handler)
+            public MATDEntry(int APIversion, EventHandler handler)
                 : base(APIversion, handler)
             {
             }
-            public MLODEntry(int APIversion, EventHandler handler, Stream s)
+            public MATDEntry(int APIversion, EventHandler handler, Stream s)
                 : this(APIversion, handler)
             {
                 this.Parse(s);
             }
-            public MLODEntry(int APIversion, EventHandler handler, byte mlodLabel, TGIBlock mlodRef)
+            public MATDEntry(int APIversion, EventHandler handler, byte mlodLabel, TGIBlock mlodRef)
                 : base(APIversion, handler)
             {
                 this.mlodLabel = mlodLabel;
@@ -391,13 +391,13 @@ namespace CatalogResource
                 this.mlodRef = new TGIBlock(kRecommendedApiVersion, null, TGIBlock.Order.ITG, s);
             }
 
-            public void UnParse (Stream s)
+            public void UnParse(Stream s)
             {
                 var bw = new BinaryWriter(s);
                 bw.Write(mlodLabel);
                 mlodRef.UnParse(s);
             }
-            public bool Equals(MLODEntry other)
+            public bool Equals(MATDEntry other)
             {
                 return this.mlodLabel == other.mlodLabel && this.mlodRef == other.mlodRef;
             }
@@ -447,8 +447,8 @@ namespace CatalogResource
             TGIBlock imgRef03;
 
             public override int RecommendedApiVersion { get { return kRecommendedApiVersion; } }
-            
-            
+
+
             [ElementPriority(1)]
             public byte ImgGroupLabel
             {
@@ -515,7 +515,7 @@ namespace CatalogResource
             }
             public bool Equals(ImgGroupEntry other)
             {
-                return this.imgGroupLabel == other.imgGroupLabel && 
+                return this.imgGroupLabel == other.imgGroupLabel &&
                     this.imgRef01 == other.imgRef01 &&
                     this.imgRef02 == other.imgRef02 &&
                     this.imgRef03 == other.imgRef03;
@@ -535,29 +535,29 @@ namespace CatalogResource
         {
             // BYTE count
             // DWORD value
-            public ColorList(EventHandler handler, Stream s) 
-                : base(handler, s, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) 
-            { 
+            public ColorList(EventHandler handler, Stream s)
+                : base(handler, s, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount)
+            {
             }
             public ColorList(EventHandler handler) : base(handler, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) { }
             public ColorList(EventHandler handler, IList<UInt32> le) : base(handler, le, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) { }
 
-            static uint ReadItem(Stream s) 
-            { 
-                return new BinaryReader(s).ReadUInt32(); 
+            static uint ReadItem(Stream s)
+            {
+                return new BinaryReader(s).ReadUInt32();
             }
-            static void WriteItem(Stream s, uint value) 
-            { 
-                new BinaryWriter(s).Write(value); 
+            static void WriteItem(Stream s, uint value)
+            {
+                new BinaryWriter(s).Write(value);
             }
-            static int ReadListCount(Stream s) 
-            { 
-                return new BinaryReader(s).ReadByte(); 
+            static int ReadListCount(Stream s)
+            {
+                return new BinaryReader(s).ReadByte();
             }
-            static void WriteListCount(Stream s, int count) 
+            static void WriteListCount(Stream s, int count)
             {
                 byte ncount = Convert.ToByte(count);
-                new BinaryWriter(s).Write(ncount); 
+                new BinaryWriter(s).Write(ncount);
             }
         }
 
@@ -566,30 +566,30 @@ namespace CatalogResource
             // DWORD count
             // WORD value
 
-            public UnknownShortList(EventHandler handler, Stream s) 
-                : base(handler, s, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) 
-            { 
+            public UnknownShortList(EventHandler handler, Stream s)
+                : base(handler, s, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount)
+            {
             }
             public UnknownShortList(EventHandler handler) : base(handler, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) { }
             public UnknownShortList(EventHandler handler, IList<ushort> le) : base(handler, le, ReadItem, WriteItem, UInt32.MaxValue, ReadListCount, WriteListCount) { }
 
-            static ushort ReadItem(Stream s) 
-            { 
+            static ushort ReadItem(Stream s)
+            {
                 ushort foo = new BinaryReader(s).ReadUInt16();
                 return foo;
             }
-            static void WriteItem(Stream s, ushort value) 
-            { 
-                new BinaryWriter(s).Write(value); 
+            static void WriteItem(Stream s, ushort value)
+            {
+                new BinaryWriter(s).Write(value);
             }
-            static int ReadListCount(Stream s) 
-            { 
+            static int ReadListCount(Stream s)
+            {
                 UInt32 count = new BinaryReader(s).ReadUInt32();
                 return (int)count;
             }
-            static void WriteListCount(Stream s, int count) 
+            static void WriteListCount(Stream s, int count)
             {
-                new BinaryWriter(s).Write((UInt32)count); 
+                new BinaryWriter(s).Write((UInt32)count);
             }
         }
 
@@ -601,22 +601,22 @@ namespace CatalogResource
                 : base(handler, maxSize)
             {
             }
- 
+
             public SellingPointList(EventHandler handler, IEnumerable<SellingPoint> ilt, long maxSize = -1)
                 : base(handler, ilt, maxSize)
             {
             }
- 
+
             public SellingPointList(EventHandler handler, Stream s, long maxSize = -1)
                 : base(handler, s, maxSize)
             {
             }
- 
+
             protected override SellingPoint CreateElement(Stream s)
             {
                 return new SellingPoint(kRecommendedApiVersion, this.elementHandler, s);
             }
- 
+
             protected override void WriteElement(Stream s, SellingPoint element)
             {
                 element.UnParse(s);
@@ -629,7 +629,7 @@ namespace CatalogResource
         {
             private ushort commodity;
             private int amount;
- 
+
             public SellingPoint(int APIversion, EventHandler handler, SellingPoint other)
                 : this(APIversion, handler, other.commodity, other.amount)
             {
@@ -638,7 +638,7 @@ namespace CatalogResource
                 : base(APIversion, handler)
             {
             }
- 
+
             public SellingPoint(int APIversion, EventHandler handler, Stream s)
                 : this(APIversion, handler)
             {
@@ -668,12 +668,12 @@ namespace CatalogResource
             {
                 get { return kRecommendedApiVersion; }
             }
- 
+
             public override List<string> ContentFields
             {
                 get { return GetContentFields(0, GetType()); }
             }
- 
+
             void Parse(Stream s)
             {
                 var br = new BinaryReader(s);
@@ -694,8 +694,8 @@ namespace CatalogResource
             }
         }
         #endregion
- 
- 
+
+
 
         #region Constructors
         public WallCatalogResourceTS4(int APIversion, Stream s)
