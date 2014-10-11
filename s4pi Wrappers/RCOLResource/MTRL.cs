@@ -26,7 +26,7 @@ using System.IO;
 
 namespace RCOLResource
 {
-    public class MTNF : AHandlerElement
+    public class MTRL : AHandlerElement
     {
         static bool checking = s4pi.Settings.Settings.Checking;
 
@@ -38,7 +38,7 @@ namespace RCOLResource
         private uint chunkTag;
         #endregion
 
-        public MTNF(int APIversion, EventHandler handler, Stream s, RCOL.RCOLChunkType type) : base(APIversion, handler) { this.type = type; Parse(s); }
+        public MTRL(int APIversion, EventHandler handler, Stream s, RCOL.RCOLChunkType type) : base(APIversion, handler) { this.type = type; Parse(s); }
 
         private void Parse(Stream s)
         {

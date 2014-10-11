@@ -17,9 +17,9 @@ namespace RCOLResource
         static bool checking = s4pi.Settings.Settings.Checking;
         public uint materialNameHash { get; set; }
         public ShaderType shaderNameHash { get; set; }
-        public bool isVideoSurface { get; set; }
-        public bool isPaintingSurface { get; set; }
-        public MTNF Mtnf { get; set; }
+        public int Unknown1 { get; set; }
+        public int Unknown2 { get; set; }
+        public MTRL MTRL { get; set; }
         //public MTRL Mtrl { get; set; }
         #endregion
 
@@ -36,9 +36,9 @@ namespace RCOLResource
             uint length = r.ReadUInt32();
 
 
-            this.isVideoSurface = r.ReadUInt32() != 0;
-            this.isPaintingSurface = r.ReadUInt32() != 0;
-            this.Mtnf = new MTNF(RecommendedApiVersion, null, s, RCOLType);
+            this.Unknown1 = r.ReadInt32();
+            this.Unknown2 = r.ReadInt32();
+            this.MTRL = new MTRL(RecommendedApiVersion, null, s, RCOLType);
 
         }
 
@@ -54,10 +54,10 @@ namespace RCOLResource
             w.Write(0);
 
 
-            w.Write(this.isVideoSurface ? 1 : 0);
-            w.Write(this.isPaintingSurface ? 1 : 0);
+            w.Write(this.Unknown1);
+            w.Write(this.Unknown2);
 
-            this.Mtnf.UnParse(s);
+            this.MTRL.UnParse(s);
 
 
             long position = s.Position;
