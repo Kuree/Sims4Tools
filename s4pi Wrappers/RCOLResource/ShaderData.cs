@@ -47,7 +47,7 @@ namespace RCOLResource
         #endregion
 
         #region Data I/O
-        public static ShaderData CreateShaderData(Stream s, long start, EventHandler handler, RCOL.RCOLChunkType rcolType)
+        public static ShaderData CreateShaderData(Stream s, long start, ref int size, EventHandler handler, RCOL.RCOLChunkType rcolType)
         {
             BinaryReader r = new BinaryReader(s);
             var field = (FieldType)r.ReadUInt32();
@@ -64,30 +64,36 @@ namespace RCOLResource
                     {
                         case 1:
                             data = Tuple.Create(r.ReadSingle());
+                            size -= 4;
                             break;
                         case 2:
                             data = Tuple.Create(r.ReadSingle(), r.ReadSingle());
+                            size -= 8;
                             break;
                         case 3:
                             data = Tuple.Create(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                            size -= 12;
                             break;
                         case 4:
                             data = Tuple.Create(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
+                            size -= 16;
                             break;
                         default:
                             break;
                     }
+                    
                     break;
                 case DataType.dtImageMap:
 
                     data = new TGIBlock(1, handler, "ITG", s);
-                    
+                    size -= 16;
                     break;
                 case DataType.dtInt:
                     switch(count)
                     {
                         case 1:
                             data = Tuple.Create(r.ReadInt32());
+                            size -= 4;
                             break;
                         default:
                             break;
@@ -96,11 +102,13 @@ namespace RCOLResource
                 case DataType.dtTexture:
                     if(rcolType == RCOL.RCOLChunkType.GEOM)
                     {
-                        data = r.ReadInt32();
+                        data = Tuple.Create(r.ReadInt32());
+                        size -= 4;
                     }
                     else
                     {
                         data = new TGIBlock(1, handler, "ITG", s);
+                        size -= 16;
                     }
                     break;
                 case DataType.dtUnknown:
@@ -110,20 +118,107 @@ namespace RCOLResource
                 
             }
             s.Position = pos;
+            
             return new ShaderData(1, handler, field, shaderDataType, data);
         }
 
 
-        protected internal void UnParse(Stream s, long start)
+        protected internal void UnParse(Stream s, long start, ref int offset)
         {
+            BinaryWriter w = new BinaryWriter(s);
+            w.Write((uint)this.field);
+            w.Write((uint)this.shaderDataType);
+            w.Write(this.GetByteSize() / 4);
+            w.Write(offset);
+            long tempPos = s.Position;
+            s.Position = start + offset;
 
+            offset += this.GetByteSize();
+
+            switch (shaderDataType)
+            {
+                case DataType.dtFloat:
+                    if(this.Data is Tuple<float>)
+                    {
+                        Tuple<float> t = this.Data as Tuple<float>;
+                        w.Write(t.Item1);
+                    }
+                    else if (this.Data is Tuple<float, float>)
+                    {
+                        Tuple<float, float> t = this.Data as Tuple<float, float>;
+                        w.Write(t.Item1);
+                        w.Write(t.Item2);
+                    }
+                    else if (this.Data is Tuple<float, float, float>)
+                    {
+                        Tuple<float, float, float> t = this.Data as Tuple<float, float, float>;
+                        w.Write(t.Item1);
+                        w.Write(t.Item2);
+                        w.Write(t.Item3);
+                    }
+                    else if (this.Data is Tuple<float, float, float, float>)
+                    {
+                        Tuple<float, float, float, float> t = this.Data as Tuple<float, float, float, float>;
+                        w.Write(t.Item1);
+                        w.Write(t.Item2);
+                        w.Write(t.Item3);
+                        w.Write(t.Item4);
+                    }
+                    break;
+                case DataType.dtImageMap:
+                    var tgi = this.Data as TGIBlock;
+                    tgi.UnParse(s);
+                    break;
+                case DataType.dtInt:
+                    Tuple<int> i = this.Data as Tuple<int>;
+                    w.Write(i.Item1);
+                    break;
+                case DataType.dtTexture:
+                    if (this.Data is Tuple<int>)
+                    {
+                        w.Write((int)this.Data);
+                    }
+                    else
+                    {
+                        var tgi2 = this.Data as TGIBlock;
+                        tgi2.UnParse(s);
+                    }
+                    break;
+                case DataType.dtUnknown:
+                    break;
+                default:
+                    break;
+
+            }
+
+            s.Position = tempPos;
         }
 
-        private int GetByteSize()
+        public int GetByteSize()
         {
-            if(typeof(this.Data) == null)
+            if(this.Data is Tuple<Int32>)
             {
-
+                return 4;
+            }
+            else if(this.Data is Tuple<float>)
+            {
+                return 4;                
+            }
+            else if (this.Data is Tuple<float, float>)
+            {
+                return 4 * 2;
+            }
+            else if (this.Data is Tuple<float, float, float>)
+            {
+                return 4 * 3;
+            }
+            else if (this.Data is Tuple<float, float, float, float>)
+            {
+                return 4 * 4;
+            }
+            else if(this.Data is TGIBlock)
+            {
+                return 16;
             }
             return 0;
         }
@@ -151,16 +246,37 @@ namespace RCOLResource
             int count = r.ReadInt32();
             for(int i = 0; i < count; i++)
             {
-                this.Add(ShaderData.CreateShaderData(s, start, size, elementHandler, this.rcolType));
+                this.Add(ShaderData.CreateShaderData(s, start, ref size, elementHandler, this.rcolType));
             }
-            
+            if (size != 0) throw new InvalidDataException("Size doesn't match");
         }
 
-        public void UnParse(Stream s, long start)
+        public void UnParse(Stream s, int start)
         {
             BinaryWriter w = new BinaryWriter(s);
+            long tmpStart = s.Position;
             w.Write(0); // will be written later
             w.Write(this.Count);
+            long indexStartPosition = s.Position;
+            for(int i = 0; i < this.Count; i++)
+            {
+                w.Write(0); w.Write(0); w.Write(0); w.Write(0); // write blank header data
+            }
+
+            int offset = (int)(s.Position - start);
+            s.Position = indexStartPosition;
+            int size = 0;
+            foreach(var data in this)
+            {
+                data.UnParse(s, start, ref offset);
+                size += data.GetByteSize();
+            }
+
+            long tempPosition = s.Position;
+            s.Position = tmpStart;
+            w.Write(size);
+            s.Position = tmpStart + 8 + size + this.Count * 16;
+
         }
         #endregion
 

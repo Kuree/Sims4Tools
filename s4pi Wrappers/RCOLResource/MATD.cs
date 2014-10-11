@@ -19,14 +19,13 @@ namespace RCOLResource
         public ShaderType shaderNameHash { get; set; }
         public bool isVideoSurface { get; set; }
         public bool isPaintingSurface { get; set; }
-        private byte[] data { get; set; }
         public MTNF Mtnf { get; set; }
+        //public MTRL Mtrl { get; set; }
         #endregion
 
         #region Data I/O
         protected override void Parse(System.IO.Stream s)
         {
-            base.Parse(s);
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
             uint tag = r.ReadUInt32();
@@ -36,16 +35,40 @@ namespace RCOLResource
             this.shaderNameHash = (ShaderType)r.ReadUInt32();
             uint length = r.ReadUInt32();
 
-            // Ignore old version here
+
             this.isVideoSurface = r.ReadUInt32() != 0;
             this.isPaintingSurface = r.ReadUInt32() != 0;
             this.Mtnf = new MTNF(RecommendedApiVersion, null, s, RCOLType);
 
         }
+
+        protected internal override void UnParse(Stream s)
+        {
+            BinaryWriter w = new BinaryWriter(s);
+            w.Write((uint)RCOLType);
+            w.Write(this.version);
+            w.Write(this.materialNameHash);
+            w.Write((uint)this.shaderNameHash);
+
+            long lengthPosition = s.Position;
+            w.Write(0);
+
+
+            w.Write(this.isVideoSurface ? 1 : 0);
+            w.Write(this.isPaintingSurface ? 1 : 0);
+
+            this.Mtnf.UnParse(s);
+
+
+            long position = s.Position;
+            s.Position = lengthPosition;
+            w.Write(position - lengthPosition - 12);
+            s.Position = position;
+        }
         #endregion
 
         #region Content Fields
-        public string Value { get { return ValueBuilder; } }
+        public override string RCOLTag { get { return RCOLType.ToString(); } }
         #endregion
     }
 }

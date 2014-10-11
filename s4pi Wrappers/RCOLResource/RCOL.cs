@@ -67,9 +67,9 @@ namespace RCOLResource
 
 
 
-            // won't break it
-            s.Position = 0;
-            this.data = r.ReadBytes((int)s.Length);
+            //// won't break it
+            //s.Position = 0;
+            //this.data = r.ReadBytes((int)s.Length);
         }
 
         private static Type GetRCOLChunk(uint fourcc)
@@ -96,7 +96,38 @@ namespace RCOLResource
 
         protected override Stream UnParse()
         {
-            return new MemoryStream(this.data);
+            MemoryStream ms = new MemoryStream();
+            BinaryWriter w = new BinaryWriter(ms);
+            this.rcolHeader.UnParse(ms);
+
+            long indexPosition = ms.Position;
+
+            for (int i = 0; i < this.rcolChunkList.Length; i++)
+            {
+                w.Write(0); // position
+                w.Write(0); //length
+            }
+
+            long dataStartPosiiton = ms.Position;
+
+            for (int i = 0; i < this.rcolChunkList.Length; i++)
+            {
+                long tmpPosiiton = ms.Position;
+                ms.Position = indexPosition;
+                w.Write(dataStartPosiiton);
+                indexPosition += 4;
+                ms.Position = tmpPosiiton;
+                this.rcolChunkList[i].UnParse(ms);
+                long size = ms.Position - tmpPosiiton;
+                tmpPosiiton = ms.Position;
+                dataStartPosiiton = tmpPosiiton;
+                ms.Position = indexPosition;
+                w.Write((int)size);
+                indexPosition += 4;
+                ms.Position = tmpPosiiton;
+            }
+            ms.Position = 0;
+            return ms;
         }
 
         #endregion
@@ -135,7 +166,7 @@ namespace RCOLResource
     {
         public RCOLResourceHandler()
         {
-            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", "0xD382BF57", "0x01D10F34", "0x01661233" }));
+            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", "0xD382BF57", "0x01D10F34", "0x01661233", "0x01D0E75D" }));
         }
     }
 }

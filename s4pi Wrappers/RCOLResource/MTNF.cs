@@ -35,6 +35,7 @@ namespace RCOLResource
         public uint mtnfUnknown1;
         public ShaderDataList sdList { get; set; }
         RCOL.RCOLChunkType type;
+        private uint chunkTag;
         #endregion
 
         public MTNF(int APIversion, EventHandler handler, Stream s, RCOL.RCOLChunkType type) : base(APIversion, handler) { this.type = type; Parse(s); }
@@ -43,12 +44,22 @@ namespace RCOLResource
         {
             long start = s.Position;
             BinaryReader r = new BinaryReader(s);
-            uint mtnfTag = r.ReadUInt32();
-            if (checking) if (mtnfTag != (uint)FOURCC("MTNF") && mtnfTag != (uint)FOURCC("MTRL"))
-                    throw new InvalidDataException(String.Format("Invalid mtnfTag read: '{0}'; expected: 'MTNF' or 'MTRL'; at 0x{1:X8}", FOURCC(mtnfTag), s.Position));
+            chunkTag = r.ReadUInt32();
+            if (checking) if (chunkTag != (uint)FOURCC("MTNF") && chunkTag != (uint)FOURCC("MTRL"))
+                    throw new InvalidDataException(String.Format("Invalid mtnfTag read: '{0}'; expected: 'MTNF' or 'MTRL'; at 0x{1:X8}", FOURCC(chunkTag), s.Position));
             mtnfUnknown1 = r.ReadUInt32();
             //r.ReadInt32();
             this.sdList = new ShaderDataList(handler, s, this.type, start );
+        }
+
+        public void UnParse(Stream s)
+        {
+            BinaryWriter w = new BinaryWriter(s);
+            int start = (int)s.Position;
+            w.Write(chunkTag);
+            w.Write(mtnfUnknown1);
+            this.sdList.UnParse(s, start);
+
         }
 
 

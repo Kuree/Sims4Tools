@@ -64,6 +64,8 @@ namespace RCOLResource
             w.Write(this.version);
             w.Write(this.internalPublicChunkCount);
             w.Write(this.index3);
+            w.Write(this.externalCount);
+            w.Write(this.internalCount);
             this.externalTGIList.UnParse(s);
             this.internalTGIList.UnParse(s);
         }

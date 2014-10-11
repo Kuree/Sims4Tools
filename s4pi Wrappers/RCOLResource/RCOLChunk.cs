@@ -50,7 +50,7 @@ namespace RCOLResource
             this.rawData = r.ReadBytes((int)s.Length);
         }
 
-        protected virtual void UnParse(Stream s)
+        protected internal virtual void UnParse(Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
             w.Write(this.rawData);
