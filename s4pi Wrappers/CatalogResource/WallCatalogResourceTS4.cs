@@ -346,26 +346,26 @@ namespace CatalogResource
 
         public class MATDEntry : AHandlerElement, IEquatable<MATDEntry>
         {
-            byte mlodLabel = 0;
-            TGIBlock mlodRef;
+            byte matdLabel = 0;
+            TGIBlock matdRef;
 
             public override int RecommendedApiVersion { get { return kRecommendedApiVersion; } }
 
             [ElementPriority(1)]
-            public byte MLODLabel
+            public byte MATDLabel
             {
-                get { return mlodLabel; }
-                set { mlodLabel = value; OnElementChanged(); }
+                get { return matdLabel; }
+                set { matdLabel = value; OnElementChanged(); }
             }
             [ElementPriority(2)]
-            public TGIBlock MLODRef
+            public TGIBlock MATDRef
             {
-                get { return mlodRef; }
-                set { mlodRef = value; OnElementChanged(); }
+                get { return matdRef; }
+                set { matdRef = value; OnElementChanged(); }
             }
 
             public MATDEntry(int APIversion, EventHandler handler, MATDEntry other)
-                : this(APIversion, handler, other.mlodLabel, other.mlodRef)
+                : this(APIversion, handler, other.matdLabel, other.matdRef)
             {
             }
             public MATDEntry(int APIversion, EventHandler handler)
@@ -377,29 +377,29 @@ namespace CatalogResource
             {
                 this.Parse(s);
             }
-            public MATDEntry(int APIversion, EventHandler handler, byte mlodLabel, TGIBlock mlodRef)
+            public MATDEntry(int APIversion, EventHandler handler, byte matdLabel, TGIBlock matdRef)
                 : base(APIversion, handler)
             {
-                this.mlodLabel = mlodLabel;
-                this.mlodRef = mlodRef;
+                this.matdLabel = matdLabel;
+                this.matdRef = matdRef;
             }
 
             void Parse(Stream s)
             {
                 var br = new BinaryReader(s);
-                this.mlodLabel = br.ReadByte();
-                this.mlodRef = new TGIBlock(kRecommendedApiVersion, null, TGIBlock.Order.ITG, s);
+                this.matdLabel = br.ReadByte();
+                this.matdRef = new TGIBlock(kRecommendedApiVersion, null, TGIBlock.Order.ITG, s);
             }
 
             public void UnParse(Stream s)
             {
                 var bw = new BinaryWriter(s);
-                bw.Write(mlodLabel);
-                mlodRef.UnParse(s);
+                bw.Write(matdLabel);
+                matdRef.UnParse(s);
             }
             public bool Equals(MATDEntry other)
             {
-                return this.mlodLabel == other.mlodLabel && this.mlodRef == other.mlodRef;
+                return this.matdLabel == other.matdLabel && this.matdRef == other.matdRef;
             }
 
             public string Value { get { return ValueBuilder; } }
