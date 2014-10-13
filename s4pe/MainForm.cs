@@ -1069,7 +1069,7 @@ namespace S4PIDemoFE
 
         private void resourceCompressed()
         {
-            ushort target = 0xffff;
+            ushort target = 0x5A42;
             if (CompressedCheckState() == CheckState.Checked) target = 0;
             foreach (IResourceIndexEntry rie in browserWidget1.SelectedResources)
             {
@@ -1101,7 +1101,7 @@ namespace S4PIDemoFE
             if (dr != DialogResult.OK) return;
 
             browserWidget1.ResourceKey = ir;
-            browserWidget1.SelectedResource.Compressed = (ushort)(ir.Compress ? 0xffff : 0);
+            browserWidget1.SelectedResource.Compressed = (ushort)(ir.Compress ? 0x5A42 : 0);
 
             if (ir.UseName && ir.ResourceName != null && ir.ResourceName.Length > 0)
                 browserWidget1.ResourceName(ir.Instance, ir.ResourceName, true, ir.AllowRename);
