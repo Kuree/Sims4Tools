@@ -48,14 +48,19 @@ namespace s4pi.Miscellaneous
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
+            if (this.contexData == null) this.contexData = new ContexData(recommendedApiVersion, OnResourceChanged);
             this.contexData.UnParse(ms);
             w.Write(this.version);
             w.Write(this.gender);
             w.Write(this.region);
             w.Write(this.linkTag);
+            if (this.bonePoseKey == null) this.bonePoseKey = new TGIBlock(recommendedApiVersion, OnResourceChanged);
             this.bonePoseKey.UnParse(ms);
+            if (this.deformerMapShapeKey == null) this.deformerMapShapeKey = new TGIBlock(recommendedApiVersion, OnResourceChanged);
             this.deformerMapShapeKey.UnParse(ms);
+            if (this.deformerMapNormalKey == null) this.deformerMapNormalKey = new TGIBlock(recommendedApiVersion, OnResourceChanged);
             this.deformerMapNormalKey.UnParse(ms);
+            if (this.boneEntryList == null) this.boneEntryList = new BoneEntryLIst(OnResourceChanged);
             this.boneEntryList.UnParse(ms);
             return ms;
         }
@@ -75,6 +80,7 @@ namespace s4pi.Miscellaneous
             public CountedTGIBlockList delayLoadKey { get; set; }
             public ObjectDataLIst objectKey { get; set; }
             public ContexData(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public ContexData(int APIversion, EventHandler handler) : base(APIversion, handler) { }
 
             public void Parse(Stream s)
             {
@@ -101,9 +107,13 @@ namespace s4pi.Miscellaneous
             {
                 BinaryWriter w = new BinaryWriter(s);
                 w.Write(this.contexVersion);
+                if (this.publicKey == null) this.publicKey = new CountedTGIBlockList(handler);
                 w.Write(this.publicKey.Count);
+                if (this.externalKey == null) this.externalKey = new CountedTGIBlockList(handler);
                 w.Write(this.externalKey.Count);
+                if (this.delayLoadKey == null) this.delayLoadKey = new CountedTGIBlockList(handler);
                 w.Write(this.delayLoadKey.Count);
+                if (this.objectKey == null) this.objectKey = new ObjectDataLIst(handler);
                 w.Write(this.objectKey.Count);
                 foreach (var tgi in this.publicKey) tgi.UnParse(s);
                 foreach (var tgi in this.externalKey) tgi.UnParse(s);
@@ -245,7 +255,7 @@ namespace s4pi.Miscellaneous
         public ContexData Contexdata { get { return this.contexData; } set { if (!contexData.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.contexData = value; } } }
         [ElementPriority(1)]
         public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.version = value; } } }
-        [ElementPriority(3)]
+        [ElementPriority(2)]
         public uint Gender { get { return this.gender; } set { if (!this.gender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.gender = value; } } }
         [ElementPriority(3)]
         public uint Region { get { return this.region; } set { if (!this.region.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.region = value; } } }
