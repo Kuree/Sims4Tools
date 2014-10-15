@@ -90,7 +90,7 @@ namespace CASPartResource
         private CountedTGIBlockList tgiList;
         #endregion
 
-        public CASPartResourceTS4(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
+        public CASPartResourceTS4(int APIversion, Stream s) : base(APIversion, s) { if (stream == null || stream.Length == 0) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
 
         #region Data I/O
         void Parse(Stream s)
@@ -176,6 +176,7 @@ namespace CASPartResource
             w.Write((byte)parmFlags);
             w.Write(excludePartFlags);
             w.Write(excludeModifierRegionFlags);
+            if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
             flagList.UnParse(s);
             w.Write(simlolencePrice);
             w.Write(partTitleKey);
@@ -186,14 +187,16 @@ namespace CASPartResource
             w.Write(ageGender);
             w.Write(unused2);
             w.Write(unused3);
+            if (this.swatchColorCode == null) this.swatchColorCode = new SwatchColorList(OnResourceChanged);
             swatchColorCode.UnParse(s);
             w.Write(buffResKey);
             w.Write(varientThumbnailKey);
             w.Write(nakedKey);
             w.Write(parentKey);
             w.Write(sortLayer);
+            if (this.lodBlockList == null) this.lodBlockList = new LODBlockList(OnResourceChanged);
             lodBlockList.UnParse(s);
-
+            if (this.slotKey == null) this.slotKey = new SimpleList<byte>(OnResourceChanged);
             w.Write((byte)this.slotKey.Count);
             foreach (var b in this.slotKey) w.Write(b);
             w.Write(difussShadowKey);
@@ -212,7 +215,7 @@ namespace CASPartResource
             w.BaseStream.Position = 4;
             w.Write(tgiPosition - 8);
             w.BaseStream.Position = tgiPosition;
-
+            if (this.tgiList == null) this.tgiList = new CountedTGIBlockList(OnResourceChanged);
             w.Write((byte)tgiList.Count);
             foreach (var tgi in tgiList) tgi.UnParse(s);
 
@@ -479,6 +482,7 @@ namespace CASPartResource
             #endregion
 
             #region Constructors
+            public LODBlockList(EventHandler handler) : this(handler, new CountedTGIBlockList(handler)) { }
             public LODBlockList(EventHandler handler, CountedTGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; }
             public LODBlockList(EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; Parse(s); }
             #endregion
@@ -602,6 +606,7 @@ namespace CASPartResource
 
         public class FlagList : DependentList<Flag>
         {
+            public FlagList(EventHandler handler) : base(handler) { }
             public FlagList(EventHandler handler, Stream s) : base(handler, s) { }
 
             #region Data I/O
