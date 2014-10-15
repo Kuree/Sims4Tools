@@ -44,6 +44,7 @@ namespace s4pi.ImageResource
 
         protected void Parse(Stream s)
         {
+            s.Position = 0;
             this.header = new DDSHeader();
             this.header.Parse(s);
             if (header.pixelFormat.Fourcc != FourCC.DST1 &&
