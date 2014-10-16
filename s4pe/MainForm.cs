@@ -1723,7 +1723,7 @@ namespace S4PIDemoFE
         private void helpAbout()
         {
             string copyright = "\n" +
-                myName + "  Copyright (C) 2014  Sims4Group. Built by Kuree\n" +
+                myName + "Copyright (C) 2010 Peter L Jones, 2014 Keyi Zhang, aka Kuree\n" +
                 "\n" +
                 "This program comes with ABSOLUTELY NO WARRANTY; for details see Help->Warranty.\n" +
                 "\n" +

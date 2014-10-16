@@ -136,6 +136,7 @@ namespace S4PIDemoFE
 
         public override IEnumerable<ToolStripItem> GetContextMenuItems(EventHandler cbk)
         {
+            yield break;
             const string ddsFiles = "DDS Images|*.dds";
 
             yield return new ToolStripSeparator();

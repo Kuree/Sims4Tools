@@ -101,11 +101,20 @@ namespace s4pi.ImageResource
                 case FourCC.DXT5:
                     header.pixelFormat.Fourcc = FourCC.DST5;
                     break;
+                case FourCC.DST1:
+                    this.isShuffled = true;
+                    break;
+                case FourCC.DST3:
+                    this.isShuffled = true;
+                    break;
+                case FourCC.DST5:
+                    this.isShuffled = true;
+                    break;
                 default:
                     throw new Exception("Not supported format. Read " + header.pixelFormat.Fourcc.ToString());
             }
 
-            if(!this.isShuffled)
+            if(this.isShuffled)
             {
                 input.Position = 0;
                 BinaryReader r = new BinaryReader(input);
@@ -260,6 +269,7 @@ namespace s4pi.ImageResource
 
         public int Width { get; private set; }
         public int Height { get; private set; }
+        public bool IsShuffled { get { return isShuffled; } }
     }
 
     public class DSTResourceHandler : AResourceHandler
