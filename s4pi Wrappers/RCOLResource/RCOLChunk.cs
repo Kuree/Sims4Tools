@@ -30,15 +30,17 @@ namespace RCOLResource
     {
         
         public RCOLChunk(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-        public RCOLChunk(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+        public RCOLChunk(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); this.CurrentTGI = new TGIBlock(recommendedApiVersion, handler); }
+        public RCOLChunk(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler) { Parse(s); this.CurrentTGI = currentTGI; }
 
         #region Attributes
         const int recommendedApiVersion = 1;
         private byte[] rawData;
         #endregion
 
-        [ElementPriority(0)]
         public virtual string RCOLTag { get; private set; }
+        [ElementPriority(1)]
+        public TGIBlock CurrentTGI { get; set; }
 
         #region Data I/O
         protected virtual void Parse(Stream s)
@@ -53,13 +55,16 @@ namespace RCOLResource
         protected internal virtual void UnParse(Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
+            if (this.rawData == null) this.rawData = new byte[0];
             w.Write(this.rawData);
         }
+
+        protected internal virtual void OnRCOLListChanged(object sender, RCOL.RCOLListChangeEventArg e) { }
         #endregion
 
         #region AHandlerElement Members
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); res.Remove("RCOLTag"); return res; } }
         #endregion
 
         #region Content Fields

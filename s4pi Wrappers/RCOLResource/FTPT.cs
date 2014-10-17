@@ -28,6 +28,7 @@ namespace RCOLResource
 {
     public class FTPT : RCOLChunk
     {
+        [ElementPriority(0)]
         public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.FTPT; } }
 
         #region Attributes

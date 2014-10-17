@@ -34,8 +34,7 @@ namespace RCOLResource
 
         #region Attributes
         const int recommendedApiVersion = 1;
-        public RCOLHeader rcolHeader { get; set; }
-        byte[] data;
+        private RCOLHeader rcolHeader { get; set; }
         public RCOLChunk[] rcolChunkList { get; set; } // will be improved later
         #endregion
 
@@ -48,6 +47,7 @@ namespace RCOLResource
         {
             BinaryReader r = new BinaryReader(s);
             this.rcolHeader = new RCOLHeader(RecommendedApiVersion, OnResourceChanged, s);
+            this.OnChunkListChanged += this.rcolHeader.OnChunkListChanged;
             this.rcolChunkList = new RCOLChunk[this.rcolHeader.internalCount];
             for (int i = 0; i < this.rcolChunkList.Length; i++)
             {
@@ -60,16 +60,12 @@ namespace RCOLResource
                 uint fourcc = headerReader.ReadUInt32();
                 Type rcolType = GetRCOLChunk(fourcc);
                 ms.Position = 0;
-                RCOLChunk chunk = (RCOLChunk)Activator.CreateInstance(rcolType, new object[] { 1, null, ms });    // this part needs to be fixed
+                RCOLChunk chunk = (RCOLChunk)Activator.CreateInstance(rcolType, new object[] { 1, null, ms, this.rcolHeader.internalTGIList[i] });    // this part needs to be fixed
+                this.OnChunkListChanged += chunk.OnRCOLListChanged;
                 this.rcolChunkList[i] = chunk;
                 s.Position = tempPosition;
             }
 
-
-
-            //// won't break it
-            //s.Position = 0;
-            //this.data = r.ReadBytes((int)s.Length);
         }
 
         private static Type GetRCOLChunk(uint fourcc)
@@ -148,7 +144,7 @@ namespace RCOLResource
             /// </summary>
             None = 0,
             //MLOD = FOURCC("MLOD"),
-            //MTST = FOURCC("MTST"),
+            MTST = 0x5453544D,
             //TREE = FOURCC("TREE"),
             //S_SM = FOURCC("S_SM"),
             //TkMk = FOURCC("TkMk"),
@@ -159,6 +155,43 @@ namespace RCOLResource
             //RSLT = FOURCC("RSLT"),
             FTPT = 0x54505446U
         }
+
+        public class RCOLListChangeEventArg : EventArgs
+        {
+            public IList<RCOLChunk> ParentList { get; private set; }
+            public RCOLChangeType ChangeType { get; private set; }
+            public RCOLChunk ChangedChunk { get; private set; }
+            public TGIBlock ChangedTGI { get; set; }
+
+            public RCOLListChangeEventArg(IList<RCOLChunk> chunkList, RCOLChangeType type, RCOLChunk changedChunk, TGIBlock changedTGI = null)
+            {
+                this.ParentList = chunkList;
+                this.ChangeType = type;
+                this.ChangedChunk = changedChunk;
+                this.ChangedTGI = changedTGI;
+            }
+
+            
+        }
+
+        public enum RCOLChangeType
+        {
+            Delete,
+            Add
+        }
+        #endregion
+
+
+        #region Chunk Interface
+        public delegate void ChunkListChangeHandler(object sender, RCOLListChangeEventArg e);
+        public event ChunkListChangeHandler OnChunkListChanged;
+
+        public void AddChunk(RCOLChunk newChunk, TGIBlock chunkTGI)
+        {
+            if (OnChunkListChanged == null) return;
+            RCOLListChangeEventArg e = new RCOLListChangeEventArg(this.rcolChunkList, RCOLChangeType.Add, newChunk, chunkTGI);
+            OnChunkListChanged(this, e);
+        }
         #endregion
     }
 
@@ -166,7 +199,7 @@ namespace RCOLResource
     {
         public RCOLResourceHandler()
         {
-            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", "0xD382BF57", "0x01D10F34", "0x01661233", "0x01D0E75D" }));
+            this.Add(typeof(RCOL), new List<string>(new string[] { "0x015A1849", "0xD382BF57", "0x01D10F34", "0x01661233", "0x01D0E75D" , "0x02019972",}));
         }
     }
 }

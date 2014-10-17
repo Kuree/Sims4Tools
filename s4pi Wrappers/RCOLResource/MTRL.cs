@@ -32,8 +32,8 @@ namespace RCOLResource
 
         #region Attributes
         const int recommendedApiVersion = 1;
-        public uint mtnfUnknown1;
-        public ShaderDataList sdList { get; set; }
+        uint mtnfUnknown1;
+        ShaderDataList sdList;
         RCOL.RCOLChunkType type;
         private uint chunkTag;
         #endregion
@@ -62,7 +62,8 @@ namespace RCOLResource
 
         }
 
-
+        public uint MtnfUnknown1 { get { return this.mtnfUnknown1; } set { if (!this.mtnfUnknown1.Equals(value)) { OnElementChanged(); this.mtnfUnknown1 = value; } } }
+        public ShaderDataList SdList { get { return this.sdList; } set { if (!this.sdList.Equals(value)) { OnElementChanged(); this.sdList = value; } } }
         public string Value { get { return ValueBuilder; } }
 
 

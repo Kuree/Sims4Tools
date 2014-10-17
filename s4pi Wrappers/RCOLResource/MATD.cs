@@ -3,24 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using s4pi.Interfaces;
 
 namespace RCOLResource
 {
     public class MATD : RCOLChunk
     {
+        [ElementPriority(0)]
         public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MATD; } }
 
-        public MATD(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { Parse(s); }
+        public MATD(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler, s, currentTGI) { }
 
         #region Attributes
-        public uint version;
+        uint version;
         static bool checking = s4pi.Settings.Settings.Checking;
-        public uint materialNameHash { get; set; }
-        public ShaderType shaderNameHash { get; set; }
-        public int Unknown1 { get; set; }
-        public int Unknown2 { get; set; }
-        public MTRL MTRL { get; set; }
-        //public MTRL Mtrl { get; set; }
+        uint materialNameHash;
+        ShaderType shaderNameHash;
+        int unknown1;
+        int unknown2;
+        MTRL mtrl;
         #endregion
 
         #region Data I/O
@@ -36,9 +37,9 @@ namespace RCOLResource
             uint length = r.ReadUInt32();
 
 
-            this.Unknown1 = r.ReadInt32();
-            this.Unknown2 = r.ReadInt32();
-            this.MTRL = new MTRL(RecommendedApiVersion, null, s, RCOLType);
+            this.unknown1 = r.ReadInt32();
+            this.unknown2 = r.ReadInt32();
+            this.mtrl = new MTRL(RecommendedApiVersion, null, s, RCOLType);
 
         }
 
@@ -54,10 +55,10 @@ namespace RCOLResource
             w.Write(0);
 
 
-            w.Write(this.Unknown1);
-            w.Write(this.Unknown2);
+            w.Write(this.unknown1);
+            w.Write(this.unknown2);
 
-            this.MTRL.UnParse(s);
+            this.mtrl.UnParse(s);
 
 
             long position = s.Position;
@@ -69,6 +70,18 @@ namespace RCOLResource
 
         #region Content Fields
         public override string RCOLTag { get { return RCOLType.ToString(); } }
+        [ElementPriority(2)]
+        public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnElementChanged(); this.version = value; } } }
+        [ElementPriority(3)]
+        public uint MaterialNameHash { get { return this.materialNameHash; } set { if (!this.materialNameHash.Equals(value)) { OnElementChanged(); this.materialNameHash = value; } } }
+        [ElementPriority(4)]
+        public ShaderType ShaderNameHash { get { return this.shaderNameHash; } set { if (!this.shaderNameHash.Equals(value)) { OnElementChanged(); this.shaderNameHash = value; } } }
+        [ElementPriority(5)]
+        public int Unknown1 { get { return this.unknown1; } set { if (!this.unknown1.Equals(value)) { OnElementChanged(); this.unknown1 = value; } } }
+        [ElementPriority(6)]
+        public int Unknown2 { get { return this.unknown2; } set { if (!this.unknown2.Equals(value)) { OnElementChanged(); this.unknown2 = value; } } }
+        [ElementPriority(7)]
+        public MTRL MTRL { get { return this.mtrl; } set { if (!this.Equals(value)) { OnElementChanged(); this.mtrl = value; } } }
         #endregion
     }
 }

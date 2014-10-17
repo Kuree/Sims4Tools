@@ -31,12 +31,12 @@ namespace RCOLResource
         #region Attributes
         const int recommendedApiVersion = 1;
         public uint version { get; set; }
-        public uint internalPublicChunkCount { get; set; }
+        public uint internalPublicChunkCount { get; private set; }
         public uint index3 { get; set; }
-        public int externalCount { get; set; }
-        public int internalCount { get; set; }
+        public int externalCount { get { return this.externalTGIList.Count; } }
+        public int internalCount { get { return this.internalTGIList.Count; } }
         CountedTGIBlockList externalTGIList { get; set; }
-        CountedTGIBlockList internalTGIList { get; set; }
+        public CountedTGIBlockList internalTGIList { get; set; }
         #endregion
 
         #region Constructor
@@ -51,10 +51,10 @@ namespace RCOLResource
             this.version = r.ReadUInt32();
             this.internalPublicChunkCount = r.ReadUInt32();
             this.index3 = r.ReadUInt32();
-            this.externalCount = r.ReadInt32();
-            this.internalCount = r.ReadInt32();
-            this.externalTGIList = new CountedTGIBlockList(null, "ITG", this.externalCount, s);
-            this.internalTGIList = new CountedTGIBlockList(null, "ITG", this.internalCount, s);
+            int externalCount = r.ReadInt32();
+            int internalCount = r.ReadInt32();
+            this.externalTGIList = new CountedTGIBlockList(null, "ITG", externalCount, s);
+            this.internalTGIList = new CountedTGIBlockList(null, "ITG", internalCount, s);
         }
         #endregion
 
@@ -70,6 +70,10 @@ namespace RCOLResource
             this.internalTGIList.UnParse(s);
         }
 
+        protected internal void OnChunkListChanged(object sender, RCOL.RCOLListChangeEventArg e)
+        {
+
+        }
 
         #region AHandlerElement Members
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
