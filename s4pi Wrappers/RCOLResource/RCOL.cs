@@ -140,16 +140,16 @@ namespace RCOLResource
         #region Sub-Class
         public enum RCOLChunkType :uint
         {
-            GEOM = 0x4d4f4547u,
-            MODL = 0x4c444f4d,
-            MATD = 0x4454414d,
+            GEOM = 0x4D4F4547U,
+            MODL = 0x4C444F4DU,
+            MATD = 0x4454414DU,
             /// <summary>
             /// This is used only for developing.
             /// It will be removed once all the resource has been implemented
             /// </summary>
             None = 0,
-            //MLOD = FOURCC("MLOD"),
-            MTST = 0x5453544D,
+            MLOD = 0x444F4C4DU,
+            MTST = 0x5453544DU,
             //TREE = FOURCC("TREE"),
             //S_SM = FOURCC("S_SM"),
             //TkMk = FOURCC("TkMk"),

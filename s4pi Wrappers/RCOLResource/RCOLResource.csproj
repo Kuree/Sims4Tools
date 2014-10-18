@@ -42,6 +42,10 @@
   <ItemGroup>
     <Compile Include="FTPT.cs" />
     <Compile Include="MATD.cs" />
+    <Compile Include="MeshBlock\Vector2.cs" />
+    <Compile Include="MeshBlock\Vector3.cs" />
+    <Compile Include="MeshBlock\Vector4.cs" />
+    <Compile Include="MLOD.cs" />
     <Compile Include="MODL.cs" />
     <Compile Include="MTRL.cs" />
     <Compile Include="MTST.cs" />
