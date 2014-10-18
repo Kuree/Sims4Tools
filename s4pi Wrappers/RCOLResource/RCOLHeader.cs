@@ -33,8 +33,8 @@ namespace RCOLResource
         public uint version { get; set; }
         public uint internalPublicChunkCount { get; private set; }
         public uint index3 { get; set; }
-        public int externalCount { get { return this.externalTGIList.Count; } }
-        public int internalCount { get { return this.internalTGIList.Count; } }
+        public int externalCount { get; private set; }
+        public int internalCount { get; private set; }
         CountedTGIBlockList externalTGIList { get; set; }
         public CountedTGIBlockList internalTGIList { get; set; }
         #endregion
@@ -51,16 +51,16 @@ namespace RCOLResource
             this.version = r.ReadUInt32();
             this.internalPublicChunkCount = r.ReadUInt32();
             this.index3 = r.ReadUInt32();
-            int externalCount = r.ReadInt32();
-            int internalCount = r.ReadInt32();
-            this.externalTGIList = new CountedTGIBlockList(null, "ITG", externalCount, s);
-            this.internalTGIList = new CountedTGIBlockList(null, "ITG", internalCount, s);
+            this.externalCount = r.ReadInt32();
+            this.internalCount = r.ReadInt32();
+            this.externalTGIList = new CountedTGIBlockList(null, "ITG", this.externalCount, s);
+            this.internalTGIList = new CountedTGIBlockList(null, "ITG", this.internalCount, s);
         }
-        #endregion
 
-        public void UnParse(Stream s)
+        public void UnParse(IList<RCOLChunk> rcollist,  Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
+            //this.CalculateCount(rcollist);
             w.Write(this.version);
             w.Write(this.internalPublicChunkCount);
             w.Write(this.index3);
@@ -70,10 +70,38 @@ namespace RCOLResource
             this.internalTGIList.UnParse(s);
         }
 
+        private void CalculateCount(IList<RCOLChunk> chunkList)
+        {
+            int interlPublicCount = 0, internalCount = 0;
+            foreach(var chunk in chunkList)
+            {
+                switch(chunk.visibilityType)
+                {
+                    default:
+                        break;
+                    case ChunkVisibilityType.Private:
+                        internalCount += 1;
+                        interlPublicCount += 1;
+                        break;
+                    case ChunkVisibilityType.Public:
+                        internalCount += 1;
+                        break;
+                }
+            }
+
+            this.internalCount = internalCount;
+            this.internalPublicChunkCount = (uint)interlPublicCount;
+        }
+
+        #endregion
+
         protected internal void OnChunkListChanged(object sender, RCOL.RCOLListChangeEventArg e)
         {
-
+            
         }
+
+        
+
 
         #region AHandlerElement Members
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }

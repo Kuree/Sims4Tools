@@ -224,10 +224,12 @@ namespace RCOLResource
         }
         #endregion
 
+        #region IEquatable
         public bool Equals(ShaderData other)
         {
             return this.field == other.field && this.Data == other.Data && this.shaderDataType == other.shaderDataType;
         }
+        #endregion
 
 
         public string Value { get { return ValueBuilder; } }

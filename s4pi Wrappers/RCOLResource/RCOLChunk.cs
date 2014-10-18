@@ -30,12 +30,13 @@ namespace RCOLResource
     {
         
         public RCOLChunk(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-        public RCOLChunk(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); this.CurrentTGI = new TGIBlock(recommendedApiVersion, handler); }
-        public RCOLChunk(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler) { Parse(s); this.CurrentTGI = currentTGI; }
+        public RCOLChunk(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); this.CurrentTGI = new TGIBlock(recommendedApiVersion, handler); this.visibilityType = ChunkVisibilityType.External; }
+        public RCOLChunk(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler) { Parse(s); this.CurrentTGI = currentTGI; this.visibilityType = ChunkVisibilityType.External; }
 
         #region Attributes
         const int recommendedApiVersion = 1;
         private byte[] rawData;
+        protected internal ChunkVisibilityType visibilityType;
         #endregion
 
         public virtual string RCOLTag { get; private set; }
@@ -60,6 +61,7 @@ namespace RCOLResource
         }
 
         protected internal virtual void OnRCOLListChanged(object sender, RCOL.RCOLListChangeEventArg e) { }
+        protected internal virtual void UpdateChunkVisibility() { }
         #endregion
 
         #region AHandlerElement Members
@@ -69,7 +71,27 @@ namespace RCOLResource
 
         #region Content Fields
         public string Value { get { return ValueBuilder; } }
-        //public static RCOL.RCOLChunkType RCOLType =  RCOL.RCOLChunkType.None;
         #endregion
+
+        #region Events
+        public class ChunkVisibilityTypeUpdateEventArg : EventArgs
+        {
+            public int Index { get; set; }
+            public ChunkVisibilityType Type { get; set; }
+            public ChunkVisibilityTypeUpdateEventArg(int index, ChunkVisibilityType type) { this.Index = index; this.Type = type; }
+        }
+
+        public delegate void ChunkVisibilityTypeUpdateHandler(object sender, ChunkVisibilityTypeUpdateEventArg e);
+        public event ChunkVisibilityTypeUpdateHandler OnChunkVisibilityTypeUpdated;
+        protected void ChangeVisibility(int index, ChunkVisibilityType type) { OnChunkVisibilityTypeUpdated(this, new ChunkVisibilityTypeUpdateEventArg(index, type)); }
+        #endregion
+    }
+
+    public enum ChunkVisibilityType : uint
+    {
+        Public = 0x00000000U,
+        Private = 0x10000000U,
+        External = 0x20000000U,
+        Delayed = 0x30000000U
     }
 }

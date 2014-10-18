@@ -61,8 +61,9 @@ namespace RCOLResource
             this.sdList.UnParse(s, start);
 
         }
-
+        [ElementPriority(2)]
         public uint MtnfUnknown1 { get { return this.mtnfUnknown1; } set { if (!this.mtnfUnknown1.Equals(value)) { OnElementChanged(); this.mtnfUnknown1 = value; } } }
+        [ElementPriority(3)]
         public ShaderDataList SdList { get { return this.sdList; } set { if (!this.sdList.Equals(value)) { OnElementChanged(); this.sdList = value; } } }
         public string Value { get { return ValueBuilder; } }
 

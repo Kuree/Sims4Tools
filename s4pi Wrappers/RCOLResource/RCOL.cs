@@ -35,7 +35,7 @@ namespace RCOLResource
         #region Attributes
         const int recommendedApiVersion = 1;
         private RCOLHeader rcolHeader { get; set; }
-        public RCOLChunk[] rcolChunkList { get; set; } // will be improved later
+        public RCOLChunk[] rcolChunkList { get; private set; }
         #endregion
 
         #region Constructor
@@ -49,7 +49,7 @@ namespace RCOLResource
             this.rcolHeader = new RCOLHeader(RecommendedApiVersion, OnResourceChanged, s);
             this.OnChunkListChanged += this.rcolHeader.OnChunkListChanged;
             this.rcolChunkList = new RCOLChunk[this.rcolHeader.internalCount];
-            for (int i = 0; i < this.rcolChunkList.Length; i++)
+            for (int i = 0; i < this.rcolHeader.internalCount; i++)
             {
                 uint position = r.ReadUInt32();
                 int size = r.ReadInt32();
@@ -62,9 +62,13 @@ namespace RCOLResource
                 ms.Position = 0;
                 RCOLChunk chunk = (RCOLChunk)Activator.CreateInstance(rcolType, new object[] { 1, null, ms, this.rcolHeader.internalTGIList[i] });    // this part needs to be fixed
                 this.OnChunkListChanged += chunk.OnRCOLListChanged;
+                chunk.OnChunkVisibilityTypeUpdated+= this.UpdateChunkVisibilityType;
                 this.rcolChunkList[i] = chunk;
                 s.Position = tempPosition;
             }
+
+            // update visibility
+            foreach (var rcol in this.rcolChunkList) rcol.UpdateChunkVisibility();
 
         }
 
@@ -94,7 +98,8 @@ namespace RCOLResource
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
-            this.rcolHeader.UnParse(ms);
+            if (this.rcolChunkList == null) this.rcolChunkList = new RCOLChunk[0];
+            this.rcolHeader.UnParse(this.rcolChunkList, ms);
 
             long indexPosition = ms.Position;
 
@@ -161,18 +166,17 @@ namespace RCOLResource
             public IList<RCOLChunk> ParentList { get; private set; }
             public RCOLChangeType ChangeType { get; private set; }
             public RCOLChunk ChangedChunk { get; private set; }
-            public TGIBlock ChangedTGI { get; set; }
+            public int Index { get; private set; }
 
-            public RCOLListChangeEventArg(IList<RCOLChunk> chunkList, RCOLChangeType type, RCOLChunk changedChunk, TGIBlock changedTGI = null)
+            public RCOLListChangeEventArg(IList<RCOLChunk> chunkList, RCOLChangeType type, RCOLChunk changedChunk, int index)
             {
                 this.ParentList = chunkList;
                 this.ChangeType = type;
                 this.ChangedChunk = changedChunk;
-                this.ChangedTGI = changedTGI;
+                this.Index = index;
             }
-
-            
         }
+
 
         public enum RCOLChangeType
         {
@@ -181,17 +185,38 @@ namespace RCOLResource
         }
         #endregion
 
-
         #region Chunk Interface
         public delegate void ChunkListChangeHandler(object sender, RCOLListChangeEventArg e);
         public event ChunkListChangeHandler OnChunkListChanged;
 
-        public void AddChunk(RCOLChunk newChunk, TGIBlock chunkTGI)
+        public void AddChunk(RCOLChunk newChunk)
         {
             if (OnChunkListChanged == null) return;
-            RCOLListChangeEventArg e = new RCOLListChangeEventArg(this.rcolChunkList, RCOLChangeType.Add, newChunk, chunkTGI);
+            List<RCOLChunk> chunklist = new List<RCOLChunk>(this.rcolChunkList);
+            chunklist.Add(newChunk);
+            this.rcolChunkList = chunklist.ToArray();
+            RCOLListChangeEventArg e = new RCOLListChangeEventArg(this.rcolChunkList, RCOLChangeType.Add, newChunk, this.rcolChunkList.Length - 1);
             OnChunkListChanged(this, e);
         }
+
+        public void RemoveChunk(RCOLChunk chunk)
+        {
+            if (OnChunkListChanged == null) return;
+            List<RCOLChunk> chunkList = new List<RCOLChunk>(this.rcolChunkList);
+            if (!chunkList.Contains(chunk)) return;
+            int index = chunkList.IndexOf(chunk);
+            chunkList.RemoveAt(index);
+            this.rcolChunkList = chunkList.ToArray();
+            RCOLListChangeEventArg e = new RCOLListChangeEventArg(this.rcolChunkList, RCOLChangeType.Delete, chunk, index);
+            OnChunkListChanged(this, e);
+        }
+
+        public void UpdateChunkVisibilityType(object sender, RCOLChunk.ChunkVisibilityTypeUpdateEventArg e)
+        {
+            var find = this.rcolChunkList[e.Index];
+            find.visibilityType = e.Type;
+        }
+
         #endregion
     }
 

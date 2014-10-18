@@ -15,10 +15,10 @@ namespace RCOLResource
         public MTST(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler, s, currentTGI) { }
 
         #region Attributes
-        public uint version { get; set; }
-        public uint namehash { get; set; }
-        public uint defaultMaterial { get; set; }
-        public Material[] materialList { get; set; }
+        uint version;
+        uint namehash;
+        uint defaultMaterial;
+        MaterialList materialList;
         static bool checking = s4pi.Settings.Settings.Checking;
         const int recommendedApiVersion = 1;
         #endregion
@@ -33,9 +33,7 @@ namespace RCOLResource
             this.version = r.ReadUInt32();
             this.namehash = r.ReadUInt32();
             this.defaultMaterial = r.ReadUInt32();
-            uint count = r.ReadUInt32();
-            this.materialList = new Material[count];
-            for (uint i = 0; i < count; i++) this.materialList[i] = new Material(RecommendedApiVersion, handler, s);
+            this.materialList = new MaterialList(handler, s);
         }
 
         protected internal override void UnParse(Stream s)
@@ -45,8 +43,7 @@ namespace RCOLResource
             w.Write(this.version);
             w.Write(this.namehash);
             w.Write(this.defaultMaterial);
-            w.Write(this.materialList.Length);
-            foreach (var m in this.materialList) m.UnParse(s);
+            this.materialList.UnParse(s);
         }
         #endregion
 
@@ -62,14 +59,14 @@ namespace RCOLResource
             carLightsOff = 0xE4AF52C1,
         }
 
-        public class Material : AHandlerElement
+        public class Material : AHandlerElement, IEquatable<Material>
         {
             public Material(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s);}
 
             #region Attributes
-            public uint mat { get; set; }
-            public State stateID { get; set; }
-            public uint varientID { get; set; }
+            uint mat;
+            State stateID;
+            uint varientID;
             #endregion
 
             #region AHandlerElement Members
@@ -94,10 +91,58 @@ namespace RCOLResource
                 w.Write(this.varientID);
             }
             #endregion
+
+            #region IEquatable
+            public bool Equals(Material other)
+            {
+                return this.mat == other.mat && this.stateID == other.stateID && this.varientID == other.varientID;
+            }
+            #endregion
+
+            #region Content Fields
+            [ElementPriority(0)]
+            public uint Mat { get { return this.mat; } set { if (!this.mat.Equals(value)) { OnElementChanged(); this.mat = value; } } }
+            [ElementPriority(1)]
+            public State StateID { get { return this.stateID; } set { if (!this.stateID.Equals(value)) { OnElementChanged(); this.stateID = value; } } }
+            [ElementPriority(2)]
+            public uint VarientID { get { return this.varientID; } set { if (!this.varientID.Equals(value)) { OnElementChanged(); this.varientID = value; } } }
+            public string Value { get { return ValueBuilder; } }
+            #endregion
         }
+
+        public class MaterialList : DependentList<Material>
+        {
+            public MaterialList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
+            #region Data I/O
+            protected internal void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                uint count = r.ReadUInt32();
+                for (uint i = 0; i < count; i++) this.Add(new Material(1, handler, s));
+            }
+
+            protected internal void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write(this.Count);
+                foreach (var m in this) m.UnParse(s);
+            }
+            #endregion
+            protected override Material CreateElement(Stream s) { throw new NotSupportedException(); }
+            protected override void WriteElement(Stream s, Material element) { throw new NotSupportedException(); }
+        }
+
         #endregion
 
         #region Content Fields
+        [ElementPriority(2)]
+        public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnElementChanged(); this.version = value; } } }
+        [ElementPriority(3)]
+        public uint Namehash { get { return this.namehash; } set { if (!this.namehash.Equals(value)) { OnElementChanged(); this.namehash = value; } } }
+        [ElementPriority(4)]
+        public uint DefaultMaterial { get { return this.defaultMaterial; } set { if (!this.defaultMaterial.Equals(value)) { OnElementChanged(); this.defaultMaterial = value; } } }
+        [ElementPriority(5)]
+        public MaterialList Materialist { get { return this.materialList; } set { if (!this.materialList.Equals(value)) { OnElementChanged(); this.materialList = value; } } }
         public override string RCOLTag { get { return RCOLType.ToString(); } }
         #endregion
     }

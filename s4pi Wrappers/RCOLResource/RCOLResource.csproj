@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="FTPT.cs" />
     <Compile Include="MATD.cs" />
+    <Compile Include="MODL.cs" />
     <Compile Include="MTRL.cs" />
     <Compile Include="MTST.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
