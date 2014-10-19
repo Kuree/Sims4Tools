@@ -28,8 +28,7 @@ namespace RCOLResource
 {
     public class MATD : RCOLChunk
     {
-        [ElementPriority(0)]
-        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MATD; } }
+        
 
         public MATD(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler, s, currentTGI) { }
 
@@ -41,6 +40,12 @@ namespace RCOLResource
         int unknown1;
         int unknown2;
         MTRL mtrl;
+        #endregion
+
+        #region RCOLChunk
+        public override string RCOLTag { get { return "MATD"; } }
+        [ElementPriority(0)]
+        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MATD; } }
         #endregion
 
         #region Data I/O
@@ -65,7 +70,7 @@ namespace RCOLResource
         protected internal override void UnParse(Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
-            w.Write((uint)RCOLType);
+            w.Write((UInt32)(FOURCC(this.RCOLTag)));
             w.Write(this.version);
             w.Write(this.materialNameHash);
             w.Write((uint)this.shaderNameHash);
@@ -88,7 +93,6 @@ namespace RCOLResource
         #endregion
 
         #region Content Fields
-        public override string RCOLTag { get { return RCOLType.ToString(); } }
         [ElementPriority(2)]
         public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnElementChanged(); this.version = value; } } }
         [ElementPriority(3)]

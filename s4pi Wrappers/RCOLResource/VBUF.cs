@@ -28,8 +28,6 @@ namespace RCOLResource
 {
     public class VBUF : RCOLChunk
     {
-        [ElementPriority(0)]
-        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.VBUF; } }
 
         #region Attributes
         private UInt32 mVersion;
@@ -42,13 +40,27 @@ namespace RCOLResource
 
         public VBUF(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler, s, currentTGI) { }
 
+        #region RCOLChunk
+        public override string RCOLTag { get { return "VBUF"; } }
+        [ElementPriority(0)]
+        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.VBUF; } }
+
+        protected internal override void UpdateChunkVisibility()
+        {
+            ChunkVisibilityType type = (ChunkVisibilityType)(this.mSwizzleInfo & 0xF0000000U);
+            int index = (int)(this.mSwizzleInfo & 0x0FFFFFFF) - 1;
+            if (index < 0) return;
+            base.ChangeVisibility((int)index, type);
+        }
+        #endregion
+
         #region Data I/O
         protected override void Parse(Stream s)
         {
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
             uint tag = r.ReadUInt32();
-            if (tag != (uint)FOURCC(RCOLType.ToString())) throw new InvalidDataException(string.Format("Except to read 0x{0:8X}, read 0x{1:8X}", RCOLType, tag));
+            if (tag != (uint)FOURCC(RCOLTag)) throw new InvalidDataException(string.Format("Except to read 0x{0:8X}, read 0x{1:8X}", RCOLType, tag));
             mVersion = r.ReadUInt32();
             mFlags = (FormatFlags)r.ReadUInt32();
             mSwizzleInfo = r.ReadUInt32();
@@ -59,13 +71,14 @@ namespace RCOLResource
         protected internal override void UnParse(Stream s)
         {
             BinaryWriter bw = new BinaryWriter(s);
-            bw.Write((UInt32)RCOLType);
+            bw.Write((UInt32)(FOURCC(this.RCOLTag)));
             bw.Write(mVersion);
             bw.Write((UInt32)mFlags);
             bw.Write(mSwizzleInfo);
             if (mBuffer == null) mBuffer = new byte[0];
             bw.Write(mBuffer);
         }
+
         #endregion
 
         #region Sub Types

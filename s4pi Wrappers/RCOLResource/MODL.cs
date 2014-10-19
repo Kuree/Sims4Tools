@@ -28,8 +28,6 @@ namespace RCOLResource
 {
     public class MODL : RCOLChunk
     {
-        [ElementPriority(0)]
-        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MODL; } }
 
         public MODL(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler, s, currentTGI) { }
 
@@ -46,6 +44,24 @@ namespace RCOLResource
         public uint unknown3 { get; set; }
         public uint unknown4 { get; set; }
         public uint unknown5 { get; set; }
+
+        #region RCOLChunk
+        public override string RCOLTag { get { return "MODL"; } }
+        [ElementPriority(0)]
+        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MODL; } }
+
+        protected internal override void UpdateChunkVisibility()
+        {
+            foreach (var mlod in this.mlodList)
+            {
+                uint index = mlod.lodModel;
+                ChunkVisibilityType type = (ChunkVisibilityType)(index & 0xF0000000U);
+                index = (index & 0x0FFFFFFF) - 1;
+                base.ChangeVisibility((int)index, type);
+            }
+        }
+
+        #endregion
 
         #region Data I/O
         protected override void Parse(System.IO.Stream s)
@@ -74,7 +90,7 @@ namespace RCOLResource
         protected internal override void UnParse(Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
-            w.Write((uint)RCOLType);
+            w.Write((UInt32)(FOURCC(this.RCOLTag)));
             w.Write(this.version);
             w.Write(this.mlodList.Length);
             w.Write(this.minX);
@@ -91,17 +107,7 @@ namespace RCOLResource
             foreach (var mlod in this.mlodList) mlod.UnParse(s);
         }
 
-        protected internal override void UpdateChunkVisibility()
-        {
-            foreach(var mlod in this.mlodList)
-            {
-                uint index = mlod.lodModel;
-                ChunkVisibilityType type = (ChunkVisibilityType)(index & 0xF0000000U);
-                index = (index & 0x0FFFFFFF) - 1;
-                base.ChangeVisibility((int)index, type);
-            }
-        }
-
+        
         #endregion
 
         #region Sub-Types

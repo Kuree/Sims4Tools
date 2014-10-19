@@ -36,7 +36,7 @@ namespace RCOLResource
         #region Attributes
         const int recommendedApiVersion = 1;
         private byte[] rawData;
-        protected internal ChunkVisibilityType visibilityType;
+        protected internal ChunkVisibilityType visibilityType = ChunkVisibilityType.External; // default empty
         #endregion
 
         public virtual string RCOLTag { get; private set; }

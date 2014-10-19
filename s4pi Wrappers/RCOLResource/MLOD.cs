@@ -28,8 +28,6 @@ namespace RCOLResource
 {
     public class MLOD : RCOLChunk
     {
-        [ElementPriority(0)]
-        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MLOD; } }
 
         public MLOD(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler, s, currentTGI) { }
 
@@ -39,6 +37,33 @@ namespace RCOLResource
 
         static bool checking = s4pi.Settings.Settings.Checking;
         const int recommendedApiVersion = 1;
+        #endregion
+
+        #region RCOLChunk
+        [ElementPriority(0)]
+        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MLOD; } }
+        public override string RCOLTag { get { return "MLOD"; } }
+
+        protected internal override void UpdateChunkVisibility()
+        {
+            foreach (Mesh mesh in this.meshes)
+            {
+                updateChunkVisibility(mesh.materialIndex);
+                updateChunkVisibility(mesh.vertexFormatIndex);
+                updateChunkVisibility(mesh.vertexBufferIndex);
+                updateChunkVisibility(mesh.indexBufferIndex);
+                updateChunkVisibility(mesh.skinControllerIndex);
+                updateChunkVisibility(mesh.scaleOffsetIndex);
+            }
+        }
+
+        private void updateChunkVisibility(uint rawIndex)
+        {
+            ChunkVisibilityType type = (ChunkVisibilityType)(rawIndex & 0xF0000000U);
+            int index = (int)(rawIndex & 0x0FFFFFFF) - 1;
+            if (index < 0) return;
+            base.ChangeVisibility((int)index, type);
+        }
         #endregion
 
         #region Data I/O
@@ -57,11 +82,12 @@ namespace RCOLResource
         protected internal override void UnParse(Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
-            w.Write((uint)RCOLType);
+            w.Write((UInt32)(FOURCC(this.RCOLTag)));
             w.Write(this.version);
             w.Write(this.meshes.Length);
             foreach (var mesh in this.meshes) mesh.UnParse(s);
         }
+
         #endregion
 
         #region Sub Types

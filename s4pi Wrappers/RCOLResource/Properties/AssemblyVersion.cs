@@ -1,4 +1,4 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-[assembly: AssemblyVersion("1410.19.1452.*")]
+[assembly: AssemblyVersion("1410.19.2008.*")]

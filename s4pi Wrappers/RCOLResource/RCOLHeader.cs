@@ -60,7 +60,7 @@ namespace RCOLResource
         public void UnParse(IList<RCOLChunk> rcollist,  Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
-            //this.CalculateCount(rcollist);
+            this.CalculateCount(rcollist);
             w.Write(this.version);
             w.Write(this.internalPublicChunkCount);
             w.Write(this.index3);
@@ -72,7 +72,7 @@ namespace RCOLResource
 
         private void CalculateCount(IList<RCOLChunk> chunkList)
         {
-            int interlPublicCount = 0, internalCount = 0;
+            int internalPublicCount = 1, internalCount = internalPublicCount, externalCount = 0;
             foreach(var chunk in chunkList)
             {
                 switch(chunk.visibilityType)
@@ -81,16 +81,20 @@ namespace RCOLResource
                         break;
                     case ChunkVisibilityType.Private:
                         internalCount += 1;
-                        interlPublicCount += 1;
                         break;
                     case ChunkVisibilityType.Public:
+                        internalPublicCount += 1;
                         internalCount += 1;
+                        break;
+                    case ChunkVisibilityType.Delayed:
+                        externalCount += 1;
                         break;
                 }
             }
 
             this.internalCount = internalCount;
-            this.internalPublicChunkCount = (uint)interlPublicCount;
+            this.internalPublicChunkCount = (uint)internalPublicCount;
+            this.externalCount = externalCount;
         }
 
         #endregion

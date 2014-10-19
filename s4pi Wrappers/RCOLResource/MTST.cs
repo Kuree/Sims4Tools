@@ -28,8 +28,6 @@ namespace RCOLResource
 {
     public class MTST : RCOLChunk
     {
-        [ElementPriority(0)]
-        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MTST; } }
 
         public MTST(int APIversion, EventHandler handler, Stream s, TGIBlock currentTGI) : base(APIversion, handler, s, currentTGI) { }
 
@@ -40,6 +38,12 @@ namespace RCOLResource
         MaterialList materialList;
         static bool checking = s4pi.Settings.Settings.Checking;
         const int recommendedApiVersion = 1;
+        #endregion
+
+        #region RCOLChunk
+        public override string RCOLTag { get { return "MTST"; } }
+        [ElementPriority(0)]
+        public static RCOL.RCOLChunkType RCOLType { get { return RCOL.RCOLChunkType.MTST; } }
         #endregion
 
         #region Data I/O
@@ -58,7 +62,7 @@ namespace RCOLResource
         protected internal override void UnParse(Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
-            w.Write((uint)RCOLType);
+            w.Write((UInt32)(FOURCC(this.RCOLTag)));
             w.Write(this.version);
             w.Write(this.namehash);
             w.Write(this.defaultMaterial);
@@ -162,7 +166,6 @@ namespace RCOLResource
         public uint DefaultMaterial { get { return this.defaultMaterial; } set { if (!this.defaultMaterial.Equals(value)) { OnElementChanged(); this.defaultMaterial = value; } } }
         [ElementPriority(5)]
         public MaterialList Materialist { get { return this.materialList; } set { if (!this.materialList.Equals(value)) { OnElementChanged(); this.materialList = value; } } }
-        public override string RCOLTag { get { return RCOLType.ToString(); } }
         #endregion
     }
 }
