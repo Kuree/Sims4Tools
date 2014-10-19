@@ -56,10 +56,7 @@ namespace RCOLResource
                 long tempPosition = s.Position;
                 s.Position = position;
                 MemoryStream ms = new MemoryStream(r.ReadBytes(size));
-                BinaryReader headerReader = new BinaryReader(ms);
-                uint fourcc = headerReader.ReadUInt32();
-                Type rcolType = GetRCOLChunk(fourcc);
-                ms.Position = 0;
+                Type rcolType = GetRCOLChunk(this.rcolHeader.internalTGIList[i].ResourceType);
                 RCOLChunk chunk = (RCOLChunk)Activator.CreateInstance(rcolType, new object[] { 1, null, ms, this.rcolHeader.internalTGIList[i] });    // this part needs to be fixed
                 this.OnChunkListChanged += chunk.OnRCOLListChanged;
                 chunk.OnChunkVisibilityTypeUpdated+= this.UpdateChunkVisibilityType;
@@ -72,9 +69,9 @@ namespace RCOLResource
 
         }
 
-        private static Type GetRCOLChunk(uint fourcc)
+        private static Type GetRCOLChunk(uint resourceType)
         {
-            if (!Enum.IsDefined(typeof(RCOLChunkType), fourcc))
+            if (!Enum.IsDefined(typeof(RCOLChunkType), resourceType))
             {
                 return typeof(RCOLChunk);
             }
@@ -84,7 +81,8 @@ namespace RCOLResource
                 {
                     if (t.IsSubclassOf(typeof(RCOLChunk)))
                     {
-                        if ((uint)(t.GetProperty("RCOLType").GetValue(null, null)) == fourcc)
+                        var o = Convert.ChangeType(t.GetProperty("RCOLType").GetValue(null, null), typeof(RCOLChunkType));
+                        if (o != null && (RCOLChunkType)o == (RCOLChunkType)resourceType)
                         {
                             return t;
                         }
@@ -138,18 +136,18 @@ namespace RCOLResource
         #endregion
 
         #region Sub-Class
-        public enum RCOLChunkType :uint
+        public enum RCOLChunkType : uint
         {
-            GEOM = 0x4D4F4547U,
-            MODL = 0x4C444F4DU,
-            MATD = 0x4454414DU,
+            GEOM = 0x015A1849U,
+            MODL = 0x01661233U,
+            MATD = 0x01D0E75DU,
             /// <summary>
             /// This is used only for developing.
             /// It will be removed once all the resource has been implemented
             /// </summary>
             None = 0,
-            MLOD = 0x444F4C4DU,
-            MTST = 0x5453544DU,
+            MLOD = 0x01D10F34U,
+            MTST = 0x02019972U,
             //TREE = FOURCC("TREE"),
             //S_SM = FOURCC("S_SM"),
             //TkMk = FOURCC("TkMk"),
@@ -158,7 +156,9 @@ namespace RCOLResource
             //ANIM = FOURCC("ANIM"),
             //VPXY = FOURCC("VPXY"),
             //RSLT = FOURCC("RSLT"),
-            FTPT = 0x54505446U
+            VBUF = 0x01D0E6FBU,
+            VBUF2 = 0x0229684BU,
+            FTPT = 0xD382BF57U
         }
 
         public class RCOLListChangeEventArg : EventArgs

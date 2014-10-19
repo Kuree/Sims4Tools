@@ -48,7 +48,7 @@ namespace RCOLResource
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
             uint tag = r.ReadUInt32();
-            if (tag != (uint)RCOLType) throw new InvalidDataException(string.Format("Except to read 0x{0:8X}, read 0x{1:8X}", RCOLType, tag));
+            if (tag != (uint)FOURCC(RCOLType.ToString())) throw new InvalidDataException(string.Format("Except to read 0x{0:8X}, read 0x{1:8X}", RCOLType, tag));
             this.version = r.ReadUInt32();
             this.namehash = r.ReadUInt32();
             this.defaultMaterial = r.ReadUInt32();

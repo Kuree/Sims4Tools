@@ -54,6 +54,7 @@
     <Compile Include="RCOLChunk.cs" />
     <Compile Include="RCOLHeader.cs" />
     <Compile Include="ShaderData.cs" />
+    <Compile Include="VBUF.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">

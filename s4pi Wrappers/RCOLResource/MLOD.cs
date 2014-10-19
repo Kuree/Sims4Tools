@@ -47,7 +47,7 @@ namespace RCOLResource
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
             uint tag = r.ReadUInt32();
-            if (tag != (uint)RCOLType) throw new InvalidDataException(string.Format("Except to read 0x{0:8X}, read 0x{1:8X}", RCOLType, tag));
+            if (tag != (uint)FOURCC(RCOLType.ToString())) throw new InvalidDataException(string.Format("Except to read 0x{0:8X}, read 0x{1:8X}", RCOLType, tag));
             this.version = r.ReadUInt32();
             uint count = r.ReadUInt32();
             this.meshes = new Mesh[count];
@@ -87,7 +87,7 @@ namespace RCOLResource
             public uint scaleOffsetIndex { get; set; }
             public UIntList jointReferences { get; set; }
             public BoundingBox bounds { get; set; }
-            public GeometryState[] geometryStates { get; set; }
+            public GeometryStateList geometryStates { get; set; }
             public UInt32 parentName { get; set; }
             public Vector4 mirrorPlane { get; set; }
             public UInt32 unknown1 { get; set; }
@@ -116,9 +116,7 @@ namespace RCOLResource
                 this.skinControllerIndex = r.ReadUInt32();
                 this.jointReferences = new UIntList(handler, s);
                 this.scaleOffsetIndex = r.ReadUInt32();
-                uint count = r.ReadUInt32();
-                this.geometryStates = new GeometryState[count];
-                for (uint i = 0; i < count; i++) this.geometryStates[i] = new GeometryState(recommendedApiVersion, handler, s);
+                this.geometryStates = new GeometryStateList(handler, s);
                 this.parentName = r.ReadUInt32();
                 this.mirrorPlane = new Vector4(recommendedApiVersion, handler, s);
                 this.unknown1 = r.ReadUInt32();
@@ -148,8 +146,7 @@ namespace RCOLResource
                 w.Write(this.skinControllerIndex);
                 this.jointReferences.UnParse(s);
                 w.Write(this.scaleOffsetIndex);
-                w.Write(this.geometryStates.Length);
-                foreach (var state in this.geometryStates) state.UnParse(s);
+                this.geometryStates.UnParse(s);
                 w.Write(this.parentName);
                 this.mirrorPlane.UnParse(s);
                 w.Write(this.unknown1);
@@ -272,6 +269,30 @@ namespace RCOLResource
 
                 public string Value { get { return ValueBuilder; } }
             }
+
+            public class GeometryStateList : DependentList<GeometryState>
+            {
+                public GeometryStateList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
+
+                #region Data I/O
+                protected internal void Parse(Stream s)
+                {
+                    BinaryReader r = new BinaryReader(s);
+                    uint count = r.ReadUInt32();
+                    for (uint i = 0; i < count; i++) this.Add(new GeometryState(1, handler, s));
+                }
+
+                protected internal void UnParse(Stream s)
+                {
+                    BinaryWriter w = new BinaryWriter(s);
+                    w.Write(this.Count);
+                    foreach (var g in this) g.UnParse(s);
+                }
+                #endregion
+
+                protected override GeometryState CreateElement(Stream s) { throw new NotSupportedException(); }
+                protected override void WriteElement(Stream s, GeometryState element) { throw new NotSupportedException(); }
+            }
             #endregion
 
 
@@ -314,5 +335,6 @@ namespace RCOLResource
         #endregion
 
         public string Value { get { return ValueBuilder; } }
+        public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnElementChanged(); this.version = value; } } }
     }
 }
