@@ -60,12 +60,11 @@ namespace RCOLResource
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
             uint tag = r.ReadUInt32();
-            if (tag != (uint)FOURCC(RCOLTag)) throw new InvalidDataException(string.Format("Except to read 0x{0:8X}, read 0x{1:8X}", RCOLType, tag));
+            if (tag != (uint)FOURCC(RCOLType.ToString())) throw new InvalidDataException(string.Format("Except to read {0}, read {1}", RCOLType, FOURCC(tag)));
             mVersion = r.ReadUInt32();
             mFlags = (FormatFlags)r.ReadUInt32();
             mSwizzleInfo = r.ReadUInt32();
-            mBuffer = new Byte[s.Length - s.Position];
-            s.Read(mBuffer, 0, mBuffer.Length);
+            mBuffer = r.ReadBytes((int)(s.Length - s.Position + 1));
         }
 
         protected internal override void UnParse(Stream s)
