@@ -36,7 +36,6 @@ namespace s4pi.GenericRCOLResource
         MTRL mtrl = null;// < 0x00000103
         bool isVideoSurface;// >= 0x00000103
         bool isPaintingSurface;// >= 0x00000103
-        MTNF mtnf = null;// >= 0x00000103
         #endregion
 
         #region Constructors
@@ -58,9 +57,9 @@ namespace s4pi.GenericRCOLResource
             {
                 this.isVideoSurface = basis.isVideoSurface;
                 this.isPaintingSurface = basis.isPaintingSurface;
-                this.mtnf = basis.mtnf != null
-                    ? new MTNF(requestedApiVersion, OnRCOLChanged, basis.mtnf)
-                    : new MTNF(requestedApiVersion, OnRCOLChanged);
+                this.mtrl = basis.mtrl != null
+                    ? new MTRL(requestedApiVersion, OnRCOLChanged, basis.mtrl)
+                    : new MTRL(requestedApiVersion, OnRCOLChanged);
             }
         }
 
@@ -89,9 +88,9 @@ namespace s4pi.GenericRCOLResource
                     throw new ArgumentException("version must be >= 0x0103 for MTNFs");
             this.isVideoSurface = isVideoSurface;
             this.isPaintingSurface = isPaintingSurface;
-            this.mtnf = mtnf != null
-                ? new MTNF(requestedApiVersion, OnRCOLChanged, mtnf)
-                : new MTNF(requestedApiVersion, OnRCOLChanged);
+            this.mtrl = mtrl != null
+                ? new MTRL(requestedApiVersion, OnRCOLChanged, mtrl)
+                : new MTRL(requestedApiVersion, OnRCOLChanged);
         }
         #endregion
 
@@ -123,7 +122,7 @@ namespace s4pi.GenericRCOLResource
                 isVideoSurface = r.ReadInt32() != 0;
                 isPaintingSurface = r.ReadInt32() != 0;
                 start = s.Position;
-                mtnf = new MTNF(requestedApiVersion, OnRCOLChanged, s);
+                mtrl = new MTRL(requestedApiVersion, OnRCOLChanged, s);
             }
 
             if (checking) if (start + length != s.Position)
@@ -153,8 +152,8 @@ namespace s4pi.GenericRCOLResource
                 w.Write(isVideoSurface ? 1 : 0);
                 w.Write(isPaintingSurface ? 1 : 0);
                 pos = ms.Position;
-                if (mtnf == null) mtnf = new MTNF(requestedApiVersion, OnRCOLChanged);
-                mtnf.UnParse(ms);
+                if (mtrl == null) mtrl = new MTRL(requestedApiVersion, OnRCOLChanged);
+                mtrl.UnParse(ms);
             }
 
             long endPos = ms.Position;
@@ -174,11 +173,6 @@ namespace s4pi.GenericRCOLResource
                 {
                     res.Remove("IsVideoSurface");
                     res.Remove("IsPaintingSurface");
-                    res.Remove("Mtnf");
-                }
-                else
-                {
-                    res.Remove("Mtrl");
                 }
                 return res;
             }
@@ -307,8 +301,8 @@ namespace s4pi.GenericRCOLResource
         [ElementPriority(14)]
         public MTRL Mtrl
         {
-            get { if (version >= 0x00000103) throw new InvalidOperationException(); return mtrl; }
-            set { if (version >= 0x00000103) throw new InvalidOperationException(); if (mtrl != value) { mtrl = new MTRL(requestedApiVersion, handler, mtrl); OnRCOLChanged(this, EventArgs.Empty); } }
+            get { return mtrl; }
+            set {  if (mtrl != value) { mtrl = new MTRL(requestedApiVersion, handler, mtrl); OnRCOLChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(15)]
         public bool IsVideoSurface
@@ -321,12 +315,6 @@ namespace s4pi.GenericRCOLResource
         {
             get { if (version < 0x00000103) throw new InvalidOperationException(); return isPaintingSurface; }
             set { if (version < 0x00000103) throw new InvalidOperationException(); if (isPaintingSurface != value) { isPaintingSurface = value; OnRCOLChanged(this, EventArgs.Empty); } }
-        }
-        [ElementPriority(17)]
-        public MTNF Mtnf
-        {
-            get { if (version < 0x00000103) throw new InvalidOperationException(); return mtnf; }
-            set { if (version < 0x00000103) throw new InvalidOperationException(); if (mtnf != value) { mtnf = new MTNF(requestedApiVersion, handler, mtnf) { RCOLTag = "MATD", }; OnRCOLChanged(this, EventArgs.Empty); } }
         }
 
         public string Value { get { return ValueBuilder; } }
