@@ -12,30 +12,31 @@ namespace CatalogResource.TS4
         #region Attributes
         private byte matdLabel;
         private TGIBlock matdTGI;
+        private bool hasLabel;
         const int recommendedApiVersion = 1;
         #endregion
-        public MATDEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+        public MATDEntry(int APIversion, EventHandler handler, Stream s, bool hasLabel = true) : base(APIversion, handler) { this.hasLabel = hasLabel; Parse(s, hasLabel); }
 
 
         #region Data I/O
-        private void Parse(Stream s)
+        private void Parse(Stream s, bool hasLabel = true)
         {
             BinaryReader r = new BinaryReader(s);
-            this.matdLabel = r.ReadByte();
+            if (hasLabel) this.matdLabel = r.ReadByte();
             this.matdTGI = new TGIBlock(recommendedApiVersion, handler, "ITG", s);
         }
 
         protected internal void UnParse(Stream s)
         {
             BinaryWriter w = new BinaryWriter(s);
-            w.Write(this.matdLabel);
+            if(this.hasLabel) w.Write(this.matdLabel);
             this.matdTGI.UnParse(s);
         }
         #endregion
 
         #region AHandlerElement Members
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); if (!this.hasLabel) { res.Remove("MATDLabel"); } return res; } }
         #endregion
 
         #region IEquatable
@@ -55,20 +56,26 @@ namespace CatalogResource.TS4
 
     public class MATDList : DependentList<MATDEntry>
     {
+        private bool hasLabel;
         #region Constructors
-        public MATDList(EventHandler handler) : base(handler) { }
-        public MATDList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
+        public MATDList(EventHandler handler, bool hasLabel = true) : base(handler) { this.hasLabel = hasLabel; }
+        public MATDList(EventHandler handler, Stream s, bool hasLabel = true) : base(handler) { this.hasLabel = hasLabel; Parse(s, hasLabel); }
         #endregion
 
 
         #region Data I/O
         protected override void Parse(Stream s)
         {
+            this.Parse(s, true);
+        }
+
+        protected void Parse(Stream s, bool hasLabel)
+        {
             BinaryReader r = new BinaryReader(s);
             var count = r.ReadInt32();
             for (int i = 0; i < count; i++)
             {
-                base.Add(new MATDEntry(1, handler, s));
+                base.Add(new MATDEntry(1, handler, s, hasLabel));
             }
         }
 
@@ -82,7 +89,7 @@ namespace CatalogResource.TS4
             }
         }
 
-        protected override MATDEntry CreateElement(Stream s) { return new MATDEntry(1, handler, s); }
+        protected override MATDEntry CreateElement(Stream s) { return new MATDEntry(1, handler, s, hasLabel); }
         protected override void WriteElement(Stream s, MATDEntry element) { element.UnParse(s); }
         #endregion
     }

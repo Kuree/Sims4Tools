@@ -9,7 +9,6 @@ namespace CatalogResource.TS4
 {
     public class WallCatalogResource : ObjectCatalogResource
     {
-        private uint version;
         private MATDList matdList;
         private ThumbnailList thumList;
         private uint unknown1;
@@ -21,7 +20,6 @@ namespace CatalogResource.TS4
         protected override void Parse(Stream s)
         {
             BinaryReader r = new BinaryReader(s);
-            this.version = r.ReadUInt32();
             base.Parse(s);
             this.matdList = new MATDList(OnResourceChanged, s);
             this.thumList = new ThumbnailList(OnResourceChanged, s);
@@ -34,16 +32,16 @@ namespace CatalogResource.TS4
         {
             var s =  base.UnParse();
             BinaryWriter w = new BinaryWriter(s);
-            w.Write(this.version);
+            if (this.matdList == null) this.matdList = new MATDList(OnResourceChanged);
             matdList.UnParse(s);
+            if (this.thumList == null) this.thumList = new ThumbnailList(OnResourceChanged);
             this.thumList.UnParse(s);
             w.Write(this.unknown1);
+            if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);
             w.Write(this.catalogGroupID);
             return s;
         }
-        [ElementPriority(14)]
-        public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.version = value; } } }
         [ElementPriority(15)]
         public MATDList MatdList { get { return this.matdList; } set { if (!this.matdList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.matdList = value; } } }
         [ElementPriority(16)]

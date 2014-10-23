@@ -30,6 +30,7 @@ namespace CatalogResource.TS4
     public class ObjectCatalogResource : AResource
     {
         const int recommendedApiVersion = 1;
+        private uint version;
         private uint catalogVersion; // 0x00000009
         private uint catalogNameHash;
         private uint catalogDescHash;
@@ -54,6 +55,7 @@ namespace CatalogResource.TS4
         protected virtual void Parse(Stream s)
         {
             BinaryReader r = new BinaryReader(s);
+            this.version = r.ReadUInt32();
             this.catalogVersion = r.ReadUInt32();
             this.catalogNameHash = r.ReadUInt32();
             this.catalogDescHash = r.ReadUInt32();
@@ -82,6 +84,7 @@ namespace CatalogResource.TS4
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
+            w.Write(this.version);
             w.Write(this.catalogVersion);
             w.Write(this.catalogNameHash);
             w.Write(this.catalogDescHash);
@@ -98,6 +101,7 @@ namespace CatalogResource.TS4
             w.Write(this.catalogTagList.Count);
             foreach (var i in this.catalogTagList) w.Write(i);
             if (this.catalogSellingPointList == null) this.catalogSellingPointList = new SellingPointList(OnResourceChanged);
+            this.catalogSellingPointList.UnParse(ms);
             w.Write(this.catalogUnknown5);
             w.Write(this.catalogUnknown6);
             w.Write(this.catalogUnknown7);
@@ -191,34 +195,35 @@ namespace CatalogResource.TS4
         #region Content Fields
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
         public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-
         [ElementPriority(0)]
-        public uint CatalogVersion { get { return this.catalogVersion; } set { if (!this.catalogVersion.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogVersion = value; } } }
+        public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.version = value; } } }
         [ElementPriority(1)]
-        public uint CatalogNameHash { get { return this.catalogNameHash; } set { if (!this.catalogNameHash.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogNameHash = value; } } }
+        public uint CatalogVersion { get { return this.catalogVersion; } set { if (!this.catalogVersion.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogVersion = value; } } }
         [ElementPriority(2)]
-        public uint CatalogDescHash { get { return this.catalogDescHash; } set { if (!this.catalogDescHash.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogDescHash = value; } } }
+        public uint CatalogNameHash { get { return this.catalogNameHash; } set { if (!this.catalogNameHash.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogNameHash = value; } } }
         [ElementPriority(3)]
-        public uint CatalogPrice { get { return this.catalogPrice; } set { if (!this.catalogPrice.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogPrice = value; } } }
+        public uint CatalogDescHash { get { return this.catalogDescHash; } set { if (!this.catalogDescHash.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogDescHash = value; } } }
         [ElementPriority(4)]
-        public uint CatalogUnknown1 { get { return this.catalogUnknown1; } set { if (!this.catalogUnknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown1 = value; } } }
+        public uint CatalogPrice { get { return this.catalogPrice; } set { if (!this.catalogPrice.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogPrice = value; } } }
         [ElementPriority(5)]
-        public uint CatalogUnknown2 { get { return this.catalogUnknown2; } set { if (!this.catalogUnknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown2 = value; } } }
+        public uint CatalogUnknown1 { get { return this.catalogUnknown1; } set { if (!this.catalogUnknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown1 = value; } } }
         [ElementPriority(6)]
-        public uint CatalogUnknown3 { get { return this.catalogUnknown3; } set { if (!this.catalogUnknown3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown3 = value; } } }
+        public uint CatalogUnknown2 { get { return this.catalogUnknown2; } set { if (!this.catalogUnknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown2 = value; } } }
         [ElementPriority(7)]
-        public CountedTGIBlockList CatalogStyleTGIList { get { return this.catalogStyleTGIList; } set { if (!this.catalogStyleTGIList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogStyleTGIList = value; } } }
+        public uint CatalogUnknown3 { get { return this.catalogUnknown3; } set { if (!this.catalogUnknown3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown3 = value; } } }
         [ElementPriority(8)]
-        public ushort CatalogUnknown4 { get { return this.catalogUnknown4; } set { if (!this.catalogUnknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown4 = value; } } }
+        public CountedTGIBlockList CatalogStyleTGIList { get { return this.catalogStyleTGIList; } set { if (!this.catalogStyleTGIList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogStyleTGIList = value; } } }
         [ElementPriority(9)]
-        public SimpleList<ushort> CatalogTagList { get { return this.catalogTagList; } set { if (!this.catalogTagList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogTagList = value; } } }
+        public ushort CatalogUnknown4 { get { return this.catalogUnknown4; } set { if (!this.catalogUnknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown4 = value; } } }
         [ElementPriority(10)]
-        public SellingPointList CatalogSellingPointsList { get { return this.catalogSellingPointList; } set { if (!this.catalogSellingPointList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogSellingPointList = value; } } }
+        public SimpleList<ushort> CatalogTagList { get { return this.catalogTagList; } set { if (!this.catalogTagList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogTagList = value; } } }
         [ElementPriority(11)]
-        public ulong CatalogUnknown5 { get { return this.catalogUnknown5; } set { if (!this.catalogUnknown5.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown5 = value; } } }
+        public SellingPointList CatalogSellingPointsList { get { return this.catalogSellingPointList; } set { if (!this.catalogSellingPointList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogSellingPointList = value; } } }
         [ElementPriority(12)]
-        public ushort CatalogUnknown6 { get { return this.catalogUnknown6; } set { if (!this.catalogUnknown6.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown6 = value; } } }
+        public ulong CatalogUnknown5 { get { return this.catalogUnknown5; } set { if (!this.catalogUnknown5.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown5 = value; } } }
         [ElementPriority(13)]
+        public ushort CatalogUnknown6 { get { return this.catalogUnknown6; } set { if (!this.catalogUnknown6.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown6 = value; } } }
+        [ElementPriority(14)]
         public ulong CatalogUnknown7 { get { return this.catalogUnknown7; } set { if (!this.catalogUnknown7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown7 = value; } } }
         public string Value { get { return ValueBuilder; } }
         #endregion
@@ -232,6 +237,7 @@ namespace CatalogResource.TS4
             if (s4pi.Settings.Settings.IsTS4)
             {
                 this.Add(typeof(WallCatalogResource), new List<string>(new string[] { "0xD5F0F921", }));
+                this.Add(typeof(FloorCatalogResource), new List<string>(new string[] { "0xB4F762C9", }));
             }
         }
     }
