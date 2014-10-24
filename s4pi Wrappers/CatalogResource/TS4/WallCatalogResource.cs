@@ -94,6 +94,8 @@ namespace CatalogResource.TS4
                 return res;
             }
         }
+
+        protected override object GroupingID { get { return this.CatalogGroupID; } set { this.CatalogGroupID = (ulong)value; } }
         #endregion
     }
 }

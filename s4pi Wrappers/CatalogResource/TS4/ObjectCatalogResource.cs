@@ -231,20 +231,28 @@ namespace CatalogResource.TS4
         public string Value { get { return ValueBuilder; } }
 
         public virtual TGIBlock[] NestedTGIBlockList { get { return null; } }
+        protected virtual object GroupingID { get; set; }
         #endregion
 
         #region Clone
 
-        public ObjectCatalogResource Clone(string hashsalt, bool renumber = true)
+        public ObjectCatalogResource Clone(string hashsalt, bool renumber = true, bool isStandAlone = true)
         {
             ObjectCatalogResource result = this.Clone();
             if (!renumber) return result;
             // currently clone code is only valid for numbers and TGI blocks
-            foreach (var fieldName in this.RenumberingFields)
+            ChangePropertyFromString(result, this.RenumberingFields, hashsalt);
+            if (isStandAlone) ChangePropertyFromString(result, new string[] { "GroupingID" }, hashsalt);
+            return result;
+        }
+
+        private void ChangePropertyFromString(object result, IList<string> filedNames, string hashsalt)
+        {
+            foreach (var fieldName in filedNames)
             {
                 var prop = result.GetType().GetProperty(fieldName);
                 if (prop == null) continue;
-                var value = prop.GetValue(this, null);
+                var value = prop.GetValue(result, null);
                 if (value == null) continue;
                 if (value.GetType() == typeof(int) || value.GetType() == typeof(Int32))
                 {
@@ -296,10 +304,9 @@ namespace CatalogResource.TS4
                     SetProperty(result, fieldName, v);
                 }
             }
-            return result;
         }
 
-        private void SetProperty(ObjectCatalogResource cat, string fieldName, object newValue)
+        private void SetProperty(object cat, string fieldName, object newValue)
         {
             cat.GetType().GetProperty(fieldName).SetValue(this, newValue, null);
         }
