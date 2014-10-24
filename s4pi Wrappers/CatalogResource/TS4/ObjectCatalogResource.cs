@@ -24,6 +24,9 @@ using System.Linq;
 using System.Text;
 using s4pi.Interfaces;
 using System.IO;
+using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
 
 namespace CatalogResource.TS4
 {
@@ -194,7 +197,7 @@ namespace CatalogResource.TS4
 
         #region Content Fields
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); res.Remove("NestedTGIBlockList"); res.Remove("RenumberingFields"); return res; } }
         [ElementPriority(0)]
         public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.version = value; } } }
         [ElementPriority(1)]
@@ -226,6 +229,80 @@ namespace CatalogResource.TS4
         [ElementPriority(14)]
         public ulong CatalogUnknown7 { get { return this.catalogUnknown7; } set { if (!this.catalogUnknown7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown7 = value; } } }
         public string Value { get { return ValueBuilder; } }
+
+        public virtual TGIBlock[] NestedTGIBlockList { get { return null; } }
+        #endregion
+
+        #region Clone
+
+        public ObjectCatalogResource Clone(string hashsalt, bool renumber = true)
+        {
+            ObjectCatalogResource result = this.Clone();
+            if (!renumber) return result;
+            // currently clone code is only valid for numbers and TGI blocks
+            foreach(var fieldName in this.RenumberingFields)
+            {
+                var value = result.GetType().GetProperty(fieldName).GetValue(this, null);
+                if(value.GetType() == typeof(int) || value.GetType() == typeof(Int32))
+                {
+                    int v = (int)value;
+                    int newValue = v ^ (int)FNV32.GetHash(hashsalt);
+                    SetProperty(result, fieldName, newValue);
+                }
+                else if(value.GetType() == typeof(uint) || value.GetType() == typeof(UInt32))
+                {
+                    uint v = (uint)value;
+                    uint newValue = v ^ FNV32.GetHash(hashsalt);
+                    SetProperty(result, fieldName, newValue);
+                }
+                else if(value.GetType() == typeof(short) || value.GetType() == typeof(Int16))
+                {
+                    short v = (short)value;
+                    short newValue = Convert.ToInt16((uint)v ^ FNV32.GetHash(hashsalt));
+                    SetProperty(result, fieldName, newValue);
+                }
+                else if(value.GetType() == typeof(ushort) || value.GetType() == typeof(UInt16))
+                {
+                    ushort v = (ushort)value;
+                    ushort newValue = Convert.ToUInt16((uint)v ^ FNV32.GetHash(hashsalt));
+                    SetProperty(result, fieldName, newValue);
+                }
+                else if(value.GetType() == typeof(byte) || value.GetType() == typeof(Byte))
+                {
+                    byte v = (byte)value;
+                    byte newValue = Convert.ToByte((uint)v ^ FNV32.GetHash(hashsalt));
+                    SetProperty(result, fieldName, newValue);
+                }
+                else if(value.GetType() == typeof(TGIBlock))
+                {
+                    TGIBlock v = value as TGIBlock;
+                    if (v != null)
+                    {
+                        v.Instance ^= FNV64.GetHash(hashsalt);
+                    }
+                    SetProperty(result, fieldName, v);
+                }
+                else if(value.GetType() == typeof(TGIBlock[]))
+                {
+                    TGIBlock[] v = value as TGIBlock[];
+                    if (v != null)
+                    {
+                        foreach(var tgi in v)
+                            tgi.Instance ^= FNV64.GetHash(hashsalt);
+                    }
+                    SetProperty(result, fieldName, v);
+                }
+            }
+            return result;
+        }
+
+        private void SetProperty(ObjectCatalogResource cat, string fieldName, object newValue)
+        {
+            cat.GetType().GetProperty(fieldName).SetValue(this, newValue, null);
+        }
+
+
+        virtual internal List<string> RenumberingFields { get { return new List<string>() { "CatalogNameHash", "CatalogDescHash" }; } }
         #endregion
     }
 
@@ -241,4 +318,21 @@ namespace CatalogResource.TS4
             }
         }
     }
+
+    #region Deep Clone Code
+    internal static class Extension
+    {
+        public static T Clone<T>(this T objectToCopy)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
+                binaryFormatter.Serialize(memoryStream, objectToCopy);
+                memoryStream.Position = 0;
+                T returnValue = (T)binaryFormatter.Deserialize(memoryStream);
+                return returnValue;
+            }
+        }
+    }
+    #endregion
 }

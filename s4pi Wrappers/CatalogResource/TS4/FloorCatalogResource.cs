@@ -1,4 +1,24 @@
-﻿using System;
+﻿/***************************************************************************
+ *  Copyright (C) 2014 by Keyi Zhang                                       *
+ *  kz005@bucknell.edu                                                     *
+ *                                                                         *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation, either version 3 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  s3pi is distributed in the hope that it will be useful,                *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *  You should have received a copy of the GNU General Public License      *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ ***************************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +29,7 @@ namespace CatalogResource.TS4
 {
     public class FloorCatalogResource : ObjectCatalogResource
     {
+        #region Attributes
         private uint unknown1;
         private uint unknown2;
         private uint unknown3;
@@ -17,9 +38,11 @@ namespace CatalogResource.TS4
         private SwatchColorList colorList;
         private uint unknown5;
         private ulong catalogGroupID;
+        #endregion
 
         public FloorCatalogResource(int APIversion, Stream s) : base(APIversion, s) { }
 
+        #region Data I/O
         protected override void Parse(Stream s)
         {
             BinaryReader r = new BinaryReader(s);
@@ -50,6 +73,9 @@ namespace CatalogResource.TS4
             w.Write(this.catalogGroupID);
             return s;
         }
+        #endregion
+
+        #region Content Fields
         [ElementPriority(15)]
         public uint Unknown1 { get { return this.unknown1; } set { if (!this.unknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
         [ElementPriority(16)]
@@ -66,5 +92,29 @@ namespace CatalogResource.TS4
         public ulong CatalogGroupID { get { return this.catalogGroupID; } set { if (!this.catalogGroupID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogGroupID = value; } } }
         [ElementPriority(22)]
         public uint Unknown5 { get { return this.unknown5; } set { if (!this.unknown5.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown5 = value; } } }
+        #endregion
+
+        #region Clone Code
+        public override TGIBlock[] NestedTGIBlockList
+        {
+            get
+            {
+                List<TGIBlock> result = new List<TGIBlock>();
+                foreach (var matd in this.matdList)
+                    result.Add(matd.MATDTGI);
+                return result.ToArray();
+            }
+        }
+
+        internal override List<string> RenumberingFields
+        {
+            get
+            {
+                var res = base.RenumberingFields;
+                res.Add("CatalogGroupID");
+                return res;
+            }
+        }
+        #endregion
     }
 }
