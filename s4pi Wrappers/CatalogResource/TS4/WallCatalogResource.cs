@@ -73,6 +73,7 @@ namespace CatalogResource.TS4
         [ElementPriority(19)]
         public ulong CatalogGroupID { get { return this.catalogGroupID; } set { if (!this.catalogGroupID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogGroupID = value; } } }
 
+        #region Clone Code
         public override TGIBlock[] NestedTGIBlockList
         {
             get
@@ -83,5 +84,16 @@ namespace CatalogResource.TS4
                 return result.ToArray();
             }
         }
+
+        internal override List<string> RenumberingFields
+        {
+            get
+            {
+                var res = base.RenumberingFields;
+                res.Add("CatalogGroupID");
+                return res;
+            }
+        }
+        #endregion
     }
 }

@@ -242,7 +242,10 @@ namespace CatalogResource.TS4
             // currently clone code is only valid for numbers and TGI blocks
             foreach (var fieldName in this.RenumberingFields)
             {
-                var value = result.GetType().GetProperty(fieldName).GetValue(this, null);
+                var prop = result.GetType().GetProperty(fieldName);
+                if (prop == null) continue;
+                var value = prop.GetValue(this, null);
+                if (value == null) continue;
                 if (value.GetType() == typeof(int) || value.GetType() == typeof(Int32))
                 {
                     int v = (int)value;
@@ -302,7 +305,7 @@ namespace CatalogResource.TS4
         }
 
 
-        virtual internal List<string> RenumberingFields { get { return new List<string>() { "CatalogNameHash", "CatalogDescHash" }; } }
+        virtual internal List<string> RenumberingFields { get { return new List<string>() { "CatalogNameHash", "CatalogDescHash", "NestedTGIBlockList" }; } }
         #endregion
     }
 

@@ -71,9 +71,9 @@
     <Compile Include="TS4\WallCatalogResource.cs" />
     <Compile Include="TS3\FountainPoolCatalogResource.cs" />
     <Compile Include="TS3\FoundationCatalogResource.cs" />
-    <Compile Include="OBJD.cs" />
+    <Compile Include="ObjectDefinitionResource.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
-    <Compile Include="CatalogResource.cs" />
+    <Compile Include="TS3\CatalogResource.cs" />
     <Compile Include="TS3\FenceCatalogResource.cs" />
     <Compile Include="TS3\FireplaceCatalogResource.cs" />
     <Compile Include="TS3\ObjectCatalogResource.cs" />
