@@ -72,6 +72,7 @@
     <Compile Include="AResourceKey.cs" />
     <Compile Include="BoundingBox.cs" />
     <Compile Include="IndexList.cs" />
+    <Compile Include="IWrapperCloneable.cs" />
     <Compile Include="Quaternion.cs" />
     <Compile Include="DependentList.cs" />
     <Compile Include="SimpleList.cs" />

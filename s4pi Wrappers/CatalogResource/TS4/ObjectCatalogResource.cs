@@ -30,7 +30,7 @@ using System.Security.Cryptography;
 
 namespace CatalogResource.TS4
 {
-    public class ObjectCatalogResource : AResource
+    public class ObjectCatalogResource : AResource, IWrapperCloneable<ObjectCatalogResource>
     {
         const int recommendedApiVersion = 1;
         private uint version;
@@ -162,7 +162,7 @@ namespace CatalogResource.TS4
         public class SellingPointList : DependentList<SellingPoint>
         {
             #region Constructors
-            public SellingPointList(EventHandler handler) : base(handler) {  }
+            public SellingPointList(EventHandler handler) : base(handler) { }
             public SellingPointList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
             #endregion
 
@@ -240,40 +240,40 @@ namespace CatalogResource.TS4
             ObjectCatalogResource result = this.Clone();
             if (!renumber) return result;
             // currently clone code is only valid for numbers and TGI blocks
-            foreach(var fieldName in this.RenumberingFields)
+            foreach (var fieldName in this.RenumberingFields)
             {
                 var value = result.GetType().GetProperty(fieldName).GetValue(this, null);
-                if(value.GetType() == typeof(int) || value.GetType() == typeof(Int32))
+                if (value.GetType() == typeof(int) || value.GetType() == typeof(Int32))
                 {
                     int v = (int)value;
                     int newValue = v ^ (int)FNV32.GetHash(hashsalt);
                     SetProperty(result, fieldName, newValue);
                 }
-                else if(value.GetType() == typeof(uint) || value.GetType() == typeof(UInt32))
+                else if (value.GetType() == typeof(uint) || value.GetType() == typeof(UInt32))
                 {
                     uint v = (uint)value;
                     uint newValue = v ^ FNV32.GetHash(hashsalt);
                     SetProperty(result, fieldName, newValue);
                 }
-                else if(value.GetType() == typeof(short) || value.GetType() == typeof(Int16))
+                else if (value.GetType() == typeof(short) || value.GetType() == typeof(Int16))
                 {
                     short v = (short)value;
                     short newValue = Convert.ToInt16((uint)v ^ FNV32.GetHash(hashsalt));
                     SetProperty(result, fieldName, newValue);
                 }
-                else if(value.GetType() == typeof(ushort) || value.GetType() == typeof(UInt16))
+                else if (value.GetType() == typeof(ushort) || value.GetType() == typeof(UInt16))
                 {
                     ushort v = (ushort)value;
                     ushort newValue = Convert.ToUInt16((uint)v ^ FNV32.GetHash(hashsalt));
                     SetProperty(result, fieldName, newValue);
                 }
-                else if(value.GetType() == typeof(byte) || value.GetType() == typeof(Byte))
+                else if (value.GetType() == typeof(byte) || value.GetType() == typeof(Byte))
                 {
                     byte v = (byte)value;
                     byte newValue = Convert.ToByte((uint)v ^ FNV32.GetHash(hashsalt));
                     SetProperty(result, fieldName, newValue);
                 }
-                else if(value.GetType() == typeof(TGIBlock))
+                else if (value.GetType() == typeof(TGIBlock))
                 {
                     TGIBlock v = value as TGIBlock;
                     if (v != null)
@@ -282,12 +282,12 @@ namespace CatalogResource.TS4
                     }
                     SetProperty(result, fieldName, v);
                 }
-                else if(value.GetType() == typeof(TGIBlock[]))
+                else if (value.GetType() == typeof(TGIBlock[]))
                 {
                     TGIBlock[] v = value as TGIBlock[];
                     if (v != null)
                     {
-                        foreach(var tgi in v)
+                        foreach (var tgi in v)
                             tgi.Instance ^= FNV64.GetHash(hashsalt);
                     }
                     SetProperty(result, fieldName, v);
