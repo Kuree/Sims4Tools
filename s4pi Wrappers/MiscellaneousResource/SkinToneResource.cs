@@ -62,6 +62,7 @@ namespace s4pi.Miscellaneous
             this.unknown2 = r.ReadUInt32();
             int count = r.ReadInt32();
             this.unknownList = new SimpleList<uint>(OnResourceChanged);
+            for (int i = 0; i < count; i++) this.unknownList.Add(r.ReadUInt32());
             this.unknown3 = r.ReadUInt32();
             this.swatchList = new SwatchColorList(OnResourceChanged, s);
             this.unknown4 = r.ReadUInt32();
@@ -75,12 +76,15 @@ namespace s4pi.Miscellaneous
             w.Write(this.version);
             w.Write(this.rleInstance);
             if (this.overlayList == null) this.overlayList = new OverlayReferenceList(OnResourceChanged);
+            this.overlayList.UnParse(ms);
             w.Write(this.unknown1);
             w.Write(this.unknown2);
+            if (this.unknownList == null) this.unknownList = new SimpleList<uint>(OnResourceChanged);
             w.Write(this.unknownList.Count);
             foreach (var i in this.unknownList) w.Write(i);
             w.Write(this.unknown3);
             if (this.swatchList == null) this.swatchList = new SwatchColorList(OnResourceChanged);
+            this.swatchList.UnParse(ms);
             w.Write(this.unknown4);
             w.Write(this.unknown5);
             return ms;
@@ -89,12 +93,13 @@ namespace s4pi.Miscellaneous
         #endregion
 
         #region Sub Class
-        private class OverlayReference : AHandlerElement, IEquatable<OverlayReference>
+        public class OverlayReference : AHandlerElement, IEquatable<OverlayReference>
         {
             private uint flags;
             private ulong textureReference;
             public OverlayReference(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { BinaryReader r = new BinaryReader(s); this.flags = r.ReadUInt32(); this.textureReference = r.ReadUInt64(); }
             public void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(this.flags); w.Write(this.textureReference); }
+            
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
             public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
@@ -209,6 +214,15 @@ namespace s4pi.Miscellaneous
         public uint Unknown4 { get { return this.unknown4; } set { if (!this.unknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown4 = value; } } }
         [ElementPriority(9)]
         public uint Unknown5 { get { return this.unknown5; } set { if (!this.unknown5.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown5 = value; } } }
+        public string Value { get { return ValueBuilder; } }
         #endregion
+    }
+
+    public class SkinToneResourceeHandler : AResourceHandler
+    {
+        public SkinToneResourceeHandler()
+        {
+            this.Add(typeof(SkinToneResource), new List<string>(new string[] { "0x0354796A", }));
+        }
     }
 }
