@@ -37,7 +37,7 @@ namespace s4pi.Miscellaneous
         static bool checking = s4pi.Settings.Settings.Checking;
 
         private uint version;
-        private uint ageGenderFlags;
+        private AgeGenderFlags ageGender;
         private ulong groupingID;
         private byte unknown1;
         private ulong simOutfitReference;
@@ -64,7 +64,7 @@ namespace s4pi.Miscellaneous
             BinaryReader r = new BinaryReader(s);
             s.Position = 0;
             this.version = r.ReadUInt32();
-            this.ageGenderFlags = r.ReadUInt32();
+            this.ageGender = (AgeGenderFlags)r.ReadUInt32();
             this.groupingID = r.ReadUInt64();
             this.unknown1 = r.ReadByte();
             this.simOutfitReference = r.ReadUInt64();
@@ -89,7 +89,7 @@ namespace s4pi.Miscellaneous
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
             w.Write(this.version);
-            w.Write(this.ageGenderFlags);
+            w.Write((uint)this.ageGender);
             w.Write(this.groupingID);
             w.Write(this.unknown1);
             w.Write(this.simOutfitReference);
@@ -114,12 +114,28 @@ namespace s4pi.Miscellaneous
         }
         #endregion
 
+        #region Sub Types
+        [Flags]
+        public enum AgeGenderFlags
+        {
+            Unknown1 = 0x00000001,
+            Unknown2 = 0x00000002,
+            Child = 0x00000004,
+            Teen = 0x00000008,
+            YoungAdult = 0x00000010,
+            Adult = 0x00000020,
+            Elder = 0x00000040,
+            Male = 0x00001000,
+            Female = 0x00002000
+        }
+        #endregion
+
         #region Content Fields
         public string Value { get { return ValueBuilder; } }
         [ElementPriority(0)]
         public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.version = value; } } }
         [ElementPriority(1)]
-        public uint AgeGenderFlags { get { return this.ageGenderFlags; } set { if (!this.ageGenderFlags.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.ageGenderFlags = value; } } }
+        public AgeGenderFlags AgeGender { get { return this.ageGender; } set { if (!this.ageGender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.ageGender = value; } } }
         [ElementPriority(2)]
         public ulong GroupingID { get { return this.groupingID; } set { if (!this.groupingID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.groupingID = value; } } }
         [ElementPriority(3)]
@@ -154,7 +170,6 @@ namespace s4pi.Miscellaneous
         public uint Unknown7 { get { return this.unknown7; } set { if (!this.unknown7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown7 = value; } } }
         [ElementPriority(18)]
         public byte Unknown8 { get { return this.unknown8; } set { if (!this.unknown8.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown8 = value; } } }
-
         #endregion
 
     }

@@ -428,7 +428,7 @@ Rotate:
 
         private static T GetMATDParam<T>(MATD matd, FieldType type) where T : class
         {
-            return matd == null ? null : (matd.Mtnf != null ? matd.Mtnf.SData : matd.Mtrl.SData).FirstOrDefault(x => x.Field == type) as T;
+            return matd == null ? null : (matd.Mtrl != null ? matd.Mtrl.SData : matd.Mtrl.SData).FirstOrDefault(x => x.Field == type) as T;
         }
 
         private static float[] GetUvScales(MATD matd)

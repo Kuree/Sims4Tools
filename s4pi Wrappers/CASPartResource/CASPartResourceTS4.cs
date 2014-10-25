@@ -68,7 +68,7 @@ namespace CASPartResource
         byte uniqueTextureSpace;
         int bodyType;
         int unused1;
-        uint ageGender;
+        AgeGenderFlags ageGender;
         byte unused2;
         byte unused3;
         SwatchColorList swatchColorCode;
@@ -119,7 +119,7 @@ namespace CASPartResource
             this.uniqueTextureSpace = r.ReadByte();
             this.bodyType = r.ReadInt32();
             this.unused1 = r.ReadInt32();
-            this.ageGender = r.ReadUInt32();
+            this.ageGender = (AgeGenderFlags)r.ReadUInt32();
             this.unused2 = r.ReadByte();
             this.unused3 = r.ReadByte();
 
@@ -184,7 +184,7 @@ namespace CASPartResource
             w.Write(uniqueTextureSpace);
             w.Write(bodyType);
             w.Write(unused1);
-            w.Write(ageGender);
+            w.Write((uint)ageGender);
             w.Write(unused2);
             w.Write(unused3);
             if (this.swatchColorCode == null) this.swatchColorCode = new SwatchColorList(OnResourceChanged);
@@ -261,7 +261,7 @@ namespace CASPartResource
         [ElementPriority(17)]
         public int Unused1 { get { return unused1; } set { if (!value.Equals(unused1)) unused1 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(18)]
-        public uint AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public AgeGenderFlags AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(19)]
         public byte Unused2 { get { return unused2; } set { if (!value.Equals(unused2)) unused2 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(20)]
@@ -689,6 +689,22 @@ namespace CASPartResource
             DefaultThumbnailPart = 1 << 1,
             DefaultForBodyType = 1
         }
+
+        [Flags]
+        public enum AgeGenderFlags
+        {
+            Unknown1 = 0x00000001,
+            Unknown2 = 0x00000002,
+            Child = 0x00000004,
+            Teen = 0x00000008,
+            YoungAdult = 0x00000010,
+            Adult = 0x00000020,
+            Elder = 0x00000040,
+            Male = 0x00001000,
+            Female = 0x00002000
+        }
+
+
         #endregion
 
 
