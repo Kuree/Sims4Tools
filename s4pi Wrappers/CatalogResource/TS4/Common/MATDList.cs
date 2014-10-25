@@ -51,6 +51,7 @@ namespace CatalogResource.TS4
         public byte MATDLabel { get { return this.matdLabel; } set { if (!this.matdLabel.Equals(value)) { OnElementChanged(); this.matdLabel = value; } } }
         [ElementPriority(1)]
         public TGIBlock MATDTGI { get { return this.matdTGI; } set { if (!this.matdTGI.Equals(value)) { OnElementChanged(); this.matdTGI = value; } } }
+        public string Value { get { return ValueBuilder; } }
         #endregion
     }
 
