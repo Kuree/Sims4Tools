@@ -81,6 +81,12 @@ namespace CatalogResource.TS4
                 List<TGIBlock> result = new List<TGIBlock>();
                 foreach (var matd in this.matdList)
                     result.Add(matd.MATDTGI);
+                foreach(var thum in this.thumList)
+                {
+                    result.Add(thum.ThumGroupTGI.Item1);
+                    result.Add(thum.ThumGroupTGI.Item2);
+                    result.Add(thum.ThumGroupTGI.Item3);
+                }
                 return result.ToArray();
             }
             set
