@@ -27,10 +27,11 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
+using CatalogResource.ArrayExtensions;
 
 namespace CatalogResource.TS4
 {
-    public class ObjectCatalogResource : AResource, IWrapperCloneable<ObjectCatalogResource>
+    public class ObjectCatalogResource : AResource
     {
         const int recommendedApiVersion = 1;
         private uint version;
@@ -230,23 +231,23 @@ namespace CatalogResource.TS4
         public ulong CatalogUnknown7 { get { return this.catalogUnknown7; } set { if (!this.catalogUnknown7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown7 = value; } } }
         public string Value { get { return ValueBuilder; } }
 
-        public virtual TGIBlock[] NestedTGIBlockList { get { return null; } }
+        public virtual TGIBlock[] NestedTGIBlockList { get; set; }
         protected virtual object GroupingID { get; set; }
         #endregion
 
         #region Clone
 
-        public ObjectCatalogResource Clone(string hashsalt, bool renumber = true, bool isStandAlone = true)
+        public ObjectCatalogResource CloneWrapper(string hashsalt, bool renumber = true, bool isStandAlone = true, bool setHighBit = true)
         {
             ObjectCatalogResource result = this.Clone();
             if (!renumber) return result;
             // currently clone code is only valid for numbers and TGI blocks
             ChangePropertyFromString(result, this.RenumberingFields, hashsalt);
-            if (isStandAlone) ChangePropertyFromString(result, new string[] { "GroupingID" }, hashsalt);
+            if (isStandAlone) ChangePropertyFromString(result, new string[] { "GroupingID" }, hashsalt, setHighBit);
             return result;
         }
 
-        private void ChangePropertyFromString(object result, IList<string> filedNames, string hashsalt)
+        private void ChangePropertyFromString(object result, IList<string> filedNames, string hashsalt, bool setHighBit = true)
         {
             foreach (var fieldName in filedNames)
             {
@@ -290,6 +291,7 @@ namespace CatalogResource.TS4
                     if (v != null)
                     {
                         v.Instance ^= FNV64.GetHash(hashsalt);
+                        if (setHighBit) { v.Instance |= (ulong)1 << 63; v.ResourceGroup |= (uint)1 << 31; }
                     }
                     SetProperty(result, fieldName, v);
                 }
@@ -299,7 +301,10 @@ namespace CatalogResource.TS4
                     if (v != null)
                     {
                         foreach (var tgi in v)
+                        {
                             tgi.Instance ^= FNV64.GetHash(hashsalt);
+                            if (setHighBit) { tgi.Instance |= (ulong)1 << 63; tgi.ResourceGroup |= (uint)1 << 31; }
+                        }
                     }
                     SetProperty(result, fieldName, v);
                 }
@@ -308,7 +313,7 @@ namespace CatalogResource.TS4
 
         private void SetProperty(object cat, string fieldName, object newValue)
         {
-            cat.GetType().GetProperty(fieldName).SetValue(this, newValue, null);
+            cat.GetType().GetProperty(fieldName).SetValue(cat, newValue, null);
         }
 
 
@@ -328,21 +333,139 @@ namespace CatalogResource.TS4
             }
         }
     }
+}
 
-    #region Deep Clone Code
-    internal static class Extension
+#region Deep Clone
+/*
+ Code from http://stackoverflow.com/a/11308879. All credits to Alex Burtsev
+ */
+
+namespace CatalogResource
+{
+    public static class ObjectExtensions
     {
-        public static T Clone<T>(this T objectToCopy)
+        private static readonly MethodInfo CloneMethod = typeof(Object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        public static bool IsPrimitive(this Type type)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
+            if (type == typeof(String)) return true;
+            return (type.IsValueType & type.IsPrimitive);
+        }
+
+        public static Object Copy(this Object originalObject)
+        {
+            return InternalCopy(originalObject, new Dictionary<Object, Object>(new ReferenceEqualityComparer()));
+        }
+
+        private static Object InternalCopy(Object originalObject, IDictionary<Object, Object> visited)
+        {
+            if (originalObject == null) return null;
+            var typeToReflect = originalObject.GetType();
+            if (IsPrimitive(typeToReflect)) return originalObject;
+            if (visited.ContainsKey(originalObject)) return visited[originalObject];
+            if (typeof(Delegate).IsAssignableFrom(typeToReflect)) return null;
+            var cloneObject = CloneMethod.Invoke(originalObject, null);
+            if (typeToReflect.IsArray)
             {
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-                binaryFormatter.Serialize(memoryStream, objectToCopy);
-                memoryStream.Position = 0;
-                T returnValue = (T)binaryFormatter.Deserialize(memoryStream);
-                return returnValue;
+                var arrayType = typeToReflect.GetElementType();
+                if (IsPrimitive(arrayType) == false)
+                {
+                    Array clonedArray = (Array)cloneObject;
+                    clonedArray.ForEach((array, indices) => array.SetValue(InternalCopy(clonedArray.GetValue(indices), visited), indices));
+                }
+
+            }
+            visited.Add(originalObject, cloneObject);
+            CopyFields(originalObject, visited, cloneObject, typeToReflect);
+            RecursiveCopyBaseTypePrivateFields(originalObject, visited, cloneObject, typeToReflect);
+            return cloneObject;
+        }
+
+        private static void RecursiveCopyBaseTypePrivateFields(object originalObject, IDictionary<object, object> visited, object cloneObject, Type typeToReflect)
+        {
+            if (typeToReflect.BaseType != null)
+            {
+                RecursiveCopyBaseTypePrivateFields(originalObject, visited, cloneObject, typeToReflect.BaseType);
+                CopyFields(originalObject, visited, cloneObject, typeToReflect.BaseType, BindingFlags.Instance | BindingFlags.NonPublic, info => info.IsPrivate);
+            }
+        }
+
+        private static void CopyFields(object originalObject, IDictionary<object, object> visited, object cloneObject, Type typeToReflect, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.FlattenHierarchy, Func<FieldInfo, bool> filter = null)
+        {
+            foreach (FieldInfo fieldInfo in typeToReflect.GetFields(bindingFlags))
+            {
+                if (filter != null && filter(fieldInfo) == false) continue;
+                if (IsPrimitive(fieldInfo.FieldType)) continue;
+                var originalFieldValue = fieldInfo.GetValue(originalObject);
+                var clonedFieldValue = InternalCopy(originalFieldValue, visited);
+                fieldInfo.SetValue(cloneObject, clonedFieldValue);
+            }
+        }
+        internal static T Clone<T>(this T original)
+        {
+            return (T)Copy((Object)original);
+        }
+    }
+
+    public class ReferenceEqualityComparer : EqualityComparer<Object>
+    {
+        public override bool Equals(object x, object y)
+        {
+            return ReferenceEquals(x, y);
+        }
+        public override int GetHashCode(object obj)
+        {
+            if (obj == null) return 0;
+            return obj.GetHashCode();
+        }
+    }
+
+    namespace ArrayExtensions
+    {
+        public static class ArrayExtensions
+        {
+            public static void ForEach(this Array array, Action<Array, int[]> action)
+            {
+                if (array.LongLength == 0) return;
+                ArrayTraverse walker = new ArrayTraverse(array);
+                do action(array, walker.Position);
+                while (walker.Step());
+            }
+        }
+
+        internal class ArrayTraverse
+        {
+            public int[] Position;
+            private int[] maxLengths;
+
+            public ArrayTraverse(Array array)
+            {
+                maxLengths = new int[array.Rank];
+                for (int i = 0; i < array.Rank; ++i)
+                {
+                    maxLengths[i] = array.GetLength(i) - 1;
+                }
+                Position = new int[array.Rank];
+            }
+
+            public bool Step()
+            {
+                for (int i = 0; i < Position.Length; ++i)
+                {
+                    if (Position[i] < maxLengths[i])
+                    {
+                        Position[i]++;
+                        for (int j = 0; j < i; j++)
+                        {
+                            Position[j] = 0;
+                        }
+                        return true;
+                    }
+                }
+                return false;
             }
         }
     }
-    #endregion
+
 }
+#endregion

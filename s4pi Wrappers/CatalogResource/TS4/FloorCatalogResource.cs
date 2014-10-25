@@ -104,6 +104,18 @@ namespace CatalogResource.TS4
                     result.Add(matd.MATDTGI);
                 return result.ToArray();
             }
+            set
+            {
+                var list = value;
+                if (list.Length != NestedTGIBlockList.Length) throw new InvalidDataException("Invalid clone operation");
+                for (int i = 0; i < list.Length; i++)
+                {
+                    var tgi = NestedTGIBlockList[i];
+                    tgi.Instance = list[i].Instance;
+                    tgi.ResourceType = list[i].ResourceType;
+                    tgi.ResourceGroup = tgi.ResourceGroup;
+                }
+            }
         }
 
         internal override List<string> RenumberingFields

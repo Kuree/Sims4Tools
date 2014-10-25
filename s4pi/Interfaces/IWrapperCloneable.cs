@@ -17,6 +17,6 @@ namespace s4pi.Interfaces
         /// <param name="hashsalt">Hash salt to renumber the fields</param>
         /// <param name="renumber">If true, preset fields will be renumbered</param>
         /// <returns>T</returns>
-        T Clone(string hashsalt, bool renumber = true);
+        T CloneWrapper(string hashsalt, bool renumber = true, bool isStandAlone = true);
     }
 }
