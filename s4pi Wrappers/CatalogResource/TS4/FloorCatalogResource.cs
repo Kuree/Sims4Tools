@@ -65,7 +65,7 @@ namespace CatalogResource.TS4
             w.Write(this.unknown2);
             w.Write(this.unknown3);
             w.Write(this.unknown4);
-            if (this.matdList == null) this.matdList = new MATDList(OnResourceChanged);
+            if (this.matdList == null) this.matdList = new MATDList(OnResourceChanged, false);
             matdList.UnParse(s);
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);

@@ -346,6 +346,7 @@ namespace CatalogResource.TS4
                 this.Add(typeof(WallCatalogResource), new List<string>(new string[] { "0xD5F0F921", }));
                 this.Add(typeof(FloorCatalogResource), new List<string>(new string[] { "0xB4F762C9", }));
                 this.Add(typeof(TerrainPaintCatalogResource), new List<string>(new string[] { "0xEBCBB16C", }));
+                this.Add(typeof(ObjectInstanceResource), new List<string>(new string[] { "0x319E4F1D", }));
             }
         }
     }

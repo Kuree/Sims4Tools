@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CatalogResource.TS4
 {
-    class TerrainPaintCatalogResource: ObjectCatalogResource
+    public class TerrainPaintCatalogResource: ObjectCatalogResource
     {
         #region Attributes
         private uint unknown1;
@@ -39,7 +39,7 @@ namespace CatalogResource.TS4
             w.Write(this.unknown2);
             w.Write(this.unknown3);
             w.Write(this.unknown4);
-            if (this.matdList == null) this.matdList = new MATDList(OnResourceChanged);
+            if (this.matdList == null) this.matdList = new MATDList(OnResourceChanged, false);
             matdList.UnParse(s);
             return s;
         }

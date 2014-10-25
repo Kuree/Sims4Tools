@@ -60,14 +60,12 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="COBJResource.cs" />
-    <Compile Include="TRPTResource.cs" />
     <Compile Include="TS4\Common\ColorList.cs" />
     <Compile Include="TS4\Common\MATDList.cs" />
     <Compile Include="TS4\Common\ThumbnailList.cs" />
     <Compile Include="TS4\FloorCatalogResource.cs" />
     <Compile Include="TS4\ObjectCatalogResource.cs" />
-    <Compile Include="TS4\ObjectEntryResource.cs" />
+    <Compile Include="TS4\ObjectInstanceResource.cs" />
     <Compile Include="TS4\TerrainPaintCatalogResource.cs" />
     <Compile Include="TS4\WallCatalogResource.cs" />
     <Compile Include="TS3\FountainPoolCatalogResource.cs" />
