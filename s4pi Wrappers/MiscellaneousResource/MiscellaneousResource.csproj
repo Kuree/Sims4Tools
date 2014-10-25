@@ -33,6 +33,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DeformerMapResource.cs" />
@@ -41,6 +42,7 @@
     <Compile Include="AUEVResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimModifierResource.cs" />
+    <Compile Include="SkinToneResource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
