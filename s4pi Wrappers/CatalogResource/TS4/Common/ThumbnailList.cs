@@ -52,6 +52,7 @@ namespace CatalogResource.TS4
         public byte MATDLabel { get { return this.imgGroupLabel; } set { if (!this.imgGroupLabel.Equals(value)) { OnElementChanged(); this.imgGroupLabel = value; } } }
         [ElementPriority(1)]
         public Tuple<TGIBlock, TGIBlock, TGIBlock> ThumGroupTGI { get { return this.thumGroupTGI; } set { if (!this.thumGroupTGI.Equals(value)) { OnElementChanged(); this.thumGroupTGI = value; } } }
+        public string Value { get { return ValueBuilder; } }
         #endregion
     }
 
