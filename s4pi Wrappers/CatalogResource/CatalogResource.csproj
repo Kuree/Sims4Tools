@@ -57,30 +57,36 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CFLRResource.cs" />
     <Compile Include="COBJResource.cs" />
     <Compile Include="TRPTResource.cs" />
-    <Compile Include="WallCatalogResourceTS4.cs" />
-    <Compile Include="FountainPoolCatalogResource.cs" />
-    <Compile Include="FoundationCatalogResource.cs" />
-    <Compile Include="ObjectCatalogResourceTS4.cs" />
+    <Compile Include="TS4\Common\ColorList.cs" />
+    <Compile Include="TS4\Common\MATDList.cs" />
+    <Compile Include="TS4\Common\ThumbnailList.cs" />
+    <Compile Include="TS4\FloorCatalogResource.cs" />
+    <Compile Include="TS4\ObjectCatalogResource.cs" />
+    <Compile Include="TS4\ObjectEntryResource.cs" />
+    <Compile Include="TS4\WallCatalogResource.cs" />
+    <Compile Include="TS3\FountainPoolCatalogResource.cs" />
+    <Compile Include="TS3\FoundationCatalogResource.cs" />
+    <Compile Include="ObjectDefinitionResource.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
-    <Compile Include="CatalogResource.cs" />
-    <Compile Include="FenceCatalogResource.cs" />
-    <Compile Include="FireplaceCatalogResource.cs" />
-    <Compile Include="ObjectCatalogResource.cs" />
+    <Compile Include="TS3\CatalogResource.cs" />
+    <Compile Include="TS3\FenceCatalogResource.cs" />
+    <Compile Include="TS3\FireplaceCatalogResource.cs" />
+    <Compile Include="TS3\ObjectCatalogResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProxyProductCatalogResource.cs" />
-    <Compile Include="RailingCatalogResource.cs" />
-    <Compile Include="RoofPatternCatalogResource.cs" />
-    <Compile Include="RoofStyleCatalogResource.cs" />
-    <Compile Include="StairsCatalogResource.cs" />
-    <Compile Include="TerrainGeometryWaterBrushCatalogResource.cs" />
-    <Compile Include="TerrainPaintBrushCatalogResource.cs" />
-    <Compile Include="WallCatalogResource.cs" />
-    <Compile Include="WallFloorPatternCatalogResource.cs" />
+    <Compile Include="TS3\ProxyProductCatalogResource.cs" />
+    <Compile Include="TS3\RailingCatalogResource.cs" />
+    <Compile Include="TS3\RoofPatternCatalogResource.cs" />
+    <Compile Include="TS3\RoofStyleCatalogResource.cs" />
+    <Compile Include="TS3\StairsCatalogResource.cs" />
+    <Compile Include="TS3\TerrainGeometryWaterBrushCatalogResource.cs" />
+    <Compile Include="TS3\TerrainPaintBrushCatalogResource.cs" />
+    <Compile Include="TS3\WallCatalogResource.cs" />
+    <Compile Include="TS3\WallFloorPatternCatalogResource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
@@ -116,6 +122,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

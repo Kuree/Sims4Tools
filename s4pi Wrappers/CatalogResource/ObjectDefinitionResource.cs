@@ -26,7 +26,7 @@ using System.Diagnostics;
 
 namespace CatalogResource
 {
-    public class ObjectCatalogResourceTS4 : AResource
+    public class ObjectDefinitionResource : AResource
     {
         #region Attributes
         const int recommendedApiVersion = 1;
@@ -57,7 +57,7 @@ namespace CatalogResource
         #endregion
 
         #region Constructors
-        public ObjectCatalogResourceTS4(int APIversion, Stream s) : base(APIversion, s) { Parse(s); }
+        public ObjectDefinitionResource(int APIversion, Stream s) : base(APIversion, s) { Parse(s); }
         #endregion
 
         #region Data I/O
@@ -431,11 +431,11 @@ namespace CatalogResource
         #endregion
     }
 
-    public class ObjectCatalogResourceTS4Handler : AResourceHandler
+    public class ObjectDefinitionResourceHandler : AResourceHandler
     {
-        public ObjectCatalogResourceTS4Handler()
+        public ObjectDefinitionResourceHandler()
         {
-            this.Add(typeof(ObjectCatalogResourceTS4), new List<string>(new string[] { "0xC0DB5AE7", }));
+            this.Add(typeof(ObjectDefinitionResource), new List<string>(new string[] { "0xC0DB5AE7", }));
         }
     }
 }
