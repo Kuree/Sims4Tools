@@ -1462,7 +1462,7 @@ namespace CatalogResource
             this.Add(typeof(FenceCatalogResource), new List<string>(new string[] { "0x0418FE2A" }));
             this.Add(typeof(FireplaceCatalogResource), new List<string>(new string[] { "0x04F3CC01" }));
             this.Add(typeof(FoundationCatalogResource), new List<string>(new string[] { "0x316C78F2" }));
-            if (!s4pi.Settings.Settings.IsTS4) { this.Add(typeof(ObjectCatalogResource), new List<string>(new string[] { "0x319E4F1D" })); } else { this.Add(typeof(COBJResource), new List<string>(new string[] { "0x319E4F1D" })); }
+            if (!s4pi.Settings.Settings.IsTS4) { this.Add(typeof(ObjectCatalogResource), new List<string>(new string[] { "0x319E4F1D" })); }
             this.Add(typeof(FountainPoolCatalogResource), new List<string>(new string[] { "0x0A36F07A" }));
             this.Add(typeof(ProxyProductCatalogResource), new List<string>(new string[] { "0x04AC5D93" }));
             this.Add(typeof(RailingCatalogResource), new List<string>(new string[] { "0x04C58103" }));

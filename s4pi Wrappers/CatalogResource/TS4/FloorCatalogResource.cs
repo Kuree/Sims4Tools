@@ -65,7 +65,7 @@ namespace CatalogResource.TS4
             w.Write(this.unknown2);
             w.Write(this.unknown3);
             w.Write(this.unknown4);
-            if (this.matdList == null) this.matdList = new MATDList(OnResourceChanged);
+            if (this.matdList == null) this.matdList = new MATDList(OnResourceChanged, false);
             matdList.UnParse(s);
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);
@@ -103,18 +103,6 @@ namespace CatalogResource.TS4
                 foreach (var matd in this.matdList)
                     result.Add(matd.MATDTGI);
                 return result.ToArray();
-            }
-            set
-            {
-                var list = value;
-                if (list.Length != NestedTGIBlockList.Length) throw new InvalidDataException("Invalid clone operation");
-                for (int i = 0; i < list.Length; i++)
-                {
-                    var tgi = NestedTGIBlockList[i];
-                    tgi.Instance = list[i].Instance;
-                    tgi.ResourceType = list[i].ResourceType;
-                    tgi.ResourceGroup = tgi.ResourceGroup;
-                }
             }
         }
 
