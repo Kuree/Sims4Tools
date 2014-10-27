@@ -5,6 +5,7 @@ S4PE and S4PI is an open source project based on s3pi and s3pe.
 
 Current Version
 ----
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Kuree/Sims4Tools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 0.2b
 
