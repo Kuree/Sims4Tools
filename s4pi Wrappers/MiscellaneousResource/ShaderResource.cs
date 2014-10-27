@@ -117,6 +117,11 @@ namespace s4pi.Miscellaneous
                     s.Position = endPosition;
                 }
 
+                #region AHandlerElement Members
+                public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+                public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); res.Remove("Data"); return res; } }
+                #endregion
+
                 public byte[] Data { get { return this.data; } set { if (!this.data.Equals(value)) { OnElementChanged(); this.data = value; } } }
                 public string Value { get { return ValueBuilder; } }
                 #endregion
