@@ -42,7 +42,7 @@ namespace s4pi.ImageResource
 
         private void Parse(Stream s)
         {
-            if (s == null)
+            if (s == null || s.Length ==0)
             {
                 this.rawData = new byte[0];
                 this.image = new Bitmap(1, 1); // empty image
@@ -91,6 +91,7 @@ namespace s4pi.ImageResource
 
         public Stream ToImageStream()
         {
+            if (this.image == null) return null;
             MemoryStream ms = new MemoryStream();
             image.Save(ms, ImageFormat.Png);
             ms.Position = 0;
@@ -123,8 +124,8 @@ namespace s4pi.ImageResource
             }
         }
         private Bitmap image;
-        public Bitmap Image { 
-            get { return image; } 
+        public Bitmap Image {
+            get { if (image == null) { return new Bitmap(1, 1); } else { return this.image; }; } 
             set { if (value != null) { this.image = value; this.rawData = null; } } }
 
 

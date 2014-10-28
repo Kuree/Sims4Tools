@@ -101,6 +101,7 @@ namespace S4PIDemoFE
                 return;
 
             resStream = s;
+            if (s == null || s.Length == 0) return;
             s.Position = 0;
             RLEResource.RLEInfo header = new RLEResource.RLEInfo();
             header.Parse(s);

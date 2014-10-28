@@ -48,7 +48,7 @@ namespace s4pi.ImageResource
         #region Data I/O
         public void Parse(Stream s)
         {
-            if (s == null) s = this.UnParse();
+            if (s == null || s.Length == 0) s = this.UnParse();
             BinaryReader r = new BinaryReader(s);
             info = new RLEInfo(s);
             this.MipHeaders = new MipHeader[this.info.mipCount + 1];

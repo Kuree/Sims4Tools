@@ -44,6 +44,7 @@ namespace s4pi.ImageResource
 
         protected void Parse(Stream s)
         {
+            if (s == null || s.Length == 0) { this.data = null; return; }
             s.Position = 0;
             this.header = new DDSHeader();
             this.header.Parse(s);
@@ -67,6 +68,7 @@ namespace s4pi.ImageResource
 
         public Stream ToDDS()
         {
+            if (this.data == null) return null;
             if (!this.isShuffled)
             {
                 return new MemoryStream(this.data);
@@ -84,7 +86,7 @@ namespace s4pi.ImageResource
 
         protected override Stream UnParse()
         {
-            return new MemoryStream(this.data);
+            return this.data == null ? new MemoryStream() : new MemoryStream(this.data);
         }
 
         public void ImportToDST(Stream input)
