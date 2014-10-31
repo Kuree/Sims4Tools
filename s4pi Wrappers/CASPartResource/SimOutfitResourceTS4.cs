@@ -32,21 +32,19 @@ namespace CASPartResource
     public class SimOutfitResourceTS4 : AResource
     {
         private uint version;
-        private float unknown3;
-        private float unknown4;
-        private float unknown5;
-        private float unknown6;
-        private float unknown7;
-        private float unknown8;
-        private float unknown9;
-        private float unknown10;
-        private uint unknown11;
-        private uint unknown12;
-        private ulong unknown14;
-        private ByteIndexList unknown19;
-        private ByteIndexList unknown20;
-        private float unknown21;
-        private ByteIndexList unknown22;
+        private float unknown3 { get; set; }
+        private float unknown4 { get; set; }
+        private float unknown5 { get; set; }
+        private float unknown6 { get; set; }
+        private float unknown7 { get; set; }
+        private float unknown8 { get; set; }
+        private float unknown9 { get; set; }
+        private float unknown10 { get; set; }
+        private uint unknown11 { get; set; }
+        private uint unknown12 { get; set; }
+        private ulong unknown14 { get; set; }
+        private ByteIndexList unknown19 { get; set; }
+
 
         private CountedTGIBlockList tgiList;
         public SliderRederence[] sliderReferences1 { get; set; }
@@ -56,11 +54,14 @@ namespace CASPartResource
         public byte unknown25 { get; set; }
         public byte unknown26 { get; set; }
         public byte unknown27 { get; set; }
-        public DataBlobHandler Unknown28 { get; set; }
+        public DataBlobHandler unknown28 { get; set; }
         public byte unknown29;
         public SliderRederence[] sliderReferences3 { get; set; }
         public SliderRederence[] sliderReferences4 { get; set; }
-        public DataBlobHandler Unknown30 { get; set; }
+        public DataBlobHandler unknown30 { get; set; }
+
+
+        public SimOutfitResourceTS4(int APIversion, Stream s) : base(APIversion, s) { if (s == null) { OnResourceChanged(this, EventArgs.Empty); } else { Parse(s); } }
 
         public void Parse(Stream s)
         {
@@ -96,19 +97,30 @@ namespace CASPartResource
 
             byte count2 = r.ReadByte();
             sliderReferences1 = new SliderRederence[count2];
-            for (int i = 0; i < count2; i++) sliderReferences1[i] = new SliderRederence(RecommendedApiVersion, OnResourceChanged, this.tgiList);
+            for (int i = 0; i < count2; i++) sliderReferences1[i] = new SliderRederence(RecommendedApiVersion, OnResourceChanged, s, this.tgiList);
             count2 = r.ReadByte();
             sliderReferences2 = new SliderRederence[count2];
-            for (int i = 0; i < count2; i++) sliderReferences2[i] = new SliderRederence(RecommendedApiVersion, OnResourceChanged, this.tgiList);
+            for (int i = 0; i < count2; i++) sliderReferences2[i] = new SliderRederence(RecommendedApiVersion, OnResourceChanged, s, this.tgiList);
 
             this.Unknown23 = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes(54));
 
-            int count4 = r.ReadInt32();
-            this.Unknown24 = new UnknownRederence[count4];
-            for (int i = 0; i < count4; i++) this.Unknown24[i] = new UnknownRederence(RecommendedApiVersion, OnResourceChanged, tgiList);
+            int count3 = r.ReadInt32();
+            this.Unknown24 = new UnknownRederence[count3];
+            for (int i = 0; i < count3; i++) this.Unknown24[i] = new UnknownRederence(RecommendedApiVersion, OnResourceChanged, s, tgiList);
             this.unknown25 = r.ReadByte();
             this.unknown26 = r.ReadByte();
             this.unknown27 = r.ReadByte();
+            this.unknown28 = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes(9 * 9));
+            this.unknown29 = r.ReadByte();
+
+            byte count4 = r.ReadByte();
+            sliderReferences3 = new SliderRederence[count4];
+            for (int i = 0; i < count4; i++) sliderReferences3[i] = new SliderRederence(RecommendedApiVersion, OnResourceChanged, s, this.tgiList);
+            int count5 = r.ReadByte();
+            sliderReferences4 = new SliderRederence[count5];
+            for (int i = 0; i < count5; i++) sliderReferences4[i] = new SliderRederence(RecommendedApiVersion, OnResourceChanged, s, this.tgiList);
+
+            this.unknown30 = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes((int)(tgiOffset - s.Position)));
 
         }
 
@@ -143,6 +155,10 @@ namespace CASPartResource
             }
 
             public TGIBlock TGIReference { get { return this.tgiList[this.index]; } }
+
+            const int recommendedApiVersion = 1;
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
         }
 
         public class UnknownRederence : AHandlerElement
@@ -169,10 +185,28 @@ namespace CASPartResource
             }
 
             public TGIBlock TGIReference { get { return this.tgiList[this.index]; } }
+
+            const int recommendedApiVersion = 1;
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
         }
         #endregion
 
         public string Value { get { return ValueBuilder; } }
+
+        const int recommendedApiVersion = 1;
+        public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+    }
+
+
+    public class SimOutfitTS4Handler : AResourceHandler
+    {
+        public SimOutfitTS4Handler()
+        {
+            if (s4pi.Settings.Settings.IsTS4)
+                this.Add(typeof(SimOutfitResourceTS4), new List<string>(new string[] { "0x025ED6F4", }));
+        }
     }
 }
 
