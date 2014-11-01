@@ -37,7 +37,7 @@ namespace CatalogResource.TS4
             if (this.modlList == null)
             {                                           
                 TGIBlock[] tgiList = new TGIBlock[8];
-                for (int i = 0; i < 8; i++) tgiList[i] = new TGIBlock(RecommendedApiVersion, OnResourceChanged);
+                for (int i = 0; i < 8; i++) tgiList[i] = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
                 this.modlList = new CountedTGIBlockList(OnResourceChanged, tgiList);
             }
             foreach (var tgi in this.modlList)

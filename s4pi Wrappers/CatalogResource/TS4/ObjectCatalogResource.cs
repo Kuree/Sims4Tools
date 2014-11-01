@@ -348,6 +348,7 @@ namespace CatalogResource.TS4
                 this.Add(typeof(TerrainPaintCatalogResource), new List<string>(new string[] { "0xEBCBB16C", }));
                 this.Add(typeof(ObjectInstanceResource), new List<string>(new string[] { "0x319E4F1D", }));
                 this.Add(typeof(RailingResource), new List<string>() { "0x1C1CF1F7", });
+                this.Add(typeof(StairCatalogResource), new List<string>(new string[] { "0x9A20CD1C", }));
             }
         }
     }
