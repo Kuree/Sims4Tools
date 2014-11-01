@@ -27,67 +27,73 @@ using s4pi.Interfaces;
 
 namespace CatalogResource.TS4
 {
-    public class WallCatalogResource : ObjectCatalogResource
+    public class FountainTrimsResource: ObjectCatalogResource
     {
-        private MATDList matdList;
-        private ThumbnailList thumList;
-        private uint unknown1;
-        private SwatchColorList colorList;
-        private ulong catalogGroupID;
+        #region Attributes
+        TGIBlock unknownTGIReference1;
+        uint unknown1;
+        TGIBlock unknownTGIReference2;
+        ulong catalogGroupID;
+        SwatchColorList colorList;
+        uint unknown2;
+        #endregion
 
-        public WallCatalogResource(int APIversion, Stream s) : base(APIversion, s) { }
+        public FountainTrimsResource(int APIversion, Stream s) : base(APIversion, s) { }
 
+        #region Data I/O
         protected override void Parse(Stream s)
         {
-            BinaryReader r = new BinaryReader(s);
             base.Parse(s);
-            this.matdList = new MATDList(OnResourceChanged, s);
-            this.thumList = new ThumbnailList(OnResourceChanged, s);
+            BinaryReader r = new BinaryReader(s);
+            this.unknownTGIReference1 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
             this.unknown1 = r.ReadUInt32();
-            this.colorList = new SwatchColorList(OnResourceChanged, s);
+            this.unknownTGIReference2 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
             this.catalogGroupID = r.ReadUInt64();
+            this.colorList = new SwatchColorList(OnResourceChanged, s);
+            this.unknown2 = r.ReadUInt32();
         }
 
         protected override Stream UnParse()
         {
-            var s =  base.UnParse();
+            var s = base.UnParse();
             BinaryWriter w = new BinaryWriter(s);
-            if (this.matdList == null) this.matdList = new MATDList(OnResourceChanged);
-            matdList.UnParse(s);
-            if (this.thumList == null) this.thumList = new ThumbnailList(OnResourceChanged);
-            this.thumList.UnParse(s);
+            if (this.unknownTGIReference1 == null) this.unknownTGIReference1 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
+            this.unknownTGIReference1.UnParse(s);
             w.Write(this.unknown1);
+            if (this.unknownTGIReference2 == null) this.unknownTGIReference2 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
+            this.unknownTGIReference2.UnParse(s);
+            w.Write(this.catalogGroupID);
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);
-            w.Write(this.catalogGroupID);
+            w.Write(this.unknown2);
             return s;
         }
-        [ElementPriority(15)]
-        public MATDList MatdList { get { return this.matdList; } set { if (!this.matdList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.matdList = value; } } }
-        [ElementPriority(16)]
-        public ThumbnailList ThumList { get { return this.thumList; } set { if (!this.thumList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.thumList = value; } } }
-        [ElementPriority(17)]
-        public uint Unknown1 { get { return this.unknown1; } set { if (!this.unknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
-        [ElementPriority(18)]
-        public SwatchColorList ColorList { get { return this.colorList; } set { if (!this.colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
-        [ElementPriority(19)]
-        public ulong CatalogGroupID { get { return this.catalogGroupID; } set { if (!this.catalogGroupID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogGroupID = value; } } }
+        #endregion
 
-        #region Clone Code
+        #region Content Fields
+        [ElementPriority(15)]
+        public TGIBlock UnknownTGIReference1 { get { return unknownTGIReference1; } set { if (!unknownTGIReference1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownTGIReference1 = value; } } }
+        [ElementPriority(16)]
+        public uint Unknown1 { get { return unknown1; } set { if (!unknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
+        [ElementPriority(17)]
+        public TGIBlock UnknownTGIReference2 { get { return unknownTGIReference2; } set { if (!unknownTGIReference2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownTGIReference2 = value; } } }
+        [ElementPriority(18)]
+        public ulong CatalogGroupID { get { return catalogGroupID; } set { if (!catalogGroupID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogGroupID = value; } } }
+        [ElementPriority(19)]
+        public SwatchColorList ColorList { get { return colorList; } set { if (!colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
+        [ElementPriority(20)]
+        public uint Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
+        #endregion
+
+        #region Clone
         public override TGIBlock[] NestedTGIBlockList
         {
             get
             {
-                List<TGIBlock> result = new List<TGIBlock>();
-                foreach (var matd in this.matdList)
-                    result.Add(matd.MATDTGI);
-                foreach(var thum in this.thumList)
-                {
-                    result.Add(thum.ThumGroupTGI.Item1);
-                    result.Add(thum.ThumGroupTGI.Item2);
-                    result.Add(thum.ThumGroupTGI.Item3);
-                }
-                return result.ToArray();
+                List<TGIBlock> tgiList = new List<TGIBlock>();
+                tgiList.Add(this.unknownTGIReference1);
+                tgiList.Add(this.unknownTGIReference2);
+                return tgiList.ToArray();
             }
         }
 

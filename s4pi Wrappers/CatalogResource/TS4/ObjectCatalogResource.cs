@@ -9,7 +9,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -25,7 +25,6 @@ using System.Text;
 using s4pi.Interfaces;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using CatalogResource.ArrayExtensions;
 
@@ -349,6 +348,7 @@ namespace CatalogResource.TS4
                 this.Add(typeof(ObjectInstanceResource), new List<string>(new string[] { "0x319E4F1D", }));
                 this.Add(typeof(RailingResource), new List<string>() { "0x1C1CF1F7", });
                 this.Add(typeof(StairCatalogResource), new List<string>(new string[] { "0x9A20CD1C", }));
+                this.Add(typeof(FountainTrimsResource), new List<string>(new string[] { "0xE7ADA79D", }));
             }
         }
     }

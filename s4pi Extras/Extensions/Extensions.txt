@@ -195,6 +195,7 @@
 0xE5105066  _XML   .xml
 0xE5105067  RMLS   .xml
 0xE5105068  _XML   .xml
+0xE7ADA79D  CFTR   .fountaintrims
 0xE882D22F  _XML   .xml 
 0xEA5118B0  _SWB   .effects
 0xEBCBB16C  TRPT   .trpt

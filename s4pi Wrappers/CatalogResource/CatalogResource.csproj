@@ -64,6 +64,7 @@
     <Compile Include="TS4\Common\MATDList.cs" />
     <Compile Include="TS4\Common\ThumbnailList.cs" />
     <Compile Include="TS4\FloorCatalogResource.cs" />
+    <Compile Include="TS4\FountainTrimsResource.cs" />
     <Compile Include="TS4\ObjectCatalogResource.cs" />
     <Compile Include="TS4\ObjectInstanceResource.cs" />
     <Compile Include="TS4\RailingResource.cs" />
