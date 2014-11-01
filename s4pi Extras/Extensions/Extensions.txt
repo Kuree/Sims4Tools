@@ -98,6 +98,7 @@
 0x11C258C0  CTRG   .bnry
 0x16CCF748  THUM   .jpg
 0x1A3201CD  _MOD   .override
+0x1C1CF1F7  CRAL   .railing
 0x1F886EAD  _INI   .ini
 0x220557DA  STBL   .stbl
 0x2653E3C8  THUM   .png

@@ -71,7 +71,7 @@ namespace CatalogResource.TS4
             byte count = r.ReadByte();
             TGIBlock[] tgiLIst = new TGIBlock[count];
             for (int i = 0; i < count; i++) tgiLIst[i] = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
-            this.catalogStyleTGIList = new CountedTGIBlockList(OnResourceChanged, tgiLIst);
+            this.catalogStyleTGIList = new CountedTGIBlockList(OnResourceChanged, "ITG", tgiLIst);
 
             this.catalogUnknown4 = r.ReadUInt16();
             var count2 = r.ReadInt32();
@@ -98,7 +98,7 @@ namespace CatalogResource.TS4
             w.Write(this.catalogUnknown3);
             if (this.catalogStyleTGIList == null) this.catalogStyleTGIList = new CountedTGIBlockList(OnResourceChanged);
             w.Write((byte)this.catalogStyleTGIList.Count);
-            foreach (var tgi in this.catalogStyleTGIList) tgi.UnParse(ms);
+            foreach (var tgi in this.catalogStyleTGIList) { /* bug in peter's code. Dirty fix*/w.Write(tgi.Instance); w.Write(tgi.ResourceType); w.Write(tgi.ResourceGroup); }
 
             w.Write(this.catalogUnknown4);
             if (this.catalogTagList == null) this.catalogTagList = new SimpleList<ushort>(OnResourceChanged);
