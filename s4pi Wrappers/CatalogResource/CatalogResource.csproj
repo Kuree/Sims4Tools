@@ -68,6 +68,7 @@
     <Compile Include="TS4\ObjectCatalogResource.cs" />
     <Compile Include="TS4\ObjectInstanceResource.cs" />
     <Compile Include="TS4\RailingResource.cs" />
+    <Compile Include="TS4\RoofTrimResource.cs" />
     <Compile Include="TS4\StairCatalogResource.cs" />
     <Compile Include="TS4\TerrainPaintCatalogResource.cs" />
     <Compile Include="TS4\WallCatalogResource.cs" />

@@ -163,6 +163,7 @@
 0xA8D58BE5  SKIL   .xml
 0xAD366F95  THUM   .png
 0xAD366F96  THUM   .png
+0xB0311D0F  CRTR   .rooftrim
 0xB1CC1AF6  _VID   .video
 0xB4DD716B  _INV   .inventory
 0xB4F762C9  CFLR   .cflr
