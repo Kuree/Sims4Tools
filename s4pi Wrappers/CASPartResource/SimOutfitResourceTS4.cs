@@ -107,13 +107,16 @@ namespace CASPartResource
             sliderReferences1 = new SliderReferenceList(OnResourceChanged, s, tgiList);
             sliderReferences2 = new SliderReferenceList(OnResourceChanged, s, tgiList);
             
+            // In some resources, especially those without slider reference, expand these part, thus is not 54 bytes any more
             this.unknown13 = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes(54));
 
 
             this.unknown14 = new UnknownReferenceList(OnResourceChanged, s, tgiList);
+            // I doubt these three bytes are count value
             this.unknown15 = r.ReadByte();
             this.unknown16 = r.ReadByte();
             this.unknown17 = r.ReadByte();
+            // For the abnormal ones, it is not 9 bytes * 9.
             this.unknown18 = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes(9 * 9));
             this.unknown19 = r.ReadByte();
 
@@ -124,6 +127,8 @@ namespace CASPartResource
 
 
             // most of the time it's 80 bytes
+            // And it also nested a UnknownReferenceList as well.
+            // There must be a count that I'm missing.
             this.unknown20 = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes((int)(tgiOffset - s.Position)));
 
         }
