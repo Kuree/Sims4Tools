@@ -178,6 +178,7 @@ namespace CASPartResource
             swatchColorCode.UnParse(s);
             w.Write(buffResKey);
             w.Write(varientThumbnailKey);
+            if (this.version >= 0x1C) w.Write(voiceEffectHash);
             w.Write(nakedKey);
             w.Write(parentKey);
             w.Write(sortLayer);
