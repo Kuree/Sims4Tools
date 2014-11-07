@@ -32,19 +32,7 @@ namespace CASPartResource
     {
         const int recommendedApiVersion = 1;
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        //public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-        public override List<string> ContentFields
-        {
-            get
-            {
-                List<string> res = base.ContentFields;
-                if (this.version < 0x0000001b)
-                {
-                    res.Remove("Unk4B");
-                }
-                return res;
-            }
-        }
+        
 
 
         static bool checking = s4pi.Settings.Settings.Checking;
@@ -59,7 +47,7 @@ namespace CASPartResource
         private uint propertyID;
         uint auralMaterialHash;
         PramFlag parmFlags;
-        ulong excludePartFlags;
+        ExcludePartFlag excludePartFlags;
         uint excludeModifierRegionFlags;
         FlagList flagList;
         uint simlolencePrice;
@@ -74,6 +62,7 @@ namespace CASPartResource
         SwatchColorList swatchColorCode;
         byte buffResKey;
         byte varientThumbnailKey;
+        ulong voiceEffectHash;
         byte nakedKey;
         byte parentKey;
         int sortLayer;
@@ -86,7 +75,7 @@ namespace CASPartResource
         byte overrides;
         byte normalMapKey;
         byte specularMapKey;
-        uint unk4B;
+        uint sharedUVMapSpace;
         private CountedTGIBlockList tgiList;
         #endregion
 
@@ -108,7 +97,7 @@ namespace CASPartResource
             propertyID = r.ReadUInt32();
             this.auralMaterialHash = r.ReadUInt32();
             this.parmFlags = (PramFlag)r.ReadByte();
-            this.excludePartFlags = r.ReadUInt64();
+            this.excludePartFlags = (ExcludePartFlag)r.ReadUInt64();
             this.excludeModifierRegionFlags = r.ReadUInt32();
 
             flagList = new FlagList(OnResourceChanged, s);
@@ -127,6 +116,7 @@ namespace CASPartResource
 
             this.buffResKey = r.ReadByte();
             this.varientThumbnailKey = r.ReadByte();
+            if (this.version >= 0x1C) this.voiceEffectHash = r.ReadUInt64();
             this.nakedKey = r.ReadByte();
             this.parentKey = r.ReadByte();
             this.sortLayer = r.ReadInt32();
@@ -152,10 +142,7 @@ namespace CASPartResource
             this.overrides = r.ReadByte();
             this.normalMapKey = r.ReadByte();
             this.specularMapKey = r.ReadByte();
-            if (this.version >= 0x1b)
-            {
-                this.unk4B = r.ReadUInt32();
-            }
+            if (this.version >= 0x1B) this.sharedUVMapSpace = r.ReadUInt32();
 
 
         }
@@ -174,7 +161,7 @@ namespace CASPartResource
             w.Write(propertyID);
             w.Write(auralMaterialHash);
             w.Write((byte)parmFlags);
-            w.Write(excludePartFlags);
+            w.Write((ulong)excludePartFlags);
             w.Write(excludeModifierRegionFlags);
             if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
             flagList.UnParse(s);
@@ -208,7 +195,7 @@ namespace CASPartResource
             w.Write(specularMapKey);
             if (this.version >= 0x1b)
             {
-                w.Write(unk4B);
+                w.Write(sharedUVMapSpace);
             }
 
             long tgiPosition = w.BaseStream.Position;
@@ -243,7 +230,7 @@ namespace CASPartResource
         [ElementPriority(8)]
         public PramFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
-        public ulong ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public ExcludePartFlag ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(10)]
         public uint ExcludeModifierRegionFlags { get { return excludeModifierRegionFlags; } set { if (!value.Equals(excludeModifierRegionFlags)) excludeModifierRegionFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(11)]
@@ -272,6 +259,8 @@ namespace CASPartResource
         public byte BuffResKey { get { return buffResKey; } set { if (!value.Equals(buffResKey)) buffResKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(23), TGIBlockListContentField("TGIList")]
         public byte VarientThumbnailKey { get { return varientThumbnailKey; } set { if (!value.Equals(varientThumbnailKey)) varientThumbnailKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(23)]
+        public ulong VoiceEffectHash { get { return voiceEffectHash; } set { if (!value.Equals(voiceEffectHash)) voiceEffectHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(24), TGIBlockListContentField("TGIList")]
         public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(25), TGIBlockListContentField("TGIList")]
@@ -297,26 +286,25 @@ namespace CASPartResource
         [ElementPriority(35), TGIBlockListContentField("TGIList")]
         public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(36)]
-        public uint Unk4B
-        {
-            get
-            {
-                if (version < 0x0000001b) throw new InvalidOperationException();
-                return unk4B;
-            }
-            set
-            {
-                if (version < 0x00000019) throw new InvalidOperationException();
-                if (unk4B != value)
-                {
-                    unk4B = value; OnResourceChanged(this, EventArgs.Empty);
-                }
-            }
+        public uint SharedUVMapSpace { 
+            get { if (this.version < 0x1B) { throw new InvalidOperationException("Version not supported"); } else { return this.sharedUVMapSpace; }}
+            set { if (version < 0x1B) { throw new InvalidOperationException("Version not Supported"); } this.sharedUVMapSpace = value; }
         }
 
         [ElementPriority(37)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
+
+        public override List<string> ContentFields
+        {
+            get
+            {
+                List<string> res = base.ContentFields;
+                if (this.version < 0x1B) { res.Remove("SharedUVMapSpace"); }
+                if (this.version < 0x1C) { res.Remove("VoiceEffectHash"); }
+                return res;
+            }
+        }
         #endregion
 
         #region Sub-Class
@@ -704,6 +692,68 @@ namespace CASPartResource
             Female = 0x00002000
         }
 
+        [Flags]
+        public enum ExcludePartFlag
+        {
+            BODYTYPE_NONE = 0,
+            BODYTYPE_HAT = 1 << 1,
+            BODYTYPE_HAIR = 1 << 2,
+            BODYTYPE_HEAD = 1 << 3,
+            BODYTYPE_FACE = 1 << 4,
+            BODYTYPE_FULLBODY = 1 << 5,
+            BODYTYPE_UPPERBODY = 1 << 6,
+            BODYTYPE_LOWERBODY = 1 << 7,
+            BODYTYPE_SHOES = 1 << 8,
+            BODYTYPE_ACCESSORIES = 1 << 9,
+            BODYTYPE_EARRINGS = 1 << 10,
+            BODYTYPE_GLASSES = 1 << 11,
+            BODYTYPE_NECKLACE = 1 << 12,
+            BODYTYPE_GLOVES = 1 << 13,
+            BODYTYPE_WRISTLEFT = 1 << 14,
+            BODYTYPE_WRISTRIGHT = 1 << 15,
+            BODYTYPE_LIPRINGLEFT = 1 << 16,
+            BODYTYPE_LIPRINGRIGHT = 1 << 17,
+            BODYTYPE_NOSERINGLEFT = 1 << 18,
+            BODYTYPE_NOSERINGRIGHT = 1 << 19,
+            BODYTYPE_BROWRINGLEFT = 1 << 20,
+            BODYTYPE_BROWRINGRIGHT = 1 << 21,
+            BODYTYPE_INDEXFINGERLEFT = 1 << 22,
+            BODYTYPE_INDEXFINGERRIGHT = 1 << 23,
+            BODYTYPE_RINGFINGERLEFT = 1 << 24,
+            BODYTYPE_RINGFINGERRIGHT = 1 << 25,
+            BODYTYPE_MIDDLEFINGERLEFT = 1 << 26,
+            BODYTYPE_MIDDLEFINGERRIGHT = 1 << 27,
+            BODYTYPE_FACIALHAIR = 1 << 28,
+            BODYTYPE_LIPSTICK = 1 << 29,
+            BODYTYPE_EYESHADOW = 1 << 30,
+            BODYTYPE_EYELINER = 1 << 31,
+            BODYTYPE_BLUSH = 1 << 32,
+            BODYTYPE_FACEPAINT = 1 << 33,
+            BODYTYPE_EYEBROWS = 1 << 34,
+            BODYTYPE_EYECOLOR = 1 << 35,
+            BODYTYPE_SOCKS = 1 << 36,
+            BODYTYPE_MASCARA = 1 << 37,
+            BODYTYPE_SKINDETAIL_CREASEFOREHEAD = 1 << 38,
+            BODYTYPE_SKINDETAIL_FRECKLES = 1 << 39,
+            BODYTYPE_SKINDETAIL_DIMPLELEFT = 1 << 40,
+            BODYTYPE_SKINDETAIL_DIMPLERIGHT = 1 << 41,
+            BODYTYPE_TIGHTS = 1 << 42,
+            BODYTYPE_SKINDETAIL_MOLELIPLEFT = 1 << 43,
+            BODYTYPE_SKINDETAIL_MOLELIPRIGHT = 1 << 44,
+            BODYTYPE_TATTOO_ARMLOWERLEFT = 1 << 45,
+            BODYTYPE_TATTOO_ARMUPPERLEFT = 1 << 46,
+            BODYTYPE_TATTOO_ARMLOWERRIGHT = 1 << 47,
+            BODYTYPE_TATTOO_ARMUPPERRIGHT = 1 << 48,
+            BODYTYPE_TATTOO_LEGLEFT = 1 << 49,
+            BODYTYPE_TATTOO_LEGRIGHT = 1 << 50,
+            BODYTYPE_TATTOO_TORSOBACKLOWER = 1 << 51,
+            BODYTYPE_TATTOO_TORSOBACKUPPER = 1 << 52,
+            BODYTYPE_TATTOO_TORSOFRONTLOWER = 1 << 53,
+            BODYTYPE_TATTOO_TORSOFRONTUPPER = 1 << 54,
+            BODYTYPE_SKINDETAIL_MOLECHEEKLEFT = 1 << 55,
+            BODYTYPE_SKINDETAIL_MOLECHEEKRIGHT = 1 << 56,
+            BODYTYPE_SKINDETAIL_CREASEMOUTH = 1 << 57
+        }
 
         #endregion
 
