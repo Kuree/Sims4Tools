@@ -165,7 +165,7 @@ namespace CASPartResource
 
             long tmpPostion = ms.Position;
             ms.Position = tgiOffsetPosition;
-            w.Write((uint)tmpPostion);
+            w.Write((uint)tmpPostion - 8);
             ms.Position = tmpPostion;
             w.Write((byte)tgiList.Count);
             foreach (var tgi in this.tgiList)
@@ -249,8 +249,8 @@ namespace CASPartResource
         public class UnknownReference : AHandlerElement, IEquatable<UnknownReference>
         {
             private CountedTGIBlockList tgiList;
-            public DataBlobHandler unknownBlock { get; set; }
-            public UnknownReference2List unknownReference2List { get; set; }
+            private DataBlobHandler unknownBlock;
+            private UnknownReference2List unknownReference2List;
 
             public UnknownReference(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
             public UnknownReference(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
@@ -259,7 +259,6 @@ namespace CASPartResource
             {
                 BinaryReader r = new BinaryReader(s);
                 this.unknownBlock = new DataBlobHandler(recommendedApiVersion, handler, r.ReadBytes(17));
-
                 this.unknownReference2List = new UnknownReference2List(handler, s, tgiList);
             }
 
@@ -278,6 +277,8 @@ namespace CASPartResource
             const int recommendedApiVersion = 1;
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
             public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            public DataBlobHandler UnknownBlock { get { return this.unknownBlock; } set { if (!this.unknownBlock.Equals(value)) { OnElementChanged(); this.unknownBlock = value; } } }
+            public UnknownReference2List UnknownReference2List { get { return this.unknownReference2List; } set { if (!this.unknownReference2List.Equals(value)) { OnElementChanged(); this.unknownReference2List = value; } } }
             public string Value { get { return ValueBuilder; } }            
         }
 
@@ -325,9 +326,9 @@ namespace CASPartResource
 
             private byte blockIndex;
             private uint unknown1;
-
-            public UnknownReferenceList unknownReferenceList { get; set; }
+            private UnknownReferenceList unknownReferenceList;
             private CountedTGIBlockList tgiList;
+
             public UnknownBlock(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
             public UnknownBlock(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s, tgiList); }
             
@@ -349,8 +350,12 @@ namespace CASPartResource
 
 
             #region Content Fields
+            [ElementPriority(0)]
             public byte BlockIndex { get { return this.blockIndex; } set { if (!this.blockIndex.Equals(value)) { this.blockIndex = value; } } }
+            [ElementPriority(1)]
             public uint Unknown1 { get { return this.unknown1; } set { if (!this.unknown1.Equals(value)) { this.unknown1 = value; } } }
+            [ElementPriority(2)]
+            public UnknownReferenceList UnknownReferenceList { get { return this.unknownReferenceList; } set { if (!this.unknownReferenceList.Equals(value)) { this.unknownReferenceList = value; } } }
             const int recommendedApiVersion = 1;
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
             public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
