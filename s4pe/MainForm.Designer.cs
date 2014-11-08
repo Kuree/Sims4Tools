@@ -52,25 +52,25 @@ namespace S4PIDemoFE
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.browserWidget1 = new S4PIDemoFE.BrowserWidget();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.lbProgress = new System.Windows.Forms.Label();
             this.pnAuto = new System.Windows.Forms.Panel();
-            this.packageInfoWidget1 = new S4PIDemoFE.PackageInfo.PackageInfoWidget();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.controlPanel1 = new S4PIDemoFE.ControlPanel();
-            this.resourceFilterWidget1 = new S4PIDemoFE.Filter.ResourceFilterWidget();
             this.saveAsFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.exportFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.exportBatchTarget = new System.Windows.Forms.FolderBrowserDialog();
             this.importResourcesDialog = new System.Windows.Forms.OpenFileDialog();
             this.importPackagesDialog = new System.Windows.Forms.OpenFileDialog();
             this.exportToPackageDialog = new System.Windows.Forms.OpenFileDialog();
-            this.menuBarWidget = new S4PIDemoFE.MenuBarWidget();
-            this.packageInfoFields1 = new S4PIDemoFE.PackageInfo.PackageInfoFields();
             this.replaceResourceDialog = new System.Windows.Forms.OpenFileDialog();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.browserWidget1 = new S4PIDemoFE.BrowserWidget();
+            this.packageInfoWidget1 = new S4PIDemoFE.PackageInfo.PackageInfoWidget();
+            this.controlPanel1 = new S4PIDemoFE.ControlPanel();
+            this.resourceFilterWidget1 = new S4PIDemoFE.Filter.ResourceFilterWidget();
+            this.menuBarWidget = new S4PIDemoFE.MenuBarWidget();
+            this.packageInfoFields1 = new S4PIDemoFE.PackageInfo.PackageInfoFields();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -125,29 +125,6 @@ namespace S4PIDemoFE
             this.splitContainer2.SplitterDistance = 629;
             this.splitContainer2.TabIndex = 0;
             // 
-            // browserWidget1
-            // 
-            this.browserWidget1.AllowDrop = true;
-            this.browserWidget1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.browserWidget1.Fields = null;
-            this.browserWidget1.Filter = null;
-            this.browserWidget1.Location = new System.Drawing.Point(0, 0);
-            this.browserWidget1.Name = "browserWidget1";
-            this.browserWidget1.Package = null;
-            this.browserWidget1.ProgressBar = this.progressBar1;
-            this.browserWidget1.ProgressLabel = this.lbProgress;
-            this.browserWidget1.ResourceKey = null;
-            this.browserWidget1.SelectedResource = null;
-            this.browserWidget1.Size = new System.Drawing.Size(625, 510);
-            this.browserWidget1.Sortable = false;
-            this.browserWidget1.TabIndex = 0;
-            this.browserWidget1.ItemActivate += new System.EventHandler(this.browserWidget1_ItemActivate);
-            this.browserWidget1.SelectedResourceChanging += new System.EventHandler<S4PIDemoFE.BrowserWidget.ResourceChangingEventArgs>(this.browserWidget1_SelectedResourceChanging);
-            this.browserWidget1.SelectedResourceChanged += new System.EventHandler<S4PIDemoFE.BrowserWidget.ResourceChangedEventArgs>(this.browserWidget1_SelectedResourceChanged);
-            this.browserWidget1.DeletePressed += new System.EventHandler(this.browserWidget1_DeletePressed);
-            this.browserWidget1.DragDrop += new System.Windows.Forms.DragEventHandler(this.browserWidget1_DragDrop);
-            this.browserWidget1.DragOver += new System.Windows.Forms.DragEventHandler(this.browserWidget1_DragOver);
-            // 
             // progressBar1
             // 
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -177,16 +154,6 @@ namespace S4PIDemoFE
             this.pnAuto.Size = new System.Drawing.Size(286, 510);
             this.pnAuto.TabIndex = 4;
             // 
-            // packageInfoWidget1
-            // 
-            this.packageInfoWidget1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.packageInfoWidget1.Fields = null;
-            this.packageInfoWidget1.Location = new System.Drawing.Point(0, 103);
-            this.packageInfoWidget1.Name = "packageInfoWidget1";
-            this.packageInfoWidget1.Package = null;
-            this.packageInfoWidget1.Size = new System.Drawing.Size(919, 2);
-            this.packageInfoWidget1.TabIndex = 0;
-            // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
@@ -211,6 +178,86 @@ namespace S4PIDemoFE
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(919, 103);
             this.panel1.TabIndex = 0;
+            // 
+            // saveAsFileDialog
+            // 
+            this.saveAsFileDialog.FileName = "*.package";
+            this.saveAsFileDialog.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
+            this.saveAsFileDialog.Title = "Save As";
+            // 
+            // exportFileDialog
+            // 
+            this.exportFileDialog.AddExtension = false;
+            this.exportFileDialog.Filter = "Exported files (S4_*.*)|S4_*.*|All files (*.*)|*.*";
+            this.exportFileDialog.Title = "Export File";
+            // 
+            // exportBatchTarget
+            // 
+            this.exportBatchTarget.Description = "Choose the folder to receive the exported resources";
+            // 
+            // importResourcesDialog
+            // 
+            this.importResourcesDialog.Filter = "Exported files (S4_*.*)|S4_*.*|All files (*.*)|*.*";
+            this.importResourcesDialog.Multiselect = true;
+            this.importResourcesDialog.Title = "Import Resources";
+            // 
+            // importPackagesDialog
+            // 
+            this.importPackagesDialog.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
+            this.importPackagesDialog.Multiselect = true;
+            this.importPackagesDialog.Title = "Import Packages";
+            // 
+            // exportToPackageDialog
+            // 
+            this.exportToPackageDialog.CheckFileExists = false;
+            this.exportToPackageDialog.DefaultExt = "package";
+            this.exportToPackageDialog.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
+            this.exportToPackageDialog.Title = "Export to package";
+            // 
+            // replaceResourceDialog
+            // 
+            this.replaceResourceDialog.AddExtension = false;
+            this.replaceResourceDialog.Title = "Replace Resource";
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "*.package";
+            this.openFileDialog1.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
+            this.openFileDialog1.SupportMultiDottedExtensions = true;
+            this.openFileDialog1.Title = "Open package";
+            // 
+            // browserWidget1
+            // 
+            this.browserWidget1.AllowDrop = true;
+            this.browserWidget1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.browserWidget1.Fields = null;
+            this.browserWidget1.Filter = null;
+            this.browserWidget1.Location = new System.Drawing.Point(0, 0);
+            this.browserWidget1.Name = "browserWidget1";
+            this.browserWidget1.Package = null;
+            this.browserWidget1.ProgressBar = this.progressBar1;
+            this.browserWidget1.ProgressLabel = this.lbProgress;
+            this.browserWidget1.ResourceKey = null;
+            this.browserWidget1.SelectedResource = null;
+            this.browserWidget1.Size = new System.Drawing.Size(625, 510);
+            this.browserWidget1.Sortable = false;
+            this.browserWidget1.TabIndex = 0;
+            this.browserWidget1.ItemActivate += new System.EventHandler(this.browserWidget1_ItemActivate);
+            this.browserWidget1.SelectedResourceChanging += new System.EventHandler<S4PIDemoFE.BrowserWidget.ResourceChangingEventArgs>(this.browserWidget1_SelectedResourceChanging);
+            this.browserWidget1.SelectedResourceChanged += new System.EventHandler<S4PIDemoFE.BrowserWidget.ResourceChangedEventArgs>(this.browserWidget1_SelectedResourceChanged);
+            this.browserWidget1.DeletePressed += new System.EventHandler(this.browserWidget1_DeletePressed);
+            this.browserWidget1.DragDrop += new System.Windows.Forms.DragEventHandler(this.browserWidget1_DragDrop);
+            this.browserWidget1.DragOver += new System.Windows.Forms.DragEventHandler(this.browserWidget1_DragOver);
+            // 
+            // packageInfoWidget1
+            // 
+            this.packageInfoWidget1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.packageInfoWidget1.Fields = null;
+            this.packageInfoWidget1.Location = new System.Drawing.Point(0, 103);
+            this.packageInfoWidget1.Name = "packageInfoWidget1";
+            this.packageInfoWidget1.Package = null;
+            this.packageInfoWidget1.Size = new System.Drawing.Size(919, 2);
+            this.packageInfoWidget1.TabIndex = 0;
             // 
             // controlPanel1
             // 
@@ -250,41 +297,6 @@ namespace S4PIDemoFE
             this.resourceFilterWidget1.FilterChanged += new System.EventHandler(this.resourceFilterWidget1_FilterChanged);
             this.resourceFilterWidget1.PasteClicked += new System.EventHandler(this.resourceFilterWidget1_PasteClicked);
             // 
-            // saveAsFileDialog
-            // 
-            this.saveAsFileDialog.FileName = "*.package";
-            this.saveAsFileDialog.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
-            this.saveAsFileDialog.Title = "Save As";
-            // 
-            // exportFileDialog
-            // 
-            this.exportFileDialog.AddExtension = false;
-            this.exportFileDialog.Filter = "Exported files (S4_*.*)|S4_*.*|All files (*.*)|*.*";
-            this.exportFileDialog.Title = "Export File";
-            // 
-            // exportBatchTarget
-            // 
-            this.exportBatchTarget.Description = "Choose the folder to receive the exported resources";
-            // 
-            // importResourcesDialog
-            // 
-            this.importResourcesDialog.Filter = "Exported files (S4_*.*)|S4_*.*|All files (*.*)|*.*";
-            this.importResourcesDialog.Multiselect = true;
-            this.importResourcesDialog.Title = "Import Resources";
-            // 
-            // importPackagesDialog
-            // 
-            this.importPackagesDialog.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
-            this.importPackagesDialog.Multiselect = true;
-            this.importPackagesDialog.Title = "Import Packages";
-            // 
-            // exportToPackageDialog
-            // 
-            this.exportToPackageDialog.CheckFileExists = false;
-            this.exportToPackageDialog.DefaultExt = "package";
-            this.exportToPackageDialog.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
-            this.exportToPackageDialog.Title = "Export to package";
-            // 
             // menuBarWidget
             // 
             this.menuBarWidget.Dock = System.Windows.Forms.DockStyle.Top;
@@ -303,18 +315,6 @@ namespace S4PIDemoFE
             this.menuBarWidget.HelperClick += new S4PIDemoFE.MenuBarWidget.HelperClickEventHandler(this.menuBarWidget1_HelperClick);
             this.menuBarWidget.MRUClick += new S4PIDemoFE.MenuBarWidget.MRUClickEventHandler(this.menuBarWidget1_MRUClick);
             this.menuBarWidget.BookmarkClick += new S4PIDemoFE.MenuBarWidget.BookmarkClickEventHandler(this.menuBarWidget1_BookmarkClick);
-            // 
-            // replaceResourceDialog
-            // 
-            this.replaceResourceDialog.AddExtension = false;
-            this.replaceResourceDialog.Title = "Replace Resource";
-            // 
-            // openFileDialog1
-            // 
-            this.openFileDialog1.FileName = "*.package";
-            this.openFileDialog1.Filter = global::S4PIDemoFE.Properties.Settings.Default.DBPFFilesAndAll;
-            this.openFileDialog1.SupportMultiDottedExtensions = true;
-            this.openFileDialog1.Title = "Open package";
             // 
             // MainForm
             // 

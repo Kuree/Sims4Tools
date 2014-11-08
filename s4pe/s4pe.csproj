@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <ApplicationIcon>Resources\s3pe.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\s4pe.ico</ApplicationIcon>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -202,6 +202,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\ExternalProgramsDialog.resx">
       <DependentUpon>ExternalProgramsDialog.cs</DependentUpon>
@@ -295,6 +296,7 @@
     <Content Include="Acknowledgements-s3pe.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\s4pe.ico" />
     <Content Include="squishinterface_Win32.dll" />
     <Content Include="squishinterface_x64.dll" />
     <None Include="App.config" />
@@ -304,7 +306,6 @@
     <None Include="Helpers\Notepad.helper">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Resources\s3pe.ico" />
     <Content Include="s3peUpdate.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
