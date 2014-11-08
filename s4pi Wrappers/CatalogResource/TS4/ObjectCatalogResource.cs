@@ -230,23 +230,7 @@ namespace CatalogResource.TS4
         public ulong CatalogUnknown7 { get { return this.catalogUnknown7; } set { if (!this.catalogUnknown7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogUnknown7 = value; } } }
         public string Value { get { return ValueBuilder; } }
 
-        public virtual TGIBlock[] NestedTGIBlockList
-        {
-            get { return null; }
-            set
-            {
-                var list = value;
-                if (list.Length != NestedTGIBlockList.Length) throw new InvalidDataException("Invalid clone operation");
-                for (int i = 0; i < list.Length; i++)
-                {
-                    var tgi = NestedTGIBlockList[i];
-                    tgi.Instance = list[i].Instance;
-                    tgi.ResourceType = list[i].ResourceType;
-                    tgi.ResourceGroup = tgi.ResourceGroup;
-                }
-            }
-        }
-        protected virtual object GroupingID { get; set; }
+
         #endregion
 
         #region Clone
@@ -332,6 +316,29 @@ namespace CatalogResource.TS4
 
 
         virtual internal List<string> RenumberingFields { get { return new List<string>() { "CatalogNameHash", "CatalogDescHash", "NestedTGIBlockList" }; } }
+
+        protected internal void SetTGIList(TGIBlock[] list)
+        {
+            if (list.Length != NestedTGIBlockList.Length) throw new InvalidDataException("Invalid clone operation");
+            for (int i = 0; i < list.Length; i++)
+            {
+                var tgi = NestedTGIBlockList[i];
+                tgi.Instance = list[i].Instance;
+                tgi.ResourceType = list[i].ResourceType;
+                tgi.ResourceGroup = tgi.ResourceGroup;
+            }
+        }
+
+        public virtual TGIBlock[] NestedTGIBlockList
+        {
+            get { return null; }
+            set
+            {
+                this.SetTGIList(value);
+            }
+        }
+        protected virtual object GroupingID { get; set; }
+        
         #endregion
     }
 
