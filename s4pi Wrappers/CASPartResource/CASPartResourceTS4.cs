@@ -682,8 +682,8 @@ namespace CASPartResource
         [Flags]
         public enum AgeGenderFlags
         {
-            Unknown1 = 0x00000001,
-            Unknown2 = 0x00000002,
+            Baby = 0x00000001,
+            Toddler = 0x00000002,
             Child = 0x00000004,
             Teen = 0x00000008,
             YoungAdult = 0x00000010,
