@@ -525,7 +525,7 @@ namespace CASPartResource
             public bool Equals(SwatchColor other) { return other.Equals(this.color); }
 
             public Color Color { get { return this.color; } set { if (!color.Equals(value)) { this.color = value; OnElementChanged(); } } }
-            public string Value { get { { return this.color.IsKnownColor ? this.color.ToKnownColor().ToString() : this.color.Name; } } }
+            public string Value { get { { return this.color.IsKnownColor ? "0x" + this.color.ToKnownColor().ToString().ToUpper() : "0x" + this.color.Name.ToUpper(); } } }
         }
 
         public class SwatchColorList : DependentList<SwatchColor>
