@@ -680,7 +680,7 @@ namespace CASPartResource
         }
 
         [Flags]
-        public enum AgeGenderFlags
+        public enum AgeGenderFlags : uint
         {
             Baby = 0x00000001,
             Toddler = 0x00000002,
