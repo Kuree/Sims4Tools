@@ -1,6 +1,7 @@
 ﻿/***************************************************************************
  *  Copyright (C) 2009, 2010 by Peter L Jones                              *
  *  pljones@users.sf.net                                                   *
+ *  (updated by Inge Jones 2014)                                           *
  *                                                                         *
  *  This file is part of the Sims 3 Package Interface (s3pi)               *
  *                                                                         *
@@ -42,8 +43,196 @@ namespace meshExpImp.ModelBlocks
         MediumDetailShadow = 0x00010001,
         LowDetailShadow = 0x00010002
     }
+
     public class MODL : ARCOLBlock
     {
+        #region Attributes
+
+        public override uint ResourceType
+        {
+            get { return 0x01661233; }
+        }
+
+        public override string Tag
+        {
+            get { return "MODL"; }
+        }
+
+        private const int kRecommendedApiVersion = 1;
+        private UInt32 mVersion;
+        private BoundingBox mBounds;
+        private UInt32 mFadeType;
+        private UInt32 unk01;
+        private UInt32 unk02;
+        private float mCustomFadeDistance;
+        private BoundingBoxList mExtraBounds;
+        private LODEntryList mEntries;
+
+        #endregion Attributes ================================
+
+        #region Constructors
+
+        public MODL(int APIversion, EventHandler handler) : this(APIversion, handler, 256, new BoundingBox(0, handler), new BoundingBoxList(handler), 0, 0f, 0, 0, new LODEntryList(handler)) { }
+        public MODL(int APIversion, EventHandler handler, MODL basis) : this(APIversion, handler, basis.Version, new BoundingBox(0, handler, basis.Bounds), new BoundingBoxList(handler, basis.ExtraBounds),basis.FadeType,basis.CustomFadeDistance, basis.unk01, basis.unk02, new LODEntryList(handler, basis.Entries)) { }
+        public MODL(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
+        public MODL(int APIversion, EventHandler handler, uint version, BoundingBox bounds, BoundingBoxList extraBounds, uint fadeType, float customFadeDistance, uint unk01, uint unk02, LODEntryList entries)
+            : base(APIversion, handler, null)
+        {
+            mVersion = version;
+            mBounds = bounds;
+            mExtraBounds = extraBounds == null ? null : extraBounds;
+            mFadeType = fadeType;
+            mCustomFadeDistance = customFadeDistance;
+            this.unk01 = unk01;
+            this.unk02 = unk02;
+            mEntries = entries == null ? null : entries;
+        }
+
+        #endregion Constructors ===================================
+
+        #region ContentFields
+
+        [ElementPriority(1)]
+        public uint Version
+        {
+            get { return mVersion; }
+            set { if (mVersion != value) { mVersion = value; OnRCOLChanged(this, EventArgs.Empty); } }
+        }
+        [ElementPriority(2)]
+        public BoundingBox Bounds
+        {
+            get { return mBounds; }
+            set { if (mBounds != value) { mBounds = value; OnRCOLChanged(this, EventArgs.Empty); } }
+        }
+        [ElementPriority(3)]
+        public BoundingBoxList ExtraBounds
+        {
+            get { return mExtraBounds; }
+            set { if (mExtraBounds != value) { mExtraBounds = value == null ? null : new BoundingBoxList(handler, value); OnRCOLChanged(this, EventArgs.Empty); } }
+        }
+        [ElementPriority(4)]
+        public uint FadeType
+        {
+            get { return mFadeType; }
+            set { if (mFadeType != value) { mFadeType = value; OnRCOLChanged(this, EventArgs.Empty); } }
+        }
+        [ElementPriority(5)]
+        public float CustomFadeDistance
+        {
+            get { return mCustomFadeDistance; }
+            set { if (mCustomFadeDistance != value) { mCustomFadeDistance = value; OnRCOLChanged(this, EventArgs.Empty); } }
+        }
+        [ElementPriority(6)]
+        public uint Unk01
+        {
+            get { return unk01; }
+            set { if (unk01 != value) { unk01 = value; OnRCOLChanged(this, EventArgs.Empty); } }
+        }
+        [ElementPriority(6)]
+        public uint Unk02
+        {
+            get { return unk02; }
+            set { if (unk02 != value) { unk02 = value; OnRCOLChanged(this, EventArgs.Empty); } }
+        }
+        [ElementPriority(8)]
+        public LODEntryList Entries
+        {
+            get { return mEntries; }
+            set { if (mEntries != value) { mEntries = value == null ? null : new LODEntryList(handler, value); OnRCOLChanged(this, EventArgs.Empty); } }
+        }
+
+        public override List<string> ContentFields
+        {
+            get
+            {
+                var fields = base.ContentFields;
+                if (mVersion < 0x00000300)
+                {
+                    fields.Remove("Unk01");
+                    fields.Remove("Unk02");
+                }
+                if (mVersion < 0x00000102)
+                {
+                    fields.Remove("ExtraBounds");
+                    fields.Remove("FadeType");
+                    fields.Remove("CustomFadeDistance");
+                }
+                return fields;
+            }
+        }
+
+        public string Value { get { return ValueBuilder; } }
+
+        #endregion ContentFields =======================================
+
+        #region DataIO
+
+        protected override void Parse(Stream s)
+        {
+            BinaryReader br = new BinaryReader(s);
+            string tag = FOURCC(br.ReadUInt32());
+            if (Settings.Checking && tag != Tag)
+            {
+                throw new InvalidDataException(string.Format("Invalid Tag read: '{0}'; expected: '{1}'; at 0x{1:X8}", tag, Tag, s.Position));
+            }
+            mVersion = br.ReadUInt32();
+            int count = br.ReadInt32();
+            mBounds = new BoundingBox(0, handler, s);
+            if (mVersion >= 0x00000300)
+            {
+                mExtraBounds = new BoundingBoxList(handler, s);
+                mFadeType = br.ReadUInt32();
+                mCustomFadeDistance = br.ReadSingle();
+                this.unk01 = br.ReadUInt32();
+                this.unk02 = br.ReadUInt32();
+            }
+            else if (mVersion >= 0x00000102)
+            {
+                mExtraBounds = new BoundingBoxList(handler, s);
+                mFadeType = br.ReadUInt32();
+                mCustomFadeDistance = br.ReadSingle();
+            }
+            else
+            {
+                mExtraBounds = new BoundingBoxList(handler);
+            }
+            mEntries = new LODEntryList(handler, s, count);
+        }
+
+        public override Stream UnParse()
+        {
+            MemoryStream s = new MemoryStream();
+            BinaryWriter bw = new BinaryWriter(s);
+            bw.Write((UInt32)FOURCC(Tag));
+            if (mExtraBounds == null) mExtraBounds = new BoundingBoxList(handler);
+            if (mEntries == null) mEntries = new LODEntryList(handler);
+            if (mBounds == null) mBounds = new BoundingBox(0, handler);
+            if (mVersion < 258 && mExtraBounds.Count > 0) mVersion = 258;
+            bw.Write(mVersion);
+            bw.Write(mEntries.Count);
+            mBounds.UnParse(s);
+            if (mVersion >= 0x00000300)
+            {
+                mExtraBounds.UnParse(s);
+                bw.Write(mFadeType);
+                bw.Write(mCustomFadeDistance);
+                bw.Write(this.unk01);
+                bw.Write(this.unk02);
+            }
+            else if (mVersion >= 0x00000102)
+            {
+                mExtraBounds.UnParse(s);
+                bw.Write(mFadeType);
+                bw.Write(mCustomFadeDistance);
+            }
+            mEntries.UnParse(s);
+            return s;
+        }
+
+        #endregion DataIO
+ 
+        #region SubClasses
+
         public class BoundingBoxList : DependentList<BoundingBox>
         {
             public BoundingBoxList(EventHandler handler) : base(handler) { }
@@ -193,134 +382,8 @@ namespace meshExpImp.ModelBlocks
             }
         }
 
-        private UInt32 mVersion;
-        private BoundingBox mBounds;
-        private UInt32 mFadeType;
-        private float mCustomFadeDistance;
-        private BoundingBoxList mExtraBounds;
-        private LODEntryList mEntries;
+        #endregion SubClasses ===========================
 
-        public MODL(int APIversion, EventHandler handler) : this(APIversion, handler, 256, new BoundingBox(0, handler), new BoundingBoxList(handler), 0, 0f, new LODEntryList(handler)) { }
-        public MODL(int APIversion, EventHandler handler, MODL basis) : this(APIversion, handler, basis.Version, new BoundingBox(0, handler, basis.Bounds), new BoundingBoxList(handler, basis.ExtraBounds),basis.FadeType,basis.CustomFadeDistance, new LODEntryList(handler, basis.Entries)) { }
-        public MODL(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public MODL(int APIversion, EventHandler handler, uint version, BoundingBox bounds, BoundingBoxList extraBounds, uint fadeType, float customFadeDistance, LODEntryList entries)
-            : base(APIversion, handler, null)
-        {
-            mVersion = version;
-            mBounds = bounds;
-            mExtraBounds = extraBounds == null ? null : extraBounds;
-            mFadeType = fadeType;
-            mCustomFadeDistance = customFadeDistance;
-            mEntries = entries == null ? null : entries;
-        }
-        [ElementPriority(1)]
-        public uint Version
-        {
-            get { return mVersion; }
-            set { if (mVersion != value) { mVersion = value; OnRCOLChanged(this, EventArgs.Empty); } }
-        }
-        [ElementPriority(2)]
-        public BoundingBox Bounds
-        {
-            get { return mBounds; }
-            set { if (mBounds != value) { mBounds = value; OnRCOLChanged(this, EventArgs.Empty); } }
-        }
-        [ElementPriority(3)]
-        public BoundingBoxList ExtraBounds
-        {
-            get { return mExtraBounds; }
-            set { if (mExtraBounds != value) { mExtraBounds = value == null ? null : new BoundingBoxList(handler, value); OnRCOLChanged(this, EventArgs.Empty); } }
-        }
-        [ElementPriority(4)]
-        public uint FadeType
-        {
-            get { return mFadeType; }
-            set { if (mFadeType != value) { mFadeType = value; OnRCOLChanged(this, EventArgs.Empty); } }
-        }
-        [ElementPriority(5)]
-        public float CustomFadeDistance
-        {
-            get { return mCustomFadeDistance; }
-            set { if (mCustomFadeDistance != value) { mCustomFadeDistance = value; OnRCOLChanged(this, EventArgs.Empty); } }
-        }
-        [ElementPriority(6)]
-        public LODEntryList Entries
-        {
-            get { return mEntries; }
-            set { if (mEntries != value) { mEntries = value == null ? null : new LODEntryList(handler, value); OnRCOLChanged(this, EventArgs.Empty); } }
-        }
 
-        protected override void Parse(Stream s)
-        {
-            BinaryReader br = new BinaryReader(s);
-            string tag = FOURCC(br.ReadUInt32());
-            if (Settings.Checking && tag != Tag)
-            {
-                throw new InvalidDataException(string.Format("Invalid Tag read: '{0}'; expected: '{1}'; at 0x{1:X8}", tag, Tag, s.Position));
-            }
-            mVersion = br.ReadUInt32();
-            int count = br.ReadInt32();
-            mBounds = new BoundingBox(0, handler, s);
-            if (mVersion >= 258)
-            {
-                mExtraBounds = new BoundingBoxList(handler, s);
-                mFadeType = br.ReadUInt32();
-                mCustomFadeDistance = br.ReadSingle();
-            }
-            else
-            {
-                mExtraBounds = new BoundingBoxList(handler);
-            }
-            mEntries = new LODEntryList(handler, s, count);
-        }
-
-        public override Stream UnParse()
-        {
-            MemoryStream s = new MemoryStream();
-            BinaryWriter bw = new BinaryWriter(s);
-            bw.Write((UInt32)FOURCC(Tag));
-            if (mExtraBounds == null) mExtraBounds = new BoundingBoxList(handler);
-            if (mEntries == null) mEntries = new LODEntryList(handler);
-            if (mBounds == null) mBounds = new BoundingBox(0, handler);
-            if (mVersion < 258 && mExtraBounds.Count > 0) mVersion = 258;
-            bw.Write(mVersion);
-            bw.Write(mEntries.Count);
-            mBounds.UnParse(s);
-            if (mVersion >= 258)
-            {
-                mExtraBounds.UnParse(s);
-                bw.Write(mFadeType);
-                bw.Write(mCustomFadeDistance);
-            }
-            mEntries.UnParse(s);
-            return s;
-        }
-        public override List<string> ContentFields
-        {
-            get
-            {
-                var fields = base.ContentFields;
-                if (mVersion < 258)
-                {
-                    fields.Remove("ExtraBounds");
-                    fields.Remove("FadeType");
-                    fields.Remove("CustomFadeDistance");
-                }
-                return fields;
-            }
-        }
-
-        public string Value { get { return ValueBuilder; } }
-        public override uint ResourceType
-        {
-            get { return 0x01661233; }
-        }
-
-        public override string Tag
-        {
-            get { return "MODL"; }
-        }
-
-        private const int kRecommendedApiVersion = 1;
     }
 }
