@@ -52,9 +52,8 @@ namespace s4pi.Miscellaneous
         private ulong animationReference2;
         private string animationStateName2;
         private SwatchColorList colorList;
-        private uint unknown6;
-        private uint unknown7;
-        private byte unknown8;
+        FlagList flagList;
+        private byte unknown6;
 
         public StyleLookResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null || stream.Length == 0) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
         
@@ -79,9 +78,8 @@ namespace s4pi.Miscellaneous
             this.animationReference2 = r.ReadUInt64();
             this.animationStateName2 = System.Text.Encoding.ASCII.GetString(r.ReadBytes(r.ReadInt32()));
             this.colorList = new SwatchColorList(OnResourceChanged, s);
-            this.unknown6 = r.ReadUInt32();
-            this.unknown7 = r.ReadUInt32();
-            this.unknown8 = r.ReadByte();
+            flagList = new FlagList(OnResourceChanged, s);
+            this.unknown6 = r.ReadByte();
         }
 
         protected override Stream UnParse()
@@ -106,9 +104,9 @@ namespace s4pi.Miscellaneous
             w.Write(Encoding.ASCII.GetByteCount(this.animationStateName2));
             w.Write(Encoding.ASCII.GetBytes(this.animationStateName2));
             this.colorList.UnParse(ms);
+            if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
+            flagList.UnParse(ms);
             w.Write(this.unknown6);
-            w.Write(this.unknown7);
-            w.Write(this.unknown8);
             ms.Position = 0;
             return ms;
         }
@@ -116,7 +114,7 @@ namespace s4pi.Miscellaneous
 
         #region Sub Types
         [Flags]
-        public enum AgeGenderFlags
+        public enum AgeGenderFlags : uint
         {
             Unknown1 = 0x00000001,
             Unknown2 = 0x00000002,
@@ -165,12 +163,135 @@ namespace s4pi.Miscellaneous
         [ElementPriority(15)]
         public SwatchColorList ColorList { get { return this.colorList; } set { if (!this.colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
         [ElementPriority(16)]
-        public uint Unknown6 { get { return this.unknown6; } set { if (!this.unknown6.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown6 = value; } } }
+        public FlagList CASFlagList { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(17)]
-        public uint Unknown7 { get { return this.unknown7; } set { if (!this.unknown7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown7 = value; } } }
-        [ElementPriority(18)]
-        public byte Unknown8 { get { return this.unknown8; } set { if (!this.unknown8.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown8 = value; } } }
+        public byte Unknown6 { get { return this.unknown6; } set { if (!this.unknown6.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown6 = value; } } }
         #endregion
+
+        public class Flag : AHandlerElement, IEquatable<Flag>
+        {
+            CASPFlags flagCategory;
+            ushort flagValue;
+
+            public Flag(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public Flag(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public Flag(int APIversion, EventHandler handler, Flag basis) : this(APIversion, handler, basis.flagCategory, basis.flagValue) { }
+            public Flag(int APIversion, EventHandler handler, CASPFlags flagCategory, ushort flagValue)
+                : base(APIversion, handler)
+            {
+                this.flagCategory = flagCategory;
+                this.flagValue = flagValue;
+            }
+            void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                this.flagCategory = (CASPFlags)r.ReadUInt16();
+                this.flagValue = r.ReadUInt16();
+            }
+
+            public void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write((ushort)this.flagCategory);
+                w.Write(this.flagValue);
+            }
+
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            public bool Equals(Flag other)
+            {
+                return this.flagValue == other.flagValue && this.flagCategory == other.flagCategory;
+            }
+
+            [ElementPriority(0)]
+            public CASPFlags FlagCatagory { get { return this.flagCategory; } set { if (value != this.flagCategory) { OnElementChanged(); this.flagCategory = value; } } }
+            [ElementPriority(1)]
+            public ushort FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
+
+            public string Value { get { return ValueBuilder; } }
+        }
+
+        public class FlagList : DependentList<Flag>
+        {
+            public FlagList(EventHandler handler) : base(handler) { }
+            public FlagList(EventHandler handler, Stream s) : base(handler, s) { }
+            public FlagList(EventHandler handler, IEnumerable<Flag> ilt) : base(handler, ilt) { }
+
+            /*
+            #region Data I/O
+            void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                uint count = r.ReadUInt32();
+                for (int i = 0; i < count; i++)
+                    base.Add(new Flag(recommendedApiVersion, handler, s));
+            }
+
+            public void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write((uint)base.Count);
+                foreach (var flag in this)
+                    flag.UnParse(s);
+            }
+            #endregion
+             * */
+
+            protected override Flag CreateElement(Stream s) { return new Flag(recommendedApiVersion, handler, s); }
+            protected override void WriteElement(Stream s, Flag element) { element.UnParse(s); }
+        }
+
+        public enum CASPFlags : ushort
+        {
+            Mood = 0x0040,
+            Color = 0x0041,
+            Style = 0x0042,
+            Theme = 0x0043,
+            AgeAppropriate = 0x0044,
+            Archetype = 0x0045,
+            OutfitCategory = 0x0046,
+            Skill = 0x0047,
+            EyeColor = 0x0048,
+            Persona = 0x0049,
+            Special = 0x004A,
+            HairColor = 0x004B,
+            ColorPalette = 0x004C,
+            Hair = 0x004D,
+            FacialHair = 0x004E,
+            Hat = 0x004F,
+            FaceMakeup = 0x0050,
+            Top = 0x0051,
+            Bottom = 0x0052,
+            Body = 0x0053,
+            Shoes = 0x0054,
+            BottomAccessory = 0x0055,
+            BuyCatEE = 0x0056,
+            BuyCatPA = 0x0057,
+            BuyCatLD = 0x0058,
+            BuyCatSS = 0x0059,
+            BuyCatVO = 0x005A,
+            Uniform = 0x005B,
+            Accessories = 0x005C,
+            BuyCatMAG = 0x005D,
+            FloorPattern = 0x005E,
+            WallPattern = 0x005F,
+            Fabric = 0x0060,
+            Build = 0x0061,
+            Pattern = 0x0062,
+            HairLength = 0x0063,
+            HairTexture = 0x0064,
+            TraitGroup = 0x0065,
+            SkinHue = 0x0066,
+            Reward = 0x0067,
+            TerrainPaint = 0x0068,
+            EyebrowThickness = 0x0069,
+            EyebrowShape = 0x006A,
+        }
+
 
     }
 

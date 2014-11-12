@@ -403,7 +403,7 @@ Rotate:
                 var mtst = material as MTST;
                 try
                 {
-                    material = GenericRCOLResource.ChunkReference.GetBlock(rcol, mtst.Index);
+                    material = GenericRCOLResource.ChunkReference.GetBlock(rcol, mtst.DefaultMaterialIndex);
                 }
                 catch (NotImplementedException e)
                 {

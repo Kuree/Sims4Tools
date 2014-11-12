@@ -482,7 +482,7 @@ namespace CASPartResource
         [ElementPriority(10)]
         public CASPartResourceTS4.AgeGenderFlags Gender { get { return this.gender; } set { if (!this.gender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.gender = value; } } }
         [ElementPriority(11)]
-        public ulong SineToneReference { get { return this.skinToneReference; } set { if (!this.skinToneReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.skinToneReference = value; } } }
+        public ulong SkinToneReference { get { return this.skinToneReference; } set { if (!this.skinToneReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.skinToneReference = value; } } }
         [ElementPriority(12)]
         public ByteIndexList Unknown9 { get { return this.unknown9; } set { if (!this.unknown9.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown9 = value; } } }
         [ElementPriority(13)]
