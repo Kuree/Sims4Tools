@@ -32,7 +32,7 @@ namespace CASPartResource
     {
         const int recommendedApiVersion = 1;
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        
+
 
 
         static bool checking = s4pi.Settings.Settings.Checking;
@@ -287,8 +287,9 @@ namespace CASPartResource
         [ElementPriority(35), TGIBlockListContentField("TGIList")]
         public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(36)]
-        public uint SharedUVMapSpace { 
-            get { if (this.version < 0x1B) { throw new InvalidOperationException("Version not supported"); } else { return this.sharedUVMapSpace; }}
+        public uint SharedUVMapSpace
+        {
+            get { if (this.version < 0x1B) { throw new InvalidOperationException("Version not supported"); } else { return this.sharedUVMapSpace; } }
             set { if (version < 0x1B) { throw new InvalidOperationException("Version not Supported"); } this.sharedUVMapSpace = value; }
         }
 
@@ -557,23 +558,32 @@ namespace CASPartResource
 
         public class Flag : AHandlerElement, IEquatable<Flag>
         {
-            CASPFlags flagCatagory;
+            CASPFlags flagCategory;
             ushort flagValue;
 
-            public Flag(int APIversion, EventHandler handler, Stream s)
+            public Flag(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler)  {  Parse(s); }
+            public Flag(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public Flag(int APIversion, EventHandler handler, Flag basis) : this(APIversion, handler, basis.flagCategory, basis.flagValue) { }
+            public Flag(int APIversion, EventHandler handler, CASPFlags flagCategory, ushort flagValue)
                 : base(APIversion, handler)
             {
+                this.flagCategory = flagCategory;
+                this.flagValue = flagValue;
+            }
+            void Parse(Stream s)
+            {
                 BinaryReader r = new BinaryReader(s);
-                this.flagCatagory = (CASPFlags)r.ReadUInt16();
+                this.flagCategory = (CASPFlags)r.ReadUInt16();
                 this.flagValue = r.ReadUInt16();
             }
 
             public void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);
-                w.Write((ushort)this.flagCatagory);
+                w.Write((ushort)this.flagCategory);
                 w.Write(this.flagValue);
             }
+
 
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
@@ -582,11 +592,11 @@ namespace CASPartResource
 
             public bool Equals(Flag other)
             {
-                return this.flagValue == other.flagValue && this.flagCatagory == other.flagCatagory;
+                return this.flagValue == other.flagValue && this.flagCategory == other.flagCategory;
             }
 
             [ElementPriority(0)]
-            public CASPFlags FlagCatagory { get { return this.flagCatagory; } set { if (value != this.flagCatagory) { OnElementChanged(); this.flagCatagory = value; } } }
+            public CASPFlags FlagCatagory { get { return this.flagCategory; } set { if (value != this.flagCategory) { OnElementChanged(); this.flagCategory = value; } } }
             [ElementPriority(1)]
             public ushort FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
 
@@ -597,7 +607,9 @@ namespace CASPartResource
         {
             public FlagList(EventHandler handler) : base(handler) { }
             public FlagList(EventHandler handler, Stream s) : base(handler, s) { }
+            public FlagList(EventHandler handler, IEnumerable<Flag> ilt) : base(handler, ilt) { }
 
+            /*
             #region Data I/O
             void Parse(Stream s)
             {
@@ -615,10 +627,13 @@ namespace CASPartResource
                     flag.UnParse(s);
             }
             #endregion
+             * */
 
-            protected override Flag CreateElement(Stream s) { return new Flag(recommendedApiVersion, null, s); }
+            protected override Flag CreateElement(Stream s) { return new Flag(recommendedApiVersion, handler, s); }
             protected override void WriteElement(Stream s, Flag element) { element.UnParse(s); }
         }
+
+        #endregion
 
         #region Flags
         public enum CASPFlags : ushort
@@ -759,7 +774,6 @@ namespace CASPartResource
         #endregion
 
 
-        #endregion
     }
 
     public class CASPartResourceTS4Handler : AResourceHandler
