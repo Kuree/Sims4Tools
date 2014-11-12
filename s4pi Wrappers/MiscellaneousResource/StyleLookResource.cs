@@ -116,7 +116,7 @@ namespace s4pi.Miscellaneous
 
         #region Sub Types
         [Flags]
-        public enum AgeGenderFlags
+        public enum AgeGenderFlags : uint
         {
             Unknown1 = 0x00000001,
             Unknown2 = 0x00000002,
