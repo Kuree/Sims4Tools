@@ -25,7 +25,7 @@ using System.Text;
 using System.IO;
 using s4pi.Interfaces;
 
-namespace CatalogResource.TS4
+namespace CatalogResource
 {
     public class ObjectInstanceResource : ObjectCatalogResource
     {

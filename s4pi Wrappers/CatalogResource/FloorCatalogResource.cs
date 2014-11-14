@@ -25,7 +25,7 @@ using System.Text;
 using s4pi.Interfaces;
 using System.IO;
 
-namespace CatalogResource.TS4
+namespace CatalogResource
 {
     public class FloorCatalogResource : ObjectCatalogResource
     {

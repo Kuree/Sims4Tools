@@ -25,7 +25,7 @@ using System.Linq;
 using System.Text;
 using s4pi.Interfaces;
 
-namespace CatalogResource.TS4
+namespace CatalogResource
 {
     public class WallCatalogResource : ObjectCatalogResource
     {

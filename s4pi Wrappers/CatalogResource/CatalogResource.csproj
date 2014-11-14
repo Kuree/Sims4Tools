@@ -60,36 +60,21 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TS4\Common\ColorList.cs" />
-    <Compile Include="TS4\Common\MATDList.cs" />
-    <Compile Include="TS4\Common\ThumbnailList.cs" />
-    <Compile Include="TS4\FloorCatalogResource.cs" />
-    <Compile Include="TS4\FountainTrimsResource.cs" />
-    <Compile Include="TS4\ObjectCatalogResource.cs" />
-    <Compile Include="TS4\ObjectInstanceResource.cs" />
-    <Compile Include="TS4\RailingResource.cs" />
-    <Compile Include="TS4\RoofTrimResource.cs" />
-    <Compile Include="TS4\StairCatalogResource.cs" />
-    <Compile Include="TS4\TerrainPaintCatalogResource.cs" />
-    <Compile Include="TS4\WallCatalogResource.cs" />
-    <Compile Include="TS3\FountainPoolCatalogResource.cs" />
-    <Compile Include="TS3\FoundationCatalogResource.cs" />
-    <Compile Include="TS4\ObjectDefinitionResource.cs" />
+    <Compile Include="Common\ColorList.cs" />
+    <Compile Include="Common\MATDList.cs" />
+    <Compile Include="Common\ThumbnailList.cs" />
+    <Compile Include="FloorCatalogResource.cs" />
+    <Compile Include="FountainTrimsResource.cs" />
+    <Compile Include="ObjectCatalogResource.cs" />
+    <Compile Include="ObjectInstanceResource.cs" />
+    <Compile Include="RailingResource.cs" />
+    <Compile Include="RoofTrimResource.cs" />
+    <Compile Include="StairCatalogResource.cs" />
+    <Compile Include="TerrainPaintCatalogResource.cs" />
+    <Compile Include="WallCatalogResource.cs" />
+    <Compile Include="ObjectDefinitionResource.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
-    <Compile Include="TS3\CatalogResource.cs" />
-    <Compile Include="TS3\FenceCatalogResource.cs" />
-    <Compile Include="TS3\FireplaceCatalogResource.cs" />
-    <Compile Include="TS3\ObjectCatalogResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TS3\ProxyProductCatalogResource.cs" />
-    <Compile Include="TS3\RailingCatalogResource.cs" />
-    <Compile Include="TS3\RoofPatternCatalogResource.cs" />
-    <Compile Include="TS3\RoofStyleCatalogResource.cs" />
-    <Compile Include="TS3\StairsCatalogResource.cs" />
-    <Compile Include="TS3\TerrainGeometryWaterBrushCatalogResource.cs" />
-    <Compile Include="TS3\TerrainPaintBrushCatalogResource.cs" />
-    <Compile Include="TS3\WallCatalogResource.cs" />
-    <Compile Include="TS3\WallFloorPatternCatalogResource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">

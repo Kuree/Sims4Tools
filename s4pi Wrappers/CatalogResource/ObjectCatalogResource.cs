@@ -28,7 +28,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using CatalogResource.ArrayExtensions;
 
-namespace CatalogResource.TS4
+namespace CatalogResource
 {
     public class ObjectCatalogResource : AResource
     {

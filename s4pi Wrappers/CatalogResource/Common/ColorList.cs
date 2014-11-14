@@ -25,7 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace CatalogResource.TS4
+namespace CatalogResource
 {
     public class SwatchColor : AHandlerElement, IEquatable<SwatchColor>
     {

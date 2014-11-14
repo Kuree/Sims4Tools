@@ -24,76 +24,82 @@ using System.Text;
 using s4pi.Interfaces;
 using System.IO;
 
-namespace CatalogResource.TS4
+namespace CatalogResource
 {
-    public class ThumbnailEntry : AHandlerElement, IEquatable<ThumbnailEntry>
+    public class MATDEntry : AHandlerElement, IEquatable<MATDEntry>
     {
         #region Attributes
-        private byte imgGroupLabel;
-        private Tuple<TGIBlock, TGIBlock, TGIBlock> thumGroupTGI;
+        private byte matdLabel;
+        private TGIBlock matdTGI;
+        private bool hasLabel;
         const int recommendedApiVersion = 1;
         #endregion
 
-        public ThumbnailEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
-        public ThumbnailEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+        public MATDEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+        public MATDEntry(int APIversion, EventHandler handler, Stream s, bool hasLabel = true) : base(APIversion, handler) { this.hasLabel = hasLabel; Parse(s, hasLabel); }
 
 
         #region Data I/O
-        private void Parse(Stream s)
+        private void Parse(Stream s, bool hasLabel = true)
         {
             BinaryReader r = new BinaryReader(s);
-            this.imgGroupLabel = r.ReadByte();
-            this.thumGroupTGI = Tuple.Create(new TGIBlock(recommendedApiVersion, handler, "ITG", s), new TGIBlock(recommendedApiVersion, handler, "ITG", s), new TGIBlock(recommendedApiVersion, handler, "ITG", s));
+            if (hasLabel) this.matdLabel = r.ReadByte();
+            this.matdTGI = new TGIBlock(recommendedApiVersion, handler, "ITG", s);
         }
 
-        protected internal void UnParse(Stream s)
+        protected internal void UnParse(Stream s) { this.UnParse(s, this.hasLabel); }
+
+        protected internal void UnParse(Stream s, bool hasLabel)
         {
             BinaryWriter w = new BinaryWriter(s);
-            w.Write(this.imgGroupLabel);
-            if (this.thumGroupTGI == null) this.thumGroupTGI = new Tuple<TGIBlock, TGIBlock, TGIBlock>(new TGIBlock(recommendedApiVersion, handler), new TGIBlock(recommendedApiVersion, handler), new TGIBlock(recommendedApiVersion, handler));
-            this.thumGroupTGI.Item1.UnParse(s);
-            this.thumGroupTGI.Item2.UnParse(s);
-            this.thumGroupTGI.Item3.UnParse(s);
+            if (hasLabel) w.Write(this.matdLabel);
+            this.matdTGI.UnParse(s);
         }
         #endregion
 
         #region AHandlerElement Members
         public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); if (!this.hasLabel) { res.Remove("MATDLabel"); } return res; } }
         #endregion
 
         #region IEquatable
-        public bool Equals(ThumbnailEntry other)
+        public bool Equals(MATDEntry other)
         {
-            return this.imgGroupLabel == other.imgGroupLabel && this.thumGroupTGI.Equals(other.thumGroupTGI);
+            return this.matdLabel == other.matdLabel && this.matdTGI.Equals(other.matdTGI);
         }
         #endregion
 
         #region Content Fields
         [ElementPriority(0)]
-        public byte MATDLabel { get { return this.imgGroupLabel; } set { if (!this.imgGroupLabel.Equals(value)) { OnElementChanged(); this.imgGroupLabel = value; } } }
+        public byte MATDLabel { get { return this.matdLabel; } set { if (!this.matdLabel.Equals(value)) { OnElementChanged(); this.matdLabel = value; } } }
         [ElementPriority(1)]
-        public Tuple<TGIBlock, TGIBlock, TGIBlock> ThumGroupTGI { get { return this.thumGroupTGI; } set { if (!this.thumGroupTGI.Equals(value)) { OnElementChanged(); this.thumGroupTGI = value; } } }
+        public TGIBlock MATDTGI { get { return this.matdTGI; } set { if (!this.matdTGI.Equals(value)) { OnElementChanged(); this.matdTGI = value; } } }
         public string Value { get { return ValueBuilder; } }
         #endregion
     }
 
-    public class ThumbnailList : DependentList<ThumbnailEntry>
+    public class MATDList : DependentList<MATDEntry>
     {
+        private bool hasLabel;
         #region Constructors
-        public ThumbnailList(EventHandler handler) : base(handler) { }
-        public ThumbnailList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
+        public MATDList(EventHandler handler, bool hasLabel = true) : base(handler) { this.hasLabel = hasLabel; }
+        public MATDList(EventHandler handler, Stream s, bool hasLabel = true) : base(handler) { this.hasLabel = hasLabel; Parse(s, hasLabel); }
         #endregion
 
 
         #region Data I/O
         protected override void Parse(Stream s)
         {
+            this.Parse(s, true);
+        }
+
+        protected void Parse(Stream s, bool hasLabel)
+        {
             BinaryReader r = new BinaryReader(s);
             var count = r.ReadInt32();
             for (int i = 0; i < count; i++)
             {
-                base.Add(new ThumbnailEntry(1, handler, s));
+                base.Add(new MATDEntry(1, handler, s, hasLabel));
             }
         }
 
@@ -101,14 +107,14 @@ namespace CatalogResource.TS4
         {
             BinaryWriter w = new BinaryWriter(s);
             w.Write(base.Count);
-            foreach (var thum in this)
+            foreach (var matd in this)
             {
-                thum.UnParse(s);
+                matd.UnParse(s, this.hasLabel);
             }
         }
-        #endregion
 
-        protected override ThumbnailEntry CreateElement(Stream s) { return new ThumbnailEntry(1, handler, s); }
-        protected override void WriteElement(Stream s, ThumbnailEntry element) { element.UnParse(s); }
+        protected override MATDEntry CreateElement(Stream s) { return new MATDEntry(1, handler, s, hasLabel); }
+        protected override void WriteElement(Stream s, MATDEntry element) { element.UnParse(s); }
+        #endregion
     }
 }

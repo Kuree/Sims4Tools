@@ -25,65 +25,64 @@ using System.Linq;
 using System.Text;
 using s4pi.Interfaces;
 
-namespace CatalogResource.TS4
+namespace CatalogResource
 {
-    public class RoofTrimResource: ObjectCatalogResource
+    public class FountainTrimsResource : ObjectCatalogResource
     {
         #region Attributes
-        ushort unknown1;
         TGIBlock unknownTGIReference1;
-        uint unknown2;
+        uint unknown1;
         TGIBlock unknownTGIReference2;
         ulong catalogGroupID;
         SwatchColorList colorList;
+        uint unknown2;
         #endregion
 
-        public RoofTrimResource(int APIversion, Stream s) : base(APIversion, s) { }
+        public FountainTrimsResource(int APIversion, Stream s) : base(APIversion, s) { }
 
         #region Data I/O
         protected override void Parse(Stream s)
         {
             base.Parse(s);
             BinaryReader r = new BinaryReader(s);
-            this.unknown1 = r.ReadUInt16();
             this.unknownTGIReference1 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
-            this.unknown2 = r.ReadUInt32();
+            this.unknown1 = r.ReadUInt32();
             this.unknownTGIReference2 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
             this.catalogGroupID = r.ReadUInt64();
             this.colorList = new SwatchColorList(OnResourceChanged, s);
+            this.unknown2 = r.ReadUInt32();
         }
 
         protected override Stream UnParse()
         {
             var s = base.UnParse();
             BinaryWriter w = new BinaryWriter(s);
-            w.Write(this.unknown1);
             if (this.unknownTGIReference1 == null) this.unknownTGIReference1 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
             this.unknownTGIReference1.UnParse(s);
-            w.Write(this.unknown2);
+            w.Write(this.unknown1);
             if (this.unknownTGIReference2 == null) this.unknownTGIReference2 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
             this.unknownTGIReference2.UnParse(s);
             w.Write(this.catalogGroupID);
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);
+            w.Write(this.unknown2);
             return s;
         }
         #endregion
 
         #region Content Fields
         [ElementPriority(15)]
-        public ushort Unknown1 { get { return unknown1; } set { if (!unknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
-        [ElementPriority(16)]
         public TGIBlock UnknownTGIReference1 { get { return unknownTGIReference1; } set { if (!unknownTGIReference1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownTGIReference1 = value; } } }
+        [ElementPriority(16)]
+        public uint Unknown1 { get { return unknown1; } set { if (!unknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
         [ElementPriority(17)]
-        public uint Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
-        [ElementPriority(18)]
         public TGIBlock UnknownTGIReference2 { get { return unknownTGIReference2; } set { if (!unknownTGIReference2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownTGIReference2 = value; } } }
-        [ElementPriority(19)]
+        [ElementPriority(18)]
         public ulong CatalogGroupID { get { return catalogGroupID; } set { if (!catalogGroupID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogGroupID = value; } } }
-        [ElementPriority(20)]
+        [ElementPriority(19)]
         public SwatchColorList ColorList { get { return colorList; } set { if (!colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
-
+        [ElementPriority(20)]
+        public uint Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
         #endregion
 
         #region Clone
@@ -111,6 +110,5 @@ namespace CatalogResource.TS4
 
         protected override object GroupingID { get { return this.CatalogGroupID; } set { this.CatalogGroupID = (ulong)value; } }
         #endregion
-
     }
 }
