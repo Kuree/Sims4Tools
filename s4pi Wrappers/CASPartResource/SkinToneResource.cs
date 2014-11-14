@@ -9,7 +9,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -28,7 +28,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace s4pi.Miscellaneous
+namespace CASPartResource
 {
     public class SkinToneResource : AResource
     {
@@ -44,7 +44,7 @@ namespace s4pi.Miscellaneous
         private uint unknown2;
         private SimpleList<uint> unknownList;
         private uint unknown3;
-        private SwatchColorList swatchList;
+        private CASPartResource.SwatchColorList swatchList;
         private uint unknown4;
         private uint unknown5;
 
@@ -64,7 +64,7 @@ namespace s4pi.Miscellaneous
             this.unknownList = new SimpleList<uint>(OnResourceChanged);
             for (int i = 0; i < count; i++) this.unknownList.Add(r.ReadUInt32());
             this.unknown3 = r.ReadUInt32();
-            this.swatchList = new SwatchColorList(OnResourceChanged, s);
+            this.swatchList = new CASPartResource.SwatchColorList(OnResourceChanged, s);
             this.unknown4 = r.ReadUInt32();
             this.unknown5 = r.ReadUInt32();
         }
@@ -83,7 +83,7 @@ namespace s4pi.Miscellaneous
             w.Write(this.unknownList.Count);
             foreach (var i in this.unknownList) w.Write(i);
             w.Write(this.unknown3);
-            if (this.swatchList == null) this.swatchList = new SwatchColorList(OnResourceChanged);
+            if (this.swatchList == null) this.swatchList = new CASPartResource.SwatchColorList(OnResourceChanged);
             this.swatchList.UnParse(ms);
             w.Write(this.unknown4);
             w.Write(this.unknown5);
@@ -97,6 +97,7 @@ namespace s4pi.Miscellaneous
         {
             private uint flags;
             private ulong textureReference;
+            public OverlayReference(int APIversion, EventHandler handler) : base(APIversion, handler) { }
             public OverlayReference(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { BinaryReader r = new BinaryReader(s); this.flags = r.ReadUInt32(); this.textureReference = r.ReadUInt64(); }
             public void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(this.flags); w.Write(this.textureReference); }
             
@@ -157,7 +158,7 @@ namespace s4pi.Miscellaneous
         [ElementPriority(6)]
         public uint Unknown3 { get { return this.unknown3; } set { if (!this.unknown3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
         [ElementPriority(7)]
-        public SwatchColorList SwatchList { get { return this.swatchList; } set { if (!this.swatchList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.swatchList = value; } } }
+        public CASPartResource.SwatchColorList SwatchList { get { return this.swatchList; } set { if (!this.swatchList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.swatchList = value; } } }
         [ElementPriority(8)]
         public uint Unknown4 { get { return this.unknown4; } set { if (!this.unknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown4 = value; } } }
         [ElementPriority(9)]

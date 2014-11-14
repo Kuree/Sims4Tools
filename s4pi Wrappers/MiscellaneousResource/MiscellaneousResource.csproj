@@ -36,7 +36,6 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\ColorList.cs" />
     <Compile Include="DeformerMapResource.cs" />
     <Compile Include="MTBLResource.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
@@ -44,8 +43,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShaderResource.cs" />
     <Compile Include="SimModifierResource.cs" />
-    <Compile Include="SkinToneResource.cs" />
-    <Compile Include="StyleLookResource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">

@@ -40,8 +40,8 @@ namespace CASPartResource
         private float unknown6;
         private float unknown7;
         private float unknown8;
-        private CASPartResourceTS4.AgeGenderFlags age;
-        private CASPartResourceTS4.AgeGenderFlags gender;
+        private CASPartResource.AgeGenderFlags age;
+        private CASPartResource.AgeGenderFlags gender;
         private ulong skinToneReference;
         private ByteIndexList unknown9;
 
@@ -89,8 +89,8 @@ namespace CASPartResource
             this.unknown7 = r.ReadSingle();
             this.unknown8 = r.ReadSingle();
 
-            this.age = (CASPartResourceTS4.AgeGenderFlags)r.ReadUInt32();
-            this.gender = (CASPartResourceTS4.AgeGenderFlags)r.ReadUInt32();
+            this.age = (CASPartResource.AgeGenderFlags)r.ReadUInt32();
+            this.gender = (CASPartResource.AgeGenderFlags)r.ReadUInt32();
             this.skinToneReference = r.ReadUInt64();
 
             byte[] unknown18 = new byte[r.ReadByte()];
@@ -478,11 +478,11 @@ namespace CASPartResource
         [ElementPriority(8)]
         public float Unknown8 { get { return this.unknown8; } set { if (!this.unknown8.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown8 = value; } } }
         [ElementPriority(9)]
-        public CASPartResourceTS4.AgeGenderFlags Age { get { return this.age; } set { if (!this.age.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.age = value; } } }
+        public CASPartResource.AgeGenderFlags Age { get { return this.age; } set { if (!this.age.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.age = value; } } }
         [ElementPriority(10)]
-        public CASPartResourceTS4.AgeGenderFlags Gender { get { return this.gender; } set { if (!this.gender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.gender = value; } } }
+        public CASPartResource.AgeGenderFlags Gender { get { return this.gender; } set { if (!this.gender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.gender = value; } } }
         [ElementPriority(11)]
-        public ulong SineToneReference { get { return this.skinToneReference; } set { if (!this.skinToneReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.skinToneReference = value; } } }
+        public ulong SkinToneReference { get { return this.skinToneReference; } set { if (!this.skinToneReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.skinToneReference = value; } } }
         [ElementPriority(12)]
         public ByteIndexList Unknown9 { get { return this.unknown9; } set { if (!this.unknown9.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown9 = value; } } }
         [ElementPriority(13)]

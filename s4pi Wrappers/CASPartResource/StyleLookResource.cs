@@ -9,7 +9,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -27,7 +27,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace s4pi.Miscellaneous
+namespace CASPartResource
 {
     public class StyleLookResource : AResource
     {
@@ -51,10 +51,8 @@ namespace s4pi.Miscellaneous
         private string animationStateName1;
         private ulong animationReference2;
         private string animationStateName2;
-        private SwatchColorList colorList;
-        private uint unknown6;
-        private uint unknown7;
-        private byte unknown8;
+        private CASPartResource.SwatchColorList colorList;
+        private CASPartResource.FlagList flagList;
 
         public StyleLookResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null || stream.Length == 0) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
         
@@ -78,10 +76,8 @@ namespace s4pi.Miscellaneous
             this.animationStateName1 = System.Text.Encoding.ASCII.GetString(r.ReadBytes(r.ReadInt32()));
             this.animationReference2 = r.ReadUInt64();
             this.animationStateName2 = System.Text.Encoding.ASCII.GetString(r.ReadBytes(r.ReadInt32()));
-            this.colorList = new SwatchColorList(OnResourceChanged, s);
-            this.unknown6 = r.ReadUInt32();
-            this.unknown7 = r.ReadUInt32();
-            this.unknown8 = r.ReadByte();
+            this.colorList = new CASPartResource.SwatchColorList(OnResourceChanged, s);
+            this.flagList = new CASPartResource.FlagList(OnResourceChanged, s);
         }
 
         protected override Stream UnParse()
@@ -105,10 +101,10 @@ namespace s4pi.Miscellaneous
             w.Write(this.animationReference2);
             w.Write(Encoding.ASCII.GetByteCount(this.animationStateName2));
             w.Write(Encoding.ASCII.GetBytes(this.animationStateName2));
+            if (this.colorList == null) this.colorList = new CASPartResource.SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(ms);
-            w.Write(this.unknown6);
-            w.Write(this.unknown7);
-            w.Write(this.unknown8);
+            if (this.flagList == null) this.flagList = new CASPartResource.FlagList(OnResourceChanged);
+            this.flagList.UnParse(ms);
             ms.Position = 0;
             return ms;
         }
@@ -116,7 +112,7 @@ namespace s4pi.Miscellaneous
 
         #region Sub Types
         [Flags]
-        public enum AgeGenderFlags
+        public enum AgeGenderFlags : uint
         {
             Unknown1 = 0x00000001,
             Unknown2 = 0x00000002,
@@ -163,13 +159,9 @@ namespace s4pi.Miscellaneous
         [ElementPriority(14)]
         public string AnimationStateName2 { get { return this.animationStateName2; } set { if (!this.animationStateName2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.animationStateName2 = value; } } }
         [ElementPriority(15)]
-        public SwatchColorList ColorList { get { return this.colorList; } set { if (!this.colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
+        public CASPartResource.SwatchColorList ColorList { get { return this.colorList; } set { if (!this.colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
         [ElementPriority(16)]
-        public uint Unknown6 { get { return this.unknown6; } set { if (!this.unknown6.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown6 = value; } } }
-        [ElementPriority(17)]
-        public uint Unknown7 { get { return this.unknown7; } set { if (!this.unknown7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown7 = value; } } }
-        [ElementPriority(18)]
-        public byte Unknown8 { get { return this.unknown8; } set { if (!this.unknown8.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown8 = value; } } }
+        public CASPartResource.FlagList CASPFlagList { get { return this.flagList; } set { if (!this.CASPFlagList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.flagList = value; } } }
         #endregion
 
     }

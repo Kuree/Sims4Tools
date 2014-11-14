@@ -9,7 +9,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -88,19 +88,21 @@ namespace s4pi.Miscellaneous
         #region Sub-Class
         public class ContexData: AHandlerElement
         {
-            public uint contexVersion { get; set; }
-            public uint publicKeyCount { get; set; }
-            public uint externalKeyCount { get; set; }
-            public uint delayLoadKeyCount { get; set; }
-            public uint objectKeyCount { get; set; }
+            private uint contexVersion;
+            private uint publicKeyCount;
+            private uint externalKeyCount;
+            private uint delayLoadKeyCount;
+            private uint objectKeyCount;
 
-            public CountedTGIBlockList publicKey { get; set; }
-            public CountedTGIBlockList externalKey { get; set; }
-            public CountedTGIBlockList delayLoadKey { get; set; }
-            public ObjectDataLIst objectKey { get; set; }
+            private CountedTGIBlockList publicKey;
+            private CountedTGIBlockList externalKey;
+            private CountedTGIBlockList delayLoadKey;
+            private ObjectDataLIst objectKey;
+
             public ContexData(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public ContexData(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public ContexData(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
 
+            #region Data I/O
             public void Parse(Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
@@ -139,6 +141,7 @@ namespace s4pi.Miscellaneous
                 foreach (var tgi in this.delayLoadKey) tgi.UnParse(s);
                 foreach (var obj in this.objectKey) obj.UnParse(s);
             }
+            #endregion
 
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
@@ -203,6 +206,26 @@ namespace s4pi.Miscellaneous
 
             #endregion
 
+            #region Content Fields
+            [ElementPriority(0)]
+            public uint ContexVersion { get { return this.contexVersion; } set { if (!this.contexVersion.Equals(value)) { OnElementChanged(); this.contexVersion = value; } } }
+            [ElementPriority(1)]
+            public uint PublicKeyCount { get { return this.publicKeyCount; } set { if (!this.publicKeyCount.Equals(value)) { OnElementChanged(); this.publicKeyCount = value; } } }
+            [ElementPriority(2)]
+            public uint ExternalKeyCount { get { return this.externalKeyCount; } set { if (!this.externalKeyCount.Equals(value)) { OnElementChanged(); this.externalKeyCount = value; } } }
+            [ElementPriority(3)]
+            public uint DelayLoadKeyCount { get { return this.delayLoadKeyCount; } set { if (!this.delayLoadKeyCount.Equals(value)) { OnElementChanged(); this.delayLoadKeyCount = value; } } }
+            [ElementPriority(4)]
+            public uint ObjectKeyCount { get { return this.objectKeyCount; } set { if (!this.objectKeyCount.Equals(value)) { OnElementChanged(); this.objectKeyCount = value; } } }
+            [ElementPriority(5)]
+            public CountedTGIBlockList PublicKey { get { return this.publicKey; } set { if (!this.publicKey.Equals(value)) { OnElementChanged(); this.publicKey = value; } } }
+            [ElementPriority(6)]
+            public CountedTGIBlockList ExternalKey { get { return this.externalKey; } set { if (!this.externalKey.Equals(value)) { OnElementChanged(); this.externalKey = value; } } }
+            [ElementPriority(7)]
+            public CountedTGIBlockList DelayLoadKey { get { return this.delayLoadKey; } set { if (!this.delayLoadKey.Equals(value)) { OnElementChanged(); this.delayLoadKey = value; } } }
+            [ElementPriority(8)]
+            public ObjectDataLIst ObjectKey { get { return this.objectKey; } set { if (!this.objectKey.Equals(value)) { OnElementChanged(); this.objectKey = value; } } }
+            #endregion
             public string Value { get { return ValueBuilder; } }
         }
 
@@ -237,6 +260,7 @@ namespace s4pi.Miscellaneous
             public float multiplier { get; set; }
 
             public BoneEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public BoneEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { }
 
             public void Parse(Stream s)
             {

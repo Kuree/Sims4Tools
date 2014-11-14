@@ -1,7 +1,4 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2009, 2010 by Peter L Jones                              *
- *  pljones@users.sf.net                                                   *
-/***************************************************************************
  *  Copyright (C) 2014 by Keyi Zhang                                       *
  *  kz005@bucknell.edu                                                     *
  *                                                                         *
@@ -12,7 +9,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -89,6 +86,8 @@ namespace CASPartResource
             public DataBlobHandler unknownBytes { get; set; }
             public TGIBlockList tgiList { get; set; }
 
+            public ReferenceBlock(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
+
             public ReferenceBlock(int APIversion, EventHandler handler, Stream s) :base(APIversion, handler)
             {
                 BinaryReader r = new BinaryReader(s);
@@ -108,7 +107,9 @@ namespace CASPartResource
             {
                 BinaryWriter w = new BinaryWriter(s);
                 w.Write(this.unknown1);
+                if (this.unknownBytes == null) this.unknownBytes = new DataBlobHandler(recommendedApiVersion, handler, new byte[5]);
                 unknownBytes.UnParse(s);
+                if (this.tgiList == null) this.tgiList = new TGIBlockList(handler);
                 w.Write(this.tgiList.Count);
                 foreach (var tgi in this.tgiList)
                     tgi.UnParse(s);

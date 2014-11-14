@@ -138,14 +138,14 @@ namespace S4PIDemoFE
         public override IEnumerable<ToolStripItem> GetContextMenuItems(EventHandler cbk)
         {
             yield break;
-            const string ddsFiles = "DDS Images|*.dds";
+            //const string ddsFiles = "DDS Images|*.dds";
 
-            yield return new ToolStripSeparator();
+            //yield return new ToolStripSeparator();
 
-            yield return new ToolStripMenuItem("Load DDS...", null, (s, e) => { if (getFilename("Load DDS...", ddsFiles).Any(loadDDS)) { cbk(s, e); } });
-            yield return new ToolStripMenuItem("Load Image...", null, (s, e) => { if (getFilename("Load Image...", "Image files|*.png;*.gif;*.jpg;*.bmp").Any(loadImage)) { cbk(s, e); } });
-            yield return new ToolStripMenuItem("Save DDS...", null, (s, e) => { if (getFilename("Save DDS...", ddsFiles, true).Any(saveDDS)) { } });
-            yield return new ToolStripMenuItem("Save Image...", null, (s, e) => { if (getFilename("Save Image...", "Portable Network Grapics files|*.png|Grapics Interchange Format files|*.gif|JPEG files|*.jpg|Bitmap files|*.bmp", true).Any(saveImage)) { } });
+            //yield return new ToolStripMenuItem("Load DDS...", null, (s, e) => { if (getFilename("Load DDS...", ddsFiles).Any(loadDDS)) { cbk(s, e); } });
+            //yield return new ToolStripMenuItem("Load Image...", null, (s, e) => { if (getFilename("Load Image...", "Image files|*.png;*.gif;*.jpg;*.bmp").Any(loadImage)) { cbk(s, e); } });
+            //yield return new ToolStripMenuItem("Save DDS...", null, (s, e) => { if (getFilename("Save DDS...", ddsFiles, true).Any(saveDDS)) { } });
+            //yield return new ToolStripMenuItem("Save Image...", null, (s, e) => { if (getFilename("Save Image...", "Portable Network Grapics files|*.png|Grapics Interchange Format files|*.gif|JPEG files|*.jpg|Bitmap files|*.bmp", true).Any(saveImage)) { } });
         }
 
         bool loadDDS(string filename)

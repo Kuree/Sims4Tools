@@ -120,6 +120,8 @@ namespace CatalogResource.TS4
             private ushort commodity;
             private uint amount;
             #endregion
+
+            public SellingPoint(int APIversion, EventHandler handler) : base(APIversion, handler) { }
             public SellingPoint(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
 
 
