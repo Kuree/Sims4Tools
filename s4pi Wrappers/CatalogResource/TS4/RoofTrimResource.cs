@@ -96,6 +96,7 @@ namespace CatalogResource.TS4
                 tgiList.Add(this.unknownTGIReference2);
                 return tgiList.ToArray();
             }
+            set { base.SetTGIList(value); }
         }
 
         internal override List<string> RenumberingFields

@@ -1,13 +1,13 @@
 
 S4PE and S4PI is an open source project based on s3pi and s3pe.
 
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Kuree/Sims4Tools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 
 Current Version
 ----
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Kuree/Sims4Tools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-0.2b
+0.2d
 
 Contributors:
 -----------
@@ -19,6 +19,7 @@ Here is a list of contributors:
 * [IngeJones] - a kind lady who doesn't want her name mentioned.
 * [Rick] - a pioneer in TS4.
 * [granthes] - not active now, but helped a lot in early stage.
+* [snaitf] - helps a lot for decoding the resources.
 
 Requirement
 --------------
@@ -74,6 +75,7 @@ Without peter's help and work on s3pe/s3pi project, there won't be this project,
 [IngeJones]:https://github.com/IngeJones
 [Rick]:https://gib.me
 [granthes]:https://github.com/granthes
+[snaitf]: https://github.com/Snaitf
 [s4pe-helper]: https://github.com/Kuree/s4p4-helper
 [wiki]:https://github.com/Kuree/s4p4-helper/wiki
 [gratipay]: https://gratipay.com/Kuree/

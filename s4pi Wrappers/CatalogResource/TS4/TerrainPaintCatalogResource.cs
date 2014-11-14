@@ -88,6 +88,7 @@ namespace CatalogResource.TS4
                     result.Add(matd.MATDTGI);
                 return result.ToArray();
             }
+            set { base.SetTGIList(value); } 
         }
         #endregion
     }

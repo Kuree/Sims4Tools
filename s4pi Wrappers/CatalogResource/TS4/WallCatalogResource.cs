@@ -89,17 +89,21 @@ namespace CatalogResource.TS4
                 }
                 return result.ToArray();
             }
-        }
-
-        internal override List<string> RenumberingFields
-        {
-            get
+            set
             {
-                var res = base.RenumberingFields;
-                res.Add("CatalogGroupID");
-                return res;
+                this.SetTGIList(value);
             }
         }
+
+        //internal override List<string> RenumberingFields
+        //{
+        //    get
+        //    {
+        //        var res = base.RenumberingFields;
+        //        res.Add("CatalogGroupID");
+        //        return res;
+        //    }
+        //}
 
         protected override object GroupingID { get { return this.CatalogGroupID; } set { this.CatalogGroupID = (ulong)value; } }
         #endregion

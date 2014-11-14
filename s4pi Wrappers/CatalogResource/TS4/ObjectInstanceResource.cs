@@ -36,11 +36,14 @@ namespace CatalogResource.TS4
         private uint unknownFlags3;
         private uint unknownFlags4;
         private uint unknownFlags5;
-        private DataBlobHandler unknown2;
+        private ulong unknownInstance1;
+        private byte unknown2;
+        private ulong unknownInstance2;
+        private byte unknown3;
         private SwatchColorList colorList;
         private DataBlobHandler unknownFlags;
         private bool buildBuyMode;
-        private uint unknown3;
+        private uint unknown4;
         #endregion
 
         public ObjectInstanceResource(int APIversion, Stream s) : base(APIversion, s) { }
@@ -56,11 +59,14 @@ namespace CatalogResource.TS4
             this.unknownFlags3 = r.ReadUInt32();
             this.unknownFlags4 = r.ReadUInt32();
             this.unknownFlags5 = r.ReadUInt32();
-            this.unknown2 = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes(18));
+            this.unknownInstance1 = r.ReadUInt64();
+            this.unknown2 = r.ReadByte();
+            this.unknownInstance2 = r.ReadUInt64();
+            this.unknown3 = r.ReadByte();
             this.colorList = new SwatchColorList(OnResourceChanged, s);
             this.unknownFlags = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes(5));
             this.buildBuyMode = r.ReadBoolean();
-            if (base.Version >= 0x19) this.unknown3 = r.ReadUInt32();
+            if (base.Version >= 0x19) this.unknown4 = r.ReadUInt32();
         }
 
         protected override Stream UnParse()
@@ -74,12 +80,14 @@ namespace CatalogResource.TS4
             w.Write(this.unknownFlags3);
             w.Write(this.unknownFlags4);
             w.Write(this.unknownFlags5);
-            if (this.unknown2 == null) this.unknown2 = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, new byte[18]);
-            this.unknown2.UnParse(s);
+            w.Write(this.unknownInstance1);
+            w.Write(this.unknown2);
+            w.Write(this.unknownInstance2);
+            w.Write(this.unknown3);
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             if (this.unknownFlags == null) this.unknownFlags = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, new byte[5]);
             w.Write(this.buildBuyMode);
-            if (base.Version >= 0x13) w.Write(this.unknown3);
+            if (base.Version >= 0x13) w.Write(this.unknown4);
             return s;
         }
         #endregion
@@ -98,15 +106,21 @@ namespace CatalogResource.TS4
         [ElementPriority(20)]
         public uint UnknownFlag5 { get { return this.unknownFlags5; } set { if (!this.unknownFlags5.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownFlags5 = value; } } }
         [ElementPriority(21)]
-        public DataBlobHandler Unknown2 { get { return this.unknown2; } set { if (!this.unknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
+        public ulong UnknownInstance1 { get { return this.unknownInstance1; } set { if (!this.unknownInstance1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownInstance1 = value; } } }
         [ElementPriority(22)]
-        public SwatchColorList SwatchColors { get { return this.colorList; } set { if (!this.colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
+        public byte Unknown2 { get { return this.unknown2; } set { if (!this.unknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
         [ElementPriority(23)]
-        public DataBlobHandler UnknownFlags { get { return this.unknownFlags; } set { if (!this.unknownFlags.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownFlags = value; } } }
+        public ulong UnknownInstance2 { get { return this.unknownInstance2; } set { if (!this.unknownInstance2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownInstance2 = value; } } }
         [ElementPriority(24)]
-        public bool BuildBuyMode { get { return this.buildBuyMode; } set { if (!this.buildBuyMode.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.buildBuyMode = value; } } }
+        public byte Unknown3 { get { return this.unknown3; } set { if (!this.unknown3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
         [ElementPriority(25)]
-        public uint Unknown3 { get { return this.unknown3; } set { if (!this.unknown3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
+        public SwatchColorList SwatchColors { get { return this.colorList; } set { if (!this.colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
+        [ElementPriority(26)]
+        public DataBlobHandler UnknownFlags { get { return this.unknownFlags; } set { if (!this.unknownFlags.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownFlags = value; } } }
+        [ElementPriority(27)]
+        public bool BuildBuyMode { get { return this.buildBuyMode; } set { if (!this.buildBuyMode.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.buildBuyMode = value; } } }
+        [ElementPriority(28)]
+        public uint Unknown4 { get { return this.unknown4; } set { if (!this.unknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown4 = value; } } }
         public override List<string> ContentFields { get { var res = base.ContentFields; if (base.Version >= 0x13) { res.Remove("Unknown3"); } return res; } }
         #endregion
 

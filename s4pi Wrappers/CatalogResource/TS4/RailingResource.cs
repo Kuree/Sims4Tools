@@ -79,7 +79,7 @@ namespace CatalogResource.TS4
         #endregion
 
         #region Clone
-        public override TGIBlock[] NestedTGIBlockList { get { return this.modlList.ToArray(); } }
+        public override TGIBlock[] NestedTGIBlockList { get { return this.modlList.ToArray(); } set { base.SetTGIList(value); } }
         #endregion
 
         #region Content Fields

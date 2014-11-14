@@ -89,6 +89,7 @@ namespace CatalogResource.TS4
                 tgiList.Add(this.objectReference);
                 return tgiList.ToArray();
             }
+            set { base.SetTGIList(value); } 
         }
         #endregion
 
