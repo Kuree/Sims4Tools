@@ -85,9 +85,11 @@ namespace CatalogResource
             w.Write(this.unknownInstance2);
             w.Write(this.unknown3);
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
+            this.colorList.UnParse(s);
             if (this.unknownFlags == null) this.unknownFlags = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, new byte[5]);
+            this.unknownFlags.UnParse(s);
             w.Write(this.buildBuyMode);
-            if (base.Version >= 0x13) w.Write(this.unknown4);
+            if (base.Version >= 0x19) w.Write(this.unknown4);
             return s;
         }
         #endregion
