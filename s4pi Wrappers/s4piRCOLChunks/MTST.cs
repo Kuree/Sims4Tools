@@ -91,7 +91,7 @@ namespace s4pi.GenericRCOLResource
             w.Write(nameHash);
             if (index == null) this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, 0);
             index.UnParse(ms);
-            if (list == null) this.list = new EntryList(OnRCOLChanged);
+            if (list == null) this.list = new EntryList(OnRCOLChanged, version);
             list.UnParse(ms);
 
             return ms;
@@ -121,12 +121,23 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Entry(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Entry(int APIversion, EventHandler handler, Stream s, uint version) : base(APIversion, handler) { this.version = version;  Parse(s); }
-            public Entry(int APIversion, EventHandler handler, Entry basis) : this(APIversion, handler, basis.index, basis.materialState) { }
-            public Entry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet)
+            public Entry(int APIversion, EventHandler handler, uint version)
                 : base(APIversion, handler)
             {
+                this.version = version;
+            }
+
+            public Entry(int APIversion, EventHandler handler, Stream s, uint version)
+                : base(APIversion, handler)
+            {
+                this.version = version; Parse(s);
+            }
+            public Entry(int APIversion, EventHandler handler, Entry basis)
+                : this(APIversion, handler, basis.index, basis.materialState, basis.version) { }
+            public Entry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet, uint version)
+                : base(APIversion, handler)
+            {
+                this.version = version;
                 this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
                 this.materialState = materialSet;
             }
@@ -141,7 +152,20 @@ namespace s4pi.GenericRCOLResource
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
 
-            public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); if (version != 0x00000300) { res.Remove("Unknown"); }; return res; } }
+            public override List<string> ContentFields
+            {
+                get
+                {
+                    var res = GetContentFields(requestedApiVersion, this.GetType());
+                    if (version != 0x00000300)
+                    {
+                        res.Remove("Unknown");
+                    }
+                    ;
+                    return res;
+                }
+            }
+
             #endregion
 
             #region IEquatable<Entry> Members
@@ -163,7 +187,17 @@ namespace s4pi.GenericRCOLResource
             public GenericRCOLResource.ChunkReference Index { get { return index; } set { if (index != value) { new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, value); OnElementChanged(); } } }
             [ElementPriority(2)]
             public State MaterialState { get { return materialState; } set { if (materialState != value) { materialState = value; OnElementChanged(); } } }
-            public uint Unknown { get { return this.unknown; } }
+            public uint Unknown
+            {
+                get { return this.unknown; }
+                set
+                {
+                    if (this.unknown != value)
+                    {
+                        this.unknown = value; this.OnElementChanged();
+                    }
+                }
+            }
             public string Value { get { return ValueBuilder.Replace("\n", "; "); } }
             #endregion
         }
@@ -171,8 +205,8 @@ namespace s4pi.GenericRCOLResource
         {
             private uint version;
             #region Constructors
-            public EntryList(EventHandler handler) : base(handler) { }
-            public EntryList(EventHandler handler, Stream s, uint version) : base(handler, s) { this.version = version; }
+            public EntryList(EventHandler handler, uint version) : base(handler) { this.version = version; }
+            public EntryList(EventHandler handler, Stream s, uint version) : base(handler) { this.version = version; this.Parse(s); }
             public EntryList(EventHandler handler, IEnumerable<Entry> le, uint version) : base(handler, le) { this.version = version; }
             #endregion
 

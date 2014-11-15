@@ -201,7 +201,7 @@ namespace meshExpImp.ModelBlocks
         private LODEntryList mEntries;
 
         public MODL(int APIversion, EventHandler handler) : this(APIversion, handler, 256, new BoundingBox(0, handler), new BoundingBoxList(handler), 0, 0f, new LODEntryList(handler)) { }
-        public MODL(int APIversion, EventHandler handler, MODL basis) : this(APIversion, handler, basis.Version, new BoundingBox(0, handler, basis.Bounds), new BoundingBoxList(handler, basis.ExtraBounds),basis.FadeType,basis.CustomFadeDistance, new LODEntryList(handler, basis.Entries)) { }
+        public MODL(int APIversion, EventHandler handler, MODL basis) : this(APIversion, handler, basis.Version, new BoundingBox(0, handler, basis.Bounds), new BoundingBoxList(handler, basis.ExtraBounds), basis.FadeType, basis.CustomFadeDistance, new LODEntryList(handler, basis.Entries)) { }
         public MODL(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
         public MODL(int APIversion, EventHandler handler, uint version, BoundingBox bounds, BoundingBoxList extraBounds, uint fadeType, float customFadeDistance, LODEntryList entries)
             : base(APIversion, handler, null)
@@ -249,7 +249,21 @@ namespace meshExpImp.ModelBlocks
             get { return mEntries; }
             set { if (mEntries != value) { mEntries = value == null ? null : new LODEntryList(handler, value); OnRCOLChanged(this, EventArgs.Empty); } }
         }
-
+        [ElementPriority(7)
+]
+        public byte[] Unknown
+        {
+            get { return this.unknown; }
+            set
+            {
+                if (this.unknown != value)
+                {
+                    this.unknown = value;
+                    this.OnRCOLChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+        byte[] unknown = new byte[5 * 4];
         protected override void Parse(Stream s)
         {
             BinaryReader br = new BinaryReader(s);
@@ -261,7 +275,7 @@ namespace meshExpImp.ModelBlocks
             mVersion = br.ReadUInt32();
             int count = br.ReadInt32();
             mBounds = new BoundingBox(0, handler, s);
-            if (mVersion >= 258)
+            if (mVersion >= 258 && mVersion < 0x300)
             {
                 mExtraBounds = new BoundingBoxList(handler, s);
                 mFadeType = br.ReadUInt32();
@@ -269,6 +283,10 @@ namespace meshExpImp.ModelBlocks
             }
             else
             {
+                if (mVersion >= 0x300)
+                {
+                    unknown = br.ReadBytes(20);
+                }
                 mExtraBounds = new BoundingBoxList(handler);
             }
             mEntries = new LODEntryList(handler, s, count);
@@ -286,11 +304,15 @@ namespace meshExpImp.ModelBlocks
             bw.Write(mVersion);
             bw.Write(mEntries.Count);
             mBounds.UnParse(s);
-            if (mVersion >= 258)
+            if (mVersion >= 258 && mVersion < 0x300)
             {
                 mExtraBounds.UnParse(s);
                 bw.Write(mFadeType);
                 bw.Write(mCustomFadeDistance);
+            }
+            if (mVersion >= 0x300)
+            {
+                bw.Write(this.unknown);
             }
             mEntries.UnParse(s);
             return s;
@@ -300,11 +322,15 @@ namespace meshExpImp.ModelBlocks
             get
             {
                 var fields = base.ContentFields;
-                if (mVersion < 258)
+                if (mVersion < 258 && mVersion < 0x300)
                 {
                     fields.Remove("ExtraBounds");
                     fields.Remove("FadeType");
                     fields.Remove("CustomFadeDistance");
+                }
+                if (mVersion < 0x300)
+                {
+                    fields.Remove("Unknown");
                 }
                 return fields;
             }
