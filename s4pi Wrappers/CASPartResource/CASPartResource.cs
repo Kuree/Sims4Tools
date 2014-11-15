@@ -46,8 +46,8 @@ namespace CASPartResource
         ushort secondarySortIndex;
         private uint propertyID;
         uint auralMaterialHash;
-        CASPEnums.PramFlag parmFlags;
-        CASPEnums.ExcludePartFlag excludePartFlags;
+        PramFlag parmFlags;
+        ExcludePartFlag excludePartFlags;
         uint excludeModifierRegionFlags;
         FlagList flagList;
         uint simlolencePrice;
@@ -56,7 +56,7 @@ namespace CASPartResource
         byte uniqueTextureSpace;
         int bodyType;
         int unused1;
-        CASPEnums.AgeGenderFlags ageGender;
+        AgeGenderFlags ageGender;
         byte unused2;
         byte unused3;
         SwatchColorList swatchColorCode;
@@ -96,8 +96,8 @@ namespace CASPartResource
             this.secondarySortIndex = r.ReadUInt16();
             propertyID = r.ReadUInt32();
             this.auralMaterialHash = r.ReadUInt32();
-            this.parmFlags = (CASPEnums.PramFlag)r.ReadByte();
-            this.excludePartFlags = (CASPEnums.ExcludePartFlag)r.ReadUInt64();
+            this.parmFlags = (PramFlag)r.ReadByte();
+            this.excludePartFlags = (ExcludePartFlag)r.ReadUInt64();
             this.excludeModifierRegionFlags = r.ReadUInt32();
 
             flagList = new FlagList(OnResourceChanged, s);
@@ -108,7 +108,7 @@ namespace CASPartResource
             this.uniqueTextureSpace = r.ReadByte();
             this.bodyType = r.ReadInt32();
             this.unused1 = r.ReadInt32();
-            this.ageGender = (CASPEnums.AgeGenderFlags)r.ReadUInt32();
+            this.ageGender = (AgeGenderFlags)r.ReadUInt32();
             this.unused2 = r.ReadByte();
             this.unused3 = r.ReadByte();
 
@@ -225,9 +225,9 @@ namespace CASPartResource
         [ElementPriority(7)]
         public uint AuralMaterialHash { get { return auralMaterialHash; } set { if (!value.Equals(this.auralMaterialHash)) { this.auralMaterialHash = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(8)]
-        public CASPEnums.PramFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public PramFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
-        public CASPEnums.ExcludePartFlag ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public ExcludePartFlag ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(10)]
         public uint ExcludeModifierRegionFlags { get { return excludeModifierRegionFlags; } set { if (!value.Equals(excludeModifierRegionFlags)) excludeModifierRegionFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(11)]
@@ -245,7 +245,7 @@ namespace CASPartResource
         [ElementPriority(17)]
         public int Unused1 { get { return unused1; } set { if (!value.Equals(unused1)) unused1 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(18)]
-        public CASPEnums.AgeGenderFlags AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public AgeGenderFlags AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(19)]
         public byte Unused2 { get { return unused2; } set { if (!value.Equals(unused2)) unused2 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(20)]
@@ -556,15 +556,15 @@ namespace CASPartResource
 
         public class Flag : AHandlerElement, IEquatable<Flag>
         {
-            CASPEnums.CASPFlags flagCategory;
-            CASPEnums.CASPFlagValues flagValue;
+            CASPFlags flagCategory;
+            CASPFlagValues flagValue;
 
             public Flag(int APIversion, EventHandler handler, Stream s)
                 : base(APIversion, handler)
             {
                 BinaryReader r = new BinaryReader(s);
-                this.flagCategory = (CASPEnums.CASPFlags)r.ReadUInt16();
-                this.flagValue = (CASPEnums.CASPFlagValues)r.ReadUInt16();
+                this.flagCategory = (CASPFlags)r.ReadUInt16();
+                this.flagValue = (CASPFlagValues)r.ReadUInt16();
             }
 
             public Flag(int APIversion, EventHandler handler) : base(APIversion, handler) { }
@@ -587,9 +587,9 @@ namespace CASPartResource
             }
 
             [ElementPriority(0)]
-            public CASPEnums.CASPFlags FlagCatagory { get { return this.flagCategory; } set { if (value != this.flagCategory) { OnElementChanged(); this.flagCategory = value; } } }
+            public CASPFlags FlagCatagory { get { return this.flagCategory; } set { if (value != this.flagCategory) { OnElementChanged(); this.flagCategory = value; } } }
             [ElementPriority(1)]
-            public CASPEnums.CASPFlagValues FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
+            public CASPFlagValues FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
 
             public string Value { get { return ValueBuilder; } }
         }

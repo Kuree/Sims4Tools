@@ -40,8 +40,8 @@ namespace CASPartResource
         private float unknown6;
         private float unknown7;
         private float unknown8;
-        private CASPEnums.AgeGenderFlags age;
-        private CASPEnums.AgeGenderFlags gender;
+        private AgeGenderFlags age;
+        private AgeGenderFlags gender;
         private ulong skinToneReference;
         private ByteIndexList unknown9;
 
@@ -89,8 +89,8 @@ namespace CASPartResource
             this.unknown7 = r.ReadSingle();
             this.unknown8 = r.ReadSingle();
 
-            this.age = (CASPEnums.AgeGenderFlags)r.ReadUInt32();
-            this.gender = (CASPEnums.AgeGenderFlags)r.ReadUInt32();
+            this.age = (AgeGenderFlags)r.ReadUInt32();
+            this.gender = (AgeGenderFlags)r.ReadUInt32();
             this.skinToneReference = r.ReadUInt64();
 
             byte[] unknown18 = new byte[r.ReadByte()];
@@ -478,9 +478,9 @@ namespace CASPartResource
         [ElementPriority(8)]
         public float Unknown8 { get { return this.unknown8; } set { if (!this.unknown8.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown8 = value; } } }
         [ElementPriority(9)]
-        public CASPEnums.AgeGenderFlags Age { get { return this.age; } set { if (!this.age.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.age = value; } } }
+        public AgeGenderFlags Age { get { return this.age; } set { if (!this.age.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.age = value; } } }
         [ElementPriority(10)]
-        public CASPEnums.AgeGenderFlags Gender { get { return this.gender; } set { if (!this.gender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.gender = value; } } }
+        public AgeGenderFlags Gender { get { return this.gender; } set { if (!this.gender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.gender = value; } } }
         [ElementPriority(11)]
         public ulong SkinToneReference { get { return this.skinToneReference; } set { if (!this.skinToneReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.skinToneReference = value; } } }
         [ElementPriority(12)]
