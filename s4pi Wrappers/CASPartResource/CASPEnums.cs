@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CASPartResource
 {
@@ -1269,7 +1266,7 @@ namespace CASPartResource
     }
 
     [Flags]
-    public enum PramFlag : byte
+    public enum ParmFlag : byte
     {
         ShowInCASDemo = 1 << 5,
         ShowInSimInfoDemo = 1 << 4,
