@@ -36,8 +36,8 @@ namespace CASPartResource
         private ulong nameHash;
         private Int32IndexList tgiIndexes;
         private byte bidirectional;
-        private CASPanelGroupType casPanelGroup;
-        private CASPanelSortType sort;
+        private CASPEnums.CASPanelGroupType casPanelGroup;
+        private CASPEnums.CASPanelSortType sort;
         private uint unknown1;
         private TGIBlockList tgiBlocks;
         #endregion
@@ -58,8 +58,8 @@ namespace CASPartResource
             nameHash = r.ReadUInt64();
             tgiIndexes = new Int32IndexList(OnResourceChanged, s);
             bidirectional = r.ReadByte();
-            casPanelGroup = (CASPanelGroupType)r.ReadUInt32();
-            sort = (CASPanelSortType)r.ReadUInt32();
+            casPanelGroup = (CASPEnums.CASPanelGroupType)r.ReadUInt32();
+            sort = (CASPEnums.CASPanelSortType)r.ReadUInt32();
             unknown1 = r.ReadUInt32();
             tgiBlocks = new TGIBlockList(OnResourceChanged, s, tgiPosn, tgiSize);
 
@@ -92,56 +92,6 @@ namespace CASPartResource
         }
         #endregion
 
-        #region Sub-Types
-        [Flags]
-        public enum CASPanelGroupType : uint
-        {
-            Unknown0 = 0,
-            Unknown1 = 1,
-            HeadAndEars = 2,
-            Unknown3 = 4,
-
-            Mouth = 8,
-            Nose = 16,
-            Unknown6 = 32,
-            Eyelash = 64,
-
-            Eyes = 128,
-            Unknown9 = 256,
-            UnknownA = 512,
-            UnknownB = 1024,
-
-            UnknownC = 2048,
-            UnknownD = 4096,
-            UnknownE = 8192,
-            UnknownF = 16384,
-        }
-
-        [Flags]
-        public enum CASPanelSortType : uint
-        {
-            Unknown0 = 0,
-            Unknown1 = 1,
-            Unknown2 = 2,
-            Unknown3 = 4,
-
-            Unknown4 = 8,
-            Unknown5 = 16,
-            Unknown6 = 32,
-            Unknown7 = 64,
-
-            Unknown8 = 128,
-            Unknown9 = 256,
-            UnknownA = 512,
-            UnknownB = 1024,
-
-            UnknownC = 2048,
-            UnknownD = 4096,
-            UnknownE = 8192,
-            UnknownF = 16384,
-        }
-        #endregion
-
         #region Content Fields
         [ElementPriority(1)]
         public uint Version { get { return version; } set { if (version != value) { version = value; OnResourceChanged(this, EventArgs.Empty); } } }
@@ -152,9 +102,9 @@ namespace CASPartResource
         [ElementPriority(4)]
         public byte Bidirectional { get { return bidirectional; } set { if (bidirectional != value) { bidirectional = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(5)]
-        public CASPanelGroupType CASPanelGroup { get { return casPanelGroup; } set { if (casPanelGroup != value) { casPanelGroup = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public CASPEnums.CASPanelGroupType CASPanelGroup { get { return casPanelGroup; } set { if (casPanelGroup != value) { casPanelGroup = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(6)]
-        public CASPanelSortType Sort { get { return sort; } set { if (sort != value) { sort = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public CASPEnums.CASPanelSortType Sort { get { return sort; } set { if (sort != value) { sort = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(7)]
         public uint Unknown1 { get { return unknown1; } set { if (unknown1 != value) { unknown1 = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(8)]

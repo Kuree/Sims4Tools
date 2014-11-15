@@ -40,8 +40,8 @@ namespace CASPartResource
         private float unknown6;
         private float unknown7;
         private float unknown8;
-        private CASPartResource.AgeGenderFlags age;
-        private CASPartResource.AgeGenderFlags gender;
+        private CASPEnums.AgeGenderFlags age;
+        private CASPEnums.AgeGenderFlags gender;
         private ulong skinToneReference;
         private ByteIndexList unknown9;
 
@@ -59,7 +59,7 @@ namespace CASPartResource
         private SliderReferenceList sliderReferences5;
         private DataBlobHandler unknown13;
         private ulong caspReference;
-        private SimpleList<ulong> dataReferelceList;
+        private SimpleList<ulong> dataReferenceList;
 
 
         public SimOutfitResource(int APIversion, Stream s) : base(APIversion, s) { if (s == null) { OnResourceChanged(this, EventArgs.Empty); } else { Parse(s); } }
@@ -89,8 +89,8 @@ namespace CASPartResource
             this.unknown7 = r.ReadSingle();
             this.unknown8 = r.ReadSingle();
 
-            this.age = (CASPartResource.AgeGenderFlags)r.ReadUInt32();
-            this.gender = (CASPartResource.AgeGenderFlags)r.ReadUInt32();
+            this.age = (CASPEnums.AgeGenderFlags)r.ReadUInt32();
+            this.gender = (CASPEnums.AgeGenderFlags)r.ReadUInt32();
             this.skinToneReference = r.ReadUInt64();
 
             byte[] unknown18 = new byte[r.ReadByte()];
@@ -117,10 +117,10 @@ namespace CASPartResource
             this.sliderReferences5 = new SliderReferenceList(OnResourceChanged, s, tgiList);
             this.unknown13 = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, r.ReadBytes(9));
             this.caspReference = r.ReadUInt64();
-            this.dataReferelceList = new SimpleList<ulong>(OnResourceChanged);
+            this.dataReferenceList = new SimpleList<ulong>(OnResourceChanged);
             int count2 = r.ReadByte();
             for (int i = 0; i < count2; i++)
-                this.dataReferelceList.Add(r.ReadUInt64());
+                this.dataReferenceList.Add(r.ReadUInt64());
 
         }
 
@@ -160,8 +160,8 @@ namespace CASPartResource
 
             this.unknown13.UnParse(ms);
             w.Write(this.caspReference);
-            w.Write((byte)this.dataReferelceList.Count);
-            foreach (var i in this.dataReferelceList) w.Write(i);
+            w.Write((byte)this.dataReferenceList.Count);
+            foreach (var i in this.dataReferenceList) w.Write(i);
 
             long tmpPostion = ms.Position;
             ms.Position = tgiOffsetPosition;
@@ -478,9 +478,9 @@ namespace CASPartResource
         [ElementPriority(8)]
         public float Unknown8 { get { return this.unknown8; } set { if (!this.unknown8.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown8 = value; } } }
         [ElementPriority(9)]
-        public CASPartResource.AgeGenderFlags Age { get { return this.age; } set { if (!this.age.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.age = value; } } }
+        public CASPEnums.AgeGenderFlags Age { get { return this.age; } set { if (!this.age.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.age = value; } } }
         [ElementPriority(10)]
-        public CASPartResource.AgeGenderFlags Gender { get { return this.gender; } set { if (!this.gender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.gender = value; } } }
+        public CASPEnums.AgeGenderFlags Gender { get { return this.gender; } set { if (!this.gender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.gender = value; } } }
         [ElementPriority(11)]
         public ulong SkinToneReference { get { return this.skinToneReference; } set { if (!this.skinToneReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.skinToneReference = value; } } }
         [ElementPriority(12)]
@@ -508,7 +508,7 @@ namespace CASPartResource
         [ElementPriority(23)]
         public ulong CASPReference { get { return this.caspReference; } set { if (!this.caspReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.caspReference = value; } } }
         [ElementPriority(24)]
-        public SimpleList<ulong> DataReferelceList { get { return this.dataReferelceList; } set { if (!this.dataReferelceList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.dataReferelceList = value; } } }
+        public SimpleList<ulong> DataReferenceList { get { return this.dataReferenceList; } set { if (!this.dataReferenceList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.dataReferenceList = value; } } }
         [ElementPriority(26)]
         public CountedTGIBlockList TGIList { get { return this.tgiList; } set { if (!this.tgiList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         #endregion

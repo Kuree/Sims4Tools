@@ -46,8 +46,8 @@ namespace CASPartResource
         ushort secondarySortIndex;
         private uint propertyID;
         uint auralMaterialHash;
-        PramFlag parmFlags;
-        ExcludePartFlag excludePartFlags;
+        CASPEnums.PramFlag parmFlags;
+        CASPEnums.ExcludePartFlag excludePartFlags;
         uint excludeModifierRegionFlags;
         FlagList flagList;
         uint simlolencePrice;
@@ -56,7 +56,7 @@ namespace CASPartResource
         byte uniqueTextureSpace;
         int bodyType;
         int unused1;
-        AgeGenderFlags ageGender;
+        CASPEnums.AgeGenderFlags ageGender;
         byte unused2;
         byte unused3;
         SwatchColorList swatchColorCode;
@@ -96,8 +96,8 @@ namespace CASPartResource
             this.secondarySortIndex = r.ReadUInt16();
             propertyID = r.ReadUInt32();
             this.auralMaterialHash = r.ReadUInt32();
-            this.parmFlags = (PramFlag)r.ReadByte();
-            this.excludePartFlags = (ExcludePartFlag)r.ReadUInt64();
+            this.parmFlags = (CASPEnums.PramFlag)r.ReadByte();
+            this.excludePartFlags = (CASPEnums.ExcludePartFlag)r.ReadUInt64();
             this.excludeModifierRegionFlags = r.ReadUInt32();
 
             flagList = new FlagList(OnResourceChanged, s);
@@ -108,7 +108,7 @@ namespace CASPartResource
             this.uniqueTextureSpace = r.ReadByte();
             this.bodyType = r.ReadInt32();
             this.unused1 = r.ReadInt32();
-            this.ageGender = (AgeGenderFlags)r.ReadUInt32();
+            this.ageGender = (CASPEnums.AgeGenderFlags)r.ReadUInt32();
             this.unused2 = r.ReadByte();
             this.unused3 = r.ReadByte();
 
@@ -225,9 +225,9 @@ namespace CASPartResource
         [ElementPriority(7)]
         public uint AuralMaterialHash { get { return auralMaterialHash; } set { if (!value.Equals(this.auralMaterialHash)) { this.auralMaterialHash = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(8)]
-        public PramFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public CASPEnums.PramFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
-        public ExcludePartFlag ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public CASPEnums.ExcludePartFlag ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(10)]
         public uint ExcludeModifierRegionFlags { get { return excludeModifierRegionFlags; } set { if (!value.Equals(excludeModifierRegionFlags)) excludeModifierRegionFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(11)]
@@ -245,7 +245,7 @@ namespace CASPartResource
         [ElementPriority(17)]
         public int Unused1 { get { return unused1; } set { if (!value.Equals(unused1)) unused1 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(18)]
-        public AgeGenderFlags AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public CASPEnums.AgeGenderFlags AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(19)]
         public byte Unused2 { get { return unused2; } set { if (!value.Equals(unused2)) unused2 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(20)]
@@ -556,15 +556,15 @@ namespace CASPartResource
 
         public class Flag : AHandlerElement, IEquatable<Flag>
         {
-            CASPFlags flagCategory;
-            ushort flagValue;
+            CASPEnums.CASPFlags flagCategory;
+            CASPEnums.CASPFlagValues flagValue;
 
             public Flag(int APIversion, EventHandler handler, Stream s)
                 : base(APIversion, handler)
             {
                 BinaryReader r = new BinaryReader(s);
-                this.flagCategory = (CASPFlags)r.ReadUInt16();
-                this.flagValue = r.ReadUInt16();
+                this.flagCategory = (CASPEnums.CASPFlags)r.ReadUInt16();
+                this.flagValue = (CASPEnums.CASPFlagValues)r.ReadUInt16();
             }
 
             public Flag(int APIversion, EventHandler handler) : base(APIversion, handler) { }
@@ -573,7 +573,7 @@ namespace CASPartResource
             {
                 BinaryWriter w = new BinaryWriter(s);
                 w.Write((ushort)this.flagCategory);
-                w.Write(this.flagValue);
+                w.Write((ushort)this.flagValue);
             }
 
             #region AHandlerElement Members
@@ -587,9 +587,9 @@ namespace CASPartResource
             }
 
             [ElementPriority(0)]
-            public CASPFlags FlagCatagory { get { return this.flagCategory; } set { if (value != this.flagCategory) { OnElementChanged(); this.flagCategory = value; } } }
+            public CASPEnums.CASPFlags FlagCatagory { get { return this.flagCategory; } set { if (value != this.flagCategory) { OnElementChanged(); this.flagCategory = value; } } }
             [ElementPriority(1)]
-            public ushort FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
+            public CASPEnums.CASPFlagValues FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
 
             public string Value { get { return ValueBuilder; } }
         }
@@ -620,145 +620,6 @@ namespace CASPartResource
             protected override Flag CreateElement(Stream s) { return new Flag(recommendedApiVersion, handler, s); }
             protected override void WriteElement(Stream s, Flag element) { element.UnParse(s); }
         }
-
-        #region Flags
-        public enum CASPFlags : ushort
-        {
-            Mood = 0x0040,
-            Color = 0x0041,
-            Style = 0x0042,
-            Theme = 0x0043,
-            AgeAppropriate = 0x0044,
-            Archetype = 0x0045,
-            OutfitCategory = 0x0046,
-            Skill = 0x0047,
-            EyeColor = 0x0048,
-            Persona = 0x0049,
-            Special = 0x004A,
-            HairColor = 0x004B,
-            ColorPalette = 0x004C,
-            Hair = 0x004D,
-            FacialHair = 0x004E,
-            Hat = 0x004F,
-            FaceMakeup = 0x0050,
-            Top = 0x0051,
-            Bottom = 0x0052,
-            Body = 0x0053,
-            Shoes = 0x0054,
-            BottomAccessory = 0x0055,
-            BuyCatEE = 0x0056,
-            BuyCatPA = 0x0057,
-            BuyCatLD = 0x0058,
-            BuyCatSS = 0x0059,
-            BuyCatVO = 0x005A,
-            Uniform = 0x005B,
-            Accessories = 0x005C,
-            BuyCatMAG = 0x005D,
-            FloorPattern = 0x005E,
-            WallPattern = 0x005F,
-            Fabric = 0x0060,
-            Build = 0x0061,
-            Pattern = 0x0062,
-            HairLength = 0x0063,
-            HairTexture = 0x0064,
-            TraitGroup = 0x0065,
-            SkinHue = 0x0066,
-            Reward = 0x0067,
-            TerrainPaint = 0x0068,
-            EyebrowThickness = 0x0069,
-            EyebrowShape = 0x006A,
-        }
-
-        [Flags]
-        public enum PramFlag : byte
-        {
-            ShowInCASDemo = 1 << 5,
-            ShowInSimInfoDemo = 1 << 4,
-            ShowInUI = 1 << 3,
-            AllowForRandom = 1 << 2,
-            DefaultThumbnailPart = 1 << 1,
-            DefaultForBodyType = 1
-        }
-
-        [Flags]
-        public enum AgeGenderFlags: uint
-        {
-            Unknown1 = 0x00000001,
-            Unknown2 = 0x00000002,
-            Child = 0x00000004,
-            Teen = 0x00000008,
-            YoungAdult = 0x00000010,
-            Adult = 0x00000020,
-            Elder = 0x00000040,
-            Male = 0x00001000,
-            Female = 0x00002000
-        }
-
-        [Flags]
-        public enum ExcludePartFlag : ulong
-        {
-            BODYTYPE_NONE = 0,
-            BODYTYPE_HAT = 1ul << 1,
-            BODYTYPE_HAIR = 1ul << 2,
-            BODYTYPE_HEAD = 1ul << 3,
-            BODYTYPE_FACE = 1ul << 4,
-            BODYTYPE_FULLBODY = 1ul << 5,
-            BODYTYPE_UPPERBODY = 1ul << 6,
-            BODYTYPE_LOWERBODY = 1ul << 7,
-            BODYTYPE_SHOES = 1ul << 8,
-            BODYTYPE_ACCESSORIES = 1ul << 9,
-            BODYTYPE_EARRINGS = 1ul << 10,
-            BODYTYPE_GLASSES = 1ul << 11,
-            BODYTYPE_NECKLACE = 1ul << 12,
-            BODYTYPE_GLOVES = 1ul << 13,
-            BODYTYPE_WRISTLEFT = 1ul << 14,
-            BODYTYPE_WRISTRIGHT = 1ul << 15,
-            BODYTYPE_LIPRINGLEFT = 1ul << 16,
-            BODYTYPE_LIPRINGRIGHT = 1ul << 17,
-            BODYTYPE_NOSERINGLEFT = 1ul << 18,
-            BODYTYPE_NOSERINGRIGHT = 1ul << 19,
-            BODYTYPE_BROWRINGLEFT = 1ul << 20,
-            BODYTYPE_BROWRINGRIGHT = 1ul << 21,
-            BODYTYPE_INDEXFINGERLEFT = 1ul << 22,
-            BODYTYPE_INDEXFINGERRIGHT = 1ul << 23,
-            BODYTYPE_RINGFINGERLEFT = 1ul << 24,
-            BODYTYPE_RINGFINGERRIGHT = 1ul << 25,
-            BODYTYPE_MIDDLEFINGERLEFT = 1ul << 26,
-            BODYTYPE_MIDDLEFINGERRIGHT = 1ul << 27,
-            BODYTYPE_FACIALHAIR = 1ul << 28,
-            BODYTYPE_LIPSTICK = 1ul << 29,
-            BODYTYPE_EYESHADOW = 1ul << 30,
-            BODYTYPE_EYELINER = 1ul << 31,
-            BODYTYPE_BLUSH = 1ul << 32,
-            BODYTYPE_FACEPAINT = 1ul << 33,
-            BODYTYPE_EYEBROWS = 1ul << 34,
-            BODYTYPE_EYECOLOR = 1ul << 35,
-            BODYTYPE_SOCKS = 1ul << 36,
-            BODYTYPE_MASCARA = 1ul << 37,
-            BODYTYPE_SKINDETAIL_CREASEFOREHEAD = 1ul << 38,
-            BODYTYPE_SKINDETAIL_FRECKLES = 1ul << 39,
-            BODYTYPE_SKINDETAIL_DIMPLELEFT = 1ul << 40,
-            BODYTYPE_SKINDETAIL_DIMPLERIGHT = 1ul << 41,
-            BODYTYPE_TIGHTS = 1ul << 42,
-            BODYTYPE_SKINDETAIL_MOLELIPLEFT = 1ul << 43,
-            BODYTYPE_SKINDETAIL_MOLELIPRIGHT = 1ul << 44,
-            BODYTYPE_TATTOO_ARMLOWERLEFT = 1ul << 45,
-            BODYTYPE_TATTOO_ARMUPPERLEFT = 1ul << 46,
-            BODYTYPE_TATTOO_ARMLOWERRIGHT = 1ul << 47,
-            BODYTYPE_TATTOO_ARMUPPERRIGHT = 1ul << 48,
-            BODYTYPE_TATTOO_LEGLEFT = 1ul << 49,
-            BODYTYPE_TATTOO_LEGRIGHT = 1ul << 50,
-            BODYTYPE_TATTOO_TORSOBACKLOWER = 1ul << 51,
-            BODYTYPE_TATTOO_TORSOBACKUPPER = 1ul << 52,
-            BODYTYPE_TATTOO_TORSOFRONTLOWER = 1ul << 53,
-            BODYTYPE_TATTOO_TORSOFRONTUPPER = 1ul << 54,
-            BODYTYPE_SKINDETAIL_MOLECHEEKLEFT = 1ul << 55,
-            BODYTYPE_SKINDETAIL_MOLECHEEKRIGHT = 1ul << 56,
-            BODYTYPE_SKINDETAIL_CREASEMOUTH = 1ul << 57
-        }
-
-        #endregion
-
 
         #endregion
     }

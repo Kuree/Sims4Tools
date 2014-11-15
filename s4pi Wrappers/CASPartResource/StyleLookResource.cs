@@ -37,7 +37,7 @@ namespace CASPartResource
         static bool checking = s4pi.Settings.Settings.Checking;
 
         private uint version;
-        private AgeGenderFlags ageGender;
+        private CASPEnums.AgeGenderFlags ageGender;
         private ulong groupingID;
         private byte unknown1;
         private ulong simOutfitReference;
@@ -62,7 +62,7 @@ namespace CASPartResource
             BinaryReader r = new BinaryReader(s);
             s.Position = 0;
             this.version = r.ReadUInt32();
-            this.ageGender = (AgeGenderFlags)r.ReadUInt32();
+            this.ageGender = (CASPEnums.AgeGenderFlags)r.ReadUInt32();
             this.groupingID = r.ReadUInt64();
             this.unknown1 = r.ReadByte();
             this.simOutfitReference = r.ReadUInt64();
@@ -110,28 +110,12 @@ namespace CASPartResource
         }
         #endregion
 
-        #region Sub Types
-        [Flags]
-        public enum AgeGenderFlags : uint
-        {
-            Unknown1 = 0x00000001,
-            Unknown2 = 0x00000002,
-            Child = 0x00000004,
-            Teen = 0x00000008,
-            YoungAdult = 0x00000010,
-            Adult = 0x00000020,
-            Elder = 0x00000040,
-            Male = 0x00001000,
-            Female = 0x00002000
-        }
-        #endregion
-
         #region Content Fields
         public string Value { get { return ValueBuilder; } }
         [ElementPriority(0)]
         public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.version = value; } } }
         [ElementPriority(1)]
-        public AgeGenderFlags AgeGender { get { return this.ageGender; } set { if (!this.ageGender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.ageGender = value; } } }
+        public CASPEnums.AgeGenderFlags AgeGender { get { return this.ageGender; } set { if (!this.ageGender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.ageGender = value; } } }
         [ElementPriority(2)]
         public ulong GroupingID { get { return this.groupingID; } set { if (!this.groupingID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.groupingID = value; } } }
         [ElementPriority(3)]
