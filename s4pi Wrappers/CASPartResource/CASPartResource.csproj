@@ -66,6 +66,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CASPartResource.cs" />
+    <Compile Include="CASPEnums.cs" />
     <Compile Include="FaceClothingResource.cs" />
     <Compile Include="GEOMListResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
