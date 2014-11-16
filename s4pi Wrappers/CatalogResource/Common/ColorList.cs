@@ -49,7 +49,7 @@ namespace CatalogResource
         public bool Equals(SwatchColor other) { return other.Equals(this.color); }
 
         public Color Color { get { return this.color; } set { if (!color.Equals(value)) { this.color = value; OnElementChanged(); } } }
-        public string Value { get { { return this.color.IsKnownColor ? this.color.ToKnownColor().ToString() : this.color.Name; } } }
+        public string Value { get { { return string.Format("#{0:X2}{1:X2}{2:X2}{3:X2}", color.A, color.R, color.G, color.B); } } } // Color code consists with HTML code
     }
 
     public class SwatchColorList : DependentList<SwatchColor>
