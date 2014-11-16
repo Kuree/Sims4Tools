@@ -355,10 +355,15 @@ namespace CatalogResource
                 this.Add(typeof(FloorCatalogResource), new List<string>(new string[] { "0xB4F762C9", }));
                 this.Add(typeof(TerrainPaintCatalogResource), new List<string>(new string[] { "0xEBCBB16C", }));
                 this.Add(typeof(ObjectInstanceResource), new List<string>(new string[] { "0x319E4F1D", }));
-                this.Add(typeof(RailingResource), new List<string>() { "0x1C1CF1F7", });
+                this.Add(typeof(RailingResource), new List<string>(new string[] { "0x1C1CF1F7", }));
                 this.Add(typeof(StairCatalogResource), new List<string>(new string[] { "0x9A20CD1C", }));
                 this.Add(typeof(FountainTrimsResource), new List<string>(new string[] { "0xE7ADA79D", }));
                 this.Add(typeof(RoofTrimResource), new List<string>(new string[] { "0xB0311D0F", }));
+                this.Add(typeof(FriezeCatalogResource), new List<string>(new string[] { "0xA057811C", }));
+                this.Add(typeof(RoofPatternResource), new List<string>(new string[] { "0xF1EDBD86", }));
+                this.Add(typeof(RoofStyleResource), new List<string>(new string[] { "0x91EDBD3E", }));
+                this.Add(typeof(ExteriorTrimResource), new List<string>(new string[] { "0x84C23219", }));
+                this.Add(typeof(StyledRoomResource), new List<string>(new string[] { "0x74050B1F", }));
             }
         }
     }
