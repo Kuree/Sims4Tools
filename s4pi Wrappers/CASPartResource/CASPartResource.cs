@@ -20,10 +20,8 @@
 using s4pi.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace CASPartResource
@@ -46,7 +44,7 @@ namespace CASPartResource
         ushort secondarySortIndex;
         private uint propertyID;
         uint auralMaterialHash;
-        PramFlag parmFlags;
+        ParmFlag parmFlags;
         ExcludePartFlag excludePartFlags;
         uint excludeModifierRegionFlags;
         FlagList flagList;
@@ -68,7 +66,7 @@ namespace CASPartResource
         int sortLayer;
         LODBlockList lodBlockList;
         SimpleList<byte> slotKey;
-        byte difussShadowKey;
+        byte diffuseShadowKey;
         byte shadowKey;
         byte compositionMethod;
         byte regionMapKey;
@@ -96,7 +94,7 @@ namespace CASPartResource
             this.secondarySortIndex = r.ReadUInt16();
             propertyID = r.ReadUInt32();
             this.auralMaterialHash = r.ReadUInt32();
-            this.parmFlags = (PramFlag)r.ReadByte();
+            this.parmFlags = (ParmFlag)r.ReadByte();
             this.excludePartFlags = (ExcludePartFlag)r.ReadUInt64();
             this.excludeModifierRegionFlags = r.ReadUInt32();
 
@@ -135,7 +133,7 @@ namespace CASPartResource
             this.slotKey = new SimpleList<byte>(null);
             for (byte i = 0; i < count; i++) this.slotKey.Add(r.ReadByte());
 
-            this.difussShadowKey = r.ReadByte();
+            this.diffuseShadowKey = r.ReadByte();
             this.shadowKey = r.ReadByte();
             this.compositionMethod = r.ReadByte();
             this.regionMapKey = r.ReadByte();
@@ -187,7 +185,7 @@ namespace CASPartResource
             if (this.slotKey == null) this.slotKey = new SimpleList<byte>(OnResourceChanged);
             w.Write((byte)this.slotKey.Count);
             foreach (var b in this.slotKey) w.Write(b);
-            w.Write(difussShadowKey);
+            w.Write(diffuseShadowKey);
             w.Write(shadowKey);
             w.Write(compositionMethod);
             w.Write(regionMapKey);
@@ -225,7 +223,7 @@ namespace CASPartResource
         [ElementPriority(7)]
         public uint AuralMaterialHash { get { return auralMaterialHash; } set { if (!value.Equals(this.auralMaterialHash)) { this.auralMaterialHash = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(8)]
-        public PramFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public ParmFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(9)]
         public ExcludePartFlag ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(10)]
@@ -269,7 +267,7 @@ namespace CASPartResource
         [ElementPriority(28), TGIBlockListContentField("TGIList")]
         public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(29), TGIBlockListContentField("TGIList")]
-        public byte DifussShadowKey { get { return difussShadowKey; } set { if (!value.Equals(difussShadowKey)) difussShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte DiffuseShadowKey { get { return diffuseShadowKey; } set { if (!value.Equals(diffuseShadowKey)) diffuseShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(30), TGIBlockListContentField("TGIList")]
         public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(31), TGIBlockListContentField("TGIList")]

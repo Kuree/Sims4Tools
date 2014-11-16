@@ -60,9 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoneResource.cs" />
-    <Compile Include="CASPartFlags.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="CASPartResource.cs" />
     <Compile Include="CASPEnums.cs" />
     <Compile Include="GEOMListResource.cs" />
