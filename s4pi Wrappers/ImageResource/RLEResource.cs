@@ -48,7 +48,7 @@ namespace s4pi.ImageResource
         #region Data I/O
         public void Parse(Stream s)
         {
-            if (s == null || s.Length == 0) s = this.UnParse();
+            if (s == null || s.Length == 0) { this.data = new byte[0]; return; }
             BinaryReader r = new BinaryReader(s);
             info = new RLEInfo(s);
             this.MipHeaders = new MipHeader[this.info.mipCount + 1];
@@ -92,11 +92,13 @@ namespace s4pi.ImageResource
 
         protected override Stream UnParse()
         {
-            return new MemoryStream(this.data);
+            if (this.data == null || this.data.Length == 0) { return new MemoryStream(); }
+            else { return new MemoryStream(this.data); }
         }
 
         public Stream ToDDS()
         {
+            if (this.info == null) return null;
             MemoryStream s = new MemoryStream();
             BinaryWriter w = new BinaryWriter(s);
             w.Write(RLEInfo.Signature);

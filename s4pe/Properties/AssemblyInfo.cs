@@ -26,15 +26,15 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Sims4 Package Editor")]
-[assembly: AssemblyDescription("Editor for package files used by The Sims 3(tm)")]
+[assembly: AssemblyDescription("Editor for package files used by The Sims 4(tm)")]
 #if DEBUG
 [assembly: AssemblyConfiguration("[DEBUG]")]
 #else
 [assembly: AssemblyConfiguration("")]
 #endif
-[assembly: AssemblyCompany("Peter L Jones")]
+[assembly: AssemblyCompany("Peter L Jones, Keyi Zhang")]
 [assembly: AssemblyProduct("Sims4")]
-[assembly: AssemblyCopyright("Copyright © 2011  Peter L Jones.  Released under GPL 3.  See gpl-3.0.txt")]
+[assembly: AssemblyCopyright("Copyright © 2011  Peter L Jones, 2014 Keyi Zhang.  Released under GPL 3.  See gpl-3.0.txt")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
