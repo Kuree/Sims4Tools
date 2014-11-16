@@ -1,6 +1,7 @@
 ﻿/***************************************************************************
  *  Copyright (C) 2014 by Snaitf                                           *
  *  http://modthesims.info/member/Snaitf                                   *
+ *  Keyi Zhang kz005@bucknell.edu                                          *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -81,6 +82,20 @@ namespace CatalogResource
         public TGIBlock ToolTGIReference { get { return toolTGIReference; } set { if (!toolTGIReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.toolTGIReference = value; } } }
         [ElementPriority(20)]
         public uint Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
+        #endregion
+
+        #region Clone
+        public override TGIBlock[] NestedTGIBlockList
+        {
+            get
+            {
+                return new TGIBlock[] { this.crmtTGIReference, this.crtrTGIReference1, this.crtrTGIReference2, this.toolTGIReference };
+            }
+            set
+            {
+                base.SetTGIList(value);
+            }
+        }
         #endregion
     }
 }

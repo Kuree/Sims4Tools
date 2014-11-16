@@ -1,6 +1,7 @@
 ﻿/***************************************************************************
  *  Copyright (C) 2014 by Snaitf                                           *
  *  http://modthesims.info/member/Snaitf                                   *
+ *  Keyi Zhang kz005@bucknell.edu                                          *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
