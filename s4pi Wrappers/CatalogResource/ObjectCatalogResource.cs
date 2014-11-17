@@ -364,6 +364,7 @@ namespace CatalogResource
                 this.Add(typeof(RoofStyleResource), new List<string>(new string[] { "0x91EDBD3E", }));
                 this.Add(typeof(ExteriorTrimResource), new List<string>(new string[] { "0x84C23219", }));
                 this.Add(typeof(StyledRoomResource), new List<string>(new string[] { "0x74050B1F", }));
+                this.Add(typeof(FoundationResource), new List<string>(new string[] { "0x2FAE983E", }));
             }
         }
     }
