@@ -65,6 +65,7 @@
     <Compile Include="Common\ThumbnailList.cs" />
     <Compile Include="ExteriorTrimResource.cs" />
     <Compile Include="FloorCatalogResource.cs" />
+    <Compile Include="FoundationResource.cs" />
     <Compile Include="FountainTrimsResource.cs" />
     <Compile Include="FriezeCatalogResource.cs" />
     <Compile Include="ObjectCatalogResource.cs" />
