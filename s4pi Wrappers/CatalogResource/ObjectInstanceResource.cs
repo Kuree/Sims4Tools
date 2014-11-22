@@ -20,8 +20,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using s4pi.Interfaces;
 
@@ -43,6 +41,7 @@ namespace CatalogResource
         private SwatchColorList colorList;
         private DataBlobHandler unknownFlags;
         private bool buildBuyMode;
+
         private uint unknown4;
         private uint unknown5;
         private uint unknown6;
@@ -69,6 +68,7 @@ namespace CatalogResource
             this.colorList = new SwatchColorList(OnResourceChanged, s);
             this.unknownFlags = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, r.ReadBytes(5));
             this.buildBuyMode = r.ReadBoolean();
+
             if (base.Version >= 0x19)
             {
                 this.unknown4 = r.ReadUInt32();
@@ -98,6 +98,7 @@ namespace CatalogResource
             if (this.unknownFlags == null) this.unknownFlags = new DataBlobHandler(RecommendedApiVersion, OnResourceChanged, new byte[5]);
             this.unknownFlags.UnParse(s);
             w.Write(this.buildBuyMode);
+
             if (base.Version >= 0x19)
             {
                 w.Write(this.unknown4);
@@ -136,6 +137,7 @@ namespace CatalogResource
         public DataBlobHandler UnknownFlags { get { return this.unknownFlags; } set { if (!this.unknownFlags.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownFlags = value; } } }
         [ElementPriority(27)]
         public bool BuildBuyMode { get { return this.buildBuyMode; } set { if (!this.buildBuyMode.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.buildBuyMode = value; } } }
+        
         [ElementPriority(28)]
         public uint Unknown4 { get { return this.unknown4; } set { if (!this.unknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown4 = value; } } }
         [ElementPriority(29)]
@@ -144,7 +146,23 @@ namespace CatalogResource
         public uint Unknown6 { get { return this.unknown6; } set { if (!this.unknown6.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown6 = value; } } }
         [ElementPriority(31)]
         public uint Unknown7 { get { return this.unknown7; } set { if (!this.unknown7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown7 = value; } } }
-        public override List<string> ContentFields { get { var res = base.ContentFields; if (base.Version >= 0x13) { res.Remove("Unknown3"); } return res; } }
+        
+        public override List<string> ContentFields
+        {
+            get
+            {
+                var res = base.ContentFields;
+
+                if (base.Version <= 0x18)
+                {
+                    res.Remove("Unknown4");
+                    res.Remove("Unknown5");
+                    res.Remove("Unknown6");
+                    res.Remove("Unknown7");
+                }
+                return res;
+            }
+        }
         #endregion
 
         #region Clone Code

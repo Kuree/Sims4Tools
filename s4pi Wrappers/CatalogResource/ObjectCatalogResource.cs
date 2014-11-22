@@ -20,8 +20,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using s4pi.Interfaces;
 using System.IO;
 using System.Reflection;
@@ -367,7 +365,8 @@ namespace CatalogResource
                 this.Add(typeof(FoundationResource), new List<string>(new string[] { "0x2FAE983E", }));
                 this.Add(typeof(A8F7B517CatalogResource), new List<string>(new string[] { "0xA8F7B517", }));
                 this.Add(typeof(PoolTrimResource), new List<string>(new string[] { "0xA5DFFCF3", }));
-                //this.Add(typeof(SpandrelCatalogResource), new List<string>(new string[] { "0x3F0C529A", }));
+                this.Add(typeof(SpandrelCatalogResource), new List<string>(new string[] { "0x3F0C529A", }));
+                this.Add(typeof(ColumnCatalogResource), new List<string>(new string[] { "0x1D6DF1CF", }));
             }
         }
     }
