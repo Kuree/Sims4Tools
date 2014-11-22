@@ -81,11 +81,11 @@ namespace CatalogResource
     public class MATDList : DependentList<MATDEntry>
     {
         private bool hasLabel;
+
         #region Constructors
         public MATDList(EventHandler handler, bool hasLabel = true) : base(handler) { this.hasLabel = hasLabel; }
         public MATDList(EventHandler handler, Stream s, bool hasLabel = true) : base(handler) { this.hasLabel = hasLabel; Parse(s, hasLabel); }
         #endregion
-
 
         #region Data I/O
         protected override void Parse(Stream s)
