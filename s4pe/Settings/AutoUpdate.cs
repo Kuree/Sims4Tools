@@ -27,6 +27,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using System.Text.RegularExpressions;
+using System.Net;
 
 namespace AutoUpdate
 {
@@ -92,19 +93,20 @@ namespace AutoUpdate
         {
             string updateURL = "https://api.github.com/repos/Kuree/Sims4Tools/releases";
             var client = new System.Net.WebClient();
-            client.Headers.Add("UserAgent", "S4PEUpdate");
+            client.Headers.Add("user-agent", "Only a test!");
+            client.Credentials = CredentialCache.DefaultCredentials;
             TextReader tr = new StreamReader(client.OpenRead(updateURL));
             string rawJSON = tr.ReadToEnd();
-            Regex r = new Regex("\"tag_name\": \"([0-9].[0-9][a-z])\"");
+            Regex r = new Regex("tag_name\\\":\\\"([0-9].[0-9][a-z])");
             var match = r.Matches(rawJSON);
-            this.AssignVersionFromString(match[0].Groups[0].Value);
+            this.AssignVersionFromString(match[0].Groups[1].Value);
         }
 
         private void AssignVersionFromString(string version)
         {
-            Regex r = new Regex("([0-9].[0-9])([a-z])");
-            var match = r.Match(version);
-            if (match.Groups.Count != 2)
+            Regex r = new Regex("([0-9][0-9])([a-z])");
+            var match = r.Match(version.Replace(".", ""));
+            if (match.Groups.Count < 2)
             {
                 MajorVersion = 0;
                 MinorVersion = 'a';
@@ -113,9 +115,9 @@ namespace AutoUpdate
             {
                 try
                 {
-
-                    MajorVersion = int.Parse(match.Groups[0].Value.Replace(".", ""));
-                    MinorVersion = char.Parse(match.Groups[1].Value);
+                    var test = match.Groups[1].Value;
+                    MajorVersion = int.Parse(match.Groups[1].Value);
+                    MinorVersion = char.Parse(match.Groups[2].Value);
                 }
                 catch
                 {
@@ -238,12 +240,13 @@ namespace AutoUpdate
             if (hasUpdate)
             {
                 int dr = CopyableMessageBox.Show(
-                        String.Format("New version available"
+                        String.Format("New version available",
+                        "Click Visit lick will open the default browser"
                         , CopyableMessageBoxIcon.Question
-                        , new List<string>(new string[] { "&Visit link", "&Later", }), 0, 1
+                        , new List<string>(new string[] { "&Visit link", "&Later", "Cancel"})
                         ));
 
-                if(dr ==0)
+                if(dr == 0)
                 {
                     System.Diagnostics.Process.Start(@"https://github.com/Kuree/Sims4Tools/releases");
                 }
