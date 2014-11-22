@@ -367,6 +367,9 @@ namespace CatalogResource
                 this.Add(typeof(PoolTrimResource), new List<string>(new string[] { "0xA5DFFCF3", }));
                 this.Add(typeof(SpandrelCatalogResource), new List<string>(new string[] { "0x3F0C529A", }));
                 this.Add(typeof(ColumnCatalogResource), new List<string>(new string[] { "0x1D6DF1CF", }));
+                this.Add(typeof(ProductStyleResource), new List<string>(new string[] { "0x9F5CFF10", }));
+                this.Add(typeof(ToolCatalogResource), new List<string>(new string[] { "0x07936CE0", }));
+                this.Add(typeof(FenceCatalogResource), new List<string>(new string[] { "0x0418FE2A", }));
             }
         }
     }

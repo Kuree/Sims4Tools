@@ -66,6 +66,7 @@
     <Compile Include="Common\MATDList.cs" />
     <Compile Include="Common\ThumbnailList.cs" />
     <Compile Include="ExteriorTrimResource.cs" />
+    <Compile Include="FenceCatalogResource.cs" />
     <Compile Include="FloorCatalogResource.cs" />
     <Compile Include="FoundationResource.cs" />
     <Compile Include="FountainTrimsResource.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="ObjectCatalogResource.cs" />
     <Compile Include="ObjectInstanceResource.cs" />
     <Compile Include="PoolTrimResource.cs" />
+    <Compile Include="ProductStyleResource.cs" />
     <Compile Include="RailingResource.cs" />
     <Compile Include="RoofPatternResource.cs" />
     <Compile Include="RoofStyleResource.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="StairCatalogResource.cs" />
     <Compile Include="StyledRoomResource.cs" />
     <Compile Include="TerrainPaintCatalogResource.cs" />
+    <Compile Include="ToolCatalogResource.cs" />
     <Compile Include="WallCatalogResource.cs" />
     <Compile Include="ObjectDefinitionResource.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
