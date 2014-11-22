@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="A8F7B517CatalogResource.cs" />
+    <Compile Include="ColumnCatalogResource.cs" />
     <Compile Include="Common\ColorList.cs" />
     <Compile Include="Common\MATDList.cs" />
     <Compile Include="Common\ThumbnailList.cs" />
