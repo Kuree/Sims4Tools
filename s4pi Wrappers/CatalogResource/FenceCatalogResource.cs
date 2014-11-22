@@ -45,9 +45,9 @@ namespace CatalogResource
         uint unknown3;
         ulong catalogGroupID;
         TGIBlock rsltTGIReference;
-        UnknownList unknownList1;
-        UnknownList unknownList2;
-        UnknownList unknownList3;
+        SimpleList<uint> unknownList1;
+        SimpleList<uint> unknownList2;
+        SimpleList<uint> unknownList3;
         SwatchColorList colorList;
         uint unknown4;
         #endregion
@@ -75,9 +75,12 @@ namespace CatalogResource
             this.unknown3 = r.ReadUInt32();
             this.catalogGroupID = r.ReadUInt64();
             this.rsltTGIReference = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
-            this.unknownList1 = new UnknownList(OnResourceChanged, s);
-            this.unknownList2 = new UnknownList(OnResourceChanged, s);
-            this.unknownList3 = new UnknownList(OnResourceChanged, s);
+            this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
+            for (int i = 0; i < r.ReadUInt16(); i++) this.unknownList1.Add(r.ReadUInt32());
+            this.unknownList2 = new SimpleList<uint>(OnResourceChanged);
+            for (int i = 0; i < r.ReadUInt16(); i++) this.unknownList2.Add(r.ReadUInt32());
+            this.unknownList3 = new SimpleList<uint>(OnResourceChanged);
+            for (int i = 0; i < r.ReadUInt16(); i++) this.unknownList3.Add(r.ReadUInt32());
             this.colorList = new SwatchColorList(OnResourceChanged, s);
             this.unknown4 = r.ReadUInt32();
         }
@@ -114,11 +117,11 @@ namespace CatalogResource
             w.Write(this.catalogGroupID);
             if (this.rsltTGIReference == null) this.rsltTGIReference = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
             this.rsltTGIReference.UnParse(s);
-            if (this.unknownList1 == null) this.unknownList1 = new UnknownList(OnResourceChanged, s);
+            if (this.unknownList1 == null) this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
             this.unknownList1.UnParse(s);
-            if (this.unknownList2 == null) this.unknownList2 = new UnknownList(OnResourceChanged, s);
+            if (this.unknownList2 == null) this.unknownList2 = new SimpleList<uint>(OnResourceChanged);
             this.unknownList2.UnParse(s);
-            if (this.unknownList3 == null) this.unknownList3 = new UnknownList(OnResourceChanged, s);
+            if (this.unknownList3 == null) this.unknownList3 = new SimpleList<uint>(OnResourceChanged);
             this.unknownList3.UnParse(s);            
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);
@@ -161,151 +164,17 @@ namespace CatalogResource
         [ElementPriority(30)]
         public TGIBlock RsltTGIReference { get { return rsltTGIReference; } set { if (!rsltTGIReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.rsltTGIReference = value; } } }
         [ElementPriority(31)]
-        public UnknownList UnknownList1 { get { return unknownList1; } set { if (!unknownList1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList1 = value; } } }
+        public SimpleList<uint> UnknownList1 { get { return unknownList1; } set { if (!unknownList1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList1 = value; } } }
         [ElementPriority(32)]
-        public UnknownList UnknownList2 { get { return unknownList2; } set { if (!unknownList2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList2 = value; } } }
+        public SimpleList<uint> UnknownList2 { get { return unknownList2; } set { if (!unknownList2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList2 = value; } } }
         [ElementPriority(33)]
-        public UnknownList UnknownList3 { get { return unknownList3; } set { if (!unknownList3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList3 = value; } } }
+        public SimpleList<uint> UnknownList3 { get { return unknownList3; } set { if (!unknownList3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList3 = value; } } }
         [ElementPriority(34)]
         public SwatchColorList ColorList { get { return colorList; } set { if (!colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
         [ElementPriority(35)]
         public uint Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown4 = value; } } }
         #endregion
-
-        #region Sub Class
-        public class ModlEntry : AHandlerElement, IEquatable<ModlEntry>
-        {
-            private UInt16 unknown;
-            private TGIBlock modlReference;
-            const int recommendedApiVersion = 1;
-
-            public ModlEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
-            public ModlEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-
-            private void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                this.unknown = r.ReadUInt16();
-                this.modlReference = new TGIBlock(RecommendedApiVersion, handler, "ITG", s);
-            }
-
-            public void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write(this.unknown);
-                if (this.modlReference == null) this.modlReference = new TGIBlock(RecommendedApiVersion, handler, "ITG");
-                this.modlReference.UnParse(s);
-            }
-
-            #region AHandlerElement Members
-            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-            #endregion
-
-            public bool Equals(ModlEntry other)
-            {
-                return this.unknown == other.unknown && this.modlReference.Equals(other.modlReference);
-            }
-
-            [ElementPriority(0)]
-            public UInt16 Unknown { get { return this.unknown; } set { if (!value.Equals(this.unknown)) { OnElementChanged(); this.unknown = value; } } }
-            [ElementPriority(1)]
-            public TGIBlock MODLReference { get { return this.modlReference; } set { if (!value.Equals(this.modlReference)) { OnElementChanged(); this.modlReference = value; } } }
-            public string Value { get { return ValueBuilder; } }
-        }
-
-        public class ModlEntryList : DependentList<ModlEntry>
-        {
-            #region Constructors
-            public ModlEntryList(EventHandler handler) : base(handler) { }
-            public ModlEntryList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
-            #endregion
-
-            #region Data I/O
-            protected override void Parse(Stream s)
-            {
-                int count = s.ReadByte();
-                for (byte i = 0; i < count; i++)
-                    this.Add(new ModlEntry(1, handler, s));
-            }
-
-            public override void UnParse(Stream s)
-            {
-                s.WriteByte((byte)this.Count);
-                foreach (var modl in this)
-                    modl.UnParse(s);
-            }
-
-            protected override ModlEntry CreateElement(Stream s) { return new ModlEntry(1, handler, s); }
-            protected override void WriteElement(Stream s, ModlEntry element) { element.UnParse(s); }
-            #endregion
-        }
-
-        public class UnknownListEntry : AHandlerElement, IEquatable<UnknownListEntry>
-        {
-            private UInt32 unknown;
-            const int recommendedApiVersion = 1;
-
-            public UnknownListEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
-            public UnknownListEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-
-            private void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                this.unknown = r.ReadUInt32();
-            }
-
-            public void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write(this.unknown);
-            }
-
-            #region AHandlerElement Members
-            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-            #endregion
-
-            public bool Equals(UnknownListEntry other)
-            {
-                return this.unknown == other.unknown;
-            }
-
-            [ElementPriority(0)]
-            public UInt32 Unknown { get { return this.unknown; } set { if (!value.Equals(this.unknown)) { OnElementChanged(); this.unknown = value; } } }
-            public string Value { get { return ValueBuilder; } }
-        }
-
-        public class UnknownList : DependentList<UnknownListEntry>
-        {
-            #region Constructors
-            public UnknownList(EventHandler handler) : base(handler) { }
-            public UnknownList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
-            #endregion
-
-            #region Data I/O
-            protected override void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                ushort count = r.ReadUInt16();
-                for (byte i = 0; i < count; i++)
-                    this.Add(new UnknownListEntry(1, handler, s));
-            }
-
-            public override void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write((ushort)this.Count);
-                foreach (var unknown in this)
-                    unknown.UnParse(s);
-            }
-
-            protected override UnknownListEntry CreateElement(Stream s) { return new UnknownListEntry(1, handler, s); }
-            protected override void WriteElement(Stream s, UnknownListEntry element) { element.UnParse(s); }
-            #endregion
-        }
-        #endregion
-
+        
         #region Clone
         #endregion
     }

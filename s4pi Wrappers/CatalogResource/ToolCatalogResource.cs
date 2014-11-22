@@ -60,7 +60,7 @@ namespace CatalogResource
 
             if (this.listFlag)
             {
-                if (this.unknownList1 == null) this.unknownList1 = new UnknownList(OnResourceChanged, s);
+                if (this.unknownList1 == null) this.unknownList1 = new UnknownList(OnResourceChanged);
                 this.unknownList1.UnParse(s);
             }
             return s;

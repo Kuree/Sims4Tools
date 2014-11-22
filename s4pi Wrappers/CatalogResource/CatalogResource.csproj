@@ -64,6 +64,7 @@
     <Compile Include="ColumnCatalogResource.cs" />
     <Compile Include="Common\ColorList.cs" />
     <Compile Include="Common\MATDList.cs" />
+    <Compile Include="Common\MODLEntryList.cs" />
     <Compile Include="Common\ThumbnailList.cs" />
     <Compile Include="ExteriorTrimResource.cs" />
     <Compile Include="FenceCatalogResource.cs" />

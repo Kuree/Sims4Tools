@@ -56,7 +56,7 @@ namespace CatalogResource
         TGIBlock cwalTGIReference4;
         TGIBlock cflrTGIReference5;
 
-        UnknownList unknownList1;
+        SimpleList<uint> unknownList1;
 
         uint unknown1;
         uint unknown2;
@@ -103,7 +103,8 @@ namespace CatalogResource
                 this.cflrTGIReference5 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
             }
 
-            this.unknownList1 = new UnknownList(OnResourceChanged, s);
+            this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
+            for (var i = 0; i < r.ReadByte(); i++) this.unknownList1.Add(r.ReadUInt32());
 
             this.unknown1 = r.ReadUInt32();
             this.unknown2 = r.ReadUInt32();
@@ -173,7 +174,7 @@ namespace CatalogResource
                 this.cflrTGIReference5.UnParse(s);
             }
 
-            if (this.unknownList1 == null) this.unknownList1 = new UnknownList(OnResourceChanged, s);
+            if (this.unknownList1 == null) this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
             this.unknownList1.UnParse(s);
             
             w.Write(this.unknown1);
@@ -240,7 +241,7 @@ namespace CatalogResource
         public TGIBlock CflrTGIReference5 { get { return cflrTGIReference5; } set { if (!cflrTGIReference5.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.cflrTGIReference5 = value; } } }
 
         [ElementPriority(40)]
-        public UnknownList UnknownList1 { get { return unknownList1; } set { if (!unknownList1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList1 = value; } } }
+        public SimpleList<uint> UnknownList1 { get { return unknownList1; } set { if (!unknownList1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList1 = value; } } }
 
         [ElementPriority(41)]
         public uint Unknown1 { get { return unknown1; } set { if (!unknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
@@ -270,70 +271,6 @@ namespace CatalogResource
                 }
                 return res;
             }
-        }
-        #endregion
-
-        #region Sub Class
-        public class UnknownListEntry : AHandlerElement, IEquatable<UnknownListEntry>
-        {
-            private UInt32 unknown;
-            const int recommendedApiVersion = 1;
-
-            public UnknownListEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
-            public UnknownListEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-
-            private void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                this.unknown = r.ReadUInt32();
-            }
-
-            public void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write(this.unknown);
-            }
-
-            #region AHandlerElement Members
-            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-            #endregion
-
-            public bool Equals(UnknownListEntry other)
-            {
-                return this.unknown == other.unknown;
-            }
-
-            [ElementPriority(0)]
-            public UInt32 Unknown { get { return this.unknown; } set { if (!value.Equals(this.unknown)) { OnElementChanged(); this.unknown = value; } } }
-            public string Value { get { return ValueBuilder; } }
-        }
-
-        public class UnknownList : DependentList<UnknownListEntry>
-        {
-            #region Constructors
-            public UnknownList(EventHandler handler) : base(handler) { }
-            public UnknownList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
-            #endregion
-
-            #region Data I/O
-            protected override void Parse(Stream s)
-            {
-                int count = s.ReadByte();
-                for (byte i = 0; i < count; i++)
-                    this.Add(new UnknownListEntry(1, handler, s));
-            }
-
-            public override void UnParse(Stream s)
-            {
-                s.WriteByte((byte)this.Count);
-                foreach (var unknown in this)
-                    unknown.UnParse(s);
-            }
-
-            protected override UnknownListEntry CreateElement(Stream s) { return new UnknownListEntry(1, handler, s); }
-            protected override void WriteElement(Stream s, UnknownListEntry element) { element.UnParse(s); }
-            #endregion
         }
         #endregion
 
