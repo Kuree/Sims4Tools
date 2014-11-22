@@ -139,6 +139,7 @@ namespace CatalogResource
         {
             private UInt16 unknown;
             private TGIBlock modlReference;
+            const int recommendedApiVersion = 1;
 
             public ModlEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
             public ModlEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
@@ -157,6 +158,11 @@ namespace CatalogResource
                 if (this.modlReference == null) this.modlReference = new TGIBlock(RecommendedApiVersion, handler, "ITG");
                 this.modlReference.UnParse(s);
             }
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
 
             public bool Equals(ModlEntry other)
             {
@@ -193,7 +199,7 @@ namespace CatalogResource
             }
 
             protected override ModlEntry CreateElement(Stream s) { return new ModlEntry(1, handler, s); }
-            protected override void WriteElement(Stream s, ModlEntryList element) { element.UnParse(s); }
+            protected override void WriteElement(Stream s, ModlEntry element) { element.UnParse(s); }
             #endregion
         }
         #endregion
