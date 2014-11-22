@@ -76,11 +76,14 @@ namespace CatalogResource
             this.catalogGroupID = r.ReadUInt64();
             this.rsltTGIReference = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
             this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
-            for (int i = 0; i < r.ReadUInt16(); i++) this.unknownList1.Add(r.ReadUInt32());
+            ushort count = r.ReadUInt16();
+            for (int i = 0; i < count; i++) this.unknownList1.Add(r.ReadUInt32());
             this.unknownList2 = new SimpleList<uint>(OnResourceChanged);
-            for (int i = 0; i < r.ReadUInt16(); i++) this.unknownList2.Add(r.ReadUInt32());
+            count = r.ReadUInt16();
+            for (int i = 0; i < count; i++) this.unknownList2.Add(r.ReadUInt32());
+            count = r.ReadUInt16();
             this.unknownList3 = new SimpleList<uint>(OnResourceChanged);
-            for (int i = 0; i < r.ReadUInt16(); i++) this.unknownList3.Add(r.ReadUInt32());
+            for (int i = 0; i < count; i++) this.unknownList3.Add(r.ReadUInt32());
             this.colorList = new SwatchColorList(OnResourceChanged, s);
             this.unknown4 = r.ReadUInt32();
         }
@@ -118,10 +121,13 @@ namespace CatalogResource
             if (this.rsltTGIReference == null) this.rsltTGIReference = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
             this.rsltTGIReference.UnParse(s);
             if (this.unknownList1 == null) this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
+            w.Write((ushort)this.unknownList1.Count);
             this.unknownList1.UnParse(s);
             if (this.unknownList2 == null) this.unknownList2 = new SimpleList<uint>(OnResourceChanged);
+            w.Write((ushort)this.unknownList2.Count);
             this.unknownList2.UnParse(s);
             if (this.unknownList3 == null) this.unknownList3 = new SimpleList<uint>(OnResourceChanged);
+            w.Write((ushort)this.unknownList3.Count);
             this.unknownList3.UnParse(s);            
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);
