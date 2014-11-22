@@ -80,9 +80,6 @@ namespace CatalogResource
                 base.SetTGIList(value);
             }
         }
-
-        //Not sure if I should remove this, or return null
-        //protected override object GroupingID { get { return this.CatalogGroupID; } set { this.CatalogGroupID = (ulong)value; } }
         #endregion
 
     }
