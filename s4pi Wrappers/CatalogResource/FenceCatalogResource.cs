@@ -122,13 +122,13 @@ namespace CatalogResource
             this.rsltTGIReference.UnParse(s);
             if (this.unknownList1 == null) this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
             w.Write((ushort)this.unknownList1.Count);
-            this.unknownList1.UnParse(s);
+            foreach (var i in this.unknownList1) w.Write(i);
             if (this.unknownList2 == null) this.unknownList2 = new SimpleList<uint>(OnResourceChanged);
             w.Write((ushort)this.unknownList2.Count);
-            this.unknownList2.UnParse(s);
+            foreach (var i in this.unknownList1) w.Write(i);
             if (this.unknownList3 == null) this.unknownList3 = new SimpleList<uint>(OnResourceChanged);
             w.Write((ushort)this.unknownList3.Count);
-            this.unknownList3.UnParse(s);            
+            foreach (var i in this.unknownList1) w.Write(i);        
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);
             w.Write(this.unknown1);
