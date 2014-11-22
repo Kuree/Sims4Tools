@@ -306,7 +306,7 @@
     <None Include="Helpers\Notepad.helper">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="s3peUpdate.ini">
+    <Content Include="version.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

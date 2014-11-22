@@ -1,21 +1,22 @@
 ﻿/***************************************************************************
  *  Copyright (C) 2009, 2010 by Peter L Jones                              *
  *  pljones@users.sf.net                                                   *
+ *  2014 by Keyi Zhang                                                     *
  *                                                                         *
- *  This file is part of the Sims 3 Package Interface (s3pi)               *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
- *  s3pi is free software: you can redistribute it and/or modify           *
+ *  s4pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
 
 using System;
@@ -25,6 +26,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
+using System.Text.RegularExpressions;
 
 namespace AutoUpdate
 {
@@ -44,20 +46,8 @@ namespace AutoUpdate
 
         public static String VersionFor(System.Reflection.Assembly a)
         {
-#if DEBUG
-            string[] v = a.GetName().Version.ToString().Split('.');
-            return String.Format("{0}-{1}{2}-{3}", v[0].Substring(0, 2), v[0].Substring(2), v[1], v[2]);
-#else
-            string version_txt = Path.Combine(Path.GetDirectoryName(PortableSettingsProvider.ExecutablePath), PortableSettingsProvider.ExecutableName + "-Version.txt");
-            if (!File.Exists(version_txt))
-                return "Unknown";
-            using (System.IO.StreamReader sr = new StreamReader(version_txt))
-            {
-                String line1 = sr.ReadLine();
-                sr.Close();
-                return line1.Trim();
-            }
-#endif
+
+            return "";
         }
     }
     public class UpdateInfo
@@ -87,6 +77,67 @@ namespace AutoUpdate
             tr.Close();
         }
     }
+
+    public class GithubVersion : IComparable<GithubVersion>
+    {
+        public int MajorVersion { get; private set; }
+        public char MinorVersion { get; private set; }
+
+        public GithubVersion(string version)
+        {
+            this.AssignVersionFromString(version);
+        }
+
+        public GithubVersion()
+        {
+            string updateURL = "https://api.github.com/repos/Kuree/Sims4Tools/releases";
+            var client = new System.Net.WebClient();
+            client.Headers.Add("UserAgent", "S4PEUpdate");
+            TextReader tr = new StreamReader(client.OpenRead(updateURL));
+            string rawJSON = tr.ReadToEnd();
+            Regex r = new Regex("\"tag_name\": \"([0-9].[0-9][a-z])\"");
+            var match = r.Matches(rawJSON);
+            this.AssignVersionFromString(match[0].Groups[0].Value);
+        }
+
+        private void AssignVersionFromString(string version)
+        {
+            Regex r = new Regex("([0-9].[0-9])([a-z])");
+            var match = r.Match(version);
+            if (match.Groups.Count != 2)
+            {
+                MajorVersion = 0;
+                MinorVersion = 'a';
+            }
+            else
+            {
+                try
+                {
+
+                    MajorVersion = int.Parse(match.Groups[0].Value.Replace(".", ""));
+                    MinorVersion = char.Parse(match.Groups[1].Value);
+                }
+                catch
+                {
+                    MajorVersion = 0;
+                    MinorVersion = 'a';
+                }
+            }
+        }
+
+        public int CompareTo(GithubVersion other)
+        {
+            if(other.MajorVersion != this.MajorVersion)
+            {
+                return this.MajorVersion.CompareTo(other.MajorVersion);
+            }
+            else
+            {
+                return this.MinorVersion.CompareTo(other.MinorVersion);
+            }
+        }
+    }
+
     public class Checker
     {
         static S4PIDemoFE.Properties.Settings pgmSettings = S4PIDemoFE.Properties.Settings.Default;
@@ -137,78 +188,69 @@ namespace AutoUpdate
 
         public static bool GetUpdate(bool autoCheck)
         {
-            return true;
-            //UpdateInfo ui = null;
-            //string ini = PortableSettingsProvider.GetApplicationIniFile("Update");
-            //if (!File.Exists(ini))
-            //{
-            //    CopyableMessageBox.Show(
-            //        "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
-            //        + ini + " - not found"
-            //        , PortableSettingsProvider.ExecutableName + " AutoUpdate"
-            //        , CopyableMessageBoxButtons.OK
-            //        , CopyableMessageBoxIcon.Error);
-            //    return true;
-            //}
-            //try
-            //{
-            //    string url = new StreamReader(ini).ReadLine();
-            //    if (url == null)
-            //        throw new IOException(ini + " - failed to read url");
-            //    url = url.Trim();
-            //    try
-            //    {
-            //        using (S4PIDemoFE.Splash splash = new S4PIDemoFE.Splash("Checking for updates..."))
-            //        {
-            //            splash.Show();
-            //            Application.DoEvents();
-            //            ui = new UpdateInfo(url);
-            //        }
-            //    }
-            //    catch (System.Net.WebException we)
-            //    {
-            //        if (we != null)
-            //        {
-            //            CopyableMessageBox.Show(
-            //                "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
-            //                + (we.Response != null ? "\nURL: " + we.Response.ResponseUri : "")
-            //                + "\n" + we.Message
-            //                , PortableSettingsProvider.ExecutableName + " AutoUpdate"
-            //                , CopyableMessageBoxButtons.OK
-            //                , CopyableMessageBoxIcon.Error);
-            //            return true;
-            //        }
-            //    }
-            //}
-            //catch (IOException ioe)
-            //{
-            //    CopyableMessageBox.Show(
-            //        "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
-            //        + ioe.Message
-            //        , PortableSettingsProvider.ExecutableName + " AutoUpdate"
-            //        , CopyableMessageBoxButtons.OK
-            //        , CopyableMessageBoxIcon.Error);
-            //    return true;
-            //}
+            string versionIni = "version.ini";
+            bool hasUpdate = false;
 
-            //if (UpdateApplicable(ui, autoCheck))
-            //{
-            //    int dr = CopyableMessageBox.Show(
-            //        String.Format("{0}\n{3}\n\nCurrent version: {1}\nAvailable version: {2}",
-            //        ui.Message, Version.CurrentVersion, ui.AvailableVersion, ui.UpdateURL)
-            //        , PortableSettingsProvider.ExecutableName + " update available"
-            //        , CopyableMessageBoxIcon.Question
-            //        , new List<string>(new string[] { "&Visit link", "&Later", "&Skip version", }), 1, 2
-            //        );
+            if (!File.Exists(versionIni))
+            {
+                CopyableMessageBox.Show(
+                    "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
+                    + versionIni + " - not found"
+                    , PortableSettingsProvider.ExecutableName + " AutoUpdate"
+                    , CopyableMessageBoxButtons.OK
+                    , CopyableMessageBoxIcon.Error);
+                return true;
+            }
 
-            //    switch (dr)
-            //    {
-            //        case 0: System.Diagnostics.Process.Start(ui.UpdateURL); break;
-            //        case 2: pgmSettings.AULastIgnoredVsn = ui.AvailableVersion; pgmSettings.Save(); break;
-            //    }
-            //    return true;
-            //}
-            //return false;
+            try
+            {
+                string currentVersion = new StreamReader(versionIni).ReadLine();
+                currentVersion = currentVersion.Trim();
+                GithubVersion s4peVersion = new GithubVersion(currentVersion);
+                GithubVersion currentGithubVersion = new GithubVersion();
+                hasUpdate = s4peVersion.CompareTo(currentGithubVersion) < 0;
+            }
+            catch (System.Net.WebException we)
+            {
+                if (we != null)
+                {
+                    CopyableMessageBox.Show(
+                        "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
+                        + (we.Response != null ? "\nURL: " + we.Response.ResponseUri : "")
+                        + "\n" + we.Message
+                        , PortableSettingsProvider.ExecutableName + " AutoUpdate"
+                        , CopyableMessageBoxButtons.OK
+                        , CopyableMessageBoxIcon.Error);
+                    return true;
+                }
+            }
+            catch (IOException ioe)
+            {
+                CopyableMessageBox.Show(
+                    "Problem checking for update" + (autoCheck ? " - will try again later" : "") + "\n"
+                    + ioe.Message
+                    , PortableSettingsProvider.ExecutableName + " AutoUpdate"
+                    , CopyableMessageBoxButtons.OK
+                    , CopyableMessageBoxIcon.Error);
+                return true;
+            }
+
+            if (hasUpdate)
+            {
+                int dr = CopyableMessageBox.Show(
+                        String.Format("New version available"
+                        , CopyableMessageBoxIcon.Question
+                        , new List<string>(new string[] { "&Visit link", "&Later", }), 0, 1
+                        ));
+
+                if(dr ==0)
+                {
+                    System.Diagnostics.Process.Start(@"https://github.com/Kuree/Sims4Tools/releases");
+                }
+                return true;
+            }
+            return false;
+
         }
 
         private static bool UpdateApplicable(UpdateInfo ui, bool autoCheck)
