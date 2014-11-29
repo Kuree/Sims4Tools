@@ -20,13 +20,13 @@
  ***************************************************************************/
 
 using System;
-using System.IO;
-using s4pi.Interfaces;
 using System.Collections.Generic;
+using s4pi.Interfaces;
+using System.IO;
 
 namespace CatalogResource
 {
-    class SpandrelCatalogResource : ObjectCatalogResource
+    class FenceCatalogResource : ObjectCatalogResource
     {
         #region Attributes
         ModlEntryList modlEntryList1;
@@ -40,12 +40,19 @@ namespace CatalogResource
         TGIBlock modlTGIReference5;
         TGIBlock modlTGIReference6;
         TGIBlock modlTGIReference7;
-        uint unknown;
+        uint unknown1;
+        byte unknown2;
+        uint unknown3;
         ulong catalogGroupID;
+        TGIBlock rsltTGIReference;
+        SimpleList<uint> unknownList1;
+        SimpleList<uint> unknownList2;
+        SimpleList<uint> unknownList3;
         SwatchColorList colorList;
+        uint unknown4;
         #endregion
 
-        public SpandrelCatalogResource(int APIversion, Stream s) : base(APIversion, s) { }
+        public FenceCatalogResource(int APIversion, Stream s) : base(APIversion, s) { }
 
         #region Data I/O
         protected override void Parse(Stream s)
@@ -63,9 +70,22 @@ namespace CatalogResource
             this.modlTGIReference5 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
             this.modlTGIReference6 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
             this.modlTGIReference7 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
-            this.unknown = r.ReadUInt32();
+            this.unknown1 = r.ReadUInt32();
+            this.unknown2 = r.ReadByte();
+            this.unknown3 = r.ReadUInt32();
             this.catalogGroupID = r.ReadUInt64();
+            this.rsltTGIReference = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
+            this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
+            ushort count = r.ReadUInt16();
+            for (int i = 0; i < count; i++) this.unknownList1.Add(r.ReadUInt32());
+            this.unknownList2 = new SimpleList<uint>(OnResourceChanged);
+            count = r.ReadUInt16();
+            for (int i = 0; i < count; i++) this.unknownList2.Add(r.ReadUInt32());
+            count = r.ReadUInt16();
+            this.unknownList3 = new SimpleList<uint>(OnResourceChanged);
+            for (int i = 0; i < count; i++) this.unknownList3.Add(r.ReadUInt32());
             this.colorList = new SwatchColorList(OnResourceChanged, s);
+            this.unknown4 = r.ReadUInt32();
         }
 
         protected override Stream UnParse()
@@ -94,10 +114,24 @@ namespace CatalogResource
             this.modlTGIReference6.UnParse(s);
             if (this.modlTGIReference7 == null) this.modlTGIReference7 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
             this.modlTGIReference7.UnParse(s);
-            w.Write(this.unknown);
+            w.Write(this.unknown1);
+            w.Write(this.unknown2);
+            w.Write(this.unknown3);
             w.Write(this.catalogGroupID);
+            if (this.rsltTGIReference == null) this.rsltTGIReference = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
+            this.rsltTGIReference.UnParse(s);            
+            if (this.unknownList1 == null) this.unknownList1 = new SimpleList<uint>(OnResourceChanged);
+            w.Write((ushort)this.unknownList1.Count);
+            foreach (var i in this.unknownList1) w.Write(i);            
+            if (this.unknownList2 == null) this.unknownList2 = new SimpleList<uint>(OnResourceChanged);
+            w.Write((ushort)this.unknownList2.Count);
+            foreach (var i in this.unknownList2) w.Write(i);
+            if (this.unknownList3 == null) this.unknownList3 = new SimpleList<uint>(OnResourceChanged);
+            w.Write((ushort)this.unknownList3.Count);
+            foreach (var i in this.unknownList3) w.Write(i);        
             if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(s);
+            w.Write(this.unknown1);
             return s;
         }
         #endregion
@@ -126,47 +160,28 @@ namespace CatalogResource
         [ElementPriority(25)]
         public TGIBlock ModlTGIReference7 { get { return modlTGIReference7; } set { if (!modlTGIReference7.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.modlTGIReference7 = value; } } }
         [ElementPriority(26)]
-        public uint Unknown { get { return unknown; } set { if (!unknown.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown = value; } } }
+        public uint Unknown1 { get { return unknown1; } set { if (!unknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
         [ElementPriority(27)]
-        public ulong CatalogGroupID { get { return catalogGroupID; } set { if (!catalogGroupID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogGroupID = value; } } }
+        public byte Unknown2 { get { return unknown2; } set { if (!unknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
         [ElementPriority(28)]
+        public uint Unknown3 { get { return unknown3; } set { if (!unknown3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
+        [ElementPriority(29)]
+        public ulong CatalogGroupID { get { return catalogGroupID; } set { if (!catalogGroupID.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.catalogGroupID = value; } } }
+        [ElementPriority(30)]
+        public TGIBlock RsltTGIReference { get { return rsltTGIReference; } set { if (!rsltTGIReference.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.rsltTGIReference = value; } } }
+        [ElementPriority(31)]
+        public SimpleList<uint> UnknownList1 { get { return unknownList1; } set { if (!unknownList1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList1 = value; } } }
+        [ElementPriority(32)]
+        public SimpleList<uint> UnknownList2 { get { return unknownList2; } set { if (!unknownList2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList2 = value; } } }
+        [ElementPriority(33)]
+        public SimpleList<uint> UnknownList3 { get { return unknownList3; } set { if (!unknownList3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList3 = value; } } }
+        [ElementPriority(34)]
         public SwatchColorList ColorList { get { return colorList; } set { if (!colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
+        [ElementPriority(35)]
+        public uint Unknown4 { get { return unknown4; } set { if (!unknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown4 = value; } } }
         #endregion
-
+        
         #region Clone
-        public override TGIBlock[] NestedTGIBlockList
-        {
-            get
-            {
-                List<TGIBlock> tgiList = new List<TGIBlock>();
-                tgiList.Add(modlTGIReference1);
-                tgiList.Add(modlTGIReference2);
-                tgiList.Add(modlTGIReference3);
-                tgiList.Add(modlTGIReference4);
-                tgiList.Add(modlTGIReference5);
-                tgiList.Add(modlTGIReference6);
-                tgiList.Add(modlTGIReference7);
-                if (this.modlEntryList1 != null)
-                    foreach (var entry in this.modlEntryList1)
-                        tgiList.Add(entry.MODLReference);
-                if (this.modlEntryList2 != null)
-                    foreach (var entry in this.modlEntryList1)
-                        tgiList.Add(entry.MODLReference);
-                if (this.modlEntryList3 != null)
-                    foreach (var entry in this.modlEntryList1)
-                        tgiList.Add(entry.MODLReference);
-                if (this.modlEntryList4 != null)
-                    foreach (var entry in this.modlEntryList1)
-                        tgiList.Add(entry.MODLReference);
-                return tgiList.ToArray();
-            }
-            set
-            {
-                base.SetTGIList(value);
-            }
-        }
-
-        protected override object GroupingID { get { return this.CatalogGroupID; } set { this.CatalogGroupID = (ulong)value; } }
         #endregion
     }
 }

@@ -100,7 +100,7 @@ namespace CatalogResource
             this.unknown13 = r.ReadUInt32();
             this.tgiReferenceFlag = r.ReadUInt32();
 
-            if ((int)this.tgiReferenceFlag == 1)
+            if (this.tgiReferenceFlag == 0x01)
             {
                 this.modlTGIReference1 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
                 this.modlTGIReference2 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
@@ -160,7 +160,7 @@ namespace CatalogResource
             w.Write(this.unknown13);
             w.Write(this.tgiReferenceFlag);
 
-            if ((int)this.tgiReferenceFlag == 1)
+            if (this.tgiReferenceFlag == 0x01)
             {
                 if (this.modlTGIReference1 == null) this.modlTGIReference1 = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG");
                 this.modlTGIReference1.UnParse(s);
@@ -308,7 +308,7 @@ namespace CatalogResource
 
                 if (base.Version <= 0x18) res.Remove("DataBlob2");
 
-                if ((int)this.tgiReferenceFlag == 1)
+                if (this.tgiReferenceFlag == 0x01)
                 {
                     res.Remove("NullTGIReference1");
                     res.Remove("NullTGIReference2");

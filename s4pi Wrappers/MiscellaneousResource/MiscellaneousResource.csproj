@@ -41,7 +41,6 @@
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="AUEVResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShaderResource.cs" />
     <Compile Include="SimModifierResource.cs" />
   </ItemGroup>
   <ItemGroup>

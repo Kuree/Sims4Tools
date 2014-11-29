@@ -7,7 +7,7 @@ S4PE and S4PI is an open source project based on s3pi and s3pe.
 Current Version
 ----
 
-0.2d
+0.3a
 
 Contributors:
 -----------
@@ -20,6 +20,7 @@ Here is a list of contributors:
 * [Rick] - a pioneer in TS4.
 * [granthes] - not active now, but helped a lot in early stage.
 * [snaitf] - helps a lot for decoding the resources.
+* [orangemittens] - helps a lot in wiki pages.
 
 Requirement
 --------------
@@ -67,7 +68,8 @@ Others
 #### Special thanks:
 Without peter's help and work on s3pe/s3pi project, there won't be this project, which highly depends on his two projects. His philosophy to share and distribute open source project will be carried on.
 #### Edit History
-* 9/30/2014: first version by Kuree.
+* 9/30/2014: first version.
+* 11/27/2014: update contributors and version number.
 
 [Kuree]:https://github.com/Kuree
 [ChaosMageX]:https://github.com/ChaosMageX
@@ -79,3 +81,4 @@ Without peter's help and work on s3pe/s3pi project, there won't be this project,
 [s4pe-helper]: https://github.com/Kuree/s4p4-helper
 [wiki]:https://github.com/Kuree/s4p4-helper/wiki
 [gratipay]: https://gratipay.com/Kuree/
+[orangemittens]: https://github.com/orangemittens
