@@ -36,7 +36,7 @@ namespace s4pi.Miscellaneous
         static bool checking = s4pi.Settings.Settings.Checking;
 
         public uint version { get; set; }
-        public DataBlobHandler unknown { get; set; }
+
         public UnknownEntryLIst unknownEntryList { get; set; }
         public string Value { get { return ValueBuilder; } }
 
@@ -48,7 +48,7 @@ namespace s4pi.Miscellaneous
             BinaryReader r = new BinaryReader(s);
             s.Position = 0;
             this.version = r.ReadUInt32();
-            this.unknown = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, 31, s);
+            //this.unknown = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, 31, s);
             uint size = r.ReadUInt32();
             this.unknownEntryList = new UnknownEntryLIst(OnResourceChanged, s, size);
         }
@@ -58,7 +58,7 @@ namespace s4pi.Miscellaneous
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
             w.Write(this.version);
-            this.unknown.UnParse(ms);
+            //this.unknown.UnParse(ms);
             long tmpPos = ms.Position;
             w.Write(0);
             this.unknownEntryList.UnParse(ms);
@@ -71,6 +71,37 @@ namespace s4pi.Miscellaneous
         #endregion
 
         #region Sub-Class
+        public enum Physiques : byte
+        {
+            BODYBLENDTYPE_HEAVY = 0,
+            BODYBLENDTYPE_FIT = 1,
+            BODYBLENDTYPE_LEAN = 2,
+            BODYBLENDTYPE_BONY = 3,
+            BODYBLENDTYPE_PREGNANT = 4,
+            BODYBLENDTYPE_HIPS_WIDE = 5,
+            BODYBLENDTYPE_HIPS_NARROW = 6,
+            BODYBLENDTYPE_WAIST_WIDE = 7,
+            BODYBLENDTYPE_WAIST_NARROW = 8,
+            BODYBLENDTYPE_IGNORE = 9,   // Assigned to deformation maps associated with sculpts or modifiers, instead of a physique.
+            BODYBLENDTYPE_AVERAGE = 100, // Special case used to indicate an "average" deformation map always applied for a given age
+        }
+
+        public enum ShapeOrNormals : byte
+        {
+            SHAPE_DEFORMER = 0,     // This resource contains positional deltas
+            NORMALS_DEFORMER = 1    // This resource contains normal deltas
+        }
+
+        /// <summary>
+        /// Is the robe channel interleaved with the skin tight data.
+        /// </summary>
+        public enum RobeChannel : byte
+        {
+            ROBECHANNEL_PRESENT = 0,
+            ROBECHANNEL_DROPPED = 1,
+            ROBECHANNEL_ISCOPY = 2,     // Robe data not present but is the same as skin tight data.
+        }
+
         public class UnknownEntry : AHandlerElement, IEquatable<UnknownEntry>
         {
             public SimpleList<uint> data { get; set; }

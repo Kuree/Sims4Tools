@@ -598,7 +598,7 @@ namespace CASPartResource
             public FlagList(EventHandler handler, Stream s) : base(handler, s) { }
 
             #region Data I/O
-            void Parse(Stream s)
+            protected override void Parse(Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
                 uint count = r.ReadUInt32();
@@ -606,7 +606,7 @@ namespace CASPartResource
                     base.Add(new Flag(recommendedApiVersion, handler, s));
             }
 
-            public void UnParse(Stream s)
+            public override void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);
                 w.Write((uint)base.Count);
