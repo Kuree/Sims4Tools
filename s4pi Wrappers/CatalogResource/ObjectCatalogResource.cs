@@ -370,6 +370,7 @@ namespace CatalogResource
                 this.Add(typeof(ProductStyleResource), new List<string>(new string[] { "0x9F5CFF10", }));
                 this.Add(typeof(ToolCatalogResource), new List<string>(new string[] { "0x07936CE0", }));
                 this.Add(typeof(FenceCatalogResource), new List<string>(new string[] { "0x0418FE2A", }));
+                this.Add(typeof(_48C28979CatalogResource), new List<string>(new string[] { "0x48C28979", }));
             }
         }
     }

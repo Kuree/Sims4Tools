@@ -60,6 +60,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="48C28979CatalogResource.cs" />
     <Compile Include="A8F7B517CatalogResource.cs" />
     <Compile Include="ColumnCatalogResource.cs" />
     <Compile Include="Common\ColorList.cs" />
