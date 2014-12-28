@@ -178,8 +178,9 @@ namespace AutoUpdate
 #if DEBUGUPDATE
             GetUpdate(true);
 #else
-            if ((pgmSettings.AutoUpdateChoice == 1)
-                && (DateTime.UtcNow.Date != pgmSettings.AULastUpdateTS.Date))
+            // Since it is an early stage development
+            // Forces user to update to latest version
+            if (DateTime.UtcNow.Date != pgmSettings.AULastUpdateTS.Date)
             {
                 GetUpdate(true);
                 pgmSettings.AULastUpdateTS = DateTime.UtcNow; // Only the automated check updates this setting
