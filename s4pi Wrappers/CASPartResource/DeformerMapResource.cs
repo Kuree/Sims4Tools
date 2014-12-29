@@ -48,7 +48,7 @@ namespace CASPartResource
         public uint maxRow { get; private set; }
         public RobeChannel robChannel { get; set; }
 
-        private byte[] data;
+        private byte[] scanLineData;
 
         public string Value { get { return ValueBuilder; } }
 
@@ -70,7 +70,7 @@ namespace CASPartResource
             this.minRow = r.ReadUInt32();
             this.maxRow = r.ReadUInt32();
             this.robChannel = (RobeChannel)r.ReadByte();
-            this.data = r.ReadBytes(r.ReadInt32());
+            this.scanLineData = r.ReadBytes(r.ReadInt32());
         }
 
         protected override Stream UnParse()
@@ -87,9 +87,9 @@ namespace CASPartResource
             w.Write(this.maxCol);
             w.Write(this.minRow);
             w.Write(this.maxRow);
-            if (this.data == null) this.data = new byte[0];
-            w.Write(this.data.Length);
-            w.Write(this.data);
+            if (this.scanLineData == null) this.scanLineData = new byte[0];
+            w.Write(this.scanLineData.Length);
+            w.Write(this.scanLineData);
             return ms;
         }
         #endregion
@@ -135,6 +135,7 @@ namespace CASPartResource
             public UInt16[] PixelPosIndexes { get; private set; }
             public UInt16[] DataPosIndexes { get; private set; }
             public byte[] RLEArrayOfPixels { get; private set; }
+            public byte NumIndexes { get; private set; }
 
             public ScanLine(int width, Stream s)
             {
@@ -144,7 +145,7 @@ namespace CASPartResource
                 this.Width = width;
                 this.RobeChannel = (RobeChannel)r.ReadByte();
 
-                if (IsCompressed)
+                if (!IsCompressed)
                 {
                     if (RobeChannel == RobeChannel.ROBECHANNEL_PRESENT)
                     {
@@ -157,12 +158,12 @@ namespace CASPartResource
                 }
                 else
                 {
-                    byte numIndex = r.ReadByte();
-                    this.PixelPosIndexes = new UInt16[numIndex];
-                    this.DataPosIndexes = new UInt16[numIndex];
-                    for (int i = 0; i < numIndex; i++) this.PixelPosIndexes[i] = r.ReadUInt16();
-                    for (int i = 0; i < numIndex; i++) this.DataPosIndexes[i] = r.ReadUInt16();
-                    uint headerdatasize = 4U + 1U + (4U * numIndex);
+                    NumIndexes = r.ReadByte();
+                    this.PixelPosIndexes = new UInt16[NumIndexes];
+                    this.DataPosIndexes = new UInt16[NumIndexes];
+                    for (int i = 0; i < NumIndexes; i++) this.PixelPosIndexes[i] = r.ReadUInt16();
+                    for (int i = 0; i < NumIndexes; i++) this.DataPosIndexes[i] = r.ReadUInt16();
+                    uint headerdatasize = 4U + 1U + (4U * NumIndexes);
                     this.RLEArrayOfPixels = new byte[scanLineDataSize - headerdatasize];
                     for (int i = 0; i < RLEArrayOfPixels.Length; i++) this.RLEArrayOfPixels[i] = r.ReadByte();
                 }
@@ -179,7 +180,190 @@ namespace CASPartResource
             int height = (int)(maxRow - minRow + 1);
             int width = (int)(this.maxCol - this.minCol + 1);
             ScanLine[] scanLines = new ScanLine[height];
-            for (int i = 0; i < scanLines.Length; i++) scanLines[i] = new ScanLine(width, ms);
+            using (MemoryStream scanLineStream = new MemoryStream(this.scanLineData))
+            {
+                for (int i = 0; i < scanLines.Length; i++) scanLines[i] = new ScanLine(width, scanLineStream);
+            }
+
+            byte[] pixelArraySkinTight = new byte[width * height * 3];
+            byte[] pixelArrayRobe = new byte[width * height * 3];
+
+            int destIndexRobe = 0;
+            int destSkinTight = 0;
+
+            int pixelsize = 0;
+
+            for (int i = 0; i < height; i++)
+            {
+                if (scanLines[i].RobeChannel == RobeChannel.ROBECHANNEL_PRESENT)
+                {
+                    pixelsize = 6;
+                }
+                else
+                {
+                    pixelsize = 3;
+                }
+
+                var scan = scanLines[i];
+                if (!scan.IsCompressed)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        pixelArraySkinTight[destSkinTight++] = scan.UncompressedPixels[(j * pixelsize) + 0];
+                        pixelArraySkinTight[destSkinTight++] = scan.UncompressedPixels[(j * pixelsize) + 1];
+                        pixelArraySkinTight[destSkinTight++] = scan.UncompressedPixels[(j * pixelsize) + 2];
+
+                        switch (scan.RobeChannel)
+                        {
+                            case RobeChannel.ROBECHANNEL_PRESENT:
+                                pixelArrayRobe[destIndexRobe++] = scan.UncompressedPixels[(j * pixelsize) + 3];
+                                pixelArrayRobe[destIndexRobe++] = scan.UncompressedPixels[(j * pixelsize) + 4];
+                                pixelArrayRobe[destIndexRobe++] = scan.UncompressedPixels[(j * pixelsize) + 5];
+                                break;
+                            case RobeChannel.ROBECHANNEL_DROPPED:
+                                pixelArrayRobe[destIndexRobe++] = 0;
+                                pixelArrayRobe[destIndexRobe++] = 0;
+                                pixelArrayRobe[destIndexRobe++] = 0;
+                                break;
+                            case RobeChannel.ROBECHANNEL_ISCOPY:
+                                pixelArrayRobe[destIndexRobe++] = scan.UncompressedPixels[(j * pixelsize) + 0];
+                                pixelArrayRobe[destIndexRobe++] = scan.UncompressedPixels[(j * pixelsize) + 1];
+                                pixelArrayRobe[destIndexRobe++] = scan.UncompressedPixels[(j * pixelsize) + 2];
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+
+                    // Look up each pixel using index tables
+                    for (int j = 0; j < width; j++)
+                    {
+                        // To get pointer to the RLE encoded data we need first find 
+                        // proper RLE run in the buffer. Use index for this:
+
+                        // Cache increment for indexing in pixel space?
+                        int step = 1 + width / (scan.NumIndexes - 1); // 1 entry was added for the remainder of the division
+
+                        // Find index into the positions and data table:
+                        int idx = j / step;
+
+                        // This is location of the run first covering this interval.
+                        int pixelPosX = scan.PixelPosIndexes[idx];
+
+                        // Position of the RLE data of the place where need to unwind to the pixel. 
+                        int dataPos = scan.DataPosIndexes[idx] * (pixelsize + 1); // +1 for run length byte
+
+                        // This is run length for the RLE entry found at 
+                        int runLength = scan.RLEArrayOfPixels[dataPos];
+
+                        // Loop forward unwinding RLE data from the found indexed position. 
+                        // Continue until the pixel position in question is not covered 
+                        // by the current run interval. By design the loop should execute 
+                        // only few times until we find the value we are looking for.
+                        while (j >= pixelPosX + runLength)
+                        {
+                            pixelPosX += runLength;
+                            dataPos += (1 + pixelsize); // 1 for run length, +pixelSize for the run value
+
+                            runLength = scan.RLEArrayOfPixels[dataPos];
+                        }
+
+                        // After breaking out of the cycle, we have the current run length interval
+                        // covering the pixel position x we are interested in. So just return the pointer
+                        // to the pixel data we were after:
+                        int pixelStart = dataPos + 1;
+
+                        //
+                        pixelArraySkinTight[destSkinTight++] = scan.RLEArrayOfPixels[pixelStart + 0];
+                        pixelArraySkinTight[destSkinTight++] = scan.RLEArrayOfPixels[pixelStart + 1];
+                        pixelArraySkinTight[destSkinTight++] = scan.RLEArrayOfPixels[pixelStart + 2];
+                        switch (scan.RobeChannel)
+                        {
+                            case RobeChannel.ROBECHANNEL_PRESENT:
+                                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[pixelStart + 3];
+                                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[pixelStart + 4];
+                                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[pixelStart + 5];
+                                break;
+                            case RobeChannel.ROBECHANNEL_DROPPED:
+                                pixelArrayRobe[destIndexRobe++] = 0;
+                                pixelArrayRobe[destIndexRobe++] = 0;
+                                pixelArrayRobe[destIndexRobe++] = 0;
+                                break;
+                            case RobeChannel.ROBECHANNEL_ISCOPY:
+                                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[pixelStart + 0];
+                                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[pixelStart + 1];
+                                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[pixelStart + 2];
+                                break;
+                        }
+                    }
+
+                    //// Unpack the RLE Scan line without using index tables
+                    //numpixelsdecoded = 0;
+                    //rleindex = 0;
+
+                    //while (numpixelsdecoded < width)
+                    //{
+                    //    runlen = scan.RLEArrayOfPixels[rleindex++];
+                    //    for (int j = 0; j < runlen; j++)
+                    //    {
+                    //        pixelArraySkinTight[destSkinTight++] = scan.RLEArrayOfPixels[rleindex + 0];
+                    //        pixelArraySkinTight[destSkinTight++] = scan.RLEArrayOfPixels[rleindex + 1];
+                    //        pixelArraySkinTight[destSkinTight++] = scan.RLEArrayOfPixels[rleindex + 2];
+                    //        switch (scan.RobeChannel)
+                    //        {
+                    //            case RobeChannel.ROBECHANNEL_PRESENT:
+                    //                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[rleindex + 0];
+                    //                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[rleindex + 0];
+                    //                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[rleindex + 0];
+                    //                break;
+                    //            case RobeChannel.ROBECHANNEL_DROPPED:
+                    //                pixelArrayRobe[destIndexRobe++] = 0;
+                    //                pixelArrayRobe[destIndexRobe++] = 0;
+                    //                pixelArrayRobe[destIndexRobe++] = 0;
+                    //                break;
+                    //            case RobeChannel.ROBECHANNEL_ISCOPY:
+                    //                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[rleindex + 0];
+                    //                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[rleindex + 0];
+                    //                pixelArrayRobe[destIndexRobe++] = scan.RLEArrayOfPixels[rleindex + 0];
+                    //                break;
+                    //        }
+                    //        numpixelsdecoded++;
+                    //    }
+                    //    rleindex += pixelsize;
+                    //}
+                }
+            }
+
+            w.Write((ushort)0x4d42);
+            w.Write(0);
+            w.Write(0);
+            w.Write(54);
+            w.Write(40);
+            w.Write(width);
+            w.Write(height);
+            w.Write((ushort)1);
+            w.Write((ushort)24);
+            for (int i = 0; i < 6; i++) w.Write(0);
+
+            int bytesPerLine = (int)Math.Ceiling(width * 24.0 / 8.0);
+            int padding = 4 - bytesPerLine % 4;
+            long sourcePosition = 0;
+
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width * 3; j++)
+                {
+                    // write robe
+                    w.Write(pixelArrayRobe[sourcePosition++]);
+                }
+
+                for (int j = 0; j < padding; j++)
+                {
+                    w.Write((byte)0);
+                }
+            }
+
             return ms;
         }
         #endregion
