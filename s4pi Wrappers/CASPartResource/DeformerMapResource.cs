@@ -25,7 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace s4pi.Miscellaneous
+namespace CASPartResource
 {
     public class DeformerMapResource : AResource
     {
@@ -36,21 +36,41 @@ namespace s4pi.Miscellaneous
         static bool checking = s4pi.Settings.Settings.Checking;
 
         public uint version { get; set; }
+        public uint doubledWidth { get; set; }
+        public uint height { get; set; }
+        public AgeGenderFlags ageGender { get; set; }
+        public Physiques physique { get; set; }
+        public ShapeOrNormals shapeOrNormals { get; set; }
 
-        public UnknownEntryLIst unknownEntryList { get; set; }
+        public uint minCol { get; private set; }
+        public uint maxCol { get; private set; }
+        public uint minRow { get; private set; }
+        public uint maxRow { get; private set; }
+        public RobeChannel robChannel { get; set; }
+
+        private byte[] data;
+
         public string Value { get { return ValueBuilder; } }
 
         public DeformerMapResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
-
+        
         #region Data I/O
         void Parse(Stream s)
         {
             BinaryReader r = new BinaryReader(s);
             s.Position = 0;
             this.version = r.ReadUInt32();
-            //this.unknown = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, 31, s);
-            uint size = r.ReadUInt32();
-            this.unknownEntryList = new UnknownEntryLIst(OnResourceChanged, s, size);
+            this.doubledWidth = r.ReadUInt32();
+            this.height = r.ReadUInt32();
+            this.ageGender = (AgeGenderFlags)r.ReadUInt32();
+            this.physique = (Physiques)r.ReadByte();
+            this.shapeOrNormals = (ShapeOrNormals)r.ReadByte();
+            this.minCol = r.ReadUInt32();
+            this.maxCol = r.ReadUInt32();
+            this.minRow = r.ReadUInt32();
+            this.maxRow = r.ReadUInt32();
+            this.robChannel = (RobeChannel)r.ReadByte();
+            this.data = r.ReadBytes(r.ReadInt32());
         }
 
         protected override Stream UnParse()
@@ -58,14 +78,18 @@ namespace s4pi.Miscellaneous
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
             w.Write(this.version);
-            //this.unknown.UnParse(ms);
-            long tmpPos = ms.Position;
-            w.Write(0);
-            this.unknownEntryList.UnParse(ms);
-            long endPos = ms.Position;
-            ms.Position = tmpPos;
-            w.Write((uint)(endPos - tmpPos));
-            ms.Position = 0;
+            w.Write(this.doubledWidth);
+            w.Write(this.height);
+            w.Write((uint)this.ageGender);
+            w.Write((byte)this.physique);
+            w.Write((byte)this.shapeOrNormals);
+            w.Write(this.minCol);
+            w.Write(this.maxCol);
+            w.Write(this.minRow);
+            w.Write(this.maxRow);
+            if (this.data == null) this.data = new byte[0];
+            w.Write(this.data.Length);
+            w.Write(this.data);
             return ms;
         }
         #endregion
@@ -102,71 +126,61 @@ namespace s4pi.Miscellaneous
             ROBECHANNEL_ISCOPY = 2,     // Robe data not present but is the same as skin tight data.
         }
 
-        public class UnknownEntry : AHandlerElement, IEquatable<UnknownEntry>
+        private class ScanLine
         {
-            public SimpleList<uint> data { get; set; }
-            public byte Size { get; private set; }
+            public bool IsCompressed { get; set; }
+            public byte[] UncompressedPixels { get; private set; }
+            public int Width { get; private set; }
+            public RobeChannel RobeChannel { get; private set; }
+            public UInt16[] PixelPosIndexes { get; private set; }
+            public UInt16[] DataPosIndexes { get; private set; }
+            public byte[] RLEArrayOfPixels { get; private set; }
 
-            public UnknownEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-
-            public void Parse(Stream s)
+            public ScanLine(int width, Stream s)
             {
                 BinaryReader r = new BinaryReader(s);
-                this.Size = r.ReadByte();
-                int realSize = (this.Size - 1) / 4;
-                this.data = new SimpleList<uint>(handler);
-                for(int i = 0; i< realSize; i++) this.data.Add(r.ReadUInt32());
+                UInt16 scanLineDataSize = r.ReadUInt16();
+                this.IsCompressed = r.ReadBoolean();
+                this.Width = width;
+                this.RobeChannel = (RobeChannel)r.ReadByte();
 
-            }
-
-            public void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write(this.Size);
-                foreach (var i in this.data) w.Write(i);                
-                
-            }
-
-            #region AHandlerElement Members
-            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-            #endregion
-
-            #region IEquatable
-            public bool Equals(UnknownEntry other)
-            {
-                return this.Size == other.Size && this.data.Equals(other.data);
-            }
-            #endregion
-
-            public string Value { get { return ValueBuilder; } }
-        }
-
-        public class UnknownEntryLIst : DependentList<UnknownEntry>
-        {
-            public UnknownEntryLIst(EventHandler handler) : base(handler) { }
-            public UnknownEntryLIst(EventHandler handler, Stream s, uint size) : base(handler) { Parse(s, size); }
-
-            #region Data I/O
-            protected void Parse(Stream s, uint size)
-            {
-                while (size != 0)
+                if (IsCompressed)
                 {
-                    var entry = new UnknownEntry(1, handler, s);
-                    size -= entry.Size;
-                    this.Add(entry);
+                    if (RobeChannel == RobeChannel.ROBECHANNEL_PRESENT)
+                    {
+                        this.UncompressedPixels = r.ReadBytes(width * 6);
+                    }
+                    else
+                    {
+                        this.UncompressedPixels = r.ReadBytes(width * 3);
+                    }
+                }
+                else
+                {
+                    byte numIndex = r.ReadByte();
+                    this.PixelPosIndexes = new UInt16[numIndex];
+                    this.DataPosIndexes = new UInt16[numIndex];
+                    for (int i = 0; i < numIndex; i++) this.PixelPosIndexes[i] = r.ReadUInt16();
+                    for (int i = 0; i < numIndex; i++) this.DataPosIndexes[i] = r.ReadUInt16();
+                    uint headerdatasize = 4U + 1U + (4U * numIndex);
+                    this.RLEArrayOfPixels = new byte[scanLineDataSize - headerdatasize];
+                    for (int i = 0; i < RLEArrayOfPixels.Length; i++) this.RLEArrayOfPixels[i] = r.ReadByte();
                 }
 
             }
+        }        
+        #endregion
 
-            public override void UnParse(Stream s)
-            {
-                foreach (var bone in this) bone.UnParse(s);
-            }
-
-            protected override UnknownEntry CreateElement(Stream s) { return new UnknownEntry(1, handler, s); }
-            protected override void WriteElement(Stream s, UnknownEntry element) { element.UnParse(s); }
-            #endregion
+        #region Conversion
+        public Stream ToBitMap()
+        {
+            MemoryStream ms = new MemoryStream();
+            BinaryWriter w = new BinaryWriter(ms);
+            int height = (int)(maxRow - minRow + 1);
+            int width = (int)(this.maxCol - this.minCol + 1);
+            ScanLine[] scanLines = new ScanLine[height];
+            for (int i = 0; i < scanLines.Length; i++) scanLines[i] = new ScanLine(width, ms);
+            return ms;
         }
         #endregion
     }
