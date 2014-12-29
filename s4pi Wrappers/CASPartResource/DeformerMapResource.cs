@@ -46,11 +46,19 @@ namespace CASPartResource
         public uint maxCol { get; private set; }
         public uint minRow { get; private set; }
         public uint maxRow { get; private set; }
-        public RobeChannel robChannel { get; set; }
+        public RobeChannel robeChannel { get; set; }
 
         private byte[] scanLineData;
 
-        public string Value { get { return ValueBuilder; } }
+        public string WrapperValue 
+        { 
+            get {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendFormat("Empty Deformer Map Resource.\nVersion: {0:X8}", this.version);
+                sb.AppendFormat("AgeGender: {0}\nPhysiques: {1}\nShapeOrNormals: {2}\nRobeChannel: {3}", this.ageGender, this.physique, this.shapeOrNormals, this.robeChannel);
+                return sb.ToString();
+            } 
+        }
 
         public DeformerMapResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
         
@@ -69,7 +77,7 @@ namespace CASPartResource
             this.maxCol = r.ReadUInt32();
             this.minRow = r.ReadUInt32();
             this.maxRow = r.ReadUInt32();
-            this.robChannel = (RobeChannel)r.ReadByte();
+            this.robeChannel = (RobeChannel)r.ReadByte();
             this.scanLineData = r.ReadBytes(r.ReadInt32());
         }
 
@@ -87,6 +95,7 @@ namespace CASPartResource
             w.Write(this.maxCol);
             w.Write(this.minRow);
             w.Write(this.maxRow);
+            w.Write((byte)this.robeChannel);
             if (this.scanLineData == null) this.scanLineData = new byte[0];
             w.Write(this.scanLineData.Length);
             w.Write(this.scanLineData);
@@ -173,10 +182,18 @@ namespace CASPartResource
         #endregion
 
         #region Conversion
-        public Stream ToBitMap()
+        public enum OutputType
+        {
+            Skin,
+            Robe
+        }
+        public Stream GetSkinBitMap() { return this.ToBitMap(OutputType.Skin); }
+
+        public Stream ToBitMap(OutputType type)
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
+            if (maxCol == 0) return null;
             int height = (int)(maxRow - minRow + 1);
             int width = (int)(this.maxCol - this.minCol + 1);
             ScanLine[] scanLines = new ScanLine[height];
@@ -354,8 +371,7 @@ namespace CASPartResource
             {
                 for (int j = 0; j < width * 3; j++)
                 {
-                    // write robe
-                    w.Write(pixelArrayRobe[sourcePosition++]);
+                    w.Write(type == OutputType.Robe? pixelArrayRobe[sourcePosition++] : pixelArraySkinTight[sourcePosition++]);
                 }
 
                 for (int j = 0; j < padding; j++)

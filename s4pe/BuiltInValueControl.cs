@@ -337,6 +337,91 @@ namespace S4PIDemoFE
         }
     }
 
+    class DeformerMapControl : ABuiltInValueControl
+    {
+        static uint[] resourceTypes = new uint[] {
+            0xDB43E069
+        };
+
+        Control control = new PictureBox();
+        static Type dType = null;
+        bool isStreamnull = false;
+
+        static bool hasCasLoaded()
+        {
+            try
+            {
+                Assembly a = Assembly.LoadFile(Path.Combine(Directory.GetCurrentDirectory(), "s4pi.CASPartResource.dll"));
+                dType = a.GetType("CASPartResource.DeformerMapResource");
+                return dType != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public DeformerMapControl(Stream s)
+            : base(s)
+        {
+            if (s == null || s == Stream.Null)
+            {
+                isStreamnull = true;
+            }
+            else if (hasCasLoaded() && dType != null)
+            {
+                Object wrapper = null;
+                try
+                {
+                    wrapper = Activator.CreateInstance(dType, new object[] { 1, s });
+                    control = new PictureBox();
+                    var bitmapStream = dType.GetMethod("GetSkinBitMap").Invoke(wrapper, null) as Stream;
+                    var bitmap = Bitmap.FromStream(bitmapStream);
+                    if (bitmap != null)
+                    {
+                        var pb = control as PictureBox;
+                        pb.Image = bitmap;
+                    }
+                }
+                catch
+                {
+                    control = new RichTextBox()
+                    {
+                        Font = new Font(FontFamily.GenericMonospace, 8),
+                        Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top,
+                        ReadOnly = true,
+                    };
+
+                    var tbox = control as RichTextBox;
+                    if(wrapper != null)
+                    {
+                        var value = dType.GetProperties().FirstOrDefault(p => p.Name == "WrapperValue").GetValue(wrapper, null);
+                        tbox.Text = value.ToString();
+                    }
+                }
+            }
+            else { isStreamnull = true; }
+            if (isStreamnull)
+                control = new Control();
+        }
+
+        public override bool IsAvailable
+        {
+            get { return true; }
+        }
+
+        public override Control ValueControl
+        {
+            get { return control; }
+        }
+
+        public override IEnumerable<ToolStripItem> GetContextMenuItems(EventHandler cbk)
+        {
+            yield break;
+        }
+    }
+
+
     class ThumbnailControl : ABuiltInValueControl
     {
         //TODO: static constructor read this from file
