@@ -71,45 +71,70 @@ namespace s4pi.Interfaces
         [ElementPriority(3)]
         public abstract int Minor { get; }
         /// <summary>
-        /// Package header: unused
+        /// Package header: 0x00000000
         /// </summary>
         [ElementPriority(4)]
-        public abstract byte[] Unknown1 { get; }
+        public abstract int UserVersionMajor { get; }
         /// <summary>
-        /// Package header: number of entries in the package index
+        /// Package header: 0x00000000
         /// </summary>
         [ElementPriority(5)]
-        public abstract int Indexcount { get; }
+        public abstract Int32 UserVersionMinor { get; }
         /// <summary>
         /// Package header: unused
         /// </summary>
         [ElementPriority(6)]
-        public abstract byte[] Unknown2 { get; }
+        public abstract Int32 Unused1 { get; }
         /// <summary>
-        /// Package header: index size on disk in bytes
+        /// Package header: typically, not set
         /// </summary>
         [ElementPriority(7)]
-        public abstract int Indexsize { get; }
+        public abstract Int32 CreationTime { get; }
+        /// <summary>
+        /// Package header: typically, not set
+        /// </summary>
+        [ElementPriority(8)]
+        public abstract Int32 UpdatedTime { get; }
         /// <summary>
         /// Package header: unused
         /// </summary>
-        [ElementPriority(8)]
-        public abstract byte[] Unknown3 { get; }
-        /// <summary>
-        /// Package header: always 3?
-        /// </summary>
         [ElementPriority(9)]
-        public abstract int Indexversion { get; }
+        public abstract Int32 Unused2 { get; }
         /// <summary>
-        /// Package header: index position in file
+        /// Package header: number of entries in the package index
         /// </summary>
         [ElementPriority(10)]
-        public abstract int Indexposition { get; }
+        public abstract int Indexcount { get; }
         /// <summary>
         /// Package header: unused
         /// </summary>
         [ElementPriority(11)]
-        public abstract byte[] Unknown4 { get; }
+        public abstract Int32 IndexRecordPositionLow { get; }
+        /// <summary>
+        /// Package header: index size on disk in bytes
+        /// </summary>
+        [ElementPriority(12)]
+        public abstract int Indexsize { get; }
+        /// <summary>
+        /// Package header: unused
+        /// </summary>
+        [ElementPriority(13)]
+        public abstract Int32 Unused3 { get; }
+        /// <summary>
+        /// Package header: always 3 for historical reasons
+        /// </summary>
+        [ElementPriority(14)]
+        public abstract int Unused4 { get; }
+        /// <summary>
+        /// Package header: index position in file
+        /// </summary>
+        [ElementPriority(15)]
+        public abstract int Indexposition { get; }
+        /// <summary>
+        /// Package header: unused
+        /// </summary>
+        [ElementPriority(16)]
+        public abstract byte[] Unused5 { get; }
 
         /// <summary>
         /// A MemoryStream covering the package header bytes

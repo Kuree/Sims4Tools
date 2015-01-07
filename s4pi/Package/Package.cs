@@ -142,6 +142,7 @@ namespace s4pi.Package
             setIndexcount(w, newIndex.Count);
             setIndexsize(w, newIndex.Size);
             setIndexposition(w, (int)indexpos);
+            setUnused4(w, unused4);
             s.Flush();
         }
 
@@ -271,10 +272,35 @@ namespace s4pi.Package
         [ElementPriority(3)]
         public override int Minor { get { return BitConverter.ToInt32(header, 8); } }
         /// <summary>
+        /// Package header: 0x00000000
+        /// </summary>
+        [ElementPriority(4)]
+        public override int UserVersionMajor { get { byte[] res = new byte[4]; Array.Copy(header, 0xc, res, 0, res.Length); return BitConverter.ToInt32(res, 0); } }
+        /// <summary>
+        /// Package header: 0x00000000
+        /// </summary>
+        [ElementPriority(4)]
+        public override int UserVersionMinor { get { byte[] res = new byte[4]; Array.Copy(header, 0x10, res, 0, res.Length); return BitConverter.ToInt32(res, 0); } }
+        /// <summary>
         /// Package header: unused
         /// </summary>
         [ElementPriority(4)]
-        public override byte[] Unknown1 { get { byte[] res = new byte[24]; Array.Copy(header, 12, res, 0, res.Length); return res; } }
+        public override int Unused1 { get { byte[] res = new byte[4]; Array.Copy(header, 0x14, res, 0, res.Length); return BitConverter.ToInt32(res, 0); } }
+        /// <summary>
+        /// Package header: typically, not set
+        /// </summary>
+        [ElementPriority(4)]
+        public override int CreationTime { get { byte[] res = new byte[4]; Array.Copy(header, 0x18, res, 0, res.Length); return BitConverter.ToInt32(res, 0); } }
+        /// <summary>
+        /// Package header: typically, not set
+        /// </summary>
+        [ElementPriority(4)]
+        public override int UpdatedTime { get { byte[] res = new byte[4]; Array.Copy(header, 0x1c, res, 0, res.Length); return BitConverter.ToInt32(res, 0); } }
+        /// <summary>
+        /// Package header: unused
+        /// </summary>
+        [ElementPriority(4)]
+        public override int Unused2 { get { byte[] res = new byte[4]; Array.Copy(header, 0x20, res, 0, res.Length); return BitConverter.ToInt32(res, 0); } }
         /// <summary>
         /// Package header: number of entries in the package index
         /// </summary>
@@ -284,7 +310,7 @@ namespace s4pi.Package
         /// Package header: unused
         /// </summary>
         [ElementPriority(6)]
-        public override byte[] Unknown2 { get { byte[] res = new byte[4]; Array.Copy(header, 40, res, 0, res.Length); return res; } }
+        public override int IndexRecordPositionLow { get { byte[] res = new byte[4]; Array.Copy(header, 40, res, 0, res.Length); return BitConverter.ToInt32(res, 0); } }
         /// <summary>
         /// Package header: index size on disk in bytes
         /// </summary>
@@ -294,12 +320,12 @@ namespace s4pi.Package
         /// Package header: unused
         /// </summary>
         [ElementPriority(8)]
-        public override byte[] Unknown3 { get { byte[] res = new byte[12]; Array.Copy(header, 48, res, 0, res.Length); return res; } }
+        public override int Unused3 { get { byte[] res = new byte[12]; Array.Copy(header, 48, res, 0, res.Length); return BitConverter.ToInt32(res, 0); } }
         /// <summary>
         /// Package header: always 3?
         /// </summary>
         [ElementPriority(9)]
-        public override int Indexversion { get { return BitConverter.ToInt32(header, 60); } }
+        public override int Unused4 { get { return BitConverter.ToInt32(header, 60); } }
         /// <summary>
         /// Package header: index position in file
         /// </summary>
@@ -309,7 +335,7 @@ namespace s4pi.Package
         /// Package header: unused
         /// </summary>
         [ElementPriority(11)]
-        public override byte[] Unknown4 { get { byte[] res = new byte[28]; Array.Copy(header, 68, res, 0, res.Length); return res; } }
+        public override byte[] Unused5 { get { byte[] res = new byte[28]; Array.Copy(header, 68, res, 0, res.Length); return res; } }
 
         /// <summary>
         /// A MemoryStream covering the package header bytes
@@ -504,15 +530,18 @@ namespace s4pi.Package
                 throw new InvalidDataException("Expected major version(s) '" + string.Join(", ", majors) + "'.  Found '" + major.ToString() + "'.");
 
             this.requestedApiVersion = requestedVersion;
-            header = new byte[96];
-
-            BinaryWriter bw = new BinaryWriter(new MemoryStream(header));
-            bw.Write(stringToBytes(magic));
-            bw.Write(major);
-            bw.Write(minor);
-            setIndexsize(bw, (new PackageIndex()).Size);
-            setIndexversion(bw);
-            setIndexposition(bw, header.Length);
+            using (MemoryStream ms = new MemoryStream(new byte[headerSize]))
+            {
+                BinaryWriter bw = new BinaryWriter(ms);
+                bw.Write(stringToBytes(magic));
+                bw.Write(major);
+                bw.Write(minor);
+                setIndexsize(bw, (new PackageIndex()).Size);
+                setIndexversion(bw);
+                setIndexposition(bw, headerSize);
+                setUnused4(bw, unused4);
+                header = ms.ToArray();
+            }
         }
 
         private Package(int requestedVersion, Stream s)
@@ -564,6 +593,8 @@ namespace s4pi.Package
         const string magic = "DBPF";
         static int[] majors = { 2 };
         const int minor = 1;
+        const int unused4 = 3;
+        const int headerSize = 96;
 
         byte[] header = new byte[96];
 
@@ -571,6 +602,7 @@ namespace s4pi.Package
         void setIndexsize(BinaryWriter w, int c) { w.BaseStream.Position = 44; w.Write(c); }
         void setIndexversion(BinaryWriter w) { w.BaseStream.Position = 60; w.Write(3); }
         void setIndexposition(BinaryWriter w, int c) { w.BaseStream.Position = 40; w.Write((int)0); w.BaseStream.Position = 64; w.Write(c); }
+        void setUnused4(BinaryWriter w, int c) { w.BaseStream.Position = 0x3c; w.Write(c); }
 
         void CheckHeader()
         {

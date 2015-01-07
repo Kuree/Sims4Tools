@@ -62,50 +62,75 @@ namespace s4pi.Interfaces
         [ElementPriority(3)]
         Int32 Minor { get; }
         /// <summary>
-        /// Package header: unused
+        /// Package header: 0x00000000
         /// </summary>
         [ElementPriority(4)]
-        byte[] Unknown1 { get; }
+        Int32 UserVersionMajor { get; }
         /// <summary>
-        /// Package header: number of entries in the package index
+        /// Package header: 0x00000000
         /// </summary>
         [ElementPriority(5)]
-        Int32 Indexcount { get; }
+        Int32 UserVersionMinor { get; }
         /// <summary>
         /// Package header: unused
         /// </summary>
         [ElementPriority(6)]
-        byte[] Unknown2 { get; }
+        Int32 Unused1 { get; }
         /// <summary>
-        /// Package header: index size on disk in bytes
+        /// Package header: typically, not set
         /// </summary>
         [ElementPriority(7)]
-        Int32 Indexsize { get; }
+        Int32 CreationTime { get; }
+        /// <summary>
+        /// Package header: typically, not set
+        /// </summary>
+        [ElementPriority(8)]
+        Int32 UpdatedTime { get; }
         /// <summary>
         /// Package header: unused
         /// </summary>
-        [ElementPriority(8)]
-        byte[] Unknown3 { get; }
-        /// <summary>
-        /// Package header: always 3?
-        /// </summary>
         [ElementPriority(9)]
-        Int32 Indexversion { get; }
+        Int32 Unused2 { get; }
         /// <summary>
-        /// Package header: index position in file
+        /// Package header: number of entries in the package index
         /// </summary>
         [ElementPriority(10)]
-        Int32 Indexposition { get; }
+        Int32 Indexcount { get; }
         /// <summary>
         /// Package header: unused
         /// </summary>
         [ElementPriority(11)]
-        byte[] Unknown4 { get; }
+        Int32 IndexRecordPositionLow { get; }
+        /// <summary>
+        /// Package header: index size on disk in bytes
+        /// </summary>
+        [ElementPriority(12)]
+        Int32 Indexsize { get; }
+        /// <summary>
+        /// Package header: unused
+        /// </summary>
+        [ElementPriority(13)]
+        Int32 Unused3 { get; }
+        /// <summary>
+        /// Package header: always 3 for historical reasons
+        /// </summary>
+        [ElementPriority(14)]
+        Int32 Unused4 { get; }
+        /// <summary>
+        /// Package header: index position in file
+        /// </summary>
+        [ElementPriority(15)]
+        Int32 Indexposition { get; }
+        /// <summary>
+        /// Package header: unused
+        /// </summary>
+        [ElementPriority(16)]
+        byte[] Unused5 { get; }
 
         /// <summary>
         /// A <see cref="MemoryStream"/> covering the package header bytes
         /// </summary>
-        [ElementPriority(12)]
+        [ElementPriority(17)]
         Stream HeaderStream { get; }
         #endregion
 
