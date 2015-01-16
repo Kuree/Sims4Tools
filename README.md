@@ -7,7 +7,7 @@ S4PE and S4PI is an open source project based on s3pi and s3pe.
 Current Version
 ----
 
-0.3a
+0.3b
 
 Contributors:
 -----------
@@ -37,8 +37,8 @@ sims4tools2010.sln
 
 Helper Projects
 -------------
-* I'm moving most of the helpers to a new repository, [s4pe-helper] because it is much easier to manage. However, most of them will be shipped with the S4PE build.
-* Currently DST and Thumbnail helpers are hosted there.
+* ~~I'm moving most of the helpers to a new repository,~~All the active helpers are hosted at [s4pe-helper] because it is much easier to manage. However, most of them will be shipped with the S4PE build.
+~~* Currently DST and Thumbnail helpers are hosted there.~~
 
 
 
@@ -70,7 +70,7 @@ Without peter's help and work on s3pe/s3pi project, there won't be this project,
 #### Edit History
 * 9/30/2014: first version.
 * 11/27/2014: update contributors and version number.
-
+* 1/16/2014: update the version number and helper project desc.
 [Kuree]:https://github.com/Kuree
 [ChaosMageX]:https://github.com/ChaosMageX
 [andrewtavera]:https://github.com/andrewtavera
