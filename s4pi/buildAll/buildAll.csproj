@@ -145,6 +145,10 @@
       <Project>{AD53972B-D73E-4935-A4AD-3EBE0E3516F2}</Project>
       <Name>ImageResource</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\s4pi Wrappers\NameMapResource\NameMapResource.csproj">
+      <Project>{5b43f245-ab0d-49fa-bc1e-1168103c7522}</Project>
+      <Name>NameMapResource</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\s4pi Wrappers\RigResource\RigResource.csproj">
       <Project>{77ad91d9-4bd8-4899-9308-e6209265f636}</Project>
       <Name>RigResource</Name>
