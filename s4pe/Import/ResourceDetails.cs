@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Windows.Forms;
@@ -232,6 +233,48 @@ namespace S4PIDemoFE
         private void btnPaste_Click(object sender, EventArgs e)
         {
             pasteResourceKeyToolStripMenuItem_Click(sender, e);
+        }
+
+        private void btnHighBit_Click(object sender, EventArgs e)
+        {
+            const uint uintMask = 1u << 31;
+            const ulong ulongMask = 1ul << 63;
+            const string prefix = "0x";
+            uint uintResult;
+            ulong ulongResult;
+            if (tbGroup.Text.StartsWith((prefix)))
+            {
+                if(uint.TryParse(tbGroup.Text.Substring(2), NumberStyles.HexNumber, null, out uintResult))
+                {
+                    uintResult |= uintMask;
+                    tbGroup.Text = prefix + uintResult.ToString("X8");
+                }
+            }
+            else
+            {
+                if (uint.TryParse(tbGroup.Text, NumberStyles.Number, null, out uintResult))
+                {
+                    uintResult |= uintMask;
+                    tbGroup.Text = prefix + uintResult.ToString("X8");
+                }
+            }
+
+            if (tbInstance.Text.StartsWith((prefix)))
+            {
+                if (ulong.TryParse(tbInstance.Text.Substring(2), NumberStyles.HexNumber, null, out ulongResult))
+                {
+                    ulongResult |= ulongMask;
+                    tbInstance.Text = prefix + ulongResult.ToString("X16");
+                }
+            }
+            else
+            {
+                if (ulong.TryParse(tbInstance.Text, NumberStyles.Number, null, out ulongResult))
+                {
+                    ulongResult |= ulongMask;
+                    tbInstance.Text = prefix + ulongResult.ToString("X16");
+                }
+            }
         }
     }
 }

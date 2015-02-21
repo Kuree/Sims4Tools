@@ -72,6 +72,7 @@ namespace S4PIDemoFE
             this.copyResourceKeyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteResourceKeyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnPaste = new System.Windows.Forms.Button();
+            this.btnHighBit = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tlpName.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -324,20 +325,20 @@ namespace S4PIDemoFE
             this.copyResourceKeyToolStripMenuItem,
             this.pasteResourceKeyToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(168, 48);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(173, 48);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             // 
             // copyResourceKeyToolStripMenuItem
             // 
             this.copyResourceKeyToolStripMenuItem.Name = "copyResourceKeyToolStripMenuItem";
-            this.copyResourceKeyToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.copyResourceKeyToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.copyResourceKeyToolStripMenuItem.Text = "&Copy ResourceKey";
             this.copyResourceKeyToolStripMenuItem.Click += new System.EventHandler(this.copyResourceKeyToolStripMenuItem_Click);
             // 
             // pasteResourceKeyToolStripMenuItem
             // 
             this.pasteResourceKeyToolStripMenuItem.Name = "pasteResourceKeyToolStripMenuItem";
-            this.pasteResourceKeyToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.pasteResourceKeyToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
             this.pasteResourceKeyToolStripMenuItem.Text = "&Paste ResourceKey";
             this.pasteResourceKeyToolStripMenuItem.Click += new System.EventHandler(this.pasteResourceKeyToolStripMenuItem_Click);
             // 
@@ -352,6 +353,17 @@ namespace S4PIDemoFE
             this.btnPaste.UseVisualStyleBackColor = true;
             this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
             // 
+            // btnHighBit
+            // 
+            this.btnHighBit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnHighBit.Location = new System.Drawing.Point(175, 204);
+            this.btnHighBit.Name = "btnHighBit";
+            this.btnHighBit.Size = new System.Drawing.Size(75, 23);
+            this.btnHighBit.TabIndex = 7;
+            this.btnHighBit.Text = "Set &High Bit";
+            this.btnHighBit.UseVisualStyleBackColor = true;
+            this.btnHighBit.Click += new System.EventHandler(this.btnHighBit_Click);
+            // 
             // ResourceDetails
             // 
             this.AcceptButton = this.btnOK;
@@ -360,6 +372,7 @@ namespace S4PIDemoFE
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(510, 239);
             this.ContextMenuStrip = this.contextMenuStrip1;
+            this.Controls.Add(this.btnHighBit);
             this.Controls.Add(this.btnCopy);
             this.Controls.Add(this.btnPaste);
             this.Controls.Add(this.tableLayoutPanel1);
@@ -403,5 +416,6 @@ namespace S4PIDemoFE
         private System.Windows.Forms.ToolStripMenuItem copyResourceKeyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pasteResourceKeyToolStripMenuItem;
         private System.Windows.Forms.Button btnPaste;
+        private System.Windows.Forms.Button btnHighBit;
     }
 }

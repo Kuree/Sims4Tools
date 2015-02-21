@@ -28,6 +28,7 @@ namespace S4PIDemoFE.Tools
 {
     public partial class FNVHashDialog : Form
     {
+        private const string prefix = "0x";
         public FNVHashDialog()
         {
             InitializeComponent();
@@ -36,15 +37,27 @@ namespace S4PIDemoFE.Tools
 
         private void btnCalc_Click(object sender, EventArgs e)
         {
-            tbFNV32.Text = "0x" + FNV32.GetHash(tbInput.Text).ToString("X8");
-            tbFNV64.Text = "0x" + FNV64.GetHash(tbInput.Text).ToString("X16");
-            tbCLIPIID.Text = "0x" + FNV64CLIP.GetHash(tbInput.Text).ToString("X16");
-            tbFVV24.Text = "0x" + FNV24.GetHash(tbInput.Text).ToString("X6");
+            tbFNV32.Text = prefix + FNV32.GetHash(tbInput.Text).ToString("X8");
+            tbFNV64.Text = prefix + FNV64.GetHash(tbInput.Text).ToString("X16");
+            tbCLIPIID.Text = prefix + FNV64CLIP.GetHash(tbInput.Text).ToString("X16");
+            tbFVV24.Text = prefix + FNV24.GetHash(tbInput.Text).ToString("X6");
         }
 
         private void btnClose_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void btnHighBit_Click(object sender, EventArgs e)
+        {
+            if (!String.IsNullOrWhiteSpace(tbFNV32.Text) && !String.IsNullOrWhiteSpace(tbFNV64.Text))
+            {
+                uint uintResult = Convert.ToUInt32(tbFNV32.Text, 16);
+                tbFNV32.Text = prefix + (uintResult | (1u << 31)).ToString("X8");
+
+                ulong ulongResult = Convert.ToUInt64(tbFNV64.Text, 16);
+                tbFNV64.Text = prefix + (ulongResult | (1ul << 63)).ToString("X16");
+            }
         }
     }
 }
