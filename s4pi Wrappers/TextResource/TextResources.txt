@@ -8,6 +8,7 @@
 0x02FAC0B6 Spore "Guide notes" from Text.package?
 0x0333406C XML with or without encoding bytes -- <base/> (with), various (without)
 0x03B33DDF XML without encoding bytes -- <base/>
+0x03E9D964 XML TS4 Objects
 0x0604ABDA XML with encoding bytes -- <DreamTree/>
 0x0A98EAF0 SimCity5 UI JavaScript Object
 0x0C772E27 ?

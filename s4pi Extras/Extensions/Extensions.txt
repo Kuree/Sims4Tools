@@ -38,6 +38,7 @@
 0x03B4C61D  LITE   .light
 0x03D843C2  CCHE   .cacheentry
 0x03D86EA4  DETL   .details
+0x03E9D964  _XML   .xml
 0x3F8662EA  JPEG   .jpg
 0x0418FE2A  CFEN   .fence
 0x044AE110  COMP   .complate
