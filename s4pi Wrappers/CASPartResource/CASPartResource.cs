@@ -74,6 +74,10 @@ namespace CASPartResource
         byte normalMapKey;
         byte specularMapKey;
         uint sharedUVMapSpace;
+        byte usedMaterialCount;
+        uint auralMaterialSetUpperBodyHash;
+        uint auralMaterialSetLowerBodyHash;
+        uint auralMaterialSetShoesHash;
         private CountedTGIBlockList tgiList;
         #endregion
 
@@ -108,7 +112,7 @@ namespace CASPartResource
             this.unused1 = r.ReadInt32();
             this.ageGender = (AgeGenderFlags)r.ReadUInt32();
             this.unused2 = r.ReadByte();
-            this.unused3 = r.ReadByte();
+            if(this.unused2 > 0) this.unused3 = r.ReadByte();
 
             swatchColorCode = new SwatchColorList(OnResourceChanged, s);
 
@@ -141,7 +145,17 @@ namespace CASPartResource
             this.normalMapKey = r.ReadByte();
             this.specularMapKey = r.ReadByte();
             if (this.version >= 0x1B) this.sharedUVMapSpace = r.ReadUInt32();
-
+            if (this.version >= 0x1E)
+            {
+                this.usedMaterialCount = r.ReadByte();
+                if (usedMaterialCount > 0)
+                {
+                    if (usedMaterialCount != 3) throw new InvalidDataException("Unexpected number of Aural Material Set Hashes.");
+                    this.auralMaterialSetUpperBodyHash = r.ReadUInt32();
+                    this.auralMaterialSetLowerBodyHash = r.ReadUInt32();
+                    this.auralMaterialSetShoesHash = r.ReadUInt32();
+                }
+            }
 
         }
 
@@ -193,6 +207,18 @@ namespace CASPartResource
             w.Write(normalMapKey);
             w.Write(specularMapKey);
             if (this.version >= 0x1B) w.Write(sharedUVMapSpace);
+
+            if (this.version >= 0x1E)
+            {
+                w.Write(this.usedMaterialCount);
+                if (usedMaterialCount > 0)
+                {
+                    w.Write(this.auralMaterialSetUpperBodyHash);
+                    w.Write(this.auralMaterialSetLowerBodyHash);
+                    w.Write(this.auralMaterialSetShoesHash);
+                }
+            }
+
             long tgiPosition = w.BaseStream.Position;
             w.BaseStream.Position = 4;
             w.Write(tgiPosition - 8);
@@ -285,8 +311,15 @@ namespace CASPartResource
             get { if (this.version < 0x1B) { throw new InvalidOperationException("Version not supported"); } else { return this.sharedUVMapSpace; }}
             set { if (version < 0x1B) { throw new InvalidOperationException("Version not Supported"); } this.sharedUVMapSpace = value; }
         }
-
         [ElementPriority(37)]
+        public byte UsedMaterialCount { get { return this.usedMaterialCount; } set { if (!value.Equals(UsedMaterialCount)) UsedMaterialCount = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(38)]
+        public uint AuralMaterialSetUpperBodyHash { get { return auralMaterialSetUpperBodyHash; } set { if (!value.Equals(auralMaterialSetUpperBodyHash)) auralMaterialSetUpperBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(39)]
+        public uint AuralMaterialSetLowerBodyHash { get { return auralMaterialSetLowerBodyHash; } set { if (!value.Equals(auralMaterialSetLowerBodyHash)) auralMaterialSetLowerBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(40)]
+        public uint AuralMaterialSetShoesHash { get { return auralMaterialSetShoesHash; } set { if (!value.Equals(auralMaterialSetShoesHash)) auralMaterialSetShoesHash = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(Int32.MaxValue)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
 
@@ -297,6 +330,15 @@ namespace CASPartResource
                 List<string> res = base.ContentFields;
                 if (this.version < 0x1B) { res.Remove("SharedUVMapSpace"); }
                 if (this.version < 0x1C) { res.Remove("VoiceEffectHash"); }
+                if (this.unused2 <= 0) { res.Remove("Unused3"); }
+                if (this.version < 0x1E || this.usedMaterialCount <= 0) 
+                { 
+                    res.Remove("AuralMaterialSetUpperBodyHash"); 
+                    res.Remove("AuralMaterialSetLowerBodyHash"); 
+                    res.Remove("AuralMaterialSetShoesHash"); 
+                }
+                if (this.version < 0x1E)
+                    res.Remove("UsedMaterialCount"); 
                 return res;
             }
         }
