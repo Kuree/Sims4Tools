@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Keyi Zhang                                       *
  *  kz005@bucknell.edu                                                     *
  *                                                                         *
@@ -61,6 +61,10 @@ namespace CASPartResource
         byte buffResKey;
         byte varientThumbnailKey;
         ulong voiceEffectHash;
+        byte usedMaterialCount; // cmar - added V 0x1E
+        uint materialSetUpperBodyHash; // cmar - added V 0x1E
+        uint materialSetLowerBodyHash; // cmar - added V 0x1E
+        uint materialSetShoesHash; // cmar - added V 0x1E
         byte nakedKey;
         byte parentKey;
         int sortLayer;
@@ -74,10 +78,7 @@ namespace CASPartResource
         byte normalMapKey;
         byte specularMapKey;
         uint sharedUVMapSpace;
-        byte usedMaterialCount;
-        uint auralMaterialSetUpperBodyHash;
-        uint auralMaterialSetLowerBodyHash;
-        uint auralMaterialSetShoesHash;
+        byte emissionMapKey; // cmar - added V 0x1E
         private CountedTGIBlockList tgiList;
         #endregion
 
@@ -112,13 +113,23 @@ namespace CASPartResource
             this.unused1 = r.ReadInt32();
             this.ageGender = (AgeGenderFlags)r.ReadUInt32();
             this.unused2 = r.ReadByte();
-            if(this.unused2 > 0) this.unused3 = r.ReadByte();
+            this.unused3 = r.ReadByte();
 
             swatchColorCode = new SwatchColorList(OnResourceChanged, s);
 
             this.buffResKey = r.ReadByte();
             this.varientThumbnailKey = r.ReadByte();
             if (this.version >= 0x1C) this.voiceEffectHash = r.ReadUInt64();
+            if (this.version >= 0x1E)
+            {
+                this.usedMaterialCount = r.ReadByte();
+                if (this.usedMaterialCount > 0)
+                {
+                    this.materialSetUpperBodyHash = r.ReadUInt32();
+                    this.materialSetLowerBodyHash = r.ReadUInt32();
+                    this.materialSetShoesHash = r.ReadUInt32();
+                }
+            }
             this.nakedKey = r.ReadByte();
             this.parentKey = r.ReadByte();
             this.sortLayer = r.ReadInt32();
@@ -145,17 +156,7 @@ namespace CASPartResource
             this.normalMapKey = r.ReadByte();
             this.specularMapKey = r.ReadByte();
             if (this.version >= 0x1B) this.sharedUVMapSpace = r.ReadUInt32();
-            if (this.version >= 0x1E)
-            {
-                this.usedMaterialCount = r.ReadByte();
-                if (usedMaterialCount > 0)
-                {
-                    if (usedMaterialCount != 3) throw new InvalidDataException("Unexpected number of Aural Material Set Hashes.");
-                    this.auralMaterialSetUpperBodyHash = r.ReadUInt32();
-                    this.auralMaterialSetLowerBodyHash = r.ReadUInt32();
-                    this.auralMaterialSetShoesHash = r.ReadUInt32();
-                }
-            }
+            if (this.version >= 0x1E) this.emissionMapKey = r.ReadByte();
 
         }
 
@@ -191,6 +192,16 @@ namespace CASPartResource
             w.Write(buffResKey);
             w.Write(varientThumbnailKey);
             if (this.version >= 0x1C) w.Write(voiceEffectHash);
+            if (this.version >= 0x1E)
+            {
+                w.Write(usedMaterialCount);
+                if (usedMaterialCount > 0)
+                {
+                    w.Write(materialSetUpperBodyHash);
+                    w.Write(materialSetLowerBodyHash);
+                    w.Write(materialSetShoesHash);
+                }
+            }
             w.Write(nakedKey);
             w.Write(parentKey);
             w.Write(sortLayer);
@@ -207,18 +218,7 @@ namespace CASPartResource
             w.Write(normalMapKey);
             w.Write(specularMapKey);
             if (this.version >= 0x1B) w.Write(sharedUVMapSpace);
-
-            if (this.version >= 0x1E)
-            {
-                w.Write(this.usedMaterialCount);
-                if (usedMaterialCount > 0)
-                {
-                    w.Write(this.auralMaterialSetUpperBodyHash);
-                    w.Write(this.auralMaterialSetLowerBodyHash);
-                    w.Write(this.auralMaterialSetShoesHash);
-                }
-            }
-
+            if (this.version >= 0x1E) w.Write(emissionMapKey);
             long tgiPosition = w.BaseStream.Position;
             w.BaseStream.Position = 4;
             w.Write(tgiPosition - 8);
@@ -280,46 +280,47 @@ namespace CASPartResource
         public byte BuffResKey { get { return buffResKey; } set { if (!value.Equals(buffResKey)) buffResKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(23), TGIBlockListContentField("TGIList")]
         public byte VarientThumbnailKey { get { return varientThumbnailKey; } set { if (!value.Equals(varientThumbnailKey)) varientThumbnailKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(23)]
+        [ElementPriority(24)]
         public ulong VoiceEffectHash { get { return voiceEffectHash; } set { if (!value.Equals(voiceEffectHash)) voiceEffectHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(24), TGIBlockListContentField("TGIList")]
-        public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(25), TGIBlockListContentField("TGIList")]
-        public byte ParentKey { get { return parentKey; } set { if (!value.Equals(parentKey)) parentKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(25)]
+        public uint MaterialSetUpperBodyHash { get { return materialSetUpperBodyHash; } set { if (!value.Equals(materialSetUpperBodyHash)) materialSetUpperBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(26)]
-        public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint MaterialSetLowerBodyHash { get { return materialSetLowerBodyHash; } set { if (!value.Equals(materialSetLowerBodyHash)) materialSetLowerBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(27)]
-        public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint MaterialSetShoesHash { get { return materialSetShoesHash; } set { if (!value.Equals(materialSetShoesHash)) materialSetShoesHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(28), TGIBlockListContentField("TGIList")]
-        public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(29), TGIBlockListContentField("TGIList")]
-        public byte DiffuseShadowKey { get { return diffuseShadowKey; } set { if (!value.Equals(diffuseShadowKey)) diffuseShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(30), TGIBlockListContentField("TGIList")]
-        public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(31), TGIBlockListContentField("TGIList")]
-        public byte CompositionMethod { get { return compositionMethod; } set { if (!value.Equals(compositionMethod)) compositionMethod = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte ParentKey { get { return parentKey; } set { if (!value.Equals(parentKey)) parentKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(30)]
+        public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(31)]
+        public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(32), TGIBlockListContentField("TGIList")]
-        public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(33), TGIBlockListContentField("TGIList")]
-        public byte Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte DiffuseShadowKey { get { return diffuseShadowKey; } set { if (!value.Equals(diffuseShadowKey)) diffuseShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(34), TGIBlockListContentField("TGIList")]
-        public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(35), TGIBlockListContentField("TGIList")]
+        public byte CompositionMethod { get { return compositionMethod; } set { if (!value.Equals(compositionMethod)) compositionMethod = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(36), TGIBlockListContentField("TGIList")]
+        public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(37), TGIBlockListContentField("TGIList")]
+        public byte Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(38), TGIBlockListContentField("TGIList")]
+        public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(39), TGIBlockListContentField("TGIList")]
         public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(36)]
+        [ElementPriority(40)]
         public uint SharedUVMapSpace { 
             get { if (this.version < 0x1B) { throw new InvalidOperationException("Version not supported"); } else { return this.sharedUVMapSpace; }}
             set { if (version < 0x1B) { throw new InvalidOperationException("Version not Supported"); } this.sharedUVMapSpace = value; }
         }
-        [ElementPriority(37)]
-        public byte UsedMaterialCount { get { return this.usedMaterialCount; } set { if (!value.Equals(UsedMaterialCount)) UsedMaterialCount = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(38)]
-        public uint AuralMaterialSetUpperBodyHash { get { return auralMaterialSetUpperBodyHash; } set { if (!value.Equals(auralMaterialSetUpperBodyHash)) auralMaterialSetUpperBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(39)]
-        public uint AuralMaterialSetLowerBodyHash { get { return auralMaterialSetLowerBodyHash; } set { if (!value.Equals(auralMaterialSetLowerBodyHash)) auralMaterialSetLowerBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(40)]
-        public uint AuralMaterialSetShoesHash { get { return auralMaterialSetShoesHash; } set { if (!value.Equals(auralMaterialSetShoesHash)) auralMaterialSetShoesHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(Int32.MaxValue)]
+        [ElementPriority(41), TGIBlockListContentField("TGIList")]
+        public byte EmissionMapKey { get { return emissionMapKey; } set { if (!value.Equals(emissionMapKey)) emissionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+
+        [ElementPriority(42)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
 
@@ -330,15 +331,13 @@ namespace CASPartResource
                 List<string> res = base.ContentFields;
                 if (this.version < 0x1B) { res.Remove("SharedUVMapSpace"); }
                 if (this.version < 0x1C) { res.Remove("VoiceEffectHash"); }
-                if (this.unused2 <= 0) { res.Remove("Unused3"); }
-                if (this.version < 0x1E || this.usedMaterialCount <= 0) 
-                { 
-                    res.Remove("AuralMaterialSetUpperBodyHash"); 
-                    res.Remove("AuralMaterialSetLowerBodyHash"); 
-                    res.Remove("AuralMaterialSetShoesHash"); 
-                }
                 if (this.version < 0x1E)
-                    res.Remove("UsedMaterialCount"); 
+                {
+                    res.Remove("MaterialSetUpperBodyHash");
+                    res.Remove("MaterialSetLowerBodyHash");
+                    res.Remove("MaterialSetShoesHash");
+                    res.Remove("EmissionMapKey");
+                }
                 return res;
             }
         }
