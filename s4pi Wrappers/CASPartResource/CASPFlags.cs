@@ -70,7 +70,7 @@ namespace CASPartResource
         EyebrowThickness = 0x0069,
         EyebrowShape = 0x006A,
         Ensemble = 0x006B,
-        Species = 0x006D
+        Occult = 0x006D
     }
 
     public enum CASPFlagValues : ushort
@@ -1265,7 +1265,7 @@ namespace CASPartResource
         Ensemble_SwimMetalBrown = 0x04E3,
         Ensemble_SwimMetalGreen = 0x04E4,
         BuyCat_Shareable = 0x04E5,
-        Human = 0x051E,
+        Occult_Human = 0x051E,
         Style_Spooky = 0x2001,
         Skill_Psychic = 0x2002,
         Style_Witch = 0x2003,
@@ -1286,7 +1286,7 @@ namespace CASPartResource
         OutfitCategory_Witch = 0x2012,
         Uniform_Spartan = 0x2013,
         Tooltip_SkillPsychic = 0x2014,
-        Alien = 0x301F
+        Occult_Alien = 0x301F
     }
 
     [Flags]
