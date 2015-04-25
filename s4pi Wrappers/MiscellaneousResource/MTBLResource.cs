@@ -1,6 +1,6 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Inge Jones                                       *
- *                                                   *
+ *  Modified by pbox 2015-04-25                                            *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -9,7 +9,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -26,9 +26,6 @@ using System.Text;
 
 namespace s4pi.Miscellaneous
 {
-    /// <summary>
-    /// A resource wrapper that understands AUEV resources
-    /// </summary>
     public class MTBLResource : AResource
     {
         const int recommendedApiVersion = 1;
@@ -141,44 +138,41 @@ namespace s4pi.Miscellaneous
                 set { this.unk1 = value; OnElementChanged(); }
             }
             [ElementPriority(4)]
-            public float Unk2
+            public float ThumbnailBoundsMinX
             {
                 get { return unk2; }
                 set { this.unk2 = value; OnElementChanged(); }
             }
 
             [ElementPriority(5)]
-            public float Unk3
-            {
-                get { return unk3; }
-                set { this.unk3 = value; OnElementChanged(); }
-            }
-
-            [ElementPriority(6)]
-            public float Unk4
-            {
-                get { return unk4; }
-                set { this.unk4 = value; OnElementChanged(); }
-            }
-
-            [ElementPriority(7)]
-            public float Unk5
+            public float ThumbnailBoundsMaxX
             {
                 get { return unk5; }
                 set { this.unk5 = value; OnElementChanged(); }
             }
-            [ElementPriority(8)]
-            public float Unk6
+            [ElementPriority(6)]
+            public float ThumbnailBoundsMinY
             {
-                get { return unk6; }
-                set { this.unk6 = value; OnElementChanged(); }
+                get { return unk4; }
+                set { this.unk4 = value; OnElementChanged(); }
             }
-
-            [ElementPriority(9)]
-            public float Unk7
+            [ElementPriority(7)]
+            public float ThumbnailBoundsMaxY
             {
                 get { return unk7; }
                 set { this.unk7 = value; OnElementChanged(); }
+            }
+            [ElementPriority(8)]
+            public float ThumbnailBoundsMinZ
+            {
+                get { return unk3; }
+                set { this.unk3 = value; OnElementChanged(); }
+            }
+            [ElementPriority(9)]
+            public float ThumbnailBoundsMaxZ
+            {
+                get { return unk6; }
+                set { this.unk6 = value; OnElementChanged(); }
             }
 
             [ElementPriority(10)]
