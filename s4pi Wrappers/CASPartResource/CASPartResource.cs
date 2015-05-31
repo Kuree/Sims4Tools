@@ -52,7 +52,7 @@ namespace CASPartResource
         uint partTitleKey;
         uint partDesptionKey;
         byte uniqueTextureSpace;
-        int bodyType;
+        BodyType bodyType;
         int unused1;
         AgeGenderFlags ageGender;
         byte unused2;
@@ -65,6 +65,7 @@ namespace CASPartResource
         uint materialSetUpperBodyHash; // cmar - added V 0x1E
         uint materialSetLowerBodyHash; // cmar - added V 0x1E
         uint materialSetShoesHash; // cmar - added V 0x1E
+        OccultTypesDisabled hideForOccultFlags; // cmar = added V 0x1F
         byte nakedKey;
         byte parentKey;
         int sortLayer;
@@ -109,7 +110,7 @@ namespace CASPartResource
             this.partTitleKey = r.ReadUInt32();
             this.partDesptionKey = r.ReadUInt32();
             this.uniqueTextureSpace = r.ReadByte();
-            this.bodyType = r.ReadInt32();
+            this.bodyType = (BodyType)r.ReadInt32();
             this.unused1 = r.ReadInt32();
             this.ageGender = (AgeGenderFlags)r.ReadUInt32();
             this.unused2 = r.ReadByte();
@@ -130,6 +131,7 @@ namespace CASPartResource
                     this.materialSetShoesHash = r.ReadUInt32();
                 }
             }
+            if (this.version >= 0x1F) this.hideForOccultFlags = (OccultTypesDisabled)r.ReadUInt32();
             this.nakedKey = r.ReadByte();
             this.parentKey = r.ReadByte();
             this.sortLayer = r.ReadInt32();
@@ -182,7 +184,7 @@ namespace CASPartResource
             w.Write(partTitleKey);
             w.Write(partDesptionKey);
             w.Write(uniqueTextureSpace);
-            w.Write(bodyType);
+            w.Write((uint)bodyType);
             w.Write(unused1);
             w.Write((uint)ageGender);
             w.Write(unused2);
@@ -202,6 +204,7 @@ namespace CASPartResource
                     w.Write(materialSetShoesHash);
                 }
             }
+            if (this.version >= 0x1F) w.Write((uint)hideForOccultFlags);
             w.Write(nakedKey);
             w.Write(parentKey);
             w.Write(sortLayer);
@@ -265,7 +268,7 @@ namespace CASPartResource
         [ElementPriority(15)]
         public byte UniqueTextureSpace { get { return uniqueTextureSpace; } set { if (!value.Equals(uniqueTextureSpace)) uniqueTextureSpace = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(16)]
-        public int BodyType { get { return bodyType; } set { if (!value.Equals(bodyType)) bodyType = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public BodyType BodyType { get { return bodyType; } set { if (!value.Equals(bodyType)) bodyType = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(17)]
         public int Unused1 { get { return unused1; } set { if (!value.Equals(unused1)) unused1 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(18)]
@@ -288,39 +291,41 @@ namespace CASPartResource
         public uint MaterialSetLowerBodyHash { get { return materialSetLowerBodyHash; } set { if (!value.Equals(materialSetLowerBodyHash)) materialSetLowerBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(27)]
         public uint MaterialSetShoesHash { get { return materialSetShoesHash; } set { if (!value.Equals(materialSetShoesHash)) materialSetShoesHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(28), TGIBlockListContentField("TGIList")]
-        public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(28)]
+        public OccultTypesDisabled HideForOccultFlags { get { return hideForOccultFlags; } set { if (!value.Equals(hideForOccultFlags)) hideForOccultFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(29), TGIBlockListContentField("TGIList")]
+        public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(30), TGIBlockListContentField("TGIList")]
         public byte ParentKey { get { return parentKey; } set { if (!value.Equals(parentKey)) parentKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(30)]
-        public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(31)]
+        public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(32)]
         public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(32), TGIBlockListContentField("TGIList")]
-        public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(33), TGIBlockListContentField("TGIList")]
-        public byte DiffuseShadowKey { get { return diffuseShadowKey; } set { if (!value.Equals(diffuseShadowKey)) diffuseShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(34), TGIBlockListContentField("TGIList")]
-        public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte DiffuseShadowKey { get { return diffuseShadowKey; } set { if (!value.Equals(diffuseShadowKey)) diffuseShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(35), TGIBlockListContentField("TGIList")]
-        public byte CompositionMethod { get { return compositionMethod; } set { if (!value.Equals(compositionMethod)) compositionMethod = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(36), TGIBlockListContentField("TGIList")]
-        public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte CompositionMethod { get { return compositionMethod; } set { if (!value.Equals(compositionMethod)) compositionMethod = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(37), TGIBlockListContentField("TGIList")]
-        public byte Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(38), TGIBlockListContentField("TGIList")]
-        public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(39), TGIBlockListContentField("TGIList")]
+        public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(40), TGIBlockListContentField("TGIList")]
         public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(40)]
+        [ElementPriority(41)]
         public uint SharedUVMapSpace { 
             get { if (this.version < 0x1B) { throw new InvalidOperationException("Version not supported"); } else { return this.sharedUVMapSpace; }}
             set { if (version < 0x1B) { throw new InvalidOperationException("Version not Supported"); } this.sharedUVMapSpace = value; }
         }
-        [ElementPriority(41), TGIBlockListContentField("TGIList")]
+        [ElementPriority(42), TGIBlockListContentField("TGIList")]
         public byte EmissionMapKey { get { return emissionMapKey; } set { if (!value.Equals(emissionMapKey)) emissionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
 
-        [ElementPriority(42)]
+        [ElementPriority(43)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
 
@@ -338,6 +343,7 @@ namespace CASPartResource
                     res.Remove("MaterialSetShoesHash");
                     res.Remove("EmissionMapKey");
                 }
+                if (this.version < 0x1F) { res.Remove("OccultBitField"); }
                 return res;
             }
         }
