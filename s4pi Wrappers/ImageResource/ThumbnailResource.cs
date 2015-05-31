@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Keyi Zhang                                       *
  *  kz005@bucknell.edu                                                     *
  *                                                                         *
@@ -58,6 +58,12 @@ namespace s4pi.ImageResource
         {
             if (this.rawData != null)
                 return new MemoryStream(this.rawData);
+            else
+                return new MemoryStream();
+        }
+
+        public Stream ToJFIF()
+        {
             Bitmap alpha;
             Bitmap img = ComputeAlpha(this.image, out alpha);
             MemoryStream ms = new MemoryStream();
