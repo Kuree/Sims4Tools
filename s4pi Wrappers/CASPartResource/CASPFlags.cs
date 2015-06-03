@@ -71,7 +71,7 @@ namespace CASPartResource
         EyebrowShape = 0x006A,
         Ensemble = 0x006B,
         SkintoneType = 0x006C,
-        Occult = 0x006D
+        OccultAllowedForRandom = 0x006D
     }
 
     public enum CASPFlagValues : ushort
@@ -1285,7 +1285,7 @@ namespace CASPartResource
         Func_Log = 0x051B,
         Func_Stump = 0x051C,
         Interaction_Collect = 0x051D,
-        Occult_Human = 0x051E,
+        OccultAllowedForRandom_Human = 0x051E,
         Func_Map = 0x0520,
         Func_Sink = 0x0521,
         Func_Flower = 0x0522,
@@ -1516,7 +1516,7 @@ namespace CASPartResource
         SkintoneType_Natural = 0x301C,
         SkintoneType_Fantasy = 0x301D,
         Func_Detective_Clue_AddToMap = 0x301E,
-        Occult_Alien = 0x301F,
+        OccultAllowedForRandom_Alien = 0x301F,
         SkintoneType_Sickness_1 = 0x3020,
         SkintoneType_Sickness_2 = 0x3021,
         SkintoneType_Sickness_3 = 0x3022,
@@ -1660,6 +1660,76 @@ namespace CASPartResource
         Male = 0x00001000,
         Female = 0x00002000
     }
+    
+    public enum BodyType : uint
+    {
+        All = 0,
+        Hat = 1,
+        Hair = 2,
+        Head = 3,
+        Face = 4,
+        Body = 5,
+        Top = 6,
+        Bottom = 7,
+        Shoes = 8,
+        Accessories = 9,
+        Earrings = 0x0A,
+        Glasses = 0x0B,
+        Necklace = 0x0C,
+        Gloves = 0x0D,
+        BraceletLeft = 0x0E,
+        BraceletRight = 0x0F,
+        LipRingLeft = 0x10,
+        LipRingRight = 0x11,
+        NoseRingLeft = 0x12,
+        NoseRingRight = 0x13,
+        BrowRingLeft = 0x14,
+        BrowRingRight = 0x15,
+        RingIndexLeft = 0x16,
+        RingIndexRight = 0x17,
+        RingThirdLeft = 0x18,
+        RingThirdRight = 0x19,
+        RingMidLeft = 0x1A,
+        RingMidRight = 0x1B,
+        FacialHair = 0x1C,
+        Lipstick = 0x1D,
+        Eyeshadow = 0x1E,
+        Eyeliner = 0x1F,
+        Blush = 0x20,
+        Facepaint = 0x21,
+        Eyebrows = 0x22,
+        Eyecolor = 0x23,
+        Socks = 0x24,
+        Mascara = 0x25,
+        ForeheadCrease = 0x26,
+        Freckles = 0x27,
+        DimpleLeft = 0x28,
+        DimpleRight = 0x29,
+        Tights = 0x2A,
+        MoleLeftLip = 0x2B,
+        MoleRightLip = 0x2C,
+        TattooArmLowerLeft = 0x2D,
+        TattooArmUpperLeft = 0x2E,
+        TattooArmLowerRight = 0x2F,
+        TattooArmUpperRight = 0x30,
+        TattooLegLeft = 0x31,
+        TattooLegRight = 0x32,
+        TattooTorsoBackLower = 0x33,
+        TattooTorsoBackUpper = 0x34,
+        TattooTorsoFrontLower = 0x35,
+        TattooTorsoFrontUpper = 0x36,
+        MoleLeftCheek = 0x37,
+        MoleRightCheek = 0x38,
+        MouthCrease = 0x39,
+        SkinOverlay = 0x3A
+    }
+
+    [Flags]
+    public enum OccultTypesDisabled : uint
+    {
+        Alien = 1 << 1,
+        Human = 1
+    }
 
     [Flags]
     public enum ExcludePartFlag : ulong
@@ -1721,7 +1791,8 @@ namespace CASPartResource
         BODYTYPE_TATTOO_TORSOFRONTUPPER = 1ul << 54,
         BODYTYPE_SKINDETAIL_MOLECHEEKLEFT = 1ul << 55,
         BODYTYPE_SKINDETAIL_MOLECHEEKRIGHT = 1ul << 56,
-        BODYTYPE_SKINDETAIL_CREASEMOUTH = 1ul << 57
+        BODYTYPE_SKINDETAIL_CREASEMOUTH = 1ul << 57,
+        BODYTYPE_SKINOVERLAY = 1ul << 58
     }
 
     [Flags]
