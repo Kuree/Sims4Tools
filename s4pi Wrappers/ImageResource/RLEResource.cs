@@ -1,4 +1,4 @@
-﻿/*Copyright (c) 2014 Rick (rick 'at' gibbed 'dot' us)
+/*Copyright (c) 2014 Rick (rick 'at' gibbed 'dot' us)
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
@@ -21,6 +21,9 @@ distribution.*/
 
 /*
  * This wrapper is based on Rick's code and is transformed into s4pi wrapper by Keyi Zhang.
+ */
+/*
+ * This wrapper has been updated to import RLES images by cmarNYC.
  */
 
 using System;
@@ -271,12 +274,124 @@ namespace s4pi.ImageResource
 
         }
 
+        public Stream ToBlock4DDS()
+        {
+            if (this.info == null) return null;
+            MemoryStream s = new MemoryStream();
+            BinaryWriter w = new BinaryWriter(s);
+            w.Write(RLEInfo.Signature);
+            this.info.UnParse(s);
+
+
+            // MEED TO BE WRITTEN IN STATIC
+            var fullTransparentAlpha = new byte[] { 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            var fullTransparentColor = new byte[] { 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            var fullOpaqueAlpha = new byte[] { 0x00, 0x05, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+            if (this.info.Version == RLEVersion.RLE2)
+            {
+                return null;
+            }
+            else
+            {
+                for (int i = 0; i < this.info.mipCount; i++)
+                {
+                    var mipHeader = this.MipHeaders[i];
+                    var nextMipHeader = MipHeaders[i + 1];
+
+                    int blockOffset2, blockOffset3, blockOffset0, blockOffset1, blockOffset4;
+                    blockOffset2 = mipHeader.Offset2;
+                    blockOffset3 = mipHeader.Offset3;
+                    blockOffset0 = mipHeader.Offset0;
+                    blockOffset1 = mipHeader.Offset1;
+                    blockOffset4 = mipHeader.Offset4;
+                    var off4 = 0;
+                    for (int commandOffset = mipHeader.CommandOffset;
+                        commandOffset < nextMipHeader.CommandOffset;
+                        commandOffset += 2)
+                    {
+                        var command = BitConverter.ToUInt16(this.data, commandOffset);
+
+                        var op = command & 3;
+                        var count = command >> 2;
+
+                        if (op == 0)
+                        {
+                            for (int j = 0; j < count; j++)
+                            {
+                                w.Write(fullTransparentAlpha, 0, 8);
+                                w.Write(fullTransparentAlpha, 0, 8);
+                            }
+                        }
+                        else if (op == 1)
+                        {
+                            for (int j = 0; j < count; j++)
+                            {
+                                //output.Write(fullOpaqueAlpha, 0, 8);
+                                //output.Write(fullTransparentColor, 0, 8);
+
+                               // w.Write(this.data, blockOffset0, 2);
+                               // w.Write(this.data, blockOffset1, 6);
+                                blockOffset0 += 2;
+                                blockOffset1 += 6;
+
+                               // w.Write(this.data, blockOffset2, 4);
+                               // w.Write(this.data, blockOffset3, 4);
+                                blockOffset2 += 4;
+                                blockOffset3 += 4;
+
+                                w.Write(this.data, blockOffset4, 16);
+                                blockOffset4 += 16;
+                                off4 += 16;
+                            }
+                        }
+                        else if (op == 2)
+                        {
+                            for (int j = 0; j < count; j++)
+                            {
+                                w.Write(fullOpaqueAlpha, 0, 8);
+                                w.Write(fullOpaqueAlpha, 0, 8);
+                               
+                               // w.Write(this.data, blockOffset0, 2);
+                               // w.Write(this.data, blockOffset1, 6);
+                               // w.Write(this.data, blockOffset2, 4);
+                               // w.Write(this.data, blockOffset3, 4);
+                                blockOffset2 += 4;
+                                blockOffset3 += 4;
+                                blockOffset0 += 2;
+                                blockOffset1 += 6;
+                            }
+                        }
+                        else
+                        {
+                            throw new NotSupportedException();
+                        }
+                    }
+
+                    if (blockOffset0 != nextMipHeader.Offset0 ||
+                        blockOffset1 != nextMipHeader.Offset1 ||
+                        blockOffset2 != nextMipHeader.Offset2 ||
+                        blockOffset3 != nextMipHeader.Offset3 ||
+                        blockOffset4 != nextMipHeader.Offset4)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+
+            }
+            s.Position = 0;
+            return s;
+
+        }
 
         public void ImportToRLE(Stream input, RLEVersion rleVersion = RLEVersion.RLE2)
         {
+            var fullOpaqueAlpha = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
             MemoryStream output = new MemoryStream();
             BinaryReader r = new BinaryReader(input);
             BinaryWriter w = new BinaryWriter(output);
+
             this.info = new RLEInfo();
             this.info.Parse(input);
             if (this.info.pixelFormat.Fourcc != FourCC.DXT5) throw new InvalidDataException(string.Format("Not a DXT5 format DDS, read {0}", this.info.pixelFormat.Fourcc));
@@ -285,18 +400,25 @@ namespace s4pi.ImageResource
 
 
             w.Write((uint)FourCC.DXT5);
-            w.Write((uint)0x32454C52);
+            if (rleVersion == RLEVersion.RLE2)
+            {
+                w.Write((uint)0x32454C52);
+            }
+            else
+            {
+                w.Write((uint)0x53454C52);
+            }
             w.Write((ushort)this.info.Width);
             w.Write((ushort)this.info.Height);
             w.Write((ushort)this.info.mipCount);
             w.Write((ushort)0);
 
-            var headerOffset = 16;
-            var dataOffset = 16 + (20 * this.info.mipCount);
-            this.MipHeaders = new MipHeader[this.info.mipCount];
-
             if (rleVersion == RLEVersion.RLE2)
             {
+                var headerOffset = 16;
+                var dataOffset = 16 + (20 * this.info.mipCount);
+                this.MipHeaders = new MipHeader[this.info.mipCount];
+
                 using (var commandData = new MemoryStream())
                 using (var block2Data = new MemoryStream())
                 using (var block3Data = new MemoryStream())
@@ -434,6 +556,10 @@ namespace s4pi.ImageResource
             }
             else
             {
+                var headerOffset = 16;
+                var dataOffset = 16 + (24 * this.info.mipCount);
+                this.MipHeaders = new MipHeader[this.info.mipCount];
+
                 using (var commandData = new MemoryStream())
                 using (var block2Data = new MemoryStream())
                 using (var block3Data = new MemoryStream())
@@ -494,8 +620,11 @@ namespace s4pi.ImageResource
                             {
                                 for (int i = 0; i < opaqueCount; i++, opaqueOffset += 16)
                                 {
+                                    block0Data.Write(mipData, opaqueOffset + 0, 2);
+                                    block1Data.Write(mipData, opaqueOffset + 2, 6);
                                     block2Data.Write(mipData, opaqueOffset + 8, 4);
                                     block3Data.Write(mipData, opaqueOffset + 12, 4);
+                                   // block4Data.Write(fullOpaqueAlpha, 0, 8);
                                 }
 
                                 opaqueCount <<= 2;
@@ -523,6 +652,8 @@ namespace s4pi.ImageResource
                                     block1Data.Write(mipData, translucentOffset + 2, 6);
                                     block2Data.Write(mipData, translucentOffset + 8, 4);
                                     block3Data.Write(mipData, translucentOffset + 12, 4);
+                                    block4Data.Write(fullOpaqueAlpha, 0, 8);
+                                    block4Data.Write(fullOpaqueAlpha, 0, 8);
                                 }
 
                                 translucentCount <<= 2;
@@ -557,6 +688,10 @@ namespace s4pi.ImageResource
                     var block1Offset = (int)output.Position;
                     output.Write(block1Data.ToArray(), 0, (int)block1Data.Length);
 
+                    block4Data.Position = 0;
+                    var block4Offset = (int)output.Position;
+                    output.Write(block4Data.ToArray(), 0, (int)block4Data.Length);
+
                     output.Position = headerOffset;
                     for (int i = 0; i < this.info.mipCount; i++)
                     {
@@ -566,46 +701,12 @@ namespace s4pi.ImageResource
                         w.Write(mipHeader.Offset3 + block3Offset);
                         w.Write(mipHeader.Offset0 + block0Offset);
                         w.Write(mipHeader.Offset1 + block1Offset);
+                        w.Write(mipHeader.Offset4 + block4Offset);
                     }
 
                     this.data = output.ToArray();
                 }
             }
-        }
-        
-
-
-        private static bool TrueForAll<T>(T[] array, int offset, int count, Predicate<T> match)
-        {
-            if (array == null)
-            {
-                throw new ArgumentNullException("array");
-            }
-
-            if (match == null)
-            {
-                throw new ArgumentNullException("match");
-            }
-
-            if (offset < 0 || offset > array.Length)
-            {
-                throw new IndexOutOfRangeException();
-            }
-
-            var end = offset + count;
-            if (end < 0 || end > array.Length)
-            {
-                throw new IndexOutOfRangeException();
-            }
-
-            for (int index = offset; index < end; index++)
-            {
-                if (match(array[index]) == false)
-                {
-                    return false;
-                }
-            }
-            return true;
         }
 
         private static bool TrueForAny<T>(T[] array, int offset, int count, Predicate<T> match)
