@@ -55,6 +55,7 @@ namespace CASPartResource
         BodyType bodyType;
         int unused1;
         AgeGenderFlags ageGender;
+        uint reserved1;  // cmar - added V 0x20, set to 1
         byte unused2;
         byte unused3;
         SwatchColorList swatchColorCode;
@@ -75,7 +76,7 @@ namespace CASPartResource
         byte shadowKey;
         byte compositionMethod;
         byte regionMapKey;
-        byte overrides;
+        OverrideList overrides;
         byte normalMapKey;
         byte specularMapKey;
         uint sharedUVMapSpace;
@@ -113,6 +114,7 @@ namespace CASPartResource
             this.bodyType = (BodyType)r.ReadInt32();
             this.unused1 = r.ReadInt32();
             this.ageGender = (AgeGenderFlags)r.ReadUInt32();
+            if (this.version >= 0x20) this.reserved1 = r.ReadUInt32();
             this.unused2 = r.ReadByte();
             this.unused3 = r.ReadByte();
 
@@ -154,7 +156,7 @@ namespace CASPartResource
             this.shadowKey = r.ReadByte();
             this.compositionMethod = r.ReadByte();
             this.regionMapKey = r.ReadByte();
-            this.overrides = r.ReadByte();
+            this.overrides = new OverrideList(null, s);
             this.normalMapKey = r.ReadByte();
             this.specularMapKey = r.ReadByte();
             if (this.version >= 0x1B) this.sharedUVMapSpace = r.ReadUInt32();
@@ -187,6 +189,7 @@ namespace CASPartResource
             w.Write((uint)bodyType);
             w.Write(unused1);
             w.Write((uint)ageGender);
+            if (this.version >= 0x20) w.Write(reserved1);
             w.Write(unused2);
             w.Write(unused3);
             if (this.swatchColorCode == null) this.swatchColorCode = new SwatchColorList(OnResourceChanged);
@@ -217,7 +220,8 @@ namespace CASPartResource
             w.Write(shadowKey);
             w.Write(compositionMethod);
             w.Write(regionMapKey);
-            w.Write(overrides);
+            if (this.overrides == null) this.overrides = new OverrideList(OnResourceChanged);
+            overrides.UnParse(s);
             w.Write(normalMapKey);
             w.Write(specularMapKey);
             if (this.version >= 0x1B) w.Write(sharedUVMapSpace);
@@ -274,58 +278,60 @@ namespace CASPartResource
         [ElementPriority(18)]
         public AgeGenderFlags AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(19)]
-        public byte Unused2 { get { return unused2; } set { if (!value.Equals(unused2)) unused2 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint Reserved1 { get { return reserved1; } set { if (!value.Equals(reserved1)) reserved1 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(20)]
-        public byte Unused3 { get { return unused3; } set { if (!value.Equals(unused3)) unused3 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte Unused2 { get { return unused2; } set { if (!value.Equals(unused2)) unused2 = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(21)]
+        public byte Unused3 { get { return unused3; } set { if (!value.Equals(unused3)) unused3 = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(22)]
         public SwatchColorList SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(22), TGIBlockListContentField("TGIList")]
-        public byte BuffResKey { get { return buffResKey; } set { if (!value.Equals(buffResKey)) buffResKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(23), TGIBlockListContentField("TGIList")]
+        public byte BuffResKey { get { return buffResKey; } set { if (!value.Equals(buffResKey)) buffResKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(24), TGIBlockListContentField("TGIList")]
         public byte VarientThumbnailKey { get { return varientThumbnailKey; } set { if (!value.Equals(varientThumbnailKey)) varientThumbnailKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(24)]
-        public ulong VoiceEffectHash { get { return voiceEffectHash; } set { if (!value.Equals(voiceEffectHash)) voiceEffectHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(25)]
-        public uint MaterialSetUpperBodyHash { get { return materialSetUpperBodyHash; } set { if (!value.Equals(materialSetUpperBodyHash)) materialSetUpperBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public ulong VoiceEffectHash { get { return voiceEffectHash; } set { if (!value.Equals(voiceEffectHash)) voiceEffectHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(26)]
-        public uint MaterialSetLowerBodyHash { get { return materialSetLowerBodyHash; } set { if (!value.Equals(materialSetLowerBodyHash)) materialSetLowerBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint MaterialSetUpperBodyHash { get { return materialSetUpperBodyHash; } set { if (!value.Equals(materialSetUpperBodyHash)) materialSetUpperBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(27)]
-        public uint MaterialSetShoesHash { get { return materialSetShoesHash; } set { if (!value.Equals(materialSetShoesHash)) materialSetShoesHash = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public uint MaterialSetLowerBodyHash { get { return materialSetLowerBodyHash; } set { if (!value.Equals(materialSetLowerBodyHash)) materialSetLowerBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(28)]
+        public uint MaterialSetShoesHash { get { return materialSetShoesHash; } set { if (!value.Equals(materialSetShoesHash)) materialSetShoesHash = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(29)]
         public OccultTypesDisabled HideForOccultFlags { get { return hideForOccultFlags; } set { if (!value.Equals(hideForOccultFlags)) hideForOccultFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(29), TGIBlockListContentField("TGIList")]
-        public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(30), TGIBlockListContentField("TGIList")]
+        public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(31), TGIBlockListContentField("TGIList")]
         public byte ParentKey { get { return parentKey; } set { if (!value.Equals(parentKey)) parentKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(31)]
-        public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(32)]
+        public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(33)]
         public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(33), TGIBlockListContentField("TGIList")]
-        public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(34), TGIBlockListContentField("TGIList")]
-        public byte DiffuseShadowKey { get { return diffuseShadowKey; } set { if (!value.Equals(diffuseShadowKey)) diffuseShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(35), TGIBlockListContentField("TGIList")]
-        public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte DiffuseShadowKey { get { return diffuseShadowKey; } set { if (!value.Equals(diffuseShadowKey)) diffuseShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(36), TGIBlockListContentField("TGIList")]
+        public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(37)]
         public byte CompositionMethod { get { return compositionMethod; } set { if (!value.Equals(compositionMethod)) compositionMethod = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(37), TGIBlockListContentField("TGIList")]
-        public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(38), TGIBlockListContentField("TGIList")]
-        public byte Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(39), TGIBlockListContentField("TGIList")]
-        public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(39)]
+        public OverrideList Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(40), TGIBlockListContentField("TGIList")]
+        public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(41), TGIBlockListContentField("TGIList")]
         public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(41)]
+        [ElementPriority(42)]
         public uint SharedUVMapSpace { 
             get { if (this.version < 0x1B) { throw new InvalidOperationException("Version not supported"); } else { return this.sharedUVMapSpace; }}
             set { if (version < 0x1B) { throw new InvalidOperationException("Version not Supported"); } this.sharedUVMapSpace = value; }
         }
-        [ElementPriority(42), TGIBlockListContentField("TGIList")]
+        [ElementPriority(43), TGIBlockListContentField("TGIList")]
         public byte EmissionMapKey { get { return emissionMapKey; } set { if (!value.Equals(emissionMapKey)) emissionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
 
-        [ElementPriority(43)]
+        [ElementPriority(44)]
         public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
         public String Value { get { return ValueBuilder; } }
 
@@ -344,6 +350,7 @@ namespace CASPartResource
                     res.Remove("EmissionMapKey");
                 }
                 if (this.version < 0x1F) { res.Remove("OccultBitField"); }
+                if (this.version < 0x20) { res.Remove("Reserved1"); }
                 return res;
             }
         }
@@ -664,6 +671,72 @@ namespace CASPartResource
 
             protected override Flag CreateElement(Stream s) { return new Flag(recommendedApiVersion, handler, s); }
             protected override void WriteElement(Stream s, Flag element) { element.UnParse(s); }
+        }
+        
+        public class Override : AHandlerElement, IEquatable<Override>
+        {
+            byte region;
+            float layer;
+
+            public Override(int APIversion, EventHandler handler, Stream s)
+                : base(APIversion, handler)
+            {
+                BinaryReader r = new BinaryReader(s);
+                this.region = r.ReadByte();
+                this.layer = r.ReadSingle();
+            }
+
+            public Override(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+
+            internal void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write(region);
+                w.Write(layer);
+            }
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            public bool Equals(Override other)
+            {
+                return this.region == other.region && this.layer == other.layer;
+            }
+
+            [ElementPriority(0)]
+            public byte Region { get { return this.region; } set { if (value != this.region) { OnElementChanged(); this.region = value; } } }
+            [ElementPriority(1)]
+            public float Layer { get { return this.layer; } set { if (value != this.layer) { OnElementChanged(); this.layer = value; } } }
+
+            public string Value { get { return ValueBuilder; } }
+        }
+        public class OverrideList : DependentList<Override>
+        {
+            public OverrideList(EventHandler handler) : base(handler) { }
+            public OverrideList(EventHandler handler, Stream s) : base(handler, s) { }
+
+            #region Data I/O
+            protected override void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                byte count = r.ReadByte();
+                for (int i = 0; i < count; i++)
+                    base.Add(new Override(recommendedApiVersion, handler, s));
+            }
+
+            public override void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write((byte)base.Count);
+                foreach (var Override in this)
+                    Override.UnParse(s);
+            }
+            #endregion
+
+            protected override Override CreateElement(Stream s) { return new Override(recommendedApiVersion, handler, s); }
+            protected override void WriteElement(Stream s, Override element) { element.UnParse(s); }
         }
 
         #endregion
