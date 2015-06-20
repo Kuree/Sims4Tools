@@ -1842,4 +1842,32 @@ namespace CASPartResource
         UnknownE = 8192,
         UnknownF = 16384
     }
+    
+        public enum CASPartRegion : uint           //used in RegionMap / GEOMListResource
+    {
+        // "Base" sub-part by definition does not compete with any other subparts of other 
+        // parts and is always shown.
+        CASPARTREGION_BASE = 0,
+
+        CASPARTREGION_ANKLE,
+        CASPARTREGION_CALF,
+        CASPARTREGION_KNEE,
+        CASPARTREGION_HANDL,
+        CASPARTREGION_WRISTL,  // left versions of hand-arm specific regions 
+        CASPARTREGION_BICEPL,
+        CASPARTREGION_BELTLOW,
+        CASPARTREGION_BELTHIGH,
+        CASPARTREGION_HAIRHATA,
+        CASPARTREGION_HAIRHATB,
+        CASPARTREGION_HAIRHATC,
+        CASPARTREGION_HAIRHATD,
+        CASPARTREGION_NECK,
+        CASPARTREGION_CHEST,
+        CASPARTREGION_STOMACH,
+        CASPARTREGION_HANDR,   // right versions of hand-arm specific regions
+        CASPARTREGION_WRISTR,
+        CASPARTREGION_BICEPR,
+        CASPARTREGION_NECKLACESHADOW, // controls hiding dropshadow for necklaces
+        CASPARTREGION_MAX
+    }
 }
