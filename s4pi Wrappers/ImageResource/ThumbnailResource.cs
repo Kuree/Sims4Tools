@@ -64,35 +64,36 @@ namespace s4pi.ImageResource
 
         public Stream ToJFIF()
         {
-            Bitmap alpha;
-            Bitmap img = ComputeAlpha(this.image, out alpha);
-            MemoryStream ms = new MemoryStream();
-            BinaryWriter w = new BinaryWriter(ms);
-            using (MemoryStream imgStream = new MemoryStream(), alphaStream = new MemoryStream())
-            {
-                img.Save(imgStream, ImageFormat.Jpeg);
-                imgStream.Position = 0;
-                BinaryReader r = new BinaryReader(imgStream);
-                w.Write(r.ReadBytes(12));
+            //Bitmap alpha;
+            //Bitmap img = ComputeAlpha(this.image, out alpha);
+            //MemoryStream ms = new MemoryStream();
+            //BinaryWriter w = new BinaryWriter(ms);
+            //using (MemoryStream imgStream = new MemoryStream(), alphaStream = new MemoryStream())
+            //{
+            //    img.Save(imgStream, ImageFormat.Jpeg);
+            //    imgStream.Position = 0;
+            //    BinaryReader r = new BinaryReader(imgStream);
+            //    w.Write(r.ReadBytes(12));
 
-                alpha.Save(alphaStream, ImageFormat.Png);
-                alphaStream.Position = 0;
-                int length = (int)alphaStream.Length;
-                length = (int)((length & 0xFF000000) >> 24) | (int)((length & 0x00FF0000) >> 8) | (int)((length & 0x0000FF00) << 8) | (int)((length & 0x000000FF) << 24);
+            //    alpha.Save(alphaStream, ImageFormat.Png);
+            //    alphaStream.Position = 0;
+            //    int length = (int)alphaStream.Length;
+            //    length = (int)((length & 0xFF000000) >> 24) | (int)((length & 0x00FF0000) >> 8) | (int)((length & 0x0000FF00) << 8) | (int)((length & 0x000000FF) << 24);
 
-                w.Write(0x01000001U);
-                w.Write(0x00000100U);
-                w.Write((ushort)(0xE0FF));
-                int newLength = (int)(alphaStream.Length + 10);
-                newLength = newLength << 8 | newLength >> 8;
-                w.Write((ushort)(newLength));
-                w.Write(0x41464C41U);
-                w.Write(length);
-                w.Write(alphaStream.ToArray());
-                w.Write(r.ReadBytes((int)imgStream.Length - 12));
-            }
-            ms.Position = 0;
-            return ms;
+            //    w.Write(0x01000001U);
+            //    w.Write(0x00000100U);
+            //    w.Write((ushort)(0xE0FF));
+            //    int newLength = (int)(alphaStream.Length + 10);
+            //    newLength = newLength << 8 | newLength >> 8;
+            //    w.Write((ushort)(newLength));
+            //    w.Write(0x41464C41U);
+            //    w.Write(length);
+            //    w.Write(alphaStream.ToArray());
+            //    w.Write(r.ReadBytes((int)imgStream.Length - 12));
+            //}
+            //ms.Position = 0;
+            //return ms;
+            return this.UnParse();
         }
 
         public Stream ToImageStream()
