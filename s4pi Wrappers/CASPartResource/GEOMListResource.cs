@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Keyi Zhang                                       *
  *  kz005@bucknell.edu                                                     *
  *                                                                         *
@@ -33,11 +33,17 @@ namespace CASPartResource
         static bool checking = s4pi.Settings.Settings.Checking;
 
         #region Attributes
-        private DataBlobHandler unknownHeader { get; set; }
-        private TGIBlock currentInstance { get; set; }
-        private uint unknown1 { get; set; }
-        private uint unknown2 { get; set; }
-        private uint unknown3 { get; set; }
+        private uint contextVersion { get; set; }
+        private uint publicKeyCount { get; set; }
+        private uint externalKeyCount { get; set; }
+        private uint delayLoadKeyCount { get; set; }
+        private uint objectCount { get; set; }
+        private TGIBlock[] publicKey { get; set; }
+        private TGIBlock[] externalKey { get; set; }
+        private TGIBlock[] delayLoadKey { get; set; }
+        private uint objectPosition { get; set; }
+        private uint objectLength { get; set; }
+        private uint objectVersion { get; set; }
         private ReferenceBlockList referenceBlockList { get; set; }
 
         #endregion
@@ -49,12 +55,29 @@ namespace CASPartResource
         private void Parse(Stream s)
         {
             BinaryReader r = new BinaryReader(s);
-            this.unknownHeader = new DataBlobHandler(recommendedApiVersion, OnResourceChanged, 20, s);
-            this.currentInstance = new TGIBlock(recommendedApiVersion, OnResourceChanged, "ITG", s);
-            this.unknown1 = r.ReadUInt32();
-            this.unknown2 = r.ReadUInt32();
-            this.unknown3 = r.ReadUInt32();
-
+            this.contextVersion = r.ReadUInt32();
+            this.publicKeyCount = r.ReadUInt32();
+            this.externalKeyCount = r.ReadUInt32();
+            this.delayLoadKeyCount = r.ReadUInt32();
+            this.objectCount = r.ReadUInt32();
+            this.publicKey = new TGIBlock[publicKeyCount];
+            for (int i = 0; i < publicKeyCount; i++)
+            {
+                this.publicKey[i] = new TGIBlock(recommendedApiVersion, OnResourceChanged, "ITG", s);
+            }
+            this.externalKey = new TGIBlock[externalKeyCount];
+            for (int i = 0; i < externalKeyCount; i++)
+            {
+                this.externalKey[i] = new TGIBlock(recommendedApiVersion, OnResourceChanged, "ITG", s);
+            }
+            this.delayLoadKey = new TGIBlock[delayLoadKeyCount];
+            for (int i = 0; i < delayLoadKeyCount; i++)
+            {
+                this.delayLoadKey[i] = new TGIBlock(recommendedApiVersion, OnResourceChanged, "ITG", s);
+            }
+            this.objectPosition = r.ReadUInt32();
+            this.objectLength = r.ReadUInt32();
+            this.objectVersion = r.ReadUInt32();
             this.referenceBlockList = new ReferenceBlockList(OnResourceChanged, s);
         }
 
@@ -63,13 +86,31 @@ namespace CASPartResource
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
 
-            this.unknownHeader.UnParse(ms);
-            this.currentInstance.UnParse(ms);
-            w.Write(this.unknown1);
-            w.Write(this.unknown2);
-            w.Write(this.unknown3);
-            this.referenceBlockList.UnParse(ms);
+            w.Write(this.contextVersion);
+            w.Write(this.publicKeyCount);
+            w.Write(this.externalKeyCount);
+            w.Write(this.delayLoadKeyCount);
+            w.Write(this.objectCount);
 
+            for (int i = 0; i < publicKeyCount; i++)
+            {
+                this.publicKey[i].UnParse(ms);
+            }
+            for (int i = 0; i < externalKeyCount; i++)
+            {
+                this.externalKey[i].UnParse(ms);
+            }
+            for (int i = 0; i < delayLoadKeyCount; i++)
+            {
+                this.delayLoadKey[i].UnParse(ms);
+            }
+            this.objectPosition = (uint)(ms.Position + 8);
+            this.objectLength = referenceBlockList.Size + 4;
+            w.Write(this.objectPosition);
+            w.Write(this.objectLength);
+            w.Write(this.objectVersion);
+            this.referenceBlockList.UnParse(ms);
+            
             ms.Position = 0;
             return ms;
         }
@@ -80,8 +121,9 @@ namespace CASPartResource
 
         public class ReferenceBlock : AHandlerElement, IEquatable<ReferenceBlock>
         {
-            public uint unknown1 { get; set; }
-            public DataBlobHandler unknownBytes { get; set; }
+            public CASPartRegion region { get; set; }
+            public float layer { get; set; }
+            public bool isReplacement { get; set; }
             public TGIBlockList tgiList { get; set; }
 
             public ReferenceBlock(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
@@ -89,8 +131,9 @@ namespace CASPartResource
             public ReferenceBlock(int APIversion, EventHandler handler, Stream s) :base(APIversion, handler)
             {
                 BinaryReader r = new BinaryReader(s);
-                this.unknown1 = r.ReadUInt32();
-                this.unknownBytes = new DataBlobHandler(recommendedApiVersion, null, r.ReadBytes(5));
+                this.region = (CASPartRegion)r.ReadUInt32();
+                this.layer = r.ReadSingle();
+                this.isReplacement = r.ReadBoolean();
 
                 int count = r.ReadInt32();
 
@@ -104,9 +147,9 @@ namespace CASPartResource
             public void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);
-                w.Write(this.unknown1);
-                if (this.unknownBytes == null) this.unknownBytes = new DataBlobHandler(recommendedApiVersion, handler, new byte[5]);
-                unknownBytes.UnParse(s);
+                w.Write((uint)this.region);
+                w.Write(this.layer);
+                w.Write(this.isReplacement);
                 if (this.tgiList == null) this.tgiList = new TGIBlockList(handler);
                 w.Write(this.tgiList.Count);
                 foreach (var tgi in this.tgiList)
@@ -120,7 +163,7 @@ namespace CASPartResource
 
             public bool Equals(ReferenceBlock other)
             {
-                return this.unknown1 == other.unknown1 && this.unknownBytes.Equals(other.unknownBytes) && this.tgiList.Equals(other.tgiList);
+                return this.region == other.region && this.layer == other.layer && this.isReplacement == other.isReplacement && this.tgiList.Equals(other.tgiList);
             }
 
             public string Value { get { return ValueBuilder; } }
@@ -131,6 +174,19 @@ namespace CASPartResource
             #region Constructor
             public ReferenceBlockList(EventHandler handler, Stream s) : base(handler, s) { }
             #endregion
+
+            public uint Size
+            {
+                get
+                {
+                    uint tmp = 4;
+                    foreach (var Block in this)
+                    {
+                        tmp += (uint) (13 + (Block.tgiList.Count * 16));
+                    }
+                    return tmp;
+                }
+            }
 
             #region Data I/O
             public void Parse(Stream s)
@@ -163,15 +219,15 @@ namespace CASPartResource
 
         #region Content-Field
         [ElementPriority(0)]
-        public DataBlobHandler UnknownHeader { get { return this.unknownHeader; } set { if (!value.Equals(this.unknownHeader)) { OnResourceChanged(this, EventArgs.Empty); this.unknownHeader = value; } } }
+        public uint ContextVersion { get { return this.contextVersion; } set { if (!value.Equals(this.contextVersion)) { OnResourceChanged(this, EventArgs.Empty); this.contextVersion = value; } } }
         [ElementPriority(1)]
-        public TGIBlock CurrentInstance { get { return this.currentInstance; } set { if (!value.Equals(this.currentInstance)) { OnResourceChanged(this, EventArgs.Empty); this.currentInstance = value; } } }
+        public TGIBlock[] PublicKey { get { return this.publicKey; } set { if (!value.Equals(this.publicKey)) { OnResourceChanged(this, EventArgs.Empty); this.publicKey = value; } } }
         [ElementPriority(2)]
-        public uint Unknown1 { get { return this.unknown1; } set { if (!value.Equals(this.unknown1)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
+        public TGIBlock[] ExternalKey { get { return this.externalKey; } set { if (!value.Equals(this.externalKey)) { OnResourceChanged(this, EventArgs.Empty); this.externalKey = value; } } }
         [ElementPriority(3)]
-        public uint Unknown2 { get { return this.unknown2; } set { if (!value.Equals(this.unknown2)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
+        public TGIBlock[] DelayLoadKey { get { return this.delayLoadKey; } set { if (!value.Equals(this.delayLoadKey)) { OnResourceChanged(this, EventArgs.Empty); this.delayLoadKey = value; } } }
         [ElementPriority(4)]
-        public uint Unknown3 { get { return this.unknown3; } set { if (!value.Equals(this.unknown3)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
+        public uint ObjectVersion { get { return this.objectVersion; } set { if (!value.Equals(this.objectVersion)) { OnResourceChanged(this, EventArgs.Empty); this.objectVersion = value; } } }
         [ElementPriority(5)]
         public ReferenceBlockList GEOMReferenceBlockList { get { return this.referenceBlockList; } set { if (!value.Equals(this.referenceBlockList)) { OnResourceChanged(this, EventArgs.Empty); this.referenceBlockList = value; } } }
         #endregion
