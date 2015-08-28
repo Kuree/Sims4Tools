@@ -22,9 +22,18 @@
 using System;
 using System.IO;
 using s4pi.Interfaces;
+using System.Collections.Generic;
 
 namespace CatalogResource
 {
+    public class A8F7B517CatalogResourceHandler : AResourceHandler
+    {
+        public A8F7B517CatalogResourceHandler()
+        {
+            this.Add(typeof(A8F7B517CatalogResource), new List<string>(new string[] { "0xA8F7B517", }));
+        }
+    }
+
     class A8F7B517CatalogResource : ObjectCatalogResource
     {
         #region Attributes

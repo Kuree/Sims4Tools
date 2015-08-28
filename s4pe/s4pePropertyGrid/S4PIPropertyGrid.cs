@@ -63,6 +63,7 @@ namespace S4PIDemoFE
         public AApiVersionedFieldsCTD(AApiVersionedFields owner, string field, object component) { this.owner = owner; this.field = field; this.component = component; }
 
         #region Helpers
+
         public static string GetFieldIndex(string field)
         {
             string[] split = field.Split(' ');
@@ -82,7 +83,9 @@ namespace S4PIDemoFE
                 Type type = AApiVersionedFields.GetContentFieldTypes(0, owner.GetType())[GetFieldName(field)];
 
                 if (field.IndexOf(' ') == -1)
-                    return type;
+                {
+	                return type;
+                }
                 else
                 {
                     if (type.HasElementType && !type.GetElementType().IsAbstract) return type.GetElementType();
@@ -98,38 +101,33 @@ namespace S4PIDemoFE
 
         public static TypedValue GetFieldValue(AApiVersionedFields owner, string field)
         {
-            try
-            {
-                string index = GetFieldIndex(field);
-                if (index == null)
-                {
-                    TypedValue tv = owner[field];
-                    return tv.Type == typeof(Double) || tv.Type == typeof(Single) ? new TypedValue(tv.Type, tv.Value, "R") : tv;
-                }
-                else if (owner is ArrayOwner)
-                    return owner[index];
-                else
-                {
-                    object o = ((IGenericAdd)owner[GetFieldName(field)].Value)[Convert.ToInt32("0x" + index.Substring(1, index.Length - 2), 16)];
-                    return new TypedValue(o.GetType(), o);
-                }
-            }
-            catch (Exception ex) { throw ex; }
+	        string index = GetFieldIndex(field);
+	        if (index == null)
+	        {
+		        TypedValue tv = owner[field];
+		        return tv.Type == typeof(Double) || tv.Type == typeof(Single) ? new TypedValue(tv.Type, tv.Value, "R") : tv;
+	        }
+	        else if (owner is ArrayOwner)
+	        {
+		        return owner[index];
+	        }
+	        else
+	        {
+		        object o = ((IGenericAdd)owner[GetFieldName(field)].Value)[Convert.ToInt32("0x" + index.Substring(1, index.Length - 2), 16)];
+		        return new TypedValue(o.GetType(), o);
+	        }
         }
 
         public static Type GetGenericType(Type type)
         {
-            try
-            {
-                Type t = type;
-                while (t.BaseType != typeof(object)) { t = t.BaseType; }
-                if (t.GetGenericArguments().Length == 1) return t.GetGenericArguments()[0];
-                return null;
-            }
-            catch (Exception ex) { throw ex; }
+	        Type t = type;
+	        while (t.BaseType != typeof(object)) { t = t.BaseType; }
+	        if (t.GetGenericArguments().Length == 1) return t.GetGenericArguments()[0];
+	        
+			return null;
         }
 
-        public static bool isCollection(Type fieldType)
+        public static bool IsCollection(Type fieldType)
         {
             if (!typeof(ICollection).IsAssignableFrom(fieldType)) return false;
             Type baseType = GetGenericType(fieldType);
@@ -327,7 +325,7 @@ namespace S4PIDemoFE
                             ))
                             return typeof(ArrayCTD);
 
-                        if (isCollection(fieldType))
+                        if (IsCollection(fieldType))
                         {
                             if (GetGenericType(fieldType) == typeof(TGIBlock))
                                 return typeof(TGIBlockListCTD);
@@ -371,12 +369,19 @@ namespace S4PIDemoFE
         {
             public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
             {
-                if (typeof(string).Equals(destinationType)) return true;
+                if (typeof(string) == destinationType)
+                {
+	                return true;
+                }
                 return base.CanConvertTo(context, destinationType);
             }
+
             public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
             {
-                if (typeof(string).Equals(destinationType)) return "";
+                if (typeof(string) == destinationType)
+                {
+	                return "";
+                }
                 return base.ConvertTo(context, culture, value, destinationType);
             }
         }
@@ -672,14 +677,14 @@ namespace S4PIDemoFE
                 IWindowsFormsEditorService edSvc = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
 
                 EnumChooserCTD ctd = (EnumChooserCTD)value;
-                TypedValue tv = AApiVersionedFieldsCTD.GetFieldValue(ctd.owner, ctd.field);
+                TypedValue typedValue = AApiVersionedFieldsCTD.GetFieldValue(ctd.owner, ctd.field);
 
                 List<string> enumValues = new List<string>();
                 int index = -1;
                 int i = 0;
-                foreach (Enum e in Enum.GetValues(tv.Type))
+                foreach (Enum e in Enum.GetValues(typedValue.Type))
                 {
-                    if (e.Equals((Enum)tv.Value)) index = i;
+                    if (e.Equals((Enum)typedValue.Value)) index = i;
                     enumValues.Add(new TypedValue(e.GetType(), e, "X"));
                     i++;
                 }
@@ -884,7 +889,7 @@ namespace S4PIDemoFE
         }
     }
 
-    [TypeConverter(typeof(IResourceKeyConverter))]
+	[TypeConverter(typeof(IResourceKeyConverter))]
     public class IResourceKeyCTD : AApiVersionedFieldsCTD
     {
         public IResourceKeyCTD(AApiVersionedFields owner, string field, object component) : base(owner, field, component) { }

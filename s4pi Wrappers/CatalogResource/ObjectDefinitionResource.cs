@@ -48,7 +48,7 @@ namespace CatalogResource
         float negativeEnvironmentScore;
         UInt32 thumbnailGeometryState;
         bool Unknown2;
-        float[] environmentScoreEmotionTags;
+        UInt16[] environmentScoreEmotionTags;
         float[] environmentScores;
         ulong unknown3;
         bool isBaby;
@@ -136,8 +136,8 @@ namespace CatalogResource
                         break;
                     case PropertyID.EnvironmentScoreEmotionTags:
                         count = r.ReadInt32();
-                        this.environmentScoreEmotionTags = new float[count];
-                        for (int m = 0; m < count; m++) this.environmentScoreEmotionTags[m] = r.ReadSingle();
+                        this.environmentScoreEmotionTags = new UInt16[count];
+                        for (int m = 0; m < count; m++) this.environmentScoreEmotionTags[m] = r.ReadUInt16();
                         break;
                     case PropertyID.EnvironmentScores:
                         count = r.ReadInt32();
@@ -412,7 +412,7 @@ namespace CatalogResource
         [ElementPriority(10)]
         public UInt32 ThumbnailGeometryState { get { if (!this.propertyIDList.Contains(PropertyID.ThumbnailGeometryState)) { throw new InvalidDataException(); } return this.thumbnailGeometryState; } set { if (!value.Equals(this.thumbnailGeometryState)) { this.thumbnailGeometryState = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(11)]
-        public float[] EnvironmentScoreEmotionTags { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScoreEmotionTags)) { throw new InvalidDataException(); } return this.environmentScoreEmotionTags; } set { if (!value.Equals(this.environmentScoreEmotionTags)) { this.environmentScoreEmotionTags = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public UInt16[] EnvironmentScoreEmotionTags { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScoreEmotionTags)) { throw new InvalidDataException(); } return this.environmentScoreEmotionTags; } set { if (!value.Equals(this.environmentScoreEmotionTags)) { this.environmentScoreEmotionTags = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(12)]
         public float[] EnvironmentScores { get { if (!this.propertyIDList.Contains(PropertyID.EnvironmentScores)) { throw new InvalidDataException(); } return this.environmentScores; } set { if (!value.Equals(this.environmentScores)) { this.environmentScores = value; OnResourceChanged(this, EventArgs.Empty); } } }
         [ElementPriority(13)]
