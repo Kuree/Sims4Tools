@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Serialization;
 
 namespace s4pi.Resource.Commons.CatalogTags
@@ -23,7 +25,13 @@ namespace s4pi.Resource.Commons.CatalogTags
 
 		private static void ParseCategories()
 		{
-			using (var stream = File.OpenRead(CatalogTuningFileName))
+			string executingPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+			if (string.IsNullOrEmpty(executingPath))
+			{
+				throw new FileNotFoundException(string.Format("'{0}' not found in S4PE directory '{1}'.", CatalogTuningFileName, executingPath));
+			}
+			string resourcePath = Path.Combine(executingPath, CatalogTuningFileName);
+			using (var stream = File.OpenRead(resourcePath))
 			{
 				var serializer = new XmlSerializer(typeof (TagDocument));
 				var document = (TagDocument)serializer.Deserialize(stream);
