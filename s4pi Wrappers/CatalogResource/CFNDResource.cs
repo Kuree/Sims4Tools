@@ -31,7 +31,7 @@ namespace CatalogResource
         const int kRecommendedApiVersion = 1;
         public override int RecommendedApiVersion { get { return kRecommendedApiVersion; } }
         private uint version = 0x6;
-        private S4CatalogCommon commonA;
+        private CatalogCommon commonA;
         private byte unk01;
         private byte unk02;
         private TGIBlock modlRef1;
@@ -59,10 +59,10 @@ namespace CatalogResource
             set { if (version != value) { version = value; this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(2)]
-        public S4CatalogCommon CommonBlock
+        public CatalogCommon CommonBlock
         {
             get { return commonA; }
-            set { if (!commonA.Equals(value)) { commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, value); this.OnResourceChanged(this, EventArgs.Empty); } }
+            set { if (!commonA.Equals(value)) { commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, value); this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(3)]
         public byte Unk01
@@ -145,7 +145,7 @@ namespace CatalogResource
         {
             var br = new BinaryReader(s);
             this.version = br.ReadUInt32();
-            this.commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
+            this.commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
             this.unk01 = br.ReadByte();
             this.unk02 = br.ReadByte();
             this.modlRef1 = new TGIBlock(kRecommendedApiVersion, this.OnResourceChanged, TGIBlock.Order.ITG, s);
@@ -163,7 +163,7 @@ namespace CatalogResource
             var s = new MemoryStream();
             var bw = new BinaryWriter(s);
             bw.Write(this.version);
-            if (this.commonA == null) { this.commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
+            if (this.commonA == null) { this.commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
             this.commonA.UnParse(s);
             bw.Write(this.unk01);
             bw.Write(this.unk02);

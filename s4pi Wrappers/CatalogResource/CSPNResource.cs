@@ -33,7 +33,7 @@ namespace CatalogResource
         #region Attributes
 
         private uint version = 0x07;
-        private S4CatalogCommon commonA;
+        private CatalogCommon commonA;
         private SpnFenMODLEntryList modlEntryList01;
         private SpnFenMODLEntryList modlEntryList02;
         private SpnFenMODLEntryList modlEntryList03;
@@ -59,10 +59,10 @@ namespace CatalogResource
             set { if (version != value) { version = value; this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(2)]
-        public S4CatalogCommon CommonBlock
+        public CatalogCommon CommonBlock
         {
             get { return commonA; }
-            set { if (commonA != value) { commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, value); this.OnResourceChanged(this, EventArgs.Empty); } }
+            set { if (commonA != value) { commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, value); this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(6)]
         public SpnFenMODLEntryList MODLEntryList01
@@ -123,7 +123,7 @@ namespace CatalogResource
         {
             var br = new BinaryReader(s);
             this.version = br.ReadUInt32();
-            this.commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
+            this.commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
             this.modlEntryList01 = new SpnFenMODLEntryList(this.OnResourceChanged, s);
             this.modlEntryList02 = new SpnFenMODLEntryList(this.OnResourceChanged, s);
             this.modlEntryList03 = new SpnFenMODLEntryList(this.OnResourceChanged, s);
@@ -139,7 +139,7 @@ namespace CatalogResource
             var s = new MemoryStream();
             var bw = new BinaryWriter(s);
             bw.Write(this.version);
-            if (this.commonA == null) { this.commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
+            if (this.commonA == null) { this.commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
             this.commonA.UnParse(s);
             if (modlEntryList01 == null) { modlEntryList01 = new SpnFenMODLEntryList(this.OnResourceChanged); }
             this.modlEntryList01.UnParse(s);

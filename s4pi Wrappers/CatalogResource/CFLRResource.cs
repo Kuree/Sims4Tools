@@ -31,7 +31,7 @@ namespace CatalogResource
         const int kRecommendedApiVersion = 1;
         public override int RecommendedApiVersion { get { return kRecommendedApiVersion; } }
         private uint version = 0x06;
-        private S4CatalogCommon commonA;
+        private CatalogCommon commonA;
         private uint hashIndicator = 0x1;
         private uint hash01 = 0x811C9DC5;
         private uint hash02 = 0x811C9DC5;
@@ -57,10 +57,10 @@ namespace CatalogResource
             set { if (version != value) { version = value; this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(2)]
-        public S4CatalogCommon CommonBlock
+        public CatalogCommon CommonBlock
         {
             get { return commonA; }
-            set { if (commonA != value) { commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, value); this.OnResourceChanged(this, EventArgs.Empty); } }
+            set { if (commonA != value) { commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, value); this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(20)]
         public uint HashIndicator
@@ -122,7 +122,7 @@ namespace CatalogResource
         {
             var br = new BinaryReader(s);
             this.version = br.ReadUInt32();
-            this.commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
+            this.commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
             this.hashIndicator = br.ReadUInt32();
             this.hash01 = br.ReadUInt32();
             this.hash02 = br.ReadUInt32();
@@ -139,7 +139,7 @@ namespace CatalogResource
             var s = new MemoryStream();
             var bw = new BinaryWriter(s);
             bw.Write(this.version);
-            if (this.commonA == null) { commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
+            if (this.commonA == null) { commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
             this.commonA.UnParse(s);
             bw.Write(this.hashIndicator);
             bw.Write(this.hash01);

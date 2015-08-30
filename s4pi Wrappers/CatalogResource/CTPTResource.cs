@@ -32,7 +32,7 @@ namespace CatalogResource
         public override int RecommendedApiVersion { get { return kRecommendedApiVersion; } }
 
         private uint version = 0x02;
-        private S4CatalogCommon commonBlock;
+        private CatalogCommon commonBlock;
         private uint hashIndicator = 0x1;
         private uint hash01 = 0x811C9DC5;
         private uint hash02 = 0x811C9DC5;
@@ -55,7 +55,7 @@ namespace CatalogResource
             set { if (version != value) { version = value; this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(2)]
-        public S4CatalogCommon CommonBlock
+        public CatalogCommon CommonBlock
         {
             get { return commonBlock; }
             set { commonBlock = value; this.OnResourceChanged(this, EventArgs.Empty); }
@@ -111,7 +111,7 @@ namespace CatalogResource
         {
             var br = new BinaryReader(s);
             this.version = br.ReadUInt32();
-            this.commonBlock = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
+            this.commonBlock = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
             this.hashIndicator = br.ReadUInt32();
             this.hash01 = br.ReadUInt32();
             this.hash02 = br.ReadUInt32();
@@ -125,7 +125,7 @@ namespace CatalogResource
             var s = new MemoryStream();
             var bw = new BinaryWriter(s);
             bw.Write(this.version);
-            if (this.commonBlock == null) { this.commonBlock = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
+            if (this.commonBlock == null) { this.commonBlock = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
             this.commonBlock.UnParse(s);
             bw.Write(this.hashIndicator);
             bw.Write(this.hash01);

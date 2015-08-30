@@ -35,7 +35,7 @@ namespace CatalogResource
         private int cstlRefsSize = 25;
         TGIBlock[] cstlRefs;
 
-        private S4CatalogCommon commonA;
+        private CatalogCommon commonA;
         private UnkCSTLUintList unkList1;
         private uint unk01;
         private uint unk02;
@@ -60,10 +60,10 @@ namespace CatalogResource
             set { if (version != value) { version = value; this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(2)]
-        public S4CatalogCommon CommonBlock
+        public CatalogCommon CommonBlock
         {
             get { return commonA; }
-            set { if (!commonA.Equals(value)) { commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, value); this.OnResourceChanged(this, EventArgs.Empty); } }
+            set { if (!commonA.Equals(value)) { commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, value); this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(30)]
         public TGIBlock[] CSTLRefs
@@ -138,7 +138,7 @@ namespace CatalogResource
 
             var br = new BinaryReader(s);
             this.version = br.ReadUInt32();
-            this.commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
+            this.commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged, s);
             if (this.version == 0x0D)
             { 
                 cstlRefsSize = 21;
@@ -160,7 +160,7 @@ namespace CatalogResource
             var s = new MemoryStream();
             var bw = new BinaryWriter(s);
             bw.Write(this.version);
-            if (this.commonA == null) { this.commonA = new S4CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
+            if (this.commonA == null) { this.commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged); }
             this.commonA.UnParse(s);
 
             cstlRefsSize = 25; // default version 0x0E

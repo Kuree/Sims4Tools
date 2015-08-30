@@ -21,6 +21,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+
+using CatalogResource.Common;
+
 using s4pi.Interfaces;
 using s4pi.Resource.Commons.CatalogTags;
 
@@ -29,9 +32,9 @@ namespace CatalogResource
     /// <summary>
     /// for all catalog resources
     /// </summary>
-    public class S4CatalogCommon : AHandlerElement
+    public class CatalogCommon : AHandlerElement
     {
-        const int kRecommendedApiVersion = 1;
+	    internal const int kRecommendedApiVersion = 1;
 
         public override int RecommendedApiVersion { get { return kRecommendedApiVersion; } }
 
@@ -46,7 +49,6 @@ namespace CatalogResource
         private uint unkCommon03;
         private CountedTGIBlockList productStyles;
         private UInt16 unkCommon04;
-        //private TagList tagList;
         private CatalogTagList tagList;
         private SellingPointList sellingPoints;
         private uint unlockByHash;
@@ -157,7 +159,6 @@ namespace CatalogResource
             get { return GetContentFields(0, GetType()); }
         }
 
-
         #endregion
 
         #region Data I/O
@@ -230,7 +231,7 @@ namespace CatalogResource
 
         #region Constructors
 
-        public S4CatalogCommon(int APIversion, EventHandler handler, uint commonBlockVersion, uint nameHash, uint descriptionHash,
+        public CatalogCommon(int APIversion, EventHandler handler, uint commonBlockVersion, uint nameHash, uint descriptionHash,
             uint price, uint unkCommon01, uint unkCommon02, uint unkCommon03, CountedTGIBlockList productStyles, UInt16 unkCommon04,
             CatalogTagList tagList, SellingPointList sellingPoints, uint unlockByHash, uint unlockedByHash, UInt16 unkCommon06, ulong unkCommon07)
             : base(APIversion, handler)
@@ -254,24 +255,24 @@ namespace CatalogResource
         }
 
 
-        public S4CatalogCommon(int APIversion, EventHandler handler, S4CatalogCommon other)
+        public CatalogCommon(int APIversion, EventHandler handler, CatalogCommon other)
             : this(APIversion, handler, other.commonBlockVersion, other.nameHash, other.descriptionHash, other.price,
                 other.unkCommon01, other.unkCommon02, other.unkCommon03, other.productStyles, other.unkCommon04, other.tagList,
                 other.sellingPoints, other.unlockByHash, other.unlockedByHash, other.unkCommon06, other.unkCommon07)
         {
         }
-        public S4CatalogCommon(int APIversion, EventHandler handler)
+        public CatalogCommon(int APIversion, EventHandler handler)
             : base(APIversion, handler)
         {
             this.MakeNew();
         }
-        public S4CatalogCommon(int APIversion, EventHandler handler, Stream s)
+        public CatalogCommon(int APIversion, EventHandler handler, Stream s)
             : base(APIversion, handler)
         {
             this.Parse(s);
         }
 
-        public bool Equals(S4CatalogCommon other)
+        public bool Equals(CatalogCommon other)
         {
             return
             this.commonBlockVersion == other.commonBlockVersion &&
@@ -412,115 +413,10 @@ namespace CatalogResource
             }
         }
 
-        public class CatalogTagList : DependentList<CatalogTag>
-        {
-            public CatalogTagList(EventHandler handler, long maxSize = -1)
-                : base(handler, maxSize)
-            {
-            }
-
-            public CatalogTagList(EventHandler handler, IEnumerable<CatalogTag> ilt, long maxSize = -1)
-                : base(handler, ilt, maxSize)
-            {
-            }
-
-            public CatalogTagList(EventHandler handler, Stream s, long maxSize = -1)
-                : base(handler, s, maxSize)
-            {
-            }
-
-            protected override CatalogTag CreateElement(Stream s)
-            {
-                return new CatalogTag(kRecommendedApiVersion, this.elementHandler, s);
-            }
-
-            protected override void WriteElement(Stream s, CatalogTag element)
-            {
-                element.UnParse(s);
-            }
-
-        }
-
-        public class CatalogTag : AHandlerElement, IEquatable<CatalogTag>
-        {
-            private Tag tag;
-
-            #region Constructors
-            
-			public CatalogTag(int APIversion, EventHandler handler, CatalogTag other)
-                : this(APIversion, handler, other.tag)
-            {
-            }
-
-            public CatalogTag(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
-            {
-                this.MakeNew();
-            }
-
-            public CatalogTag(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
-            {
-                this.Parse(s);
-            }
-
-            public CatalogTag(int APIversion, EventHandler handler, Tag ctag)
-                : base(APIversion, handler)
-            {
-                this.tag = ctag;
-            }
-            public bool Equals(CatalogTag other)
-            {
-                return this.tag == other.tag;
-            }
-
-            #endregion Constructors =========================================
-
-            #region ContentFields
-
-            [ElementPriority(1)]
-            public Tag Tag
-            {
-                get { return tag; }
-                set { if (this.tag != value) { tag = value; OnElementChanged(); } }
-            }
-
-            public override int RecommendedApiVersion
-            {
-                get { return kRecommendedApiVersion; }
-            }
-
-            public string Value { get { return ValueBuilder; } }
-
-            public override List<string> ContentFields
-            {
-                get { return GetContentFields(0, GetType()); }
-            }
-
-            #endregion ContentFields ========================================
-
-            void Parse(Stream s)
-            {
-                var br = new BinaryReader(s);
-	            this.tag = CatalogTagRegistry.FetchTag(br.ReadUInt16());
-            }
-
-            public void UnParse(Stream s)
-            {
-                var bw = new BinaryWriter(s);
-                bw.Write(this.Tag);
-            }
-
-            private void MakeNew()
-            {
-                tag = new Tag();
-            }
-        }
-
 	    #endregion
     }
 
-    /// <summary>
+	/// <summary>
     /// for any catalogresource
     /// </summary>
     public class ColorList : SimpleList<uint>
