@@ -45,10 +45,30 @@ namespace s4pi.Resource.Commons.CatalogTags
 			return tag.Index;
 		}
 
+		#region Overrides of System.Object
+
 		public override string ToString()
 		{
 			return string.Format("0x{0:X4} {1}", this.Index, this.Value);
 		}
+
+		public override bool Equals(object obj)
+		{
+			var other = obj as Tag;
+			if (other != null)
+			{
+				return this.Index == other.Index;
+			}
+
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return this.Index.GetHashCode();
+		}
+
+		#endregion
 
 		private class TagTypeConverter : TypeConverter
 		{
