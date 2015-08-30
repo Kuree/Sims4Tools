@@ -37,13 +37,14 @@ namespace CASPartResource
         private uint version;
         private ulong rleInstance;
         private OverlayReferenceList overlayList;
-        private uint unknown1;
-        private uint unknown2;
-        private SimpleList<uint> unknownList;
-        private uint unknown3;
+        private ushort colorizeSaturation;
+        private ushort colorizeHue;
+        private uint colorizeOpacity;
+        CASPartResource.FlagList flagList;                  //Same as CASP flags
+        private float makeupOpacity;
         private CASPartResource.SwatchColorList swatchList;
-        private uint unknown4;
-        private uint unknown5;
+        private float sortOrder;
+        private float makeupOpacity2;
 
         public SkinToneResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null || stream.Length == 0) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
 
@@ -55,15 +56,14 @@ namespace CASPartResource
             this.version = r.ReadUInt32();
             this.rleInstance = r.ReadUInt64();
             this.overlayList = new OverlayReferenceList(OnResourceChanged, s);
-            this.unknown1 = r.ReadUInt32();
-            this.unknown2 = r.ReadUInt32();
-            int count = r.ReadInt32();
-            this.unknownList = new SimpleList<uint>(OnResourceChanged);
-            for (int i = 0; i < count; i++) this.unknownList.Add(r.ReadUInt32());
-            this.unknown3 = r.ReadUInt32();
+            this.colorizeSaturation = r.ReadUInt16();
+            this.colorizeHue = r.ReadUInt16();
+            this.colorizeOpacity = r.ReadUInt32();
+            flagList = new CASPartResource.FlagList(OnResourceChanged, s);
+            this.makeupOpacity = r.ReadSingle();
             this.swatchList = new CASPartResource.SwatchColorList(OnResourceChanged, s);
-            this.unknown4 = r.ReadUInt32();
-            this.unknown5 = r.ReadUInt32();
+            this.sortOrder = r.ReadSingle();
+            this.makeupOpacity2 = r.ReadSingle();
         }
 
         protected override Stream UnParse()
@@ -74,16 +74,16 @@ namespace CASPartResource
             w.Write(this.rleInstance);
             if (this.overlayList == null) this.overlayList = new OverlayReferenceList(OnResourceChanged);
             this.overlayList.UnParse(ms);
-            w.Write(this.unknown1);
-            w.Write(this.unknown2);
-            if (this.unknownList == null) this.unknownList = new SimpleList<uint>(OnResourceChanged);
-            w.Write(this.unknownList.Count);
-            foreach (var i in this.unknownList) w.Write(i);
-            w.Write(this.unknown3);
+            w.Write(this.colorizeSaturation);
+            w.Write(this.colorizeHue);
+            w.Write(this.colorizeOpacity);
+            if (this.flagList == null) this.flagList = new CASPartResource.FlagList(OnResourceChanged);
+            flagList.UnParse(ms);
+            w.Write(this.makeupOpacity);
             if (this.swatchList == null) this.swatchList = new CASPartResource.SwatchColorList(OnResourceChanged);
             this.swatchList.UnParse(ms);
-            w.Write(this.unknown4);
-            w.Write(this.unknown5);
+            w.Write(this.sortOrder);
+            w.Write(this.makeupOpacity2);
             return ms;
         }
 
@@ -92,21 +92,21 @@ namespace CASPartResource
         #region Sub Class
         public class OverlayReference : AHandlerElement, IEquatable<OverlayReference>
         {
-            private uint flags;
+            private AgeGenderFlags ageGender;
             private ulong textureReference;
             public OverlayReference(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public OverlayReference(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { BinaryReader r = new BinaryReader(s); this.flags = r.ReadUInt32(); this.textureReference = r.ReadUInt64(); }
-            public void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(this.flags); w.Write(this.textureReference); }
-            
+            public OverlayReference(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { BinaryReader r = new BinaryReader(s); this.ageGender = (AgeGenderFlags)r.ReadUInt32(); this.textureReference = r.ReadUInt64(); }
+            public void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write((uint)this.ageGender); w.Write(this.textureReference); }
+
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
             public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
             #endregion
 
-            public bool Equals(OverlayReference other) { return this.textureReference == other.textureReference && this.flags == other.flags; }
+            public bool Equals(OverlayReference other) { return this.textureReference == other.textureReference && this.ageGender == other.ageGender; }
             public string Value { get { return ValueBuilder; } }
             [ElementPriority(0)]
-            public uint Flags { get { return this.flags; } set { if (this.flags != value) { OnElementChanged(); this.flags = value; } } }
+            public AgeGenderFlags AgeGender { get { return this.ageGender; } set { if (this.ageGender != value) { OnElementChanged(); this.ageGender = value; } } }
             [ElementPriority(1)]
             public ulong TextureReference { get { return this.textureReference; } set { if (this.textureReference != value) { OnElementChanged(); this.textureReference = value; } } }
         }
@@ -143,23 +143,25 @@ namespace CASPartResource
         [ElementPriority(0)]
         public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.version = value; } } }
         [ElementPriority(1)]
-        public ulong RleInstance { get { return this.rleInstance; } set { if (!this.rleInstance.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.rleInstance = value; } } }
+        public ulong TextureInstance { get { return this.rleInstance; } set { if (!this.rleInstance.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.rleInstance = value; } } }
         [ElementPriority(2)]
         public OverlayReferenceList OverlayList { get { return this.overlayList; } set { if (!this.overlayList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.overlayList = value; } } }
         [ElementPriority(3)]
-        public uint Unknown1 { get { return this.unknown1; } set { if (!this.unknown1.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown1 = value; } } }
+        public ushort ColorizeSaturation { get { return this.colorizeSaturation; } set { if (!this.colorizeSaturation.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorizeSaturation = value; } } }
         [ElementPriority(4)]
-        public uint Unknown2 { get { return this.unknown2; } set { if (!this.unknown2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown2 = value; } } }
+        public ushort ColorizeHue { get { return this.colorizeHue; } set { if (!this.colorizeHue.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorizeHue = value; } } }
         [ElementPriority(5)]
-        public SimpleList<uint> UnknownList { get { return this.unknownList; } set { if (!this.unknownList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknownList = value; } } }
+        public uint ColorizeOpacity { get { return this.colorizeOpacity; } set { if (!this.colorizeOpacity.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorizeOpacity = value; } } }
         [ElementPriority(6)]
-        public uint Unknown3 { get { return this.unknown3; } set { if (!this.unknown3.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown3 = value; } } }
+        public CASPartResource.FlagList TONEFlagList { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(7)]
-        public CASPartResource.SwatchColorList SwatchList { get { return this.swatchList; } set { if (!this.swatchList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.swatchList = value; } } }
+        public float MakeupOpacity { get { return this.makeupOpacity; } set { if (!this.makeupOpacity.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.makeupOpacity = value; } } }
         [ElementPriority(8)]
-        public uint Unknown4 { get { return this.unknown4; } set { if (!this.unknown4.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown4 = value; } } }
+        public CASPartResource.SwatchColorList SwatchList { get { return this.swatchList; } set { if (!this.swatchList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.swatchList = value; } } }
         [ElementPriority(9)]
-        public uint Unknown5 { get { return this.unknown5; } set { if (!this.unknown5.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.unknown5 = value; } } }
+        public float SortOrder { get { return this.sortOrder; } set { if (!this.sortOrder.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.sortOrder = value; } } }
+        [ElementPriority(10)]
+        public float MakeupOpacity2 { get { return this.makeupOpacity2; } set { if (!this.makeupOpacity2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.makeupOpacity2 = value; } } }
         public string Value { get { return ValueBuilder; } }
         #endregion
     }
