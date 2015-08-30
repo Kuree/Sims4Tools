@@ -20,231 +20,235 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
+using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows.Forms;
+
+using AutoUpdate;
+
+using s4pi.Extensions;
+using s4pi.Helpers;
 using s4pi.Interfaces;
 using s4pi.Package;
-using s4pi.Extensions;
-using System.Text;
+using s4pi.WrapperDealer;
+
+using S4PIDemoFE.Settings;
+using S4PIDemoFE.Tools;
+
+using Version = AutoUpdate.Version;
 
 namespace S4PIDemoFE
 {
     public partial class MainForm : Form
     {
-        static List<string> fields = AApiVersionedFields.GetContentFields(0, typeof(AResourceIndexEntry));
-        static List<string> unwantedFields = new List<string>(new string[] {
-            "Stream",
-        });
-        static List<string> unwantedFilterFields = new List<string>(new string[] {
-            "Chunkoffset", "Filesize", "Memsize", "Unknown2",
-        });
-        static List<string> ddsResources = new List<string>(new string[] {
-            "0x00B2D882", "0x8FFB80F6",
-        });
-        static string myName;
-        static string tempName;
-        static MainForm()
+        static readonly List<string> fields = AApiVersionedFields.GetContentFields(0, typeof(AResourceIndexEntry));
+        static readonly List<string> unwantedFields = new List<string>(new[] { "Stream" });
+        static readonly List<string> unwantedFilterFields = new List<string>(new[] { "Chunkoffset", "Filesize", "Memsize", "Unknown2" });
+        
+		static List<string> ddsResources = new List<string>(new[] { "0x00B2D882", "0x8FFB80F6" });
+        static readonly string myName;
+        static readonly string tempName;
+
+	    string cmdLineFilename;
+	    List<string> cmdLineBatch = new List<string>();
+
+	    static MainForm()
         {
             using (Splash splash = new Splash("Refreshing wrappers list..."))
             {
                 splash.Show();
                 Application.DoEvents();
                 myName = Path.GetFileNameWithoutExtension(Application.ExecutablePath);
-                tempName = "s3pe-" + System.Security.Cryptography.FNV64.GetHash(DateTime.UtcNow.ToString("O")).ToString("X16") + "-";
+                tempName = "s3pe-" + FNV64.GetHash(DateTime.UtcNow.ToString("O")).ToString("X16") + "-";
                 foreach (string s in unwantedFields) fields.Remove(s);
-                //fields.Sort(byElementPriority);
 
-                List<KeyValuePair<string, Type>> typeMap = new List<KeyValuePair<string, Type>>(s4pi.WrapperDealer.WrapperDealer.TypeMap);
-                s4pi.WrapperDealer.WrapperDealer.Disabled.Clear();
-                if (S4PIDemoFE.Properties.Settings.Default.DisabledWrappers != null)
-                    foreach (var v in S4PIDemoFE.Properties.Settings.Default.DisabledWrappers)
-                    {
-                        string[] kv = v.Trim().Split(new char[] { ':', }, 2);
-                        KeyValuePair<string, Type> kvp = typeMap.Find(x => x.Key == kv[0] && x.Value.FullName == kv[1]);
-                        if (!kvp.Equals(default(KeyValuePair<string, Type>)))
-                            s4pi.WrapperDealer.WrapperDealer.Disabled.Add(kvp);
-                    }
+                List<KeyValuePair<string, Type>> typeMap = new List<KeyValuePair<string, Type>>(WrapperDealer.TypeMap);
+                WrapperDealer.Disabled.Clear();
+                if (Properties.Settings.Default.DisabledWrappers != null)
+                {
+	                foreach (var v in Properties.Settings.Default.DisabledWrappers)
+	                {
+		                string[] kv = v.Trim().Split(new[] { ':' }, 2);
+		                KeyValuePair<string, Type> kvp = typeMap.Find(x => x.Key == kv[0] && x.Value.FullName == kv[1]);
+		                if (!kvp.Equals(default(KeyValuePair<string, Type>)))
+		                {
+			                WrapperDealer.Disabled.Add(kvp);
+		                }
+	                }
+                }
             }
         }
-        static int byElementPriority(string x, string y)
-        {
-            int xPrio = int.MaxValue;
-            int yPrio = int.MaxValue;
-            object[] xCA = typeof(AResourceIndexEntry).GetProperty(x).GetCustomAttributes(typeof(ElementPriorityAttribute), true);
-            object[] yCA = typeof(AResourceIndexEntry).GetProperty(y).GetCustomAttributes(typeof(ElementPriorityAttribute), true);
-            foreach (ElementPriorityAttribute o in xCA) { xPrio = o.Priority; break; }
-            foreach (ElementPriorityAttribute o in yCA) { yPrio = o.Priority; break; }
-            return xPrio.CompareTo(yPrio);
-        }
 
-        public MainForm()
+	    public MainForm()
         {
             using (Splash splash = new Splash("Initialising form..."))
             {
                 splash.Show();
                 Application.DoEvents();
-                InitializeComponent();
+	            this.InitializeComponent();
 
                 this.Text = myName;
 
                 this.lbProgress.Text = "";
 
-                browserWidget1.Fields = new List<string>(fields.ToArray());
-                browserWidget1.ContextMenuStrip = menuBarWidget.browserWidgetContextMenuStrip;
+	            this.browserWidget1.Fields = new List<string>(fields.ToArray());
+	            this.browserWidget1.ContextMenuStrip = this.menuBarWidget.browserWidgetContextMenuStrip;
 
                 List<string> filterFields = new List<string>(fields);
                 foreach (string f in unwantedFilterFields)
                     filterFields.Remove(f);
                 filterFields.Insert(0, "Tag");
                 filterFields.Insert(0, "Name");
-                resourceFilterWidget1.BrowserWidget = browserWidget1;
-                resourceFilterWidget1.Fields = filterFields;
-                resourceFilterWidget1.ContextMenuStrip = menuBarWidget.filterContextMenuStrip;
-                menuBarWidget.CMFilter_Click += new MenuBarWidget.MBClickEventHandler(menuBarWidget1_CMFilter_Click);
+	            this.resourceFilterWidget1.BrowserWidget = this.browserWidget1;
+	            this.resourceFilterWidget1.Fields = filterFields;
+	            this.resourceFilterWidget1.ContextMenuStrip = this.menuBarWidget.filterContextMenuStrip;
+	            this.menuBarWidget.CMFilter_Click += this.menuBarWidget1_CMFilter_Click;
 
-                packageInfoWidget1.Fields = packageInfoFields1.Fields;
-                this.PackageFilenameChanged += new EventHandler(MainForm_PackageFilenameChanged);
-                this.PackageChanged += new EventHandler(MainForm_PackageChanged);
+	            this.packageInfoWidget1.Fields = this.packageInfoFields1.Fields;
+                this.PackageFilenameChanged += this.MainForm_PackageFilenameChanged;
+                this.PackageChanged += this.MainForm_PackageChanged;
 
-                this.SaveSettings += new EventHandler(MainForm_SaveSettings);
-                this.SaveSettings += new EventHandler(browserWidget1.BrowserWidget_SaveSettings);
-                this.SaveSettings += new EventHandler(controlPanel1.ControlPanel_SaveSettings);
-                //this.SaveSettings += new EventHandler(hexWidget1.HexWidget_SaveSettings);
+                this.SaveSettings += this.MainForm_SaveSettings;
+                this.SaveSettings += this.browserWidget1.BrowserWidget_SaveSettings;
+                this.SaveSettings += this.controlPanel1.ControlPanel_SaveSettings;
 
-                MainForm_LoadFormSettings();
+	            this.MainForm_LoadFormSettings();
             }
         }
 
-        string cmdLineFilename = null;
-        List<string> cmdLineBatch = new List<string>();
-        public MainForm(params string[] args)
-            : this()
-        {
-            CmdLine(args);
+	    public MainForm(params string[] args)
+		    : this()
+	    {
+		    this.CmdLine(args);
 
-            // Settings for test mode
-            if (cmdlineTest)
-            {
-            }
-        }
+		    // Settings for test mode
+		    if (this.cmdlineTest)
+		    {
+		    }
+	    }
 
-        void MainForm_LoadFormSettings()
+	    void MainForm_LoadFormSettings()
         {
             FormWindowState s =
-                Enum.IsDefined(typeof(FormWindowState), S4PIDemoFE.Properties.Settings.Default.FormWindowState)
-                ? (FormWindowState)S4PIDemoFE.Properties.Settings.Default.FormWindowState
+                Enum.IsDefined(typeof(FormWindowState), Properties.Settings.Default.FormWindowState)
+                ? (FormWindowState)Properties.Settings.Default.FormWindowState
                 : FormWindowState.Minimized;
 
-            int defaultWidth = 4 * System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Width / 5;
-            int defaultHeight = 4 * System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Height / 5;
+            int defaultWidth = 4 * Screen.PrimaryScreen.WorkingArea.Width / 5;
+            int defaultHeight = 4 * Screen.PrimaryScreen.WorkingArea.Height / 5;
             this.ClientSize = new Size(defaultWidth, defaultHeight);//needed to correctly work out the following
-            int defaultSplitterDistance1 = splitContainer1.ClientSize.Height - (splitContainer1.Panel2MinSize + splitContainer1.SplitterWidth + 4);
-            int defaultSplitterDistance2 = (int)(splitContainer2.ClientSize.Width / 2);
+            int defaultSplitterDistance1 = this.splitContainer1.ClientSize.Height - (this.splitContainer1.Panel2MinSize + this.splitContainer1.SplitterWidth + 4);
+            int defaultSplitterDistance2 = this.splitContainer2.ClientSize.Width / 2;
 
             if (s == FormWindowState.Minimized)
             {
                 this.ClientSize = new Size(defaultWidth, defaultHeight);
-                splitContainer1.SplitterDistance = defaultSplitterDistance1;
-                splitContainer2.SplitterDistance = defaultSplitterDistance2;
+	            this.splitContainer1.SplitterDistance = defaultSplitterDistance1;
+	            this.splitContainer2.SplitterDistance = defaultSplitterDistance2;
                 this.StartPosition = FormStartPosition.CenterScreen;
                 this.WindowState = FormWindowState.Normal;
             }
             else
             {
                 // these mustn't be negative
-
-                int w = S4PIDemoFE.Properties.Settings.Default.PersistentWidth;
-                int h = S4PIDemoFE.Properties.Settings.Default.PersistentHeight;
+                int w = Properties.Settings.Default.PersistentWidth;
+                int h = Properties.Settings.Default.PersistentHeight;
                 this.ClientSize = new Size(w < 0 ? defaultWidth : w, h < 0 ? defaultHeight : h);
 
-                int s1 = S4PIDemoFE.Properties.Settings.Default.Splitter1Position;
-                splitContainer1.SplitterDistance = s1 < 0 ? defaultSplitterDistance1 : s1;
+                int s1 = Properties.Settings.Default.Splitter1Position;
+	            this.splitContainer1.SplitterDistance = s1 < 0 ? defaultSplitterDistance1 : s1;
 
-                int s2 = S4PIDemoFE.Properties.Settings.Default.Splitter2Position;
-                splitContainer2.SplitterDistance = s2 < 0 ? defaultSplitterDistance2 : s2;
+                int s2 = Properties.Settings.Default.Splitter2Position;
+	            this.splitContainer2.SplitterDistance = s2 < 0 ? defaultSplitterDistance2 : s2;
 
                 // everything else assumed valid -- any problems, use the iconise/exit/run trick to fix
 
                 this.StartPosition = FormStartPosition.Manual;
-                this.Location = S4PIDemoFE.Properties.Settings.Default.PersistentLocation;
+                this.Location = Properties.Settings.Default.PersistentLocation;
                 this.WindowState = s;
             }
         }
 
         void MainForm_SaveSettings(object sender, EventArgs e)
         {
-            S4PIDemoFE.Properties.Settings.Default.FormWindowState = (int)this.WindowState;
-            S4PIDemoFE.Properties.Settings.Default.PersistentHeight = this.ClientSize.Height;
-            S4PIDemoFE.Properties.Settings.Default.PersistentWidth = this.ClientSize.Width;
-            S4PIDemoFE.Properties.Settings.Default.PersistentLocation = this.Location;
-            S4PIDemoFE.Properties.Settings.Default.Splitter1Position = splitContainer1.SplitterDistance;
-            S4PIDemoFE.Properties.Settings.Default.Splitter2Position = splitContainer2.SplitterDistance;
+            Properties.Settings.Default.FormWindowState = (int)this.WindowState;
+            Properties.Settings.Default.PersistentHeight = this.ClientSize.Height;
+            Properties.Settings.Default.PersistentWidth = this.ClientSize.Width;
+            Properties.Settings.Default.PersistentLocation = this.Location;
+            Properties.Settings.Default.Splitter1Position = this.splitContainer1.SplitterDistance;
+            Properties.Settings.Default.Splitter2Position = this.splitContainer2.SplitterDistance;
 
-            S4PIDemoFE.Properties.Settings.Default.DisabledWrappers = new System.Collections.Specialized.StringCollection();
-            foreach (var kvp in s4pi.WrapperDealer.WrapperDealer.Disabled)
-                S4PIDemoFE.Properties.Settings.Default.DisabledWrappers.Add(kvp.Key + ":" + kvp.Value.FullName + "\n");
+            Properties.Settings.Default.DisabledWrappers = new StringCollection();
+            foreach (var kvp in WrapperDealer.Disabled)
+                Properties.Settings.Default.DisabledWrappers.Add(kvp.Key + ":" + kvp.Value.FullName + "\n");
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            if (cmdLineFilename != null)
+            if (this.cmdLineFilename != null)
             {
-                Filename = cmdLineFilename;
-                cmdLineFilename = null;
+	            this.Filename = this.cmdLineFilename;
+	            this.cmdLineFilename = null;
             }
-            if (cmdLineBatch.Count > 0)
+            if (this.cmdLineBatch.Count > 0)
             {
                 try
                 {
                     this.Enabled = false;
-                    importBatch(cmdLineBatch.ToArray(), "-import");
+	                this.importBatch(this.cmdLineBatch.ToArray(), "-import");
                 }
                 finally { this.Enabled = true; }
-                cmdLineBatch = new List<string>();
+	            this.cmdLineBatch = new List<string>();
             }
         }
 
-        public bool IsClosing = false;
+        public bool IsClosing;
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            IsClosing = true;
+	        this.IsClosing = true;
             this.Enabled = false;
-            Filename = "";
-            if (CurrentPackage != null) { IsClosing = false; e.Cancel = true; this.Enabled = true; return; }
+	        this.Filename = "";
+            if (this.CurrentPackage != null) {
+	            this.IsClosing = false; e.Cancel = true; this.Enabled = true; return; }
 
-            saveSettings();
+	        this.saveSettings();
 
-            cleanUpTemp();
+	        this.cleanUpTemp();
         }
 
         private void MainForm_PackageFilenameChanged(object sender, EventArgs e)
         {
-            if (Filename.Length > 0 && File.Exists(Filename))
+            if (this.Filename.Length > 0 && File.Exists(this.Filename))
             {
                 try
                 {
-                    CurrentPackage = Package.OpenPackage(0, Filename, ReadWrite);
-                    menuBarWidget.AddRecentFile((ReadWrite ? "1:" : "0:") + Filename);
-                    string s = Filename;
+	                this.CurrentPackage = Package.OpenPackage(0, this.Filename, this.ReadWrite);
+	                this.menuBarWidget.AddRecentFile((this.ReadWrite ? "1:" : "0:") + this.Filename);
+                    string s = this.Filename;
                     if (s.Length > 128)
                     {
-                        s = System.IO.Path.GetDirectoryName(s);
+                        s = Path.GetDirectoryName(s);
                         s = s.Substring(Math.Max(0, s.Length - 40));
-                        s = "..." + System.IO.Path.Combine(s, System.IO.Path.GetFileName(Filename));
+                        s = "..." + Path.Combine(s, Path.GetFileName(this.Filename));
                     }
-                    this.Text = String.Format("{0}: [{1}] {2}", myName, ReadWrite ? "RW" : "RO", s);
+                    this.Text = String.Format("{0}: [{1}] {2}", myName, this.ReadWrite ? "RW" : "RO", s);
                 }
                 catch (InvalidDataException idex)
                 {
                     if (idex.Message.Contains("magic tag"))
                     {
                         CopyableMessageBox.Show(
-                            "Could not open package:\n" + Filename + "\n\n" +
+                            "Could not open package:\n" + this.Filename + "\n\n" +
                             "This file does not contain the expected package identifier in the header.\n" +
                             "This could be because it is a protected package (e.g. a Store item), a Sims3Pack or some other random file.\n\n" +
                             "---\nError message:\n" +
@@ -253,7 +257,7 @@ namespace S4PIDemoFE
                     else if (idex.Message.Contains("major version"))
                     {
                         CopyableMessageBox.Show(
-                            "Could not open package:\n" + Filename + "\n\n" +
+                            "Could not open package:\n" + this.Filename + "\n\n" +
                             "This file does not contain the expected package major version number in the header.\n" +
                             "This could be because it is a package for Sims2 or Spore.\n\n" +
                             "---\nError message:\n" +
@@ -261,38 +265,38 @@ namespace S4PIDemoFE
                     }
                     else
                     {
-                        IssueException(idex, "Could not open package:\n" + Filename);
+                        IssueException(idex, "Could not open package:\n" + this.Filename);
                     }
-                    Filename = "";
+	                this.Filename = "";
                 }
                 catch (UnauthorizedAccessException uaex)
                 {
-                    if (ReadWrite)
+                    if (this.ReadWrite)
                     {
                         int i = CopyableMessageBox.Show(
-                            "Could not open package:\n" + Filename + "\n\n" +
+                            "Could not open package:\n" + this.Filename + "\n\n" +
                             "The file could be write-protected, in which case it might be possible to open it read-only.\n\n" +
                             "---\nError message:\n" +
-                            uaex.Message, myName + ": Unable to open file", CopyableMessageBoxIcon.Stop, new[] { "&Open read-only", "C&ancel", }, 1, 1);
-                        if (i == 0) Filename = "0:" + Filename;
-                        else Filename = "";
+                            uaex.Message, myName + ": Unable to open file", CopyableMessageBoxIcon.Stop, new[] { "&Open read-only", "C&ancel" }, 1, 1);
+                        if (i == 0) this.Filename = "0:" + this.Filename;
+                        else this.Filename = "";
                     }
                     else
                     {
-                        IssueException(uaex, "Could not open package:\n" + Filename);
-                        Filename = "";
+                        IssueException(uaex, "Could not open package:\n" + this.Filename);
+	                    this.Filename = "";
                     }
                 }
                 catch (IOException ioex)
                 {
                     int i = CopyableMessageBox.Show(
-                        "Could not open package:\n" + Filename + "\n\n" +
+                        "Could not open package:\n" + this.Filename + "\n\n" +
                         "There may be another process with exclusive access to the file (e.g. The Sims 3).  " +
                         "After exiting the other process, you can retry opening the package.\n\n" +
                         "---\nError message:\n" +
-                        ioex.Message, myName + ": Unable to open file", CopyableMessageBoxIcon.Stop, new[] { "&Retry", "C&ancel", }, 1, 1);
-                    if (i == 0) Filename = (ReadWrite ? "1:" : "0:") + Filename;
-                    else Filename = "";
+                        ioex.Message, myName + ": Unable to open file", CopyableMessageBoxIcon.Stop, new[] { "&Retry", "C&ancel" }, 1, 1);
+                    if (i == 0) this.Filename = (this.ReadWrite ? "1:" : "0:") + this.Filename;
+                    else this.Filename = "";
                 }
 #if !DEBUG
                 catch (Exception ex)
@@ -310,54 +314,61 @@ namespace S4PIDemoFE
 
         private void MainForm_PackageChanged(object sender, EventArgs e)
         {
-            browserWidget1.Package = packageInfoWidget1.Package = CurrentPackage;
-            pnAuto.Controls.Clear();
-            bool enable = CurrentPackage != null;
-            menuBarWidget.Enable(MenuBarWidget.MB.MBF_saveAs, enable);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBF_saveCopyAs, enable);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBF_close, enable);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBF_bookmarkCurrent, enable);
-            menuBarWidget.Enable(MenuBarWidget.MD.MBE, enable);
-            menuBarWidget.Enable(MenuBarWidget.MD.MBR, enable);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_add, enable);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBT_search, enable);
-            editDropDownOpening();
-            resourceDropDownOpening();
+	        this.browserWidget1.Package = this.packageInfoWidget1.Package = this.CurrentPackage;
+	        this.pnAuto.Controls.Clear();
+            bool enable = this.CurrentPackage != null;
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBF_saveAs, enable);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBF_saveCopyAs, enable);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBF_close, enable);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBF_bookmarkCurrent, enable);
+	        this.menuBarWidget.Enable(MenuBarWidget.MD.MBE, enable);
+	        this.menuBarWidget.Enable(MenuBarWidget.MD.MBR, enable);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_add, enable);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBT_search, enable);
+	        this.editDropDownOpening();
+	        this.resourceDropDownOpening();
         }
 
         public event EventHandler SaveSettings;
-        protected virtual void OnSaveSettings(object sender, EventArgs e) { if (SaveSettings != null) SaveSettings(sender, e); }
+        protected virtual void OnSaveSettings(object sender, EventArgs e) { if (this.SaveSettings != null) this.SaveSettings(sender, e); }
 
 
         internal static void IssueException(Exception ex, string prefix)
         {
             CopyableMessageBox.IssueException(ex,
                 String.Format("{0}\nFront-end Distribution: {1}\nLibrary Distribution: {2}",
-                prefix, AutoUpdate.Version.CurrentVersion, AutoUpdate.Version.LibraryVersion),
+                prefix, Version.CurrentVersion, Version.LibraryVersion),
                 myName);
         }
 
-
-
         #region Command Line
-        delegate bool CmdLineCmd(ref List<string> cmdline);
-        struct CmdInfo
+
+	    Dictionary<string, CmdInfo> options;
+
+	    bool cmdlineTest;
+
+	    delegate bool CmdLineCmd(ref List<string> cmdline);
+
+	    struct CmdInfo
         {
             public CmdLineCmd cmd;
             public string help;
             public CmdInfo(CmdLineCmd cmd, string help) : this() { this.cmd = cmd; this.help = help; }
         }
-        Dictionary<string, CmdInfo> Options;
-        void SetOptions()
+
+	    void SetOptions()
         {
-            Options = new Dictionary<string, CmdInfo>();
-            Options.Add("test", new CmdInfo(CmdLineTest, "Enable facilities still undergoing initial testing"));
-            Options.Add("import", new CmdInfo(CmdLineImport, "Import a batch of files into a new package"));
-            Options.Add("help", new CmdInfo(CmdLineHelp, "Display this help"));
+			this.options = new Dictionary<string, CmdInfo>
+						   {
+							   { "test", new CmdInfo(this.CmdLineTest, "Enable facilities still undergoing initial testing") },
+							   { "import", new CmdInfo(this.CmdLineImport, "Import a batch of files into a new package") },
+							   { "help", new CmdInfo(this.CmdLineHelp, "Display this help") }
+						   };
         }
-        void CmdLine(params string[] args)
+
+	    void CmdLine(params string[] args)
         {
-            SetOptions();
+	        this.SetOptions();
             List<string> cmdline = new List<string>(args);
             List<string> pkgs = new List<string>();
             while (cmdline.Count > 0)
@@ -367,15 +378,15 @@ namespace S4PIDemoFE
                 if (option.StartsWith("/") || option.StartsWith("-"))
                 {
                     option = option.Substring(1);
-                    if (Options.ContainsKey(option.ToLower()))
+                    if (this.options.ContainsKey(option.ToLower()))
                     {
-                        if (Options[option.ToLower()].cmd(ref cmdline))
+                        if (this.options[option.ToLower()].cmd(ref cmdline))
                             Environment.Exit(0);
                     }
                     else
                     {
                         CopyableMessageBox.Show(this, "Invalid command line option: '" + option + "'",
-                            myName, CopyableMessageBoxIcon.Error, new List<string>(new string[] { "OK" }), 0, 0);
+                            myName, CopyableMessageBoxIcon.Error, new List<string>(new[] { "OK" }), 0, 0);
                         Environment.Exit(1);
                     }
                 }
@@ -386,29 +397,34 @@ namespace S4PIDemoFE
                         if (!File.Exists(option))
                         {
                             CopyableMessageBox.Show(this, "File not found:\n" + option,
-                                myName, CopyableMessageBoxIcon.Error, new List<string>(new string[] { "OK" }), 0, 0);
+                                myName, CopyableMessageBoxIcon.Error, new List<string>(new[] { "OK" }), 0, 0);
                             Environment.Exit(1);
                         }
                         pkgs.Add(option);
-                        cmdLineFilename = option;
+	                    this.cmdLineFilename = option;
                     }
                     else
                     {
                         CopyableMessageBox.Show(this, "Can only accept one package on command line",
-                            myName, CopyableMessageBoxIcon.Error, new List<string>(new string[] { "OK" }), 0, 0);
+                            myName, CopyableMessageBoxIcon.Error, new List<string>(new[] { "OK" }), 0, 0);
                         Environment.Exit(1);
                     }
                 }
             }
         }
-        bool cmdlineTest = false;
-        bool CmdLineTest(ref List<string> cmdline) { cmdlineTest = true; return false; }
+
+	    bool CmdLineTest(ref List<string> cmdline) 
+		{
+	        this.cmdlineTest = true; 
+			return false; 
+		}
+
         bool CmdLineImport(ref List<string> cmdline)
         {
             if (cmdline.Count < 1)
             {
                 CopyableMessageBox.Show(this, "-import requires one or more files",
-                    myName, CopyableMessageBoxIcon.Error, new List<string>(new string[] { "OK" }), 0, 0);
+                    myName, CopyableMessageBoxIcon.Error, new List<string>(new[] { "OK" }), 0, 0);
                 Environment.Exit(1);
             }
             while (cmdline.Count > 0 && cmdline[0][0] != '/' && cmdline[0][0] != '-')
@@ -416,128 +432,168 @@ namespace S4PIDemoFE
                 if (!File.Exists(cmdline[0]))
                 {
                     CopyableMessageBox.Show(this, "File not found:\n" + cmdline[0],
-                        myName, CopyableMessageBoxIcon.Error, new List<string>(new string[] { "OK" }), 0, 0);
+                        myName, CopyableMessageBoxIcon.Error, new List<string>(new[] { "OK" }), 0, 0);
                     Environment.Exit(1);
                 }
-                cmdLineBatch.Add(cmdline[0]);
+	            this.cmdLineBatch.Add(cmdline[0]);
                 cmdline.RemoveAt(0);
             }
             return false;
         }
+
         bool CmdLineHelp(ref List<string> cmdline)
         {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.AppendLine("The following command line options are available:\n");
-            foreach (var kvp in Options)
+            foreach (var kvp in this.options)
                 sb.AppendFormat("{0}  --  {1}\n", kvp.Key, kvp.Value.help);
             sb.AppendLine("\nOptions must be prefixed with '/' or '-'\n\n");
             sb.AppendLine("A fully-qualified package name can also be supplied on the command line.");
 
-            CopyableMessageBox.Show(this, sb.ToString(), "Command line options", CopyableMessageBoxIcon.Information, new List<string>(new string[] { "OK" }), 0, 0);
+            CopyableMessageBox.Show(this, sb.ToString(), "Command line options", CopyableMessageBoxIcon.Information, new List<string>(new[] { "OK" }), 0, 0);
             return true;
         }
+
         #endregion
-
-
+		
         #region Package Filename
+
         string filename;
-        bool ReadWrite { get { return filename != null && filename.Length > 1 && filename.StartsWith("1:"); } }
-        string Filename
+
+	    bool ReadWrite
+	    {
+		    get
+		    {
+			    return this.filename != null && this.filename.Length > 1 && this.filename.StartsWith("1:");
+		    }
+	    }
+        
+		string Filename
         {
-            get { return filename == null || filename.Length < 2 ? "" : filename.Substring(2); }
+            get { return this.filename == null || this.filename.Length < 2 ? "" : this.filename.Substring(2); }
             set
             {
-                //http://dino.drealm.info/develforums/s4pi/index.php?topic=781.0
-                //if (filename != "" && filename == value) return;
+	            this.CurrentPackage = null;
+				if (this.CurrentPackage != null)
+				{
+					return;
+				}
 
-                CurrentPackage = null;
-                if (CurrentPackage != null) return;
+	            this.filename = value;
+                if (!this.filename.StartsWith("0:") && !this.filename.StartsWith("1:"))
+                {
+	                this.filename = "1:" + this.filename;
+                }
 
-                filename = value;
-                if (!filename.StartsWith("0:") && !filename.StartsWith("1:"))
-                    filename = "1:" + filename;
-
-                OnPackageFilenameChanged(this, new EventArgs());
+	            this.OnPackageFilenameChanged(this, new EventArgs());
             }
         }
+
         public event EventHandler PackageFilenameChanged;
-        protected virtual void OnPackageFilenameChanged(object sender, EventArgs e) { if (PackageFilenameChanged != null) PackageFilenameChanged(sender, e); }
-        #endregion
+
+	    protected virtual void OnPackageFilenameChanged(object sender, EventArgs e)
+	    {
+		    if (this.PackageFilenameChanged != null)
+		    {
+			    this.PackageFilenameChanged(sender, e);
+		    }
+	    }
+       
+		#endregion
 
         #region Current Package
-        bool isPackageDirty = false;
-        bool IsPackageDirty
+        
+		bool isPackageDirty;
+	    IPackage package;
+	    
+		public event EventHandler PackageChanged;
+
+	    bool IsPackageDirty
         {
-            get { return ReadWrite && isPackageDirty; }
+            get { return this.ReadWrite && this.isPackageDirty; }
             set
             {
-                menuBarWidget.Enable(MenuBarWidget.MB.MBF_save, ReadWrite && value);
-                if (isPackageDirty == value) return;
-                isPackageDirty = value;
+	            this.menuBarWidget.Enable(MenuBarWidget.MB.MBF_save, this.ReadWrite && value);
+
+	            this.isPackageDirty = value;
             }
         }
-        IPackage package = null;
-        IPackage CurrentPackage
+
+	    IPackage CurrentPackage
         {
-            get { return package; }
+            get { return this.package; }
             set
             {
-                if (package == value) return;
+                if (this.package == value) return;
 
-                browserWidget1.SelectedResource = null;
-                if (browserWidget1.SelectedResource != null) return;
+	            this.browserWidget1.SelectedResource = null;
+                if (this.browserWidget1.SelectedResource != null) return;
 
-                if (isPackageDirty)
+                if (this.isPackageDirty)
                 {
                     int res = CopyableMessageBox.Show("Current package has unsaved changes.\nSave now?",
                         myName, CopyableMessageBoxButtons.YesNoCancel, CopyableMessageBoxIcon.Warning, 2);/**///Causes error on Application.Exit();... so use this.Close();
                     if (res == 2) return;
                     if (res == 0)
                     {
-                        if (ReadWrite) { if (!fileSave()) return; }
-                        else { if (!fileSaveAs()) return; }
+                        if (this.ReadWrite) { if (!this.fileSave()) return; }
+                        else { if (!this.fileSaveAs()) return; }
                     }
-                    IsPackageDirty = false;
+	                this.IsPackageDirty = false;
                 }
-                if (package != null) package.Dispose();//Package.ClosePackage(0, package);
+                if (this.package != null) this.package.Dispose();//Package.ClosePackage(0, package);
 
-                package = value;
-                OnPackageChanged(this, new EventArgs());
+	            this.package = value;
+	            this.OnPackageChanged(this, new EventArgs());
             }
         }
-        public event EventHandler PackageChanged;
-        protected virtual void OnPackageChanged(object sender, EventArgs e) { if (PackageChanged != null) PackageChanged(sender, e); }
-        #endregion
+
+	    protected virtual void OnPackageChanged(object sender, EventArgs e)
+	    {
+		    if (this.PackageChanged != null)
+		    {
+			    this.PackageChanged(sender, e);
+		    }
+	    }
+        
+		#endregion
 
         #region Current Resource
-        string resourceName = "";
-        s4pi.Helpers.HelperManager helpers = null;
+        
+		string resourceName = "";
+        HelperManager helpers;
 
-        Exception resException = null;
-        IResource resource = null;
-        bool resourceIsDirty = false;
-        void resource_ResourceChanged(object sender, EventArgs e)
+        Exception resException;
+        IResource resource;
+        bool resourceIsDirty;
+        
+		void resource_ResourceChanged(object sender, EventArgs e)
         {
-            controlPanel1.CommitEnabled = resourceIsDirty = true;
+	        this.controlPanel1.CommitEnabled = this.resourceIsDirty = true;
         }
+
         #endregion
 
         #region Menu Bar
+
         private void menuBarWidget1_MBDropDownOpening(object sender, MenuBarWidget.MBDropDownOpeningEventArgs mn)
         {
             switch (mn.mn)
             {
                 case MenuBarWidget.MD.MBF: break;
-                case MenuBarWidget.MD.MBE: editDropDownOpening(); break;
-                case MenuBarWidget.MD.MBR: resourceDropDownOpening(); break;
+                case MenuBarWidget.MD.MBE:
+		            this.editDropDownOpening(); break;
+                case MenuBarWidget.MD.MBR:
+		            this.resourceDropDownOpening(); break;
                 case MenuBarWidget.MD.MBS: break;
                 case MenuBarWidget.MD.MBH: break;
-                case MenuBarWidget.MD.CMF: filterContextMenuOpening(); break;
-                default: break;
+                case MenuBarWidget.MD.CMF:
+		            this.filterContextMenuOpening(); break;
             }
         }
 
         #region File menu
+
         private void menuBarWidget1_MBFile_Click(object sender, MenuBarWidget.MBClickEventArgs mn)
         {
             try
@@ -546,17 +602,28 @@ namespace S4PIDemoFE
                 Application.DoEvents();
                 switch (mn.mn)
                 {
-                    case MenuBarWidget.MB.MBF_new: fileNew(); break;
-                    case MenuBarWidget.MB.MBF_open: fileOpen(); break;
-                    case MenuBarWidget.MB.MBF_save: fileSave(); break;
-                    case MenuBarWidget.MB.MBF_saveAs: fileSaveAs(); break;
-                    case MenuBarWidget.MB.MBF_saveCopyAs: fileSaveCopyAs(); break;
-                    case MenuBarWidget.MB.MBF_close: fileClose(); break;
-                    case MenuBarWidget.MB.MBF_setMaxRecent: fileSetMaxRecent(); break;
-                    case MenuBarWidget.MB.MBF_bookmarkCurrent: fileBookmarkCurrent(); break;
-                    case MenuBarWidget.MB.MBF_setMaxBookmarks: fileSetMaxBookmarks(); break;
-                    case MenuBarWidget.MB.MBF_organiseBookmarks: fileOrganiseBookmarks(); break;
-                    case MenuBarWidget.MB.MBF_exit: fileExit(); break;
+                    case MenuBarWidget.MB.MBF_new:
+		                this.fileNew(); break;
+                    case MenuBarWidget.MB.MBF_open:
+		                this.fileOpen(); break;
+                    case MenuBarWidget.MB.MBF_save:
+		                this.fileSave(); break;
+                    case MenuBarWidget.MB.MBF_saveAs:
+		                this.fileSaveAs(); break;
+                    case MenuBarWidget.MB.MBF_saveCopyAs:
+		                this.fileSaveCopyAs(); break;
+                    case MenuBarWidget.MB.MBF_close:
+		                this.fileClose(); break;
+                    case MenuBarWidget.MB.MBF_setMaxRecent:
+		                this.fileSetMaxRecent(); break;
+                    case MenuBarWidget.MB.MBF_bookmarkCurrent:
+		                this.fileBookmarkCurrent(); break;
+                    case MenuBarWidget.MB.MBF_setMaxBookmarks:
+		                this.fileSetMaxBookmarks(); break;
+                    case MenuBarWidget.MB.MBF_organiseBookmarks:
+		                this.fileOrganiseBookmarks(); break;
+                    case MenuBarWidget.MB.MBF_exit:
+		                this.fileExit(); break;
                 }
             }
             finally { this.Enabled = true; }
@@ -564,143 +631,180 @@ namespace S4PIDemoFE
 
         private void fileNew()
         {
-            Filename = "";
-            CurrentPackage = Package.NewPackage(0);
-            IsPackageDirty = true;
+	        this.Filename = "";
+	        this.CurrentPackage = Package.NewPackage(0);
+	        this.IsPackageDirty = true;
         }
 
         private void fileOpen()
         {
-            openFileDialog1.FileName = "";
-            openFileDialog1.FilterIndex = 1;
+	        this.openFileDialog1.FileName = "";
+	        this.openFileDialog1.FilterIndex = 1;
 
             // CAS demo path
-            string path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Electronic Arts", "The Sims 4 Create A Sim Demo", "Mods");
-            if (System.IO.Directory.Exists(path)) openFileDialog1.CustomPlaces.Add(path);
-            // actual game path
-            path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Electronic Arts", "The Sims 4", "Mods");
-            if (System.IO.Directory.Exists(path)) openFileDialog1.CustomPlaces.Add(path);
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Electronic Arts", "The Sims 4 Create A Sim Demo", "Mods");
+            if (Directory.Exists(path))
+            {
+	            this.openFileDialog1.CustomPlaces.Add(path);
+            }
+            
+			// actual game path
+            path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Electronic Arts", "The Sims 4", "Mods");
+            if (Directory.Exists(path))
+            {
+	            this.openFileDialog1.CustomPlaces.Add(path);
+            }
 
-            DialogResult dr = openFileDialog1.ShowDialog();
-            if (dr != DialogResult.OK) return;
+	        if (Properties.Settings.Default.CustomPlaces != null)
+	        {
+		        foreach (string place in Properties.Settings.Default.CustomPlaces)
+		        {
+			        this.openFileDialog1.CustomPlaces.Add(place);
+		        }
+	        }
 
-            Filename = (openFileDialog1.ReadOnlyChecked ? "0:" : "1:") + openFileDialog1.FileName;
+            DialogResult dr = this.openFileDialog1.ShowDialog();
+            if (dr != DialogResult.OK)
+            {
+	            return;
+            }
+
+	        this.Filename = (this.openFileDialog1.ReadOnlyChecked ? "0:" : "1:") + this.openFileDialog1.FileName;
         }
 
         private bool fileSave()
         {
-            if (CurrentPackage == null) return false;
+            if (this.CurrentPackage == null) return false;
 
-            if (Filename == null || Filename.Length == 0) return fileSaveAs();
+            if (string.IsNullOrEmpty(this.Filename))
+            {
+	            return this.fileSaveAs();
+            }
 
             Application.UseWaitCursor = true;
             Application.DoEvents();
-            try
-            {
-                CurrentPackage.SavePackage();
-                IsPackageDirty = false;
-            }
-            finally { Application.UseWaitCursor = false; }
+	        try
+	        {
+		        this.CurrentPackage.SavePackage();
+		        this.IsPackageDirty = false;
+	        }
+	        finally
+	        {
+		        Application.UseWaitCursor = false;
+	        }
             return true;
         }
 
         private bool fileSaveAs()
         {
-            if (CurrentPackage == null) return false;
+            if (this.CurrentPackage == null) return false;
 
-            saveAsFileDialog.FileName = "";
-            saveAsFileDialog.FilterIndex = 1;
-            DialogResult dr = saveAsFileDialog.ShowDialog();
+	        this.saveAsFileDialog.FileName = "";
+	        this.saveAsFileDialog.FilterIndex = 1;
+            DialogResult dr = this.saveAsFileDialog.ShowDialog();
             if (dr != DialogResult.OK) return false;
 
-            if (Filename != null && Filename.Length > 0 && Path.GetFullPath(saveAsFileDialog.FileName).Equals(Path.GetFullPath(Filename)))
-                return fileSave();
+            if (!string.IsNullOrEmpty(this.Filename) && Path.GetFullPath(this.saveAsFileDialog.FileName).Equals(Path.GetFullPath(this.Filename)))
+            {
+	            return this.fileSave();
+            }
 
             Application.UseWaitCursor = true;
             Application.DoEvents();
-            try
-            {
-                CurrentPackage.SaveAs(saveAsFileDialog.FileName);
-                IsPackageDirty = false;
-                Filename = "1:" + saveAsFileDialog.FileName;
-            }
-            finally { Application.UseWaitCursor = false; }
+	        try
+	        {
+		        this.CurrentPackage.SaveAs(this.saveAsFileDialog.FileName);
+		        this.IsPackageDirty = false;
+		        this.Filename = "1:" + this.saveAsFileDialog.FileName;
+	        }
+	        finally
+	        {
+		        Application.UseWaitCursor = false;
+	        }
             return true;
         }
 
         private void fileSaveCopyAs()
         {
-            if (CurrentPackage == null) return;
+            if (this.CurrentPackage == null) return;
 
-            saveAsFileDialog.FileName = "";
-            saveAsFileDialog.FilterIndex = 1;
-            DialogResult dr = saveAsFileDialog.ShowDialog();
+	        this.saveAsFileDialog.FileName = "";
+	        this.saveAsFileDialog.FilterIndex = 1;
+            DialogResult dr = this.saveAsFileDialog.ShowDialog();
             if (dr != DialogResult.OK) return;
 
             Application.UseWaitCursor = true;
             Application.DoEvents();
-            try { CurrentPackage.SaveAs(saveAsFileDialog.FileName); }
-            finally { Application.UseWaitCursor = false; }
+	        try
+	        {
+		        this.CurrentPackage.SaveAs(this.saveAsFileDialog.FileName);
+	        }
+	        finally
+	        {
+		        Application.UseWaitCursor = false;
+	        }
         }
 
         private void fileClose()
         {
-            Filename = "";
+	        this.Filename = "";
         }
 
         private void menuBarWidget1_MRUClick(object sender, MenuBarWidget.MRUClickEventArgs filename)
         {
-            Filename = filename.filename;
+	        this.Filename = filename.filename;
         }
 
         private void fileSetMaxRecent()
         {
             GetNumberDialog gnd = new GetNumberDialog("Max number of files:", "Recent Files list", 0, 9,
-                S4PIDemoFE.Properties.Settings.Default.MRUListSize);
+                Properties.Settings.Default.MRUListSize);
             DialogResult dr = gnd.ShowDialog();
             if (dr != DialogResult.OK) return;
-            S4PIDemoFE.Properties.Settings.Default.MRUListSize = (short)gnd.Value;
+            Properties.Settings.Default.MRUListSize = (short)gnd.Value;
         }
 
         private void menuBarWidget1_BookmarkClick(object sender, MenuBarWidget.BookmarkClickEventArgs filename)
         {
-            Filename = filename.filename;
+	        this.Filename = filename.filename;
         }
 
         private void fileBookmarkCurrent()
         {
-            menuBarWidget.AddBookmark((ReadWrite ? "1:" : "0:") + Filename);
+	        this.menuBarWidget.AddBookmark((this.ReadWrite ? "1:" : "0:") + this.Filename);
         }
 
         private void fileSetMaxBookmarks()
         {
             GetNumberDialog gnd = new GetNumberDialog("Max number of files:", "Bookmark list", 0, 9,
-                S4PIDemoFE.Properties.Settings.Default.BookmarkSize);
+                Properties.Settings.Default.BookmarkSize);
             DialogResult dr = gnd.ShowDialog();
             if (dr != DialogResult.OK) return;
-            S4PIDemoFE.Properties.Settings.Default.BookmarkSize = (short)gnd.Value;
+            Properties.Settings.Default.BookmarkSize = (short)gnd.Value;
         }
 
         private void fileOrganiseBookmarks()
         {
-            settingsOrganiseBookmarks();
+	        this.settingsOrganiseBookmarks();
         }
 
         private void fileExit()
         {
             this.Close();
         }
+
         #endregion
 
         #region Edit menu
+
         private void editDropDownOpening()
         {
             Application.DoEvents();
-            bool enable = resException == null && resource != null;
-            menuBarWidget.Enable(MenuBarWidget.MB.MBE_copy, enable && canCopy());
-            menuBarWidget.Enable(MenuBarWidget.MB.MBE_save, enable && canSavePreview());
-            menuBarWidget.Enable(MenuBarWidget.MB.MBE_float, enable && canFloat());
-            menuBarWidget.Enable(MenuBarWidget.MB.MBE_ote, enable && canOTE());
+            bool enable = this.resException == null && this.resource != null;
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBE_copy, enable && this.canCopy());
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBE_save, enable && this.canSavePreview());
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBE_float, enable && this.canFloat());
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBE_ote, enable && this.canOTE());
         }
 
         private void menuBarWidget1_MBEdit_Click(object sender, MenuBarWidget.MBClickEventArgs mn)
@@ -711,10 +815,14 @@ namespace S4PIDemoFE
                 Application.DoEvents();
                 switch (mn.mn)
                 {
-                    case MenuBarWidget.MB.MBE_copy: editCopy(); break;
-                    case MenuBarWidget.MB.MBE_save: editSavePreview(); break;
-                    case MenuBarWidget.MB.MBE_float: editFloat(); break;
-                    case MenuBarWidget.MB.MBE_ote: editOTE(); break;
+                    case MenuBarWidget.MB.MBE_copy:
+		                this.editCopy(); break;
+                    case MenuBarWidget.MB.MBE_save:
+		                this.editSavePreview(); break;
+                    case MenuBarWidget.MB.MBE_float:
+		                this.editFloat(); break;
+                    case MenuBarWidget.MB.MBE_ote:
+		                this.editOTE(); break;
                 }
             }
             finally { this.Enabled = true; }
@@ -722,27 +830,27 @@ namespace S4PIDemoFE
 
         bool canCopy()
         {
-            if (pnAuto.Controls.Count != 1) return false;
-            if (pnAuto.Controls[0] is RichTextBox) return (pnAuto.Controls[0] as RichTextBox).SelectedText.Length > 0;
-            if (pnAuto.Controls[0] is PictureBox) return (pnAuto.Controls[0] as PictureBox).Image != null;
+            if (this.pnAuto.Controls.Count != 1) return false;
+            if (this.pnAuto.Controls[0] is RichTextBox) return (this.pnAuto.Controls[0] as RichTextBox).SelectedText.Length > 0;
+            if (this.pnAuto.Controls[0] is PictureBox) return (this.pnAuto.Controls[0] as PictureBox).Image != null;
             return false;
         }
         private void editCopy()
         {
-            if (pnAuto.Controls.Count != 1) return;
+            if (this.pnAuto.Controls.Count != 1) return;
 
-            if (pnAuto.Controls[0] is PictureBox && (pnAuto.Controls[0] as PictureBox).Image != null)
+            if (this.pnAuto.Controls[0] is PictureBox && (this.pnAuto.Controls[0] as PictureBox).Image != null)
             {
-                Clipboard.SetImage((pnAuto.Controls[0] as PictureBox).Image);
+                Clipboard.SetImage((this.pnAuto.Controls[0] as PictureBox).Image);
                 return;
             }
 
             string selectedText = "";
-            if (pnAuto.Controls[0] is RichTextBox) selectedText = (pnAuto.Controls[0] as RichTextBox).SelectedText;
+            if (this.pnAuto.Controls[0] is RichTextBox) selectedText = (this.pnAuto.Controls[0] as RichTextBox).SelectedText;
             else return;
             if (selectedText.Length == 0) return;
 
-            System.Text.StringBuilder s = new StringBuilder();
+            StringBuilder s = new StringBuilder();
             TextReader t = new StringReader(selectedText);
             for (var line = t.ReadLine(); line != null; line = t.ReadLine()) s.AppendLine(line);
             Clipboard.SetText(s.ToString(), TextDataFormat.UnicodeText);
@@ -750,25 +858,25 @@ namespace S4PIDemoFE
 
         bool canSavePreview()
         {
-            if (browserWidget1.SelectedResource as AResourceIndexEntry == null) return false;
-            if (pnAuto.Controls.Count < 1) return false;
+            if (this.browserWidget1.SelectedResource as AResourceIndexEntry == null) return false;
+            if (this.pnAuto.Controls.Count < 1) return false;
 
-            if (pnAuto.Controls[0] is RichTextBox) return true;
+            if (this.pnAuto.Controls[0] is RichTextBox) return true;
             return false;
         }
         private void editSavePreview()
         {
-            if (!canSavePreview()) return;
-            TGIN tgin = browserWidget1.SelectedResource as AResourceIndexEntry;
-            tgin.ResName = resourceName;
+            if (!this.canSavePreview()) return;
+            TGIN tgin = this.browserWidget1.SelectedResource as AResourceIndexEntry;
+            tgin.ResName = this.resourceName;
 
-            SaveFileDialog sfd = new SaveFileDialog()
-            {
-                DefaultExt = pnAuto.Controls[0] is RichTextBox ? ".txt" : ".hex",
+            SaveFileDialog sfd = new SaveFileDialog
+								 {
+                DefaultExt = this.pnAuto.Controls[0] is RichTextBox ? ".txt" : ".hex",
                 AddExtension = true,
                 CheckPathExists = true,
-                FileName = tgin + (pnAuto.Controls[0] is RichTextBox ? ".txt" : ".hex"),
-                Filter = pnAuto.Controls[0] is RichTextBox ? "Text documents (*.txt*)|*.txt|All files (*.*)|*.*" : "Hex dumps (*.hex)|*.hex|All files (*.*)|*.*",
+                FileName = tgin + (this.pnAuto.Controls[0] is RichTextBox ? ".txt" : ".hex"),
+                Filter = this.pnAuto.Controls[0] is RichTextBox ? "Text documents (*.txt*)|*.txt|All files (*.*)|*.*" : "Hex dumps (*.hex)|*.hex|All files (*.*)|*.*",
                 FilterIndex = 1,
                 OverwritePrompt = true,
                 Title = "Save preview content",
@@ -780,7 +888,7 @@ namespace S4PIDemoFE
 
             using (StreamWriter sw = new StreamWriter(sfd.FileName))
             {
-                if (pnAuto.Controls[0] is RichTextBox) { sw.Write((pnAuto.Controls[0] as RichTextBox).Text.Replace("\n", "\r\n")); }
+                if (this.pnAuto.Controls[0] is RichTextBox) { sw.Write((this.pnAuto.Controls[0] as RichTextBox).Text.Replace("\n", "\r\n")); }
                 sw.Flush();
                 sw.Close();
             }
@@ -792,27 +900,27 @@ namespace S4PIDemoFE
         }
         private void editFloat()
         {
-            if (!controlPanel1.HexOnly && controlPanel1.AutoPreview) controlPanel1_PreviewClick(null, EventArgs.Empty);
-            else controlPanel1_HexClick(null, EventArgs.Empty);
+            if (!this.controlPanel1.HexOnly && this.controlPanel1.AutoPreview) this.controlPanel1_PreviewClick(null, EventArgs.Empty);
+            else this.controlPanel1_HexClick(null, EventArgs.Empty);
         }
 
         bool canOTE()
         {
-            if (!hasTextEditor) return false;
-            if (pnAuto.Controls.Count != 1) return false;
-            if (pnAuto.Controls[0] is RichTextBox) return true;
+            if (!this.hasTextEditor) return false;
+            if (this.pnAuto.Controls.Count != 1) return false;
+            if (this.pnAuto.Controls[0] is RichTextBox) return true;
             return false;
         }
         private void editOTE()
         {
-            if (!hasTextEditor) return;
-            if (pnAuto.Controls.Count != 1) return;
+            if (!this.hasTextEditor) return;
+            if (this.pnAuto.Controls.Count != 1) return;
 
             string text = "";
-            if (pnAuto.Controls[0] is RichTextBox) { text = (pnAuto.Controls[0] as RichTextBox).Text; }
+            if (this.pnAuto.Controls[0] is RichTextBox) { text = (this.pnAuto.Controls[0] as RichTextBox).Text; }
             else return;
 
-            System.Text.StringBuilder s = new StringBuilder();
+            StringBuilder s = new StringBuilder();
             TextReader t = new StringReader(text);
             for (var line = t.ReadLine(); line != null; line = t.ReadLine()) s.AppendLine(line);
             text = s.ToString();
@@ -821,8 +929,8 @@ namespace S4PIDemoFE
             UnicodeEncoding unicode = new UnicodeEncoding();
             byte[] utf8Bytes = Encoding.Convert(unicode, utf8, unicode.GetBytes(text));
 
-            string command = S4PIDemoFE.Properties.Settings.Default.TextEditorCmd;
-            string filename = String.Format("{0}{1}{2}.txt", Path.GetTempPath(), tempName, System.Security.Cryptography.FNV64.GetHash(DateTime.UtcNow.ToString("O")).ToString("X16"));
+            string command = Properties.Settings.Default.TextEditorCmd;
+            string filename = String.Format("{0}{1}{2}.txt", Path.GetTempPath(), tempName, FNV64.GetHash(DateTime.UtcNow.ToString("O")).ToString("X16"));
             using (BinaryWriter w = new BinaryWriter(new FileStream(filename, FileMode.Create), Encoding.UTF8))
             {
                 w.Write(utf8Bytes);
@@ -830,12 +938,12 @@ namespace S4PIDemoFE
             }
             File.SetAttributes(filename, FileAttributes.ReadOnly | FileAttributes.Temporary);
 
-            System.Diagnostics.Process p = new System.Diagnostics.Process();
+            Process p = new Process();
 
             p.StartInfo.FileName = command;
             p.StartInfo.Arguments = filename;
             p.StartInfo.UseShellExecute = false;
-            p.Exited += new EventHandler(p_Exited);
+            p.Exited += this.p_Exited;
             p.EnableRaisingEvents = true;
 
             try { p.Start(); }
@@ -844,17 +952,16 @@ namespace S4PIDemoFE
                 CopyableMessageBox.IssueException(ex, String.Format("Application failed to start:\n{0}\n{1}", command, filename), "Launch failed");
                 File.SetAttributes(filename, FileAttributes.Normal);
                 File.Delete(filename);
-                return;
             }
         }
 
         void p_Exited(object sender, EventArgs e)
         {
-            System.Diagnostics.Process p = sender as System.Diagnostics.Process;
+            Process p = sender as Process;
             File.SetAttributes(p.StartInfo.Arguments, FileAttributes.Normal);
             File.Delete(p.StartInfo.Arguments);
 
-            MakeFormVisible();
+	        this.MakeFormVisible();
         }
 
         void cleanUpTemp()
@@ -872,53 +979,53 @@ namespace S4PIDemoFE
         #region Resource menu
         private void resourceDropDownOpening()
         {
-            bool multiSelection = browserWidget1.SelectedResources.Count != 0;
-            bool singleSelection = browserWidget1.SelectedResource != null;
+            bool multiSelection = this.browserWidget1.SelectedResources.Count != 0;
+            bool singleSelection = this.browserWidget1.SelectedResource != null;
             //menuBarWidget1.Enable(MenuBarWidget.MB.MBR_add, true);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_copy, multiSelection);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_paste, canPasteResource());
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_duplicate, singleSelection);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_replace, singleSelection);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_compressed, multiSelection);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_isdeleted, multiSelection);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_details, singleSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_copy, multiSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_paste, this.canPasteResource());
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_duplicate, singleSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_replace, singleSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_compressed, multiSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_isdeleted, multiSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_details, singleSelection);
             //menuBarWidget1.Enable(MenuBarWidget.MB.MBR_selectAll, true);
             //http://private/s4pi/index.php?topic=1188.msg6889#msg6889
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_copyRK, singleSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_copyRK, singleSelection);
             //menuBarWidget1.Enable(MenuBarWidget.MB.MBR_importResources, true);
             //menuBarWidget1.Enable(MenuBarWidget.MB.MBR_importPackages, true);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_replaceFrom, multiSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_replaceFrom, multiSelection);
             //menuBarWidget1.Enable(MenuBarWidget.MB.MBR_importAsDBC, true);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_exportResources, multiSelection);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_exportToPackage, multiSelection);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_hexEditor, singleSelection && hasHexEditor);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_textEditor, singleSelection && hasTextEditor);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_exportResources, multiSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_exportToPackage, multiSelection);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_hexEditor, singleSelection && this.hasHexEditor);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_textEditor, singleSelection && this.hasTextEditor);
 
-            CheckState res = CompressedCheckState();
+            CheckState res = this.CompressedCheckState();
             if (res == CheckState.Indeterminate)
             {
-                menuBarWidget.Indeterminate(MenuBarWidget.MB.MBR_compressed);
+	            this.menuBarWidget.Indeterminate(MenuBarWidget.MB.MBR_compressed);
             }
             else
             {
-                menuBarWidget.Checked(MenuBarWidget.MB.MBR_compressed, res == CheckState.Checked);
+	            this.menuBarWidget.Checked(MenuBarWidget.MB.MBR_compressed, res == CheckState.Checked);
             }
 
-            res = IsDeletedCheckState();
+            res = this.IsDeletedCheckState();
             if (res == CheckState.Indeterminate)
             {
-                menuBarWidget.Indeterminate(MenuBarWidget.MB.MBR_isdeleted);
+	            this.menuBarWidget.Indeterminate(MenuBarWidget.MB.MBR_isdeleted);
             }
             else
             {
-                menuBarWidget.Checked(MenuBarWidget.MB.MBR_isdeleted, res == CheckState.Checked);
+	            this.menuBarWidget.Checked(MenuBarWidget.MB.MBR_isdeleted, res == CheckState.Checked);
             }
 
         }
 
         bool canPasteResource()
         {
-            return CurrentPackage != null &&
+            return this.CurrentPackage != null &&
                 (
                 Clipboard.ContainsData(myDataFormatSingleFile)
                 || Clipboard.ContainsData(myDataFormatBatch)
@@ -929,29 +1036,29 @@ namespace S4PIDemoFE
 
         private CheckState CompressedCheckState()
         {
-            if (browserWidget1.SelectedResources.Count == 0)
+            if (this.browserWidget1.SelectedResources.Count == 0)
                 return CheckState.Unchecked;
-            else if (browserWidget1.SelectedResources.Count == 1)
-                return browserWidget1.SelectedResource.Compressed != 0 ? CheckState.Checked : CheckState.Unchecked;
+	        if (this.browserWidget1.SelectedResources.Count == 1)
+		        return this.browserWidget1.SelectedResource.Compressed != 0 ? CheckState.Checked : CheckState.Unchecked;
 
-            int state = 0;
-            foreach (IResourceIndexEntry rie in browserWidget1.SelectedResources) if (rie.Compressed != 0) state++;
-            if (state == 0 || state == browserWidget1.SelectedResources.Count)
-                return state == browserWidget1.SelectedResources.Count ? CheckState.Checked : CheckState.Unchecked;
+	        int state = 0;
+            foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources) if (rie.Compressed != 0) state++;
+            if (state == 0 || state == this.browserWidget1.SelectedResources.Count)
+                return state == this.browserWidget1.SelectedResources.Count ? CheckState.Checked : CheckState.Unchecked;
 
             return CheckState.Indeterminate;
         }
         private CheckState IsDeletedCheckState()
         {
-            if (browserWidget1.SelectedResources.Count == 0)
+            if (this.browserWidget1.SelectedResources.Count == 0)
                 return CheckState.Unchecked;
-            else if (browserWidget1.SelectedResources.Count == 1)
-                return browserWidget1.SelectedResource.IsDeleted ? CheckState.Checked : CheckState.Unchecked;
+	        if (this.browserWidget1.SelectedResources.Count == 1)
+		        return this.browserWidget1.SelectedResource.IsDeleted ? CheckState.Checked : CheckState.Unchecked;
 
-            int state = 0;
-            foreach (IResourceIndexEntry rie in browserWidget1.SelectedResources) if (rie.IsDeleted) state++;
-            if (state == 0 || state == browserWidget1.SelectedResources.Count)
-                return state == browserWidget1.SelectedResources.Count ? CheckState.Checked : CheckState.Unchecked;
+	        int state = 0;
+            foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources) if (rie.IsDeleted) state++;
+            if (state == 0 || state == this.browserWidget1.SelectedResources.Count)
+                return state == this.browserWidget1.SelectedResources.Count ? CheckState.Checked : CheckState.Unchecked;
 
             return CheckState.Indeterminate;
         }
@@ -964,24 +1071,42 @@ namespace S4PIDemoFE
                 Application.DoEvents();
                 switch (mn.mn)
                 {
-                    case MenuBarWidget.MB.MBR_add: resourceAdd(); break;
-                    case MenuBarWidget.MB.MBR_copy: resourceCopy(); break;
-                    case MenuBarWidget.MB.MBR_paste: resourcePaste(); break;
-                    case MenuBarWidget.MB.MBR_duplicate: resourceDuplicate(); break;
-                    case MenuBarWidget.MB.MBR_replace: resourceReplace(); break;
-                    case MenuBarWidget.MB.MBR_compressed: resourceCompressed(); break;
-                    case MenuBarWidget.MB.MBR_isdeleted: resourceIsDeleted(); break;
-                    case MenuBarWidget.MB.MBR_details: resourceDetails(); break;
-                    case MenuBarWidget.MB.MBR_selectAll: resourceSelectAll(); break;
-                    case MenuBarWidget.MB.MBR_copyRK: resourceCopyRK(); break;
-                    case MenuBarWidget.MB.MBR_importResources: resourceImport(); break;
-                    case MenuBarWidget.MB.MBR_importPackages: resourceImportPackages(); break;
-                    case MenuBarWidget.MB.MBR_replaceFrom: resourceReplaceFrom(); break;
-                    case MenuBarWidget.MB.MBR_importAsDBC: resourceImportAsDBC(); break;
-                    case MenuBarWidget.MB.MBR_exportResources: resourceExport(); break;
-                    case MenuBarWidget.MB.MBR_exportToPackage: resourceExportToPackage(); break;
-                    case MenuBarWidget.MB.MBR_hexEditor: resourceHexEdit(); break;
-                    case MenuBarWidget.MB.MBR_textEditor: resourceTextEdit(); break;
+                    case MenuBarWidget.MB.MBR_add:
+		                this.resourceAdd(); break;
+                    case MenuBarWidget.MB.MBR_copy:
+		                this.resourceCopy(); break;
+                    case MenuBarWidget.MB.MBR_paste:
+		                this.resourcePaste(); break;
+                    case MenuBarWidget.MB.MBR_duplicate:
+		                this.resourceDuplicate(); break;
+                    case MenuBarWidget.MB.MBR_replace:
+		                this.resourceReplace(); break;
+                    case MenuBarWidget.MB.MBR_compressed:
+		                this.resourceCompressed(); break;
+                    case MenuBarWidget.MB.MBR_isdeleted:
+		                this.resourceIsDeleted(); break;
+                    case MenuBarWidget.MB.MBR_details:
+		                this.resourceDetails(); break;
+                    case MenuBarWidget.MB.MBR_selectAll:
+		                this.resourceSelectAll(); break;
+                    case MenuBarWidget.MB.MBR_copyRK:
+		                this.resourceCopyRK(); break;
+                    case MenuBarWidget.MB.MBR_importResources:
+		                this.resourceImport(); break;
+                    case MenuBarWidget.MB.MBR_importPackages:
+		                this.resourceImportPackages(); break;
+                    case MenuBarWidget.MB.MBR_replaceFrom:
+		                this.resourceReplaceFrom(); break;
+                    case MenuBarWidget.MB.MBR_importAsDBC:
+		                this.resourceImportAsDBC(); break;
+                    case MenuBarWidget.MB.MBR_exportResources:
+		                this.resourceExport(); break;
+                    case MenuBarWidget.MB.MBR_exportToPackage:
+		                this.resourceExportToPackage(); break;
+                    case MenuBarWidget.MB.MBR_hexEditor:
+		                this.resourceHexEdit(); break;
+                    case MenuBarWidget.MB.MBR_textEditor:
+		                this.resourceTextEdit(); break;
                 }
             }
             finally { /*this.Enabled = true;/**/ }
@@ -993,32 +1118,32 @@ namespace S4PIDemoFE
             DialogResult dr = ir.ShowDialog();
             if (dr != DialogResult.OK) return;
 
-            IResourceIndexEntry rie = NewResource(ir, null, ir.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, ir.Compress);
+            IResourceIndexEntry rie = this.NewResource(ir, null, ir.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, ir.Compress);
             if (rie == null) return;
 
-            browserWidget1.Add(rie);
-            package.ReplaceResource(rie, resource);//Ensure there's an actual resource in the package
+	        this.browserWidget1.Add(rie);
+	        this.package.ReplaceResource(rie, this.resource);//Ensure there's an actual resource in the package
 
             if (ir.UseName && ir.ResourceName != null && ir.ResourceName.Length > 0)
-                browserWidget1.ResourceName(ir.Instance, ir.ResourceName, true, ir.AllowRename);
+	            this.browserWidget1.ResourceName(ir.Instance, ir.ResourceName, true, ir.AllowRename);
         }
 
         //private void resourceCut() { resourceCopy(); if (browserWidget1.SelectedResource != null) package.DeleteResource(browserWidget1.SelectedResource); }
 
         private void resourceCopy()
         {
-            if (browserWidget1.SelectedResources.Count == 0) return;
+            if (this.browserWidget1.SelectedResources.Count == 0) return;
 
             Application.UseWaitCursor = true;
             Application.DoEvents();
             try
             {
-                if (browserWidget1.SelectedResources.Count == 1)
+                if (this.browserWidget1.SelectedResources.Count == 1)
                 {
                     myDataFormat d = new myDataFormat();
-                    d.tgin = browserWidget1.SelectedResource as AResourceIndexEntry;
-                    d.tgin.ResName = resourceName;
-                    d.data = s4pi.WrapperDealer.WrapperDealer.GetResource(0, CurrentPackage, browserWidget1.SelectedResource, true).AsBytes;//Don't need wrapper
+                    d.tgin = this.browserWidget1.SelectedResource as AResourceIndexEntry;
+                    d.tgin.ResName = this.resourceName;
+                    d.data = WrapperDealer.GetResource(0, this.CurrentPackage, this.browserWidget1.SelectedResource, true).AsBytes;//Don't need wrapper
 
                     IFormatter formatter = new BinaryFormatter();
                     MemoryStream ms = new MemoryStream();
@@ -1029,12 +1154,12 @@ namespace S4PIDemoFE
                 else
                 {
                     List<myDataFormat> l = new List<myDataFormat>();
-                    foreach (IResourceIndexEntry rie in browserWidget1.SelectedResources)
+                    foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
                     {
                         myDataFormat d = new myDataFormat();
                         d.tgin = rie as AResourceIndexEntry;
-                        d.tgin.ResName = browserWidget1.ResourceName(rie);
-                        d.data = s4pi.WrapperDealer.WrapperDealer.GetResource(0, CurrentPackage, rie, true).AsBytes;//Don't need wrapper
+                        d.tgin.ResName = this.browserWidget1.ResourceName(rie);
+                        d.data = WrapperDealer.GetResource(0, this.CurrentPackage, rie, true).AsBytes;//Don't need wrapper
                         l.Add(d);
                     }
 
@@ -1052,28 +1177,28 @@ namespace S4PIDemoFE
 
         private void resourceDuplicate()
         {
-            if (resource == null) return;
-            byte[] buffer = resource.AsBytes;
+            if (this.resource == null) return;
+            byte[] buffer = this.resource.AsBytes;
             MemoryStream ms = new MemoryStream();
             ms.Write(buffer, 0, buffer.Length);
 
-            IResourceIndexEntry rie = CurrentPackage.AddResource(browserWidget1.SelectedResource, ms, false);
-            rie.Compressed = browserWidget1.SelectedResource.Compressed;
+            IResourceIndexEntry rie = this.CurrentPackage.AddResource(this.browserWidget1.SelectedResource, ms, false);
+            rie.Compressed = this.browserWidget1.SelectedResource.Compressed;
 
-            IResource res = s4pi.WrapperDealer.WrapperDealer.GetResource(0, CurrentPackage, rie, true);//Don't need wrapper
-            package.ReplaceResource(rie, res); // Commit new resource to package
-            IsPackageDirty = true;
+            IResource res = WrapperDealer.GetResource(0, this.CurrentPackage, rie, true);//Don't need wrapper
+	        this.package.ReplaceResource(rie, res); // Commit new resource to package
+	        this.IsPackageDirty = true;
 
-            browserWidget1.Add(rie);
+	        this.browserWidget1.Add(rie);
         }
 
         private void resourceCompressed()
         {
             ushort target = 0x5A42;
-            if (CompressedCheckState() == CheckState.Checked) target = 0;
-            foreach (IResourceIndexEntry rie in browserWidget1.SelectedResources)
+            if (this.CompressedCheckState() == CheckState.Checked) target = 0;
+            foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
             {
-                IsPackageDirty = !isPackageDirty || rie.Compressed != target;
+	            this.IsPackageDirty = !this.isPackageDirty || rie.Compressed != target;
                 rie.Compressed = target;
             }
         }
@@ -1081,88 +1206,87 @@ namespace S4PIDemoFE
         private void resourceIsDeleted()
         {
             bool target = true;
-            if (IsDeletedCheckState() == CheckState.Checked) target = false;
-            foreach (IResourceIndexEntry rie in browserWidget1.SelectedResources)
+            if (this.IsDeletedCheckState() == CheckState.Checked) target = false;
+            foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
             {
-                IsPackageDirty = !isPackageDirty || rie.IsDeleted != target;
+	            this.IsPackageDirty = !this.isPackageDirty || rie.IsDeleted != target;
                 rie.IsDeleted = target;
             }
         }
 
         private void resourceDetails()
         {
-            if (browserWidget1.SelectedResource == null) return;
+            if (this.browserWidget1.SelectedResource == null) return;
 
-            ResourceDetails ir = new ResourceDetails(resourceName != null && resourceName.Length > 0, false, browserWidget1.SelectedResource);
-            ir.Compress = browserWidget1.SelectedResource.Compressed != 0;
-            if (ir.UseName) ir.ResourceName = resourceName;
+            ResourceDetails ir = new ResourceDetails(this.resourceName != null && this.resourceName.Length > 0, false, this.browserWidget1.SelectedResource);
+            ir.Compress = this.browserWidget1.SelectedResource.Compressed != 0;
+            if (ir.UseName) ir.ResourceName = this.resourceName;
 
             DialogResult dr = ir.ShowDialog();
             if (dr != DialogResult.OK) return;
 
-            browserWidget1.ResourceKey = ir;
-            browserWidget1.SelectedResource.Compressed = (ushort)(ir.Compress ? 0x5A42 : 0);
+	        this.browserWidget1.ResourceKey = ir;
+	        this.browserWidget1.SelectedResource.Compressed = (ushort)(ir.Compress ? 0x5A42 : 0);
 
             if (ir.UseName && ir.ResourceName != null && ir.ResourceName.Length > 0)
-                browserWidget1.ResourceName(ir.Instance, ir.ResourceName, true, ir.AllowRename);
+	            this.browserWidget1.ResourceName(ir.Instance, ir.ResourceName, true, ir.AllowRename);
 
-            IsPackageDirty = true;
+	        this.IsPackageDirty = true;
         }
 
         private void resourceSelectAll()
         {
-            browserWidget1.SelectAll();
+	        this.browserWidget1.SelectAll();
         }
 
         private void resourceCopyRK()
         {
             //http://dino.drealm.info/develforums/s4pi/index.php?topic=1188.msg6889#msg6889
-            if (browserWidget1.SelectedResources.Count != 1) return;
-            Clipboard.SetText(String.Join("\r\n",
-                browserWidget1.SelectedResources.Select(r => r.ToString())));
+            if (this.browserWidget1.SelectedResources.Count != 1) return;
+            Clipboard.SetText(String.Join("\r\n", this.browserWidget1.SelectedResources.Select(r => r.ToString())));
         }
 
         private void resourceReplace()
         {
-            IResourceIndexEntry rie = browserWidget1.SelectedResource;
+            IResourceIndexEntry rie = this.browserWidget1.SelectedResource;
             if (rie == null) return;
 
             List<string> ext;
             string resType = "0x" + rie.ResourceType.ToString("X8");
-            if (s4pi.Extensions.ExtList.Ext.ContainsKey(resType)) ext = s4pi.Extensions.ExtList.Ext[resType];
-            else ext = s4pi.Extensions.ExtList.Ext["*"];
+            if (ExtList.Ext.ContainsKey(resType)) ext = ExtList.Ext[resType];
+            else ext = ExtList.Ext["*"];
 
-            replaceResourceDialog.Filter = ext[0] + " by type|S4_" + rie.ResourceType.ToString("X8") + "*.*" +
+	        this.replaceResourceDialog.Filter = ext[0] + " by type|S4_" + rie.ResourceType.ToString("X8") + "*.*" +
                 "|" + ext[0] + " by ext|*" + ext[ext.Count - 1] +
                 "|All files|*.*";
-            int i = S4PIDemoFE.Properties.Settings.Default.ResourceReplaceFilterIndex;
-            replaceResourceDialog.FilterIndex = (i >= 0 && i < 3) ? S4PIDemoFE.Properties.Settings.Default.ResourceReplaceFilterIndex + 1 : 1;
-            replaceResourceDialog.FileName = replaceResourceDialog.Filter.Split('|')[i * 2 + 1];
-            DialogResult dr = replaceResourceDialog.ShowDialog();
+            int i = Properties.Settings.Default.ResourceReplaceFilterIndex;
+	        this.replaceResourceDialog.FilterIndex = (i >= 0 && i < 3) ? Properties.Settings.Default.ResourceReplaceFilterIndex + 1 : 1;
+	        this.replaceResourceDialog.FileName = this.replaceResourceDialog.Filter.Split('|')[i * 2 + 1];
+            DialogResult dr = this.replaceResourceDialog.ShowDialog();
             if (dr != DialogResult.OK) return;
-            S4PIDemoFE.Properties.Settings.Default.ResourceReplaceFilterIndex = replaceResourceDialog.FilterIndex - 1;
+            Properties.Settings.Default.ResourceReplaceFilterIndex = this.replaceResourceDialog.FilterIndex - 1;
 
             IResource res;
             try
             {
-                res = ReadResource(replaceResourceDialog.FileName);
+                res = this.ReadResource(this.replaceResourceDialog.FileName);
             }
             catch (Exception ex)
             {
-                IssueException(ex, "Could not open file:\n" + replaceResourceDialog.FileName + ".\nNo changes made.");
+                IssueException(ex, "Could not open file:\n" + this.replaceResourceDialog.FileName + ".\nNo changes made.");
                 return;
             }
 
             // Reload the resource we just replaced as there's no way to get a changed trigger from it
-            SuspendLayout();
-            browserWidget1.SelectedResource = null;
+	        this.SuspendLayout();
+	        this.browserWidget1.SelectedResource = null;
 
-            package.ReplaceResource(rie, res);
-            resourceIsDirty = controlPanel1.CommitEnabled = false;
-            IsPackageDirty = true;
+	        this.package.ReplaceResource(rie, res);
+	        this.resourceIsDirty = this.controlPanel1.CommitEnabled = false;
+	        this.IsPackageDirty = true;
 
-            browserWidget1.SelectedResource = rie;
-            ResumeLayout();
+	        this.browserWidget1.SelectedResource = rie;
+	        this.ResumeLayout();
         }
 
         // For "resourceImport()", see Import/Import.cs
@@ -1184,23 +1308,23 @@ namespace S4PIDemoFE
             /// <summary>
             /// Ignore any conflicting resource
             /// </summary>
-            allow,
+            allow
         }
         private IResourceIndexEntry NewResource(IResourceKey rk, MemoryStream ms, DuplicateHandling dups, bool compress)
         {
-            IResourceIndexEntry rie = CurrentPackage.Find(x => rk.Equals(x));
+            IResourceIndexEntry rie = this.CurrentPackage.Find(x => rk.Equals(x));
             if (rie != null)
             {
                 if (dups == DuplicateHandling.reject) return null;
-                if (dups == DuplicateHandling.replace) CurrentPackage.DeleteResource(rie);
+                if (dups == DuplicateHandling.replace) this.CurrentPackage.DeleteResource(rie);
             }
 
-            rie = CurrentPackage.AddResource(rk, ms, false);//we do NOT want to search again...
+            rie = this.CurrentPackage.AddResource(rk, ms, false);//we do NOT want to search again...
             if (rie == null) return null;
 
             rie.Compressed = (ushort)(compress ? 0x5A42 : 0);
 
-            IsPackageDirty = true;
+	        this.IsPackageDirty = true;
 
             return rie;
         }
@@ -1214,38 +1338,40 @@ namespace S4PIDemoFE
                 br.Close();
             }
 
-            IResource rres = s4pi.WrapperDealer.WrapperDealer.CreateNewResource(0, "*");
-            ConstructorInfo ci = rres.GetType().GetConstructor(new Type[] { typeof(int), typeof(Stream), });
-            return (IResource)ci.Invoke(new object[] { (int)0, ms, });
+            IResource rres = WrapperDealer.CreateNewResource(0, "*");
+            ConstructorInfo ci = rres.GetType().GetConstructor(new[] { typeof(int), typeof(Stream) });
+            return (IResource)ci.Invoke(new object[] { 0, ms });
         }
 
         private void resourceExport()
         {
-            if (browserWidget1.SelectedResources.Count > 1) { exportBatch(); return; }
+            if (this.browserWidget1.SelectedResources.Count > 1) {
+	            this.exportBatch(); return; }
 
-            if (browserWidget1.SelectedResource as AResourceIndexEntry == null) return;
-            TGIN tgin = browserWidget1.SelectedResource as AResourceIndexEntry;
-            tgin.ResName = resourceName;
+            if (this.browserWidget1.SelectedResource as AResourceIndexEntry == null) return;
+            TGIN tgin = this.browserWidget1.SelectedResource as AResourceIndexEntry;
+            tgin.ResName = this.resourceName;
 
-            exportFileDialog.FileName = tgin;
-            exportFileDialog.InitialDirectory = S4PIDemoFE.Properties.Settings.Default.LastExportPath;
+	        this.exportFileDialog.FileName = tgin;
+	        this.exportFileDialog.InitialDirectory = Properties.Settings.Default.LastExportPath;
 
-            DialogResult dr = exportFileDialog.ShowDialog();
+            DialogResult dr = this.exportFileDialog.ShowDialog();
             if (dr != DialogResult.OK) return;
-            S4PIDemoFE.Properties.Settings.Default.LastExportPath = Path.GetDirectoryName(exportFileDialog.FileName);
+            Properties.Settings.Default.LastExportPath = Path.GetDirectoryName(this.exportFileDialog.FileName);
 
             Application.UseWaitCursor = true;
             Application.DoEvents();
-            try { exportFile(browserWidget1.SelectedResource, exportFileDialog.FileName); }
+            try {
+	            this.exportFile(this.browserWidget1.SelectedResource, this.exportFileDialog.FileName); }
             finally { Application.UseWaitCursor = false; Application.DoEvents(); }
         }
 
         private void exportBatch()
         {
-            exportBatchTarget.SelectedPath = S4PIDemoFE.Properties.Settings.Default.LastExportPath;
-            DialogResult dr = exportBatchTarget.ShowDialog();
+	        this.exportBatchTarget.SelectedPath = Properties.Settings.Default.LastExportPath;
+            DialogResult dr = this.exportBatchTarget.ShowDialog();
             if (dr != DialogResult.OK) return;
-            S4PIDemoFE.Properties.Settings.Default.LastExportPath = exportBatchTarget.SelectedPath;
+            Properties.Settings.Default.LastExportPath = this.exportBatchTarget.SelectedPath;
 
             Application.UseWaitCursor = true;
             Application.DoEvents();
@@ -1253,12 +1379,12 @@ namespace S4PIDemoFE
             bool skipAll = false;
             try
             {
-                foreach (IResourceIndexEntry rie in browserWidget1.SelectedResources)
+                foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
                 {
                     if (rie as AResourceIndexEntry == null) continue;
                     TGIN tgin = rie as AResourceIndexEntry;
-                    tgin.ResName = browserWidget1.ResourceName(rie);
-                    string file = Path.Combine(exportBatchTarget.SelectedPath, tgin);
+                    tgin.ResName = this.browserWidget1.ResourceName(rie);
+                    string file = Path.Combine(this.exportBatchTarget.SelectedPath, tgin);
                     if (File.Exists(file))
                     {
                         if (skipAll) continue;
@@ -1266,7 +1392,7 @@ namespace S4PIDemoFE
                         {
                             Application.UseWaitCursor = false;
                             int i = CopyableMessageBox.Show("Overwrite file?\n" + file, myName, CopyableMessageBoxIcon.Question,
-                                new List<string>(new string[] { "&No", "N&o to all", "&Yes", "Y&es to all", "&Abandon", }), 0, 4);
+                                new List<string>(new[] { "&No", "N&o to all", "&Yes", "Y&es to all", "&Abandon" }), 0, 4);
                             if (i == 0) continue;
                             if (i == 1) { skipAll = true; continue; }
                             if (i == 3) overwriteAll = true;
@@ -1274,7 +1400,7 @@ namespace S4PIDemoFE
                         }
                         Application.UseWaitCursor = true;
                     }
-                    exportFile(rie, file);
+	                this.exportFile(rie, file);
                 }
             }
             finally { Application.UseWaitCursor = false; Application.DoEvents(); }
@@ -1282,7 +1408,7 @@ namespace S4PIDemoFE
 
         private void exportFile(IResourceIndexEntry rie, string filename)
         {
-            IResource res = s4pi.WrapperDealer.WrapperDealer.GetResource(0, CurrentPackage, rie, true);//Don't need wrapper
+            IResource res = WrapperDealer.GetResource(0, this.CurrentPackage, rie, true);//Don't need wrapper
             Stream s = res.Stream;
             s.Position = 0;
             if (s.Length != rie.Memsize) CopyableMessageBox.Show(String.Format("Resource stream has {0} bytes; index entry says {1}.", s.Length, rie.Memsize));
@@ -1293,10 +1419,10 @@ namespace S4PIDemoFE
 
         private void resourceExportToPackage()
         {
-            DialogResult dr = exportToPackageDialog.ShowDialog();
+            DialogResult dr = this.exportToPackageDialog.ShowDialog();
             if (dr != DialogResult.OK) return;
 
-            if (Filename != null && Filename.Length > 0 && Path.GetFullPath(Filename).Equals(Path.GetFullPath(exportToPackageDialog.FileName)))
+            if (this.Filename != null && this.Filename.Length > 0 && Path.GetFullPath(this.Filename).Equals(Path.GetFullPath(this.exportToPackageDialog.FileName)))
             {
                 CopyableMessageBox.Show("Target must not be same as source.", "Export to package", CopyableMessageBoxButtons.OK, CopyableMessageBoxIcon.Error);
                 return;
@@ -1304,18 +1430,18 @@ namespace S4PIDemoFE
 
             bool isNew = false;
             IPackage target;
-            if (!File.Exists(exportToPackageDialog.FileName))
+            if (!File.Exists(this.exportToPackageDialog.FileName))
             {
                 try
                 {
                     target = Package.NewPackage(0);
-                    target.SaveAs(exportToPackageDialog.FileName);
+                    target.SaveAs(this.exportToPackageDialog.FileName);
                     target.Dispose(); // Package.ClosePackage(0, target);
                     isNew = true;
                 }
                 catch (Exception ex)
                 {
-                    IssueException(ex, "Export cannot begin.  Could not create target package:\n" + exportToPackageDialog.FileName);
+                    IssueException(ex, "Export cannot begin.  Could not create target package:\n" + this.exportToPackageDialog.FileName);
                     return;
                 }
             }
@@ -1323,13 +1449,13 @@ namespace S4PIDemoFE
             bool replace = false;
             try
             {
-                target = Package.OpenPackage(0, exportToPackageDialog.FileName, true);
+                target = Package.OpenPackage(0, this.exportToPackageDialog.FileName, true);
 
                 if (!isNew)
                 {
                     int res = CopyableMessageBox.Show(
                         "Do you want to replace any duplicate resources in the target package discovered during export?",
-                        "Export to package", CopyableMessageBoxIcon.Question, new List<string>(new string[] { "Re&ject", "Re&place", "&Abandon" }), 0, 2);
+                        "Export to package", CopyableMessageBoxIcon.Question, new List<string>(new[] { "Re&ject", "Re&place", "&Abandon" }), 0, 2);
                     if (res == 2) return;
                     replace = res == 0;
                 }
@@ -1340,7 +1466,7 @@ namespace S4PIDemoFE
                 if (idex.Message.Contains("magic tag"))
                 {
                     CopyableMessageBox.Show(
-                        "Export cannot begin.  Could not open target package:\n" + exportToPackageDialog.FileName + "\n\n" +
+                        "Export cannot begin.  Could not open target package:\n" + this.exportToPackageDialog.FileName + "\n\n" +
                         "This file does not contain the expected package identifier in the header.\n" +
                         "This could be because it is a protected package (e.g. a Store item).\n\n" +
                         idex.Message, myName + ": Unable to open file", CopyableMessageBoxButtons.OK, CopyableMessageBoxIcon.Error);
@@ -1348,20 +1474,20 @@ namespace S4PIDemoFE
                 else if (idex.Message.Contains("major version"))
                 {
                     CopyableMessageBox.Show(
-                        "Export cannot begin.  Could not open target package:\n" + exportToPackageDialog.FileName + "\n\n" +
+                        "Export cannot begin.  Could not open target package:\n" + this.exportToPackageDialog.FileName + "\n\n" +
                         "This file does not contain the expected package major version number in the header.\n" +
                         "This could be because it is a package for Sims2 or Spore.\n\n" +
                         idex.Message, myName + ": Unable to open file", CopyableMessageBoxButtons.OK, CopyableMessageBoxIcon.Error);
                 }
                 else
                 {
-                    IssueException(idex, "Export cannot begin.  Could not open target package:\n" + exportToPackageDialog.FileName);
+                    IssueException(idex, "Export cannot begin.  Could not open target package:\n" + this.exportToPackageDialog.FileName);
                 }
                 return;
             }
             catch (Exception ex)
             {
-                IssueException(ex, "Export cannot begin.  Could not open target package:\n" + exportToPackageDialog.FileName);
+                IssueException(ex, "Export cannot begin.  Could not open target package:\n" + this.exportToPackageDialog.FileName);
                 return;
             }
 
@@ -1370,22 +1496,22 @@ namespace S4PIDemoFE
             try
             {
                 Application.UseWaitCursor = true;
-                lbProgress.Text = "Exporting to " + Path.GetFileNameWithoutExtension(exportToPackageDialog.FileName) + "...";
+	            this.lbProgress.Text = "Exporting to " + Path.GetFileNameWithoutExtension(this.exportToPackageDialog.FileName) + "...";
                 Application.DoEvents();
 
-                progressBar1.Value = 0;
-                progressBar1.Maximum = browserWidget1.SelectedResources.Count;
-                foreach (IResourceIndexEntry rie in browserWidget1.SelectedResources)
+	            this.progressBar1.Value = 0;
+	            this.progressBar1.Maximum = this.browserWidget1.SelectedResources.Count;
+                foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
                 {
                     if (!sourceNames.ContainsKey(rie.Instance))
                     {
-                        string name = browserWidget1.ResourceName(rie);
+                        string name = this.browserWidget1.ResourceName(rie);
                         if (name != "")
                             sourceNames.Add(rie.Instance, name);
                     }
-                    exportResourceToPackage(target, rie, replace);
-                    progressBar1.Value++;
-                    if (progressBar1.Value % 100 == 0)
+	                this.exportResourceToPackage(target, rie, replace);
+	                this.progressBar1.Value++;
+                    if (this.progressBar1.Value % 100 == 0)
                         Application.DoEvents();
                 }
 
@@ -1394,7 +1520,7 @@ namespace S4PIDemoFE
                     IResourceIndexEntry nmrie = target.Find(_key => _key.ResourceType == 0x0166038C);
                     if (nmrie == null)
                     {
-                        TGIBlock newnmrk = new TGIBlock(0, null, 0x0166038C, 0, System.Security.Cryptography.FNV64.GetHash(exportToPackageDialog.FileName + DateTime.Now.ToString()));
+                        TGIBlock newnmrk = new TGIBlock(0, null, 0x0166038C, 0, FNV64.GetHash(this.exportToPackageDialog.FileName + DateTime.Now));
                         nmrie = target.AddResource(newnmrk, null, true);
                         if (nmrie == null)
                         {
@@ -1411,7 +1537,7 @@ namespace S4PIDemoFE
 
                     if (nmrie != null)
                     {
-                        IResource newnmap = s4pi.WrapperDealer.WrapperDealer.GetResource(0, target, nmrie);
+                        IResource newnmap = WrapperDealer.GetResource(0, target, nmrie);
                         if (newnmap != null && typeof(IDictionary<ulong, string>).IsAssignableFrom(newnmap.GetType()))
                         {
                             IDictionary<ulong, string> targetNames = (IDictionary<ulong, string>)newnmap;
@@ -1425,14 +1551,15 @@ namespace S4PIDemoFE
                     }
                 }
 
-                progressBar1.Value = 0;
+	            this.progressBar1.Value = 0;
 
-                lbProgress.Text = "Saving...";
+	            this.lbProgress.Text = "Saving...";
                 Application.DoEvents();
                 target.SavePackage();
                 target.Dispose(); //Package.ClosePackage(0, target);
             }
-            finally { target.Dispose(); lbProgress.Text = ""; Application.UseWaitCursor = false; Application.DoEvents(); } //Package.ClosePackage(0, target)
+            finally { target.Dispose();
+	            this.lbProgress.Text = ""; Application.UseWaitCursor = false; Application.DoEvents(); } //Package.ClosePackage(0, target)
         }
 
         private void exportResourceToPackage(IPackage tgtpkg, IResourceIndexEntry srcrie, bool replace)
@@ -1448,20 +1575,20 @@ namespace S4PIDemoFE
             if (rie == null) return;
             rie.Compressed = srcrie.Compressed;
 
-            IResource srcres = s4pi.WrapperDealer.WrapperDealer.GetResource(0, CurrentPackage, srcrie, true);//Don't need wrapper
+            IResource srcres = WrapperDealer.GetResource(0, this.CurrentPackage, srcrie, true);//Don't need wrapper
             tgtpkg.ReplaceResource(rie, srcres);
         }
 
         private void resourceHexEdit()
         {
-            if (resource == null) return;
-            HexEdit(browserWidget1.SelectedResource, resource);
+            if (this.resource == null) return;
+	        this.HexEdit(this.browserWidget1.SelectedResource, this.resource);
         }
 
         private void resourceTextEdit()
         {
-            if (resource == null) return;
-            TextEdit(browserWidget1.SelectedResource, resource);
+            if (this.resource == null) return;
+	        this.TextEdit(this.browserWidget1.SelectedResource, this.resource);
         }
 
         private void menuBarWidget1_HelperClick(object sender, MenuBarWidget.HelperClickEventArgs helper)
@@ -1470,7 +1597,7 @@ namespace S4PIDemoFE
             {
                 this.Enabled = false;
                 Application.DoEvents();
-                do_HelperClick(helper.helper);
+	            this.do_HelperClick(helper.helper);
             }
             finally { this.Enabled = true; }
         }
@@ -1485,8 +1612,10 @@ namespace S4PIDemoFE
                 Application.DoEvents();
                 switch (mn.mn)
                 {
-                    case MenuBarWidget.MB.MBT_fnvHash: toolsFNV(); break;
-                    case MenuBarWidget.MB.MBT_search: toolsSearch(); break;
+                    case MenuBarWidget.MB.MBT_fnvHash:
+		                this.toolsFNV(); break;
+                    case MenuBarWidget.MB.MBT_search:
+		                this.toolsSearch(); break;
                 }
             }
             finally { this.Enabled = true; }
@@ -1494,23 +1623,23 @@ namespace S4PIDemoFE
 
         private void toolsFNV()
         {
-            Tools.FNVHashDialog fnvForm = new S4PIDemoFE.Tools.FNVHashDialog();
+            FNVHashDialog fnvForm = new FNVHashDialog();
             fnvForm.Show();
         }
 
         private void toolsSearch()
         {
-            Tools.SearchForm searchForm = new S4PIDemoFE.Tools.SearchForm();
+            SearchForm searchForm = new SearchForm();
             searchForm.Width = this.Width * 4 / 5;
             searchForm.Height = this.Height * 4 / 5;
-            searchForm.CurrentPackage = CurrentPackage;
-            searchForm.Go += new EventHandler<S4PIDemoFE.Tools.SearchForm.GoEventArgs>(searchForm_Go);
+            searchForm.CurrentPackage = this.CurrentPackage;
+            searchForm.Go += this.searchForm_Go;
             searchForm.Show();
         }
 
-        void searchForm_Go(object sender, S4PIDemoFE.Tools.SearchForm.GoEventArgs e)
+        void searchForm_Go(object sender, SearchForm.GoEventArgs e)
         {
-            browserWidget1.SelectedResource = e.ResourceIndexEntry;
+	        this.browserWidget1.SelectedResource = e.ResourceIndexEntry;
         }
         #endregion
 
@@ -1523,15 +1652,27 @@ namespace S4PIDemoFE
                 Application.DoEvents();
                 switch (mn.mn)
                 {
-                    case MenuBarWidget.MB.MBS_updates: settingsAutomaticUpdates(); break;
-                    case MenuBarWidget.MB.MBS_previewDDS: settingsEnableDDSPreview(); break;
-                    case MenuBarWidget.MB.MBS_fallbackTextPreview: settingseEnableFallbackTextPreview(); break;
-                    case MenuBarWidget.MB.MBS_fallbackHexPreview: settingseEnableFallbackHexPreview(); break;
-                    case MenuBarWidget.MB.MBS_askAutoSaveDBC: settingsMBS_askAutoSaveDBC(); break;
-                    case MenuBarWidget.MB.MBS_bookmarks: settingsOrganiseBookmarks(); break;
-                    case MenuBarWidget.MB.MBS_externals: settingsExternalPrograms(); break;
-                    case MenuBarWidget.MB.MBS_wrappers: settingsManageWrappers(); break;
-                    case MenuBarWidget.MB.MBS_saveSettings: saveSettings(); break;
+                    case MenuBarWidget.MB.MBS_updates:
+		                this.settingsAutomaticUpdates(); break;
+                    case MenuBarWidget.MB.MBS_previewDDS:
+		                this.settingsEnableDDSPreview(); break;
+                    case MenuBarWidget.MB.MBS_fallbackTextPreview:
+		                this.settingseEnableFallbackTextPreview(); break;
+                    case MenuBarWidget.MB.MBS_fallbackHexPreview:
+		                this.settingseEnableFallbackHexPreview(); break;
+                    case MenuBarWidget.MB.MBS_askAutoSaveDBC:
+		                this.settingsMBS_askAutoSaveDBC(); break;
+                    case MenuBarWidget.MB.MBS_bookmarks:
+		                this.settingsOrganiseBookmarks(); break;
+					case MenuBarWidget.MB.MBS_customplaces:
+						this.SettingsOrganiseCustomPlaces();
+		                break;
+                    case MenuBarWidget.MB.MBS_externals:
+		                this.settingsExternalPrograms(); break;
+                    case MenuBarWidget.MB.MBS_wrappers:
+		                this.settingsManageWrappers(); break;
+                    case MenuBarWidget.MB.MBS_saveSettings:
+		                this.saveSettings(); break;
                 }
             }
             finally { this.Enabled = true; }
@@ -1539,75 +1680,82 @@ namespace S4PIDemoFE
 
         private void settingsAutomaticUpdates()
         {
-            AutoUpdate.Checker.AutoUpdateChoice = !menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_updates);
+            Checker.AutoUpdateChoice = !this.menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_updates);
         }
 
         private void settingsEnableDDSPreview()
         {
-            S4PIDemoFE.Properties.Settings.Default.EnableDDSPreview = !menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_previewDDS);
-            menuBarWidget.Checked(MenuBarWidget.MB.MBS_previewDDS, S4PIDemoFE.Properties.Settings.Default.EnableDDSPreview);
-            if (browserWidget1.SelectedResource != null)
-                controlPanel1_AutoChanged(this, EventArgs.Empty);
+            Properties.Settings.Default.EnableDDSPreview = !this.menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_previewDDS);
+	        this.menuBarWidget.Checked(MenuBarWidget.MB.MBS_previewDDS, Properties.Settings.Default.EnableDDSPreview);
+            if (this.browserWidget1.SelectedResource != null)
+	            this.controlPanel1_AutoChanged(this, EventArgs.Empty);
         }
 
         private void settingseEnableFallbackTextPreview()
         {
-            S4PIDemoFE.Properties.Settings.Default.EnableFallbackTextPreview = !menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_fallbackTextPreview);
-            menuBarWidget.Checked(MenuBarWidget.MB.MBS_fallbackTextPreview, S4PIDemoFE.Properties.Settings.Default.EnableFallbackTextPreview);
-            if (S4PIDemoFE.Properties.Settings.Default.EnableFallbackTextPreview && S4PIDemoFE.Properties.Settings.Default.EnableFallbackHexPreview)
+            Properties.Settings.Default.EnableFallbackTextPreview = !this.menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_fallbackTextPreview);
+	        this.menuBarWidget.Checked(MenuBarWidget.MB.MBS_fallbackTextPreview, Properties.Settings.Default.EnableFallbackTextPreview);
+            if (Properties.Settings.Default.EnableFallbackTextPreview && Properties.Settings.Default.EnableFallbackHexPreview)
             {
-                S4PIDemoFE.Properties.Settings.Default.EnableFallbackHexPreview = false;
-                menuBarWidget.Checked(MenuBarWidget.MB.MBS_fallbackHexPreview, false);
+                Properties.Settings.Default.EnableFallbackHexPreview = false;
+	            this.menuBarWidget.Checked(MenuBarWidget.MB.MBS_fallbackHexPreview, false);
             }
-            if (browserWidget1.SelectedResource != null)
-                controlPanel1_AutoChanged(this, EventArgs.Empty);
+            if (this.browserWidget1.SelectedResource != null)
+	            this.controlPanel1_AutoChanged(this, EventArgs.Empty);
         }
 
         private void settingseEnableFallbackHexPreview()
         {
-            S4PIDemoFE.Properties.Settings.Default.EnableFallbackHexPreview = !menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_fallbackHexPreview);
-            menuBarWidget.Checked(MenuBarWidget.MB.MBS_fallbackHexPreview, S4PIDemoFE.Properties.Settings.Default.EnableFallbackHexPreview);
-            if (S4PIDemoFE.Properties.Settings.Default.EnableFallbackTextPreview && S4PIDemoFE.Properties.Settings.Default.EnableFallbackHexPreview)
+            Properties.Settings.Default.EnableFallbackHexPreview = !this.menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_fallbackHexPreview);
+	        this.menuBarWidget.Checked(MenuBarWidget.MB.MBS_fallbackHexPreview, Properties.Settings.Default.EnableFallbackHexPreview);
+            if (Properties.Settings.Default.EnableFallbackTextPreview && Properties.Settings.Default.EnableFallbackHexPreview)
             {
-                S4PIDemoFE.Properties.Settings.Default.EnableFallbackTextPreview = false;
-                menuBarWidget.Checked(MenuBarWidget.MB.MBS_fallbackTextPreview, false);
+                Properties.Settings.Default.EnableFallbackTextPreview = false;
+	            this.menuBarWidget.Checked(MenuBarWidget.MB.MBS_fallbackTextPreview, false);
             }
-            if (browserWidget1.SelectedResource != null)
-                controlPanel1_AutoChanged(this, EventArgs.Empty);
+            if (this.browserWidget1.SelectedResource != null)
+	            this.controlPanel1_AutoChanged(this, EventArgs.Empty);
         }
 
-        bool dbcWarningIssued = false;
+        bool dbcWarningIssued;
         private void settingsMBS_askAutoSaveDBC()
         {
-            if (!S4PIDemoFE.Properties.Settings.Default.AskDBCAutoSave && !dbcWarningIssued)
+            if (!Properties.Settings.Default.AskDBCAutoSave && !this.dbcWarningIssued)
             {
-                dbcWarningIssued = true;
+	            this.dbcWarningIssued = true;
                 if (CopyableMessageBox.Show("AutoSave during import of DBC packages is recommended.\n" +
                     "Are you sure you want to be prompted?", "Enable DBC AutoSave prompt",
                     CopyableMessageBoxButtons.YesNo, CopyableMessageBoxIcon.Warning) != 0) return;
             }
-            S4PIDemoFE.Properties.Settings.Default.AskDBCAutoSave = !menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_askAutoSaveDBC);
-            menuBarWidget.Checked(MenuBarWidget.MB.MBS_askAutoSaveDBC, S4PIDemoFE.Properties.Settings.Default.AskDBCAutoSave);
+            Properties.Settings.Default.AskDBCAutoSave = !this.menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_askAutoSaveDBC);
+	        this.menuBarWidget.Checked(MenuBarWidget.MB.MBS_askAutoSaveDBC, Properties.Settings.Default.AskDBCAutoSave);
         }
 
         private void settingsOrganiseBookmarks()
         {
-            Settings.OrganiseBookmarksDialog obd = new S4PIDemoFE.Settings.OrganiseBookmarksDialog();
+            OrganiseBookmarksDialog obd = new OrganiseBookmarksDialog();
             obd.ShowDialog();
-            menuBarWidget.UpdateBookmarks();
+	        this.menuBarWidget.UpdateBookmarks();
         }
 
-        bool hasHexEditor { get { return S4PIDemoFE.Properties.Settings.Default.HexEditorCmd != null && S4PIDemoFE.Properties.Settings.Default.HexEditorCmd.Length > 0; } }
-        bool hasTextEditor { get { return S4PIDemoFE.Properties.Settings.Default.TextEditorCmd != null && S4PIDemoFE.Properties.Settings.Default.TextEditorCmd.Length > 0; } }
-        private void settingsExternalPrograms()
+		private void SettingsOrganiseCustomPlaces()
+		{
+			var dialog = new OrganiseCustomPlacesDialog();
+			dialog.ShowDialog(this);
+		}
+
+        bool hasHexEditor { get { return !string.IsNullOrEmpty(Properties.Settings.Default.HexEditorCmd); } }
+        bool hasTextEditor { get { return !string.IsNullOrEmpty(Properties.Settings.Default.TextEditorCmd); } }
+        
+		private void settingsExternalPrograms()
         {
-            Settings.ExternalProgramsDialog epd = new S4PIDemoFE.Settings.ExternalProgramsDialog();
-            if (hasHexEditor)
+            ExternalProgramsDialog epd = new ExternalProgramsDialog();
+            if (this.hasHexEditor)
             {
                 epd.HasUserHexEditor = true;
-                epd.UserHexEditor = S4PIDemoFE.Properties.Settings.Default.HexEditorCmd;
-                epd.HexEditorIgnoreTS = S4PIDemoFE.Properties.Settings.Default.HexEditorIgnoreTS;
-                epd.HexEditorWantsQuotes = S4PIDemoFE.Properties.Settings.Default.HexEditorWantsQuotes;
+                epd.UserHexEditor = Properties.Settings.Default.HexEditorCmd;
+                epd.HexEditorIgnoreTS = Properties.Settings.Default.HexEditorIgnoreTS;
+                epd.HexEditorWantsQuotes = Properties.Settings.Default.HexEditorWantsQuotes;
             }
             else
             {
@@ -1616,12 +1764,12 @@ namespace S4PIDemoFE
                 epd.HexEditorIgnoreTS = false;
                 epd.HexEditorWantsQuotes = false;
             }
-            if (hasTextEditor)
+            if (this.hasTextEditor)
             {
                 epd.HasUserTextEditor = true;
-                epd.UserTextEditor = S4PIDemoFE.Properties.Settings.Default.TextEditorCmd;
-                epd.TextEditorIgnoreTS = S4PIDemoFE.Properties.Settings.Default.TextEditorIgnoreTS;
-                epd.TextEditorWantsQuotes = S4PIDemoFE.Properties.Settings.Default.TextEditorWantsQuotes;
+                epd.UserTextEditor = Properties.Settings.Default.TextEditorCmd;
+                epd.TextEditorIgnoreTS = Properties.Settings.Default.TextEditorIgnoreTS;
+                epd.TextEditorWantsQuotes = Properties.Settings.Default.TextEditorWantsQuotes;
             }
             else
             {
@@ -1630,61 +1778,64 @@ namespace S4PIDemoFE
                 epd.TextEditorIgnoreTS = false;
                 epd.TextEditorWantsQuotes = false;
             }
-            if (S4PIDemoFE.Properties.Settings.Default.DisabledHelpers == null)
-                S4PIDemoFE.Properties.Settings.Default.DisabledHelpers = new System.Collections.Specialized.StringCollection();
+            if (Properties.Settings.Default.DisabledHelpers == null)
+                Properties.Settings.Default.DisabledHelpers = new StringCollection();
 
-            string[] disabledHelpers = new string[S4PIDemoFE.Properties.Settings.Default.DisabledHelpers.Count];
-            S4PIDemoFE.Properties.Settings.Default.DisabledHelpers.CopyTo(disabledHelpers, 0);
+            string[] disabledHelpers = new string[Properties.Settings.Default.DisabledHelpers.Count];
+            Properties.Settings.Default.DisabledHelpers.CopyTo(disabledHelpers, 0);
             epd.DisabledHelpers = disabledHelpers;
             DialogResult dr = epd.ShowDialog();
             if (dr != DialogResult.OK) return;
             if (epd.HasUserHexEditor && epd.UserHexEditor.Length > 0 && File.Exists(epd.UserHexEditor))
             {
-                S4PIDemoFE.Properties.Settings.Default.HexEditorCmd = epd.UserHexEditor;
-                S4PIDemoFE.Properties.Settings.Default.HexEditorIgnoreTS = epd.HexEditorIgnoreTS;
-                S4PIDemoFE.Properties.Settings.Default.HexEditorWantsQuotes = epd.HexEditorWantsQuotes;
+                Properties.Settings.Default.HexEditorCmd = epd.UserHexEditor;
+                Properties.Settings.Default.HexEditorIgnoreTS = epd.HexEditorIgnoreTS;
+                Properties.Settings.Default.HexEditorWantsQuotes = epd.HexEditorWantsQuotes;
             }
             else
             {
-                S4PIDemoFE.Properties.Settings.Default.HexEditorCmd = null;
-                S4PIDemoFE.Properties.Settings.Default.HexEditorIgnoreTS = false;
-                S4PIDemoFE.Properties.Settings.Default.HexEditorWantsQuotes = false;
+                Properties.Settings.Default.HexEditorCmd = null;
+                Properties.Settings.Default.HexEditorIgnoreTS = false;
+                Properties.Settings.Default.HexEditorWantsQuotes = false;
             }
             if (epd.HasUserTextEditor && epd.UserTextEditor.Length > 0 && File.Exists(epd.UserTextEditor))
             {
-                S4PIDemoFE.Properties.Settings.Default.TextEditorCmd = epd.UserTextEditor;
-                S4PIDemoFE.Properties.Settings.Default.TextEditorIgnoreTS = epd.TextEditorIgnoreTS;
-                S4PIDemoFE.Properties.Settings.Default.TextEditorWantsQuotes = epd.TextEditorWantsQuotes;
+                Properties.Settings.Default.TextEditorCmd = epd.UserTextEditor;
+                Properties.Settings.Default.TextEditorIgnoreTS = epd.TextEditorIgnoreTS;
+                Properties.Settings.Default.TextEditorWantsQuotes = epd.TextEditorWantsQuotes;
             }
             else
             {
-                S4PIDemoFE.Properties.Settings.Default.TextEditorCmd = null;
-                S4PIDemoFE.Properties.Settings.Default.TextEditorIgnoreTS = false;
-                S4PIDemoFE.Properties.Settings.Default.TextEditorWantsQuotes = false;
+                Properties.Settings.Default.TextEditorCmd = null;
+                Properties.Settings.Default.TextEditorIgnoreTS = false;
+                Properties.Settings.Default.TextEditorWantsQuotes = false;
             }
             disabledHelpers = epd.DisabledHelpers;
             if (disabledHelpers.Length == 0)
-                S4PIDemoFE.Properties.Settings.Default.DisabledHelpers = null;
+                Properties.Settings.Default.DisabledHelpers = null;
             else
             {
-                S4PIDemoFE.Properties.Settings.Default.DisabledHelpers = new System.Collections.Specialized.StringCollection();
-                S4PIDemoFE.Properties.Settings.Default.DisabledHelpers.AddRange(epd.DisabledHelpers);
+                Properties.Settings.Default.DisabledHelpers = new StringCollection();
+                Properties.Settings.Default.DisabledHelpers.AddRange(epd.DisabledHelpers);
             }
-            if (browserWidget1.SelectedResource != null && resource != null) { setHexEditor(); setTextEditor(); setHelpers(); }
+            if (this.browserWidget1.SelectedResource != null && this.resource != null) {
+	            this.setHexEditor();
+	            this.setTextEditor();
+	            this.setHelpers(); }
         }
 
         private void settingsManageWrappers()
         {
-            new Settings.ManageWrappersDialog().ShowDialog();
-            IResourceIndexEntry rie = browserWidget1.SelectedResource;
-            browserWidget1.SelectedResource = null;
-            browserWidget1.SelectedResource = rie;
+            new ManageWrappersDialog().ShowDialog();
+            IResourceIndexEntry rie = this.browserWidget1.SelectedResource;
+	        this.browserWidget1.SelectedResource = null;
+	        this.browserWidget1.SelectedResource = rie;
         }
 
         private void saveSettings()
         {
-            OnSaveSettings(this, new EventArgs());
-            S4PIDemoFE.Properties.Settings.Default.Save();
+	        this.OnSaveSettings(this, new EventArgs());
+            Properties.Settings.Default.Save();
         }
         #endregion
 
@@ -1697,11 +1848,16 @@ namespace S4PIDemoFE
                 Application.DoEvents();
                 switch (mn.mn)
                 {
-                    case MenuBarWidget.MB.MBH_contents: helpContents(); break;
-                    case MenuBarWidget.MB.MBH_about: helpAbout(); break;
-                    case MenuBarWidget.MB.MBH_update: helpUpdate(); break;
-                    case MenuBarWidget.MB.MBH_warranty: helpWarranty(); break;
-                    case MenuBarWidget.MB.MBH_licence: helpLicence(); break;
+                    case MenuBarWidget.MB.MBH_contents:
+		                this.helpContents(); break;
+                    case MenuBarWidget.MB.MBH_about:
+		                this.helpAbout(); break;
+                    case MenuBarWidget.MB.MBH_update:
+		                this.helpUpdate(); break;
+                    case MenuBarWidget.MB.MBH_warranty:
+		                this.helpWarranty(); break;
+                    case MenuBarWidget.MB.MBH_licence:
+		                this.helpLicence(); break;
                 }
             }
             finally { this.Enabled = true; }
@@ -1709,7 +1865,7 @@ namespace S4PIDemoFE
 
         private void helpContents()
         {
-            string locale = System.Globalization.CultureInfo.CurrentUICulture.Name;
+            string locale = CultureInfo.CurrentUICulture.Name;
 
             string baseFolder = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "HelpFiles");
             if (Directory.Exists(Path.Combine(baseFolder, locale)))
@@ -1736,16 +1892,16 @@ namespace S4PIDemoFE
                 "Front-end Distribution: {1}\n" +
                 "Library Distribution: {2}"
                 , copyright
-                , AutoUpdate.Version.CurrentVersion
-                , AutoUpdate.Version.LibraryVersion
+                , Version.CurrentVersion
+                , Version.LibraryVersion
                 ), myName);
         }
 
         private void helpUpdate()
         {
-            bool msgDisplayed = AutoUpdate.Checker.GetUpdate(false);
+            bool msgDisplayed = Checker.GetUpdate(false);
             if (!msgDisplayed)
-                CopyableMessageBox.Show("Your " + System.Configuration.PortableSettingsProvider.ExecutableName + " is up to date", myName,
+                CopyableMessageBox.Show("Your " + PortableSettingsProvider.ExecutableName + " is up to date", myName,
                     CopyableMessageBoxButtons.OK, CopyableMessageBoxIcon.Information);
         }
 
@@ -1797,7 +1953,7 @@ namespace S4PIDemoFE
         private void filterContextMenuOpening()
         {
             Application.DoEvents();
-            menuBarWidget.Enable(MenuBarWidget.MB.CMF_pasteRK, AResourceKey.TryParse(Clipboard.GetText(), new TGIBlock(0, null)));
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.CMF_pasteRK, AResourceKey.TryParse(Clipboard.GetText(), new TGIBlock(0, null)));
         }
 
         private void menuBarWidget1_CMFilter_Click(object sender, MenuBarWidget.MBClickEventArgs mn)
@@ -1808,7 +1964,8 @@ namespace S4PIDemoFE
                 Application.DoEvents();
                 switch (mn.mn)
                 {
-                    case MenuBarWidget.MB.CMF_pasteRK: filterPaste(); break;
+                    case MenuBarWidget.MB.CMF_pasteRK:
+		                this.filterPaste(); break;
                 }
             }
             finally { this.Enabled = true; }
@@ -1818,7 +1975,7 @@ namespace S4PIDemoFE
         {
             TGIBlock value = new TGIBlock(0, null);
             if (!AResourceKey.TryParse(Clipboard.GetText(), value)) return;
-            resourceFilterWidget1.PasteResourceKey(value);
+	        this.resourceFilterWidget1.PasteResourceKey(value);
         }
         #endregion
 
@@ -1827,16 +1984,16 @@ namespace S4PIDemoFE
         #region Browser Widget
         private void browserWidget1_SelectedResourceChanging(object sender, BrowserWidget.ResourceChangingEventArgs e)
         {
-            if (resource == null) return;
+            if (this.resource == null) return;
 
-            resource.ResourceChanged -= new EventHandler(resource_ResourceChanged);
-            if (resourceIsDirty)
+	        this.resource.ResourceChanged -= this.resource_ResourceChanged;
+            if (this.resourceIsDirty)
             {
                 int dr = CopyableMessageBox.Show(
                     String.Format("Commit changes to {0}?",
                         e.name.Length > 0
                         ? e.name
-                        : String.Format("TGI {0:X8}-{1:X8}-{2:X16}", browserWidget1.SelectedResource.ResourceType, browserWidget1.SelectedResource.ResourceGroup, browserWidget1.SelectedResource.Instance)
+                        : String.Format("TGI {0:X8}-{1:X8}-{2:X16}", this.browserWidget1.SelectedResource.ResourceType, this.browserWidget1.SelectedResource.ResourceGroup, this.browserWidget1.SelectedResource.Instance)
                     ), myName, CopyableMessageBoxButtons.YesNoCancel, CopyableMessageBoxIcon.Question, 1);
                 if (dr == 2)
                 {
@@ -1844,72 +2001,71 @@ namespace S4PIDemoFE
                     return;
                 }
                 if (dr != 1)
-                    controlPanel1_CommitClick(null, null);
+	                this.controlPanel1_CommitClick(null, null);
             }
         }
 
         private void browserWidget1_SelectedResourceChanged(object sender, BrowserWidget.ResourceChangedEventArgs e)
         {
-            resourceName = e.name;
-            resource = null;
-            resException = null;
-            if (browserWidget1.SelectedResource != null)
+	        this.resourceName = e.name;
+	        this.resource = null;
+	        this.resException = null;
+            if (this.browserWidget1.SelectedResource != null)
             {
                 try
                 {
-                    resource = s4pi.WrapperDealer.WrapperDealer.GetResource(0, CurrentPackage, browserWidget1.SelectedResource, controlPanel1.HexOnly);
+	                this.resource = WrapperDealer.GetResource(0, this.CurrentPackage, this.browserWidget1.SelectedResource, this.controlPanel1.HexOnly);
                 }
                 catch (Exception ex)
                 {
-                    resException = ex;
+	                this.resException = ex;
                 }
             }
 
-            if (resource != null) resource.ResourceChanged += new EventHandler(resource_ResourceChanged);
+            if (this.resource != null) this.resource.ResourceChanged += this.resource_ResourceChanged;
 
-            resourceIsDirty = controlPanel1.CommitEnabled = false;
+	        this.resourceIsDirty = this.controlPanel1.CommitEnabled = false;
 
-            menuBarWidget.ClearHelpers();
+	        this.menuBarWidget.ClearHelpers();
 
-            controlPanel1_AutoChanged(null, null);
-            if (resource != null)
+	        this.controlPanel1_AutoChanged(null, null);
+            if (this.resource != null)
             {
-                controlPanel1.HexEnabled = true;
-                controlPanel1.ValueEnabled = hasStringValueContentField();
-                controlPanel1.GridEnabled = resource.ContentFields.Find(x => !x.Equals("AsBytes") && !x.Equals("Stream") && !x.Equals("Value")) != null;
-                setHexEditor();
-                setTextEditor();
-                setHelpers();
+	            this.controlPanel1.HexEnabled = true;
+	            this.controlPanel1.ValueEnabled = this.hasStringValueContentField();
+	            this.controlPanel1.GridEnabled = this.resource.ContentFields.Find(x => !x.Equals("AsBytes") && !x.Equals("Stream") && !x.Equals("Value")) != null;
+	            this.setHexEditor();
+	            this.setTextEditor();
+	            this.setHelpers();
             }
             else
             {
-                controlPanel1.HexEnabled = controlPanel1.ValueEnabled = controlPanel1.GridEnabled =
-                    controlPanel1.Helper1Enabled = controlPanel1.Helper2Enabled = controlPanel1.HexEditEnabled = false;
-                menuBarWidget.Enable(MenuBarWidget.MB.MBR_hexEditor, false);
-                menuBarWidget.Enable(MenuBarWidget.MB.MBR_textEditor, false);
-                helpers = null;
+	            this.controlPanel1.HexEnabled = this.controlPanel1.ValueEnabled = this.controlPanel1.GridEnabled = this.controlPanel1.Helper1Enabled = this.controlPanel1.Helper2Enabled = this.controlPanel1.HexEditEnabled = false;
+	            this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_hexEditor, false);
+	            this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_textEditor, false);
+	            this.helpers = null;
             }
 
-            bool selectedItems = resource != null || browserWidget1.SelectedResources.Count > 0; // one or more
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_exportResources, selectedItems);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_exportToPackage, selectedItems);
+            bool selectedItems = this.resource != null || this.browserWidget1.SelectedResources.Count > 0; // one or more
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_exportResources, selectedItems);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_exportToPackage, selectedItems);
             //menuBarWidget1.Enable(MenuBarWidget.MB.MBE_cut, resource != null);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_copy, selectedItems);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_duplicate, resource != null);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_replace, resource != null);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_compressed, selectedItems);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_isdeleted, selectedItems);
-            menuBarWidget.Enable(MenuBarWidget.MB.MBR_details, resource != null);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_copy, selectedItems);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_duplicate, this.resource != null);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_replace, this.resource != null);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_compressed, selectedItems);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_isdeleted, selectedItems);
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_details, this.resource != null);
 
-            resourceFilterWidget1.IndexEntry = browserWidget1.SelectedResource;
+	        this.resourceFilterWidget1.IndexEntry = this.browserWidget1.SelectedResource;
         }
 
         // Does the resource wrapper parse to a string value?
         bool hasStringValueContentField()
         {
-            if (!resource.ContentFields.Contains("Value")) return false;
+            if (!this.resource.ContentFields.Contains("Value")) return false;
 
-            Type t = AApiVersionedFields.GetContentFieldTypes(0, resource.GetType())["Value"];
+            Type t = AApiVersionedFields.GetContentFieldTypes(0, this.resource.GetType())["Value"];
             if (typeof(String).IsAssignableFrom(t)) return true;
 
             return false;
@@ -1926,12 +2082,12 @@ namespace S4PIDemoFE
 
         private void browserWidget1_ItemActivate(object sender, EventArgs e)
         {
-            resourceDetails();
+	        this.resourceDetails();
         }
 
         private void browserWidget1_DeletePressed(object sender, EventArgs e)
         {
-            resourceIsDeleted();
+	        this.resourceIsDeleted();
         }
         #endregion
 
@@ -1941,14 +2097,14 @@ namespace S4PIDemoFE
             try
             {
                 this.Enabled = false;
-                browserWidget1.Filter = resourceFilterWidget1.FilterEnabled ? resourceFilterWidget1.Filter : null;
+	            this.browserWidget1.Filter = this.resourceFilterWidget1.FilterEnabled ? this.resourceFilterWidget1.Filter : null;
             }
             finally { this.Enabled = true; }
         }
 
         private void resourceFilterWidget1_PasteClicked(object sender, EventArgs e)
         {
-            filterPaste();
+	        this.filterPaste();
         }
         #endregion
 
@@ -1958,7 +2114,7 @@ namespace S4PIDemoFE
             try
             {
                 this.Enabled = false;
-                browserWidget1.Sortable = controlPanel1.Sort;
+	            this.browserWidget1.Sortable = this.controlPanel1.Sort;
             }
             finally { this.Enabled = true; }
         }
@@ -1966,11 +2122,11 @@ namespace S4PIDemoFE
         private void controlPanel1_HexOnlyChanged(object sender, EventArgs e)
         {
             Application.DoEvents();
-            IResourceIndexEntry rie = browserWidget1.SelectedResource;
+            IResourceIndexEntry rie = this.browserWidget1.SelectedResource;
             if (rie != null)
             {
-                browserWidget1.SelectedResource = null;
-                browserWidget1.SelectedResource = rie;
+	            this.browserWidget1.SelectedResource = null;
+	            this.browserWidget1.SelectedResource = rie;
             }
         }
 
@@ -1981,51 +2137,51 @@ namespace S4PIDemoFE
             {
                 Application.UseWaitCursor = true;
                 Application.DoEvents();
-                pnAuto.SuspendLayout();
-                pnAutoCleanUp();
+	            this.pnAuto.SuspendLayout();
+	            this.pnAutoCleanUp();
 
-                if (!controlPanel1.AutoOff)
+                if (!this.controlPanel1.AutoOff)
                 {
 
                     IBuiltInValueControl c = null;
-                    if (resException != null)
-                        c = getExceptionControl(resException);
-                    else if (resource != null)
+                    if (this.resException != null)
+                        c = this.getExceptionControl(this.resException);
+                    else if (this.resource != null)
                     {
 
-                        if (controlPanel1.AutoHex)
+                        if (this.controlPanel1.AutoHex)
                         {
-                            c = new HexControl(resource.Stream);
+                            c = new HexControl(this.resource.Stream);
                         }
-                        else if (controlPanel1.AutoPreview)
+                        else if (this.controlPanel1.AutoPreview)
                         {
-                            c = getPreviewControl();
+                            c = this.getPreviewControl();
                         }
 
                     }
                     if (c != null)
                     {
-                        menuBarWidget.SetPreviewControlItems(c.GetContextMenuItems(controlPanel1_CommitClick));
-                        pnAuto.Controls.Add(c.ValueControl);
+	                    this.menuBarWidget.SetPreviewControlItems(c.GetContextMenuItems(this.controlPanel1_CommitClick));
+	                    this.pnAuto.Controls.Add(c.ValueControl);
                     }
 
                 }
 
-                foreach (Control c in pnAuto.Controls)
+                foreach (Control c in this.pnAuto.Controls)
                 {
-                    c.ContextMenuStrip = menuBarWidget.previewContextMenuStrip;
+                    c.ContextMenuStrip = this.menuBarWidget.previewContextMenuStrip;
                     c.Dock = DockStyle.Fill;
                     if (c is RichTextBox)
                     {
-                        (c as RichTextBox).ZoomFactor = S4PIDemoFE.Properties.Settings.Default.PreviewZoomFactor;
-                        (c as RichTextBox).ContentsResized += (s, cre) => { S4PIDemoFE.Properties.Settings.Default.PreviewZoomFactor = (s as RichTextBox).ZoomFactor; };
+                        (c as RichTextBox).ZoomFactor = Properties.Settings.Default.PreviewZoomFactor;
+                        (c as RichTextBox).ContentsResized += (s, cre) => { Properties.Settings.Default.PreviewZoomFactor = (s as RichTextBox).ZoomFactor; };
                     }
                 }
 
             }
             finally
             {
-                pnAuto.ResumeLayout();
+	            this.pnAuto.ResumeLayout();
                 Application.UseWaitCursor = waiting;
                 Application.DoEvents();
             }
@@ -2033,11 +2189,11 @@ namespace S4PIDemoFE
 
         private void pnAutoCleanUp()
         {
-            if (pnAuto.Controls.Count == 0) return;
+            if (this.pnAuto.Controls.Count == 0) return;
 
-            foreach (Control c in pnAuto.Controls)
+            foreach (Control c in this.pnAuto.Controls)
                 c.Dispose();
-            pnAuto.Controls.Clear();
+	        this.pnAuto.Controls.Clear();
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -2049,7 +2205,7 @@ namespace S4PIDemoFE
                 this.Enabled = false;
                 Application.DoEvents();
 
-                f_FloatControl((new HexControl(resource.Stream)).ValueControl);
+	            this.f_FloatControl((new HexControl(this.resource.Stream)).ValueControl);
             }
             finally { this.Enabled = true; }
         }
@@ -2061,10 +2217,10 @@ namespace S4PIDemoFE
                 this.Enabled = false;
                 Application.DoEvents();
 
-                IBuiltInValueControl c = getPreviewControl();
+                IBuiltInValueControl c = this.getPreviewControl();
                 if (c == null) return;
 
-                f_FloatControl(c.ValueControl);
+	            this.f_FloatControl(c.ValueControl);
             }
             finally { this.Enabled = true; }
         }
@@ -2077,7 +2233,7 @@ namespace S4PIDemoFE
             c.Dock = DockStyle.Fill;
             f.Icon = this.Icon;
 
-            f.Text = this.Text + ((resourceName != null && resourceName.Length > 0) ? " - " + resourceName : "");
+            f.Text = this.Text + ((this.resourceName != null && this.resourceName.Length > 0) ? " - " + this.resourceName : "");
 
             if (c.GetType().Equals(typeof(RichTextBox)))
             {
@@ -2091,7 +2247,7 @@ namespace S4PIDemoFE
 
             f.StartPosition = FormStartPosition.CenterParent;
             f.ResumeLayout();
-            f.FormClosed += new FormClosedEventHandler(f_FormClosed);
+            f.FormClosed += this.f_FormClosed;
             f.Show(this);
         }
 
@@ -2104,34 +2260,34 @@ namespace S4PIDemoFE
         {
             try
             {
-                if (hasStringValueContentField())
+                if (this.hasStringValueContentField())
                 {
-                    return new TextControl("" + resource["Value"]);
+                    return new TextControl("" + this.resource["Value"]);
                 }
 
-                IBuiltInValueControl ibvc = ABuiltInValueControl.Lookup(browserWidget1.SelectedResource.ResourceType, resource.Stream);
+                IBuiltInValueControl ibvc = ABuiltInValueControl.Lookup(this.browserWidget1.SelectedResource.ResourceType, this.resource.Stream);
                 if (ibvc != null)
                 {
                     return ibvc;
                 }
 
-                if (S4PIDemoFE.Properties.Settings.Default.EnableFallbackHexPreview)
+                if (Properties.Settings.Default.EnableFallbackHexPreview)
                 {
-                    return new HexControl(resource.Stream);
+                    return new HexControl(this.resource.Stream);
                 }
 
-                if (S4PIDemoFE.Properties.Settings.Default.EnableFallbackTextPreview)
+                if (Properties.Settings.Default.EnableFallbackTextPreview)
                 {
                     return new TextControl(
                         "== == == == == == == == == == == == == == == == ==\n" +
                         " **  Fallback preview:  data may be incomplete  ** \n" +
                         "== == == == == == == == == == == == == == == == ==\n\n\n" +
-                        (new StreamReader(resource.Stream)).ReadToEnd());
+                        (new StreamReader(this.resource.Stream)).ReadToEnd());
                 }
             }
             catch (Exception ex)
             {
-                return getExceptionControl(ex);
+                return this.getExceptionControl(ex);
             }
 
             return null;
@@ -2139,11 +2295,11 @@ namespace S4PIDemoFE
 
         IBuiltInValueControl getExceptionControl(Exception ex)
         {
-            IResourceIndexEntry rie = browserWidget1.SelectedResource;
+            IResourceIndexEntry rie = this.browserWidget1.SelectedResource;
             string s = "";
-            if (rie != null) s += "Error reading resource " + ((IResourceKey)rie);
+            if (rie != null) s += "Error reading resource " + rie;
             s += String.Format("\r\nFront-end Distribution: {0}\r\nLibrary Distribution: {1}\r\n",
-                AutoUpdate.Version.CurrentVersion, AutoUpdate.Version.LibraryVersion);
+                Version.CurrentVersion, Version.LibraryVersion);
             for (Exception inex = ex; inex != null; inex = inex.InnerException)
             {
                 s += "\r\nSource: " + inex.Source;
@@ -2161,14 +2317,14 @@ namespace S4PIDemoFE
             try
             {
                 this.Enabled = false;
-                DialogResult dr = (new NewGridForm(resource as AApiVersionedFields, true)).ShowDialog();
+                DialogResult dr = (new NewGridForm(this.resource as AApiVersionedFields, true)).ShowDialog();
                 if (dr != DialogResult.OK)
-                    resourceIsDirty = false;
+	                this.resourceIsDirty = false;
                 else
-                    controlPanel1_CommitClick(null, null);
-                IResourceIndexEntry rie = browserWidget1.SelectedResource;
-                browserWidget1.SelectedResource = null;
-                browserWidget1.SelectedResource = rie;
+	                this.controlPanel1_CommitClick(null, null);
+                IResourceIndexEntry rie = this.browserWidget1.SelectedResource;
+	            this.browserWidget1.SelectedResource = null;
+	            this.browserWidget1.SelectedResource = rie;
             }
             finally { this.Enabled = true; }
         }
@@ -2179,7 +2335,7 @@ namespace S4PIDemoFE
             try
             {
                 this.Enabled = false;
-                browserWidget1.DisplayResourceNames = controlPanel1.UseNames;
+	            this.browserWidget1.DisplayResourceNames = this.controlPanel1.UseNames;
             }
             finally { this.Enabled = en; }
         }
@@ -2190,57 +2346,61 @@ namespace S4PIDemoFE
             try
             {
                 this.Enabled = false;
-                browserWidget1.DisplayResourceTags = controlPanel1.UseTags;
+	            this.browserWidget1.DisplayResourceTags = this.controlPanel1.UseTags;
             }
             finally { this.Enabled = en; }
         }
 
         private void controlPanel1_CommitClick(object sender, EventArgs e)
         {
-            if (resource == null) return;
-            if (package == null) return;
-            package.ReplaceResource(browserWidget1.SelectedResource, resource);
-            resourceIsDirty = controlPanel1.CommitEnabled = false;
-            IsPackageDirty = true;
+            if (this.resource == null) return;
+            if (this.package == null) return;
+	        this.package.ReplaceResource(this.browserWidget1.SelectedResource, this.resource);
+	        this.resourceIsDirty = this.controlPanel1.CommitEnabled = false;
+	        this.IsPackageDirty = true;
         }
 
-        private void controlPanel1_HexEditClick(object sender, EventArgs e) { HexEdit(browserWidget1.SelectedResource, resource); }
+        private void controlPanel1_HexEditClick(object sender, EventArgs e) {
+	        this.HexEdit(this.browserWidget1.SelectedResource, this.resource); }
         #endregion
 
         #region Helpers
-        void setHexEditor() { menuBarWidget.Enable(MenuBarWidget.MB.MBR_hexEditor, hasHexEditor); controlPanel1.HexEditEnabled = hasHexEditor; }
+        void setHexEditor() {
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_hexEditor, this.hasHexEditor);
+	        this.controlPanel1.HexEditEnabled = this.hasHexEditor; }
 
-        void setTextEditor() { menuBarWidget.Enable(MenuBarWidget.MB.MBR_textEditor, hasTextEditor); }
+        void setTextEditor() {
+	        this.menuBarWidget.Enable(MenuBarWidget.MB.MBR_textEditor, this.hasTextEditor); }
 
         void setHelpers()
         {
-            helpers = new s4pi.Helpers.HelperManager(browserWidget1.SelectedResource, resource, browserWidget1.ResourceName(browserWidget1.SelectedResource));
-            if (S4PIDemoFE.Properties.Settings.Default.DisabledHelpers != null)
-                foreach (string id in S4PIDemoFE.Properties.Settings.Default.DisabledHelpers)
+	        this.helpers = new HelperManager(this.browserWidget1.SelectedResource, this.resource, this.browserWidget1.ResourceName(this.browserWidget1.SelectedResource));
+            if (Properties.Settings.Default.DisabledHelpers != null)
+                foreach (string id in Properties.Settings.Default.DisabledHelpers)
                 {
-                    List<s4pi.Helpers.HelperManager.Helper> disabled = new List<s4pi.Helpers.HelperManager.Helper>();
-                    foreach (var helper in helpers) if (helper.id == id) disabled.Add(helper);
-                    foreach (var helper in disabled) helpers.Remove(helper);
+                    List<HelperManager.Helper> disabled = new List<HelperManager.Helper>();
+                    foreach (var helper in this.helpers) if (helper.id == id) disabled.Add(helper);
+                    foreach (var helper in disabled) this.helpers.Remove(helper);
                 }
-            controlPanel1.Helper1Enabled = helpers.Count > 0;
-            controlPanel1.Helper1Label = helpers.Count > 0 && helpers[0].label.Length > 0 ? helpers[0].label : "Helper1";
-            controlPanel1.Helper1Tip = helpers.Count > 0 && helpers[0].desc.Length > 0 ? helpers[0].desc : "";
+	        this.controlPanel1.Helper1Enabled = this.helpers.Count > 0;
+	        this.controlPanel1.Helper1Label = this.helpers.Count > 0 && this.helpers[0].label.Length > 0 ? this.helpers[0].label : "Helper1";
+	        this.controlPanel1.Helper1Tip = this.helpers.Count > 0 && this.helpers[0].desc.Length > 0 ? this.helpers[0].desc : "";
 
-            controlPanel1.Helper2Enabled = helpers.Count > 1;
-            controlPanel1.Helper2Label = helpers.Count > 1 && helpers[1].label.Length > 0 ? helpers[1].label : "Helper2";
-            controlPanel1.Helper1Tip = helpers.Count > 1 && helpers[1].desc.Length > 0 ? helpers[1].desc : "";
+	        this.controlPanel1.Helper2Enabled = this.helpers.Count > 1;
+	        this.controlPanel1.Helper2Label = this.helpers.Count > 1 && this.helpers[1].label.Length > 0 ? this.helpers[1].label : "Helper2";
+	        this.controlPanel1.Helper1Tip = this.helpers.Count > 1 && this.helpers[1].desc.Length > 0 ? this.helpers[1].desc : "";
 
-            menuBarWidget.SetHelpers(helpers);
+	        this.menuBarWidget.SetHelpers(this.helpers);
         }
 
         private void controlPanel1_Helper1Click(object sender, EventArgs e)
         {
-            do_HelperClick(0);
+	        this.do_HelperClick(0);
         }
 
         private void controlPanel1_Helper2Click(object sender, EventArgs e)
         {
-            do_HelperClick(1);
+	        this.do_HelperClick(1);
         }
 
         void do_HelperClick(int i)
@@ -2250,11 +2410,11 @@ namespace S4PIDemoFE
                 this.Enabled = false;
                 Application.DoEvents();
 
-                MemoryStream ms = helpers.execHelper(i);
-                MakeFormVisible();
+                MemoryStream ms = this.helpers.execHelper(i);
+	            this.MakeFormVisible();
                 Application.DoEvents();
 
-                if (!helpers[i].isReadOnly) afterEdit(ms);
+                if (!this.helpers[i].isReadOnly) this.afterEdit(ms);
             }
             finally { this.Enabled = true; }
         }
@@ -2266,15 +2426,15 @@ namespace S4PIDemoFE
                 this.Enabled = false;
                 Application.DoEvents();
 
-                MemoryStream ms = s4pi.Helpers.HelperManager.Edit(key, res,
-                    S4PIDemoFE.Properties.Settings.Default.TextEditorCmd,
-                    S4PIDemoFE.Properties.Settings.Default.TextEditorWantsQuotes,
-                    S4PIDemoFE.Properties.Settings.Default.TextEditorIgnoreTS);
+                MemoryStream ms = HelperManager.Edit(key, res,
+                    Properties.Settings.Default.TextEditorCmd,
+                    Properties.Settings.Default.TextEditorWantsQuotes,
+                    Properties.Settings.Default.TextEditorIgnoreTS);
 
-                MakeFormVisible();
+	            this.MakeFormVisible();
                 Application.DoEvents();
 
-                afterEdit(ms);
+	            this.afterEdit(ms);
             }
             finally { this.Enabled = true; }
         }
@@ -2286,15 +2446,15 @@ namespace S4PIDemoFE
                 this.Enabled = false;
                 Application.DoEvents();
 
-                MemoryStream ms = s4pi.Helpers.HelperManager.Edit(key, res,
-                    S4PIDemoFE.Properties.Settings.Default.HexEditorCmd,
-                    S4PIDemoFE.Properties.Settings.Default.HexEditorWantsQuotes,
-                    S4PIDemoFE.Properties.Settings.Default.HexEditorIgnoreTS);
+                MemoryStream ms = HelperManager.Edit(key, res,
+                    Properties.Settings.Default.HexEditorCmd,
+                    Properties.Settings.Default.HexEditorWantsQuotes,
+                    Properties.Settings.Default.HexEditorIgnoreTS);
 
-                MakeFormVisible();
+	            this.MakeFormVisible();
                 Application.DoEvents();
 
-                afterEdit(ms);
+	            this.afterEdit(ms);
             }
             finally { this.Enabled = true; }
         }
@@ -2308,8 +2468,8 @@ namespace S4PIDemoFE
 
                 if (dr != 0) return;
 
-                IResourceIndexEntry rie = NewResource(browserWidget1.SelectedResource, ms, DuplicateHandling.replace, browserWidget1.SelectedResource.Compressed != 0);
-                if (rie != null) browserWidget1.Add(rie);
+                IResourceIndexEntry rie = this.NewResource(this.browserWidget1.SelectedResource, ms, DuplicateHandling.replace, this.browserWidget1.SelectedResource.Compressed != 0);
+                if (rie != null) this.browserWidget1.Add(rie);
             }
         }
 

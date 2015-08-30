@@ -216,6 +216,9 @@
     <EmbeddedResource Include="Settings\OrganiseBookmarksDialog.resx">
       <DependentUpon>OrganiseBookmarksDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Settings\OrganiseCustomPlacesDialog.resx">
+      <DependentUpon>OrganiseCustomPlacesDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Splash\Splash.resx">
       <DependentUpon>Splash.cs</DependentUpon>
     </EmbeddedResource>
@@ -263,6 +266,12 @@
     </Compile>
     <Compile Include="Settings\OrganiseBookmarksDialog.Designer.cs">
       <DependentUpon>OrganiseBookmarksDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\OrganiseCustomPlacesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\OrganiseCustomPlacesDialog.Designer.cs">
+      <DependentUpon>OrganiseCustomPlacesDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Splash\Splash.cs">
       <SubType>Form</SubType>
