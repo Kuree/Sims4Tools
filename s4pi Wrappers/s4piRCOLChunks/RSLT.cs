@@ -254,7 +254,7 @@ namespace s4pi.GenericRCOLResource
             public override void Add() { if (Count < MaxSize) base.Add(); } // fail silently if the list is full??!
         }
 
-        public class TransformElement : AHandlerElement, IEquatable<TransformElement>
+        public class MatrixRow : AHandlerElement, IEquatable<MatrixRow>
         {
             const int recommendedApiVersion = 1;
 
@@ -262,16 +262,15 @@ namespace s4pi.GenericRCOLResource
             float rot1 = 0f;
             float rot2 = 0f;
             float rot3 = 0f;
-            float pos = 0f;
             #endregion
 
             #region Constructors
-            public TransformElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public TransformElement(int APIversion, EventHandler handler, TransformElement basis)
-                : this(APIversion, handler, basis.rot1, basis.rot2, basis.rot3, basis.pos) { }
-            public TransformElement(int APIversion, EventHandler handler, float rot1, float rot2, float rot3, float pos)
-                : base(APIversion, handler) { this.rot1 = rot1; this.rot2 = rot2; this.rot3 = rot3; this.pos = pos; }
-            public TransformElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public MatrixRow(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public MatrixRow(int APIversion, EventHandler handler, MatrixRow basis)
+                : this(APIversion, handler, basis.rot1, basis.rot2, basis.rot3) { }
+            public MatrixRow(int APIversion, EventHandler handler, float x, float y, float z)
+                : base(APIversion, handler) { this.rot1 = x; this.rot2 = y; this.rot3 = z; }
+            public MatrixRow(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
             #endregion
 
             #region Data I/O
@@ -281,16 +280,14 @@ namespace s4pi.GenericRCOLResource
                 rot1 = r.ReadSingle();
                 rot2 = r.ReadSingle();
                 rot3 = r.ReadSingle();
-                pos = r.ReadSingle();
             }
 
             internal void UnParse(Stream s)
             {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write(rot1);
-                w.Write(rot2);
-                w.Write(rot3);
-                w.Write(pos);
+                BinaryWriter bw = new BinaryWriter(s);
+                bw.Write(rot1);
+                bw.Write(rot2);
+                bw.Write(rot3);
             }
             #endregion
 
@@ -300,15 +297,19 @@ namespace s4pi.GenericRCOLResource
             public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
             #endregion
 
-            #region IEquatable<TransformElement>
-            public bool Equals(TransformElement other) { return rot1 == other.rot1 && rot2 == other.rot2 && rot3 == other.rot3 && pos == other.pos; }
+            #region IEquatable<Vector3>
+            public bool Equals(MatrixRow other) { return rot1 == other.rot1 && rot2 == other.rot2 && rot3 == other.rot3; }
             public override bool Equals(object obj)
             {
-                return obj as TransformElement != null ? this.Equals(obj as TransformElement) : false;
+                return obj as MatrixRow != null ? this.Equals(obj as MatrixRow) : false;
             }
+           // public override int GetHashCode()
+           // {
+           //     return rot1.GetHashCode() ^ rot2.GetHashCode() ^ rot3.GetHashCode() ^ pos.GetHashCode(); 
+           // }
             public override int GetHashCode()
             {
-                return rot1.GetHashCode() ^ rot2.GetHashCode() ^ rot3.GetHashCode() ^ pos.GetHashCode(); 
+                return rot1.GetHashCode() ^ rot2.GetHashCode() ^ rot3.GetHashCode();
             }
             #endregion
 
@@ -320,9 +321,77 @@ namespace s4pi.GenericRCOLResource
             [ElementPriority(3)]
             public float Rot3 { get { return rot3; } set { if (rot3 != value) { rot3 = value; OnElementChanged(); } } }
             [ElementPriority(4)]
-            public float Pos { get { return pos; } set { if (pos != value) { pos = value; OnElementChanged(); } } }
 
-            public virtual string Value { get { return String.Format("Rot1: {0}; Rot2: {1}; Rot3: {2}; Pos: {3}", rot1, rot2, rot3, pos); } }
+           // public virtual string Value { get { return String.Format("Rot1: {0}; Rot2: {1}; Rot3: {2}; Pos: {3}", rot1, rot2, rot3, pos); } }
+            public virtual string Value { get { return String.Format(" {0}; {1}; {2};", rot1, rot2, rot3); } }
+            #endregion
+        }
+
+        public class Vector3 : AHandlerElement, IEquatable<Vector3>
+        {
+            const int recommendedApiVersion = 1;
+
+            #region Attributes
+            float x = 0f;
+            float y = 0f;
+            float z = 0f;
+            #endregion
+
+            #region Constructors
+            public Vector3(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public Vector3(int APIversion, EventHandler handler, Vector3 basis)
+                : this(APIversion, handler, basis.x, basis.y, basis.z) { }
+            public Vector3(int APIversion, EventHandler handler, float x, float y, float z)
+                : base(APIversion, handler) { this.x = x; this.y = y; this.z = z; }
+            public Vector3(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            #endregion
+
+            #region Data I/O
+            void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                x = r.ReadSingle();
+                y = r.ReadSingle();
+                z = r.ReadSingle();
+            }
+
+            internal void UnParse(Stream s)
+            {
+                BinaryWriter bw = new BinaryWriter(s);
+                bw.Write(x);
+                bw.Write(y);
+                bw.Write(z);
+            }
+            #endregion
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+
+            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+            #endregion
+
+            #region IEquatable<Vector3>
+            public bool Equals(Vector3 other) { return x == other.x && y == other.y && z == other.z; }
+            public override bool Equals(object obj)
+            {
+                return obj as Vector3 != null ? this.Equals(obj as Vector3) : false;
+            }
+            public override int GetHashCode()
+            {
+                return x.GetHashCode() ^ y.GetHashCode() ^ z.GetHashCode();
+            }
+            #endregion
+
+            #region Content Fields
+            [ElementPriority(1)]
+            public float X { get { return x; } set { if (x != value) { x = value; OnElementChanged(); } } }
+            [ElementPriority(2)]
+            public float Y { get { return y; } set { if (y != value) { y = value; OnElementChanged(); } } }
+            [ElementPriority(3)]
+            public float Z { get { return z; } set { if (z != value) { z = value; OnElementChanged(); } } }
+           // [ElementPriority(4)]
+
+            public virtual string Value { get { return String.Format("X: {0}; Y: {1}; Z: {2};", x, y, z); } }
             #endregion
         }
 
@@ -333,30 +402,44 @@ namespace s4pi.GenericRCOLResource
             #region Attributes
             protected uint slotName;
             protected uint boneName;
-            TransformElement tX;
-            TransformElement tY;
-            TransformElement tZ;
+            MatrixRow matrixX;
+            MatrixRow matrixY;
+            MatrixRow matrixZ;
+            Vector3 coordinates;
             #endregion
 
             #region Constructors
             public Part(int APIversion, EventHandler handler)
                 : base(APIversion, handler)
             {
-                tX = new TransformElement(requestedApiVersion, handler);
-                tY = new TransformElement(requestedApiVersion, handler);
-                tZ = new TransformElement(requestedApiVersion, handler);
+                matrixX = new MatrixRow(requestedApiVersion, handler);
+                matrixY = new MatrixRow(requestedApiVersion, handler);
+                matrixZ = new MatrixRow(requestedApiVersion, handler);
+                coordinates = new Vector3(requestedApiVersion, handler);
             }
             public Part(int APIversion, EventHandler handler, Part basis)
-                : this(APIversion, handler, basis.slotName, basis.boneName, basis.tX, basis.tY, basis.tZ) { }
+                : this(APIversion, handler, basis.slotName, basis.boneName, basis.matrixX, basis.matrixY, basis.matrixZ, basis.coordinates) { }
             public Part(int APIversion, EventHandler handler,
-                uint slotName, uint boneName, TransformElement tX, TransformElement tY, TransformElement tZ)
+                uint slotName, uint boneName, MatrixRow tX, MatrixRow tY, MatrixRow tZ, Vector3 coordinates)
                 : base(APIversion, handler)
             {
                 this.slotName = slotName;
                 this.boneName = boneName;
-                this.tX = new TransformElement(requestedApiVersion, handler, tX);
-                this.tY = new TransformElement(requestedApiVersion, handler, tY);
-                this.tZ = new TransformElement(requestedApiVersion, handler, tZ);
+                this.matrixX = new MatrixRow(requestedApiVersion, handler, tX);
+                this.matrixY = new MatrixRow(requestedApiVersion, handler, tY);
+                this.matrixZ = new MatrixRow(requestedApiVersion, handler, tZ);
+                this.coordinates = new Vector3(requestedApiVersion, handler, coordinates);
+            }
+            public Part(int APIversion, EventHandler handler,
+                uint slotName, uint boneName, MatrixRow[] matrix, Vector3 coordinates)
+                : base(APIversion, handler)
+            {
+                this.slotName = slotName;
+                this.boneName = boneName;
+                this.matrixX = new MatrixRow(requestedApiVersion, handler, matrix[0]);
+                this.matrixY = new MatrixRow(requestedApiVersion, handler, matrix[1]);
+                this.matrixZ = new MatrixRow(requestedApiVersion, handler, matrix[2]);
+                this.coordinates = new Vector3(requestedApiVersion, handler, coordinates);
             }
             #endregion
 
@@ -371,9 +454,9 @@ namespace s4pi.GenericRCOLResource
             {
                 return slotName.Equals(other.slotName)
                     && boneName.Equals(other.boneName)
-                    && tX.Equals(other.tX)
-                    && tY.Equals(other.tY)
-                    && tZ.Equals(other.tZ)
+                    && matrixX.Equals(other.matrixX)
+                    && matrixY.Equals(other.matrixY)
+                    && matrixZ.Equals(other.matrixZ)
                     ;
             }
 
@@ -386,25 +469,26 @@ namespace s4pi.GenericRCOLResource
             {
                 return slotName.GetHashCode()
                     ^ boneName.GetHashCode()
-                    ^ tX.GetHashCode()
-                    ^ tY.GetHashCode()
-                    ^ tZ.GetHashCode()
+                    ^ matrixX.GetHashCode()
+                    ^ matrixY.GetHashCode()
+                    ^ matrixZ.GetHashCode()
                     ;
             }
             #endregion
 
             #region Content Fields
             [ElementPriority(1)]
-            public uint SlotName { get { return slotName; } set { if (slotName != value) { slotName = value; OnElementChanged(); } } }
+            public uint PointSlotNameHash { get { return slotName; } set { if (slotName != value) { slotName = value; OnElementChanged(); } } }
             [ElementPriority(2)]
-            public uint BoneName { get { return boneName; } set { if (boneName != value) { boneName = value; OnElementChanged(); } } }
-            //[ElementPriority(3)] reserved for SlotPlacementFlags
-            [ElementPriority(4)]
-            public TransformElement X { get { return tX; } set { if (tX != value) { tX = new TransformElement(requestedApiVersion, handler, value); OnElementChanged(); } } }
-            [ElementPriority(5)]
-            public TransformElement Y { get { return tY; } set { if (tY != value) { tY = new TransformElement(requestedApiVersion, handler, value); OnElementChanged(); } } }
-            [ElementPriority(6)]
-            public TransformElement Z { get { return tZ; } set { if (tZ != value) { tZ = new TransformElement(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            public uint TargetBoneNameHash { get { return boneName; } set { if (boneName != value) { boneName = value; OnElementChanged(); } } }
+            [ElementPriority(7)]
+            public MatrixRow TransformMatrixX { get { return matrixX; } set { if (matrixX != value) { matrixX = new MatrixRow(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            [ElementPriority(8)]
+            public MatrixRow TransformMatrixY { get { return matrixY; } set { if (matrixY != value) { matrixY = new MatrixRow(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            [ElementPriority(9)]
+            public MatrixRow TransformMatrixZ { get { return matrixZ; } set { if (matrixZ != value) { matrixZ = new MatrixRow(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            [ElementPriority(10)]
+            public Vector3 SlotCoordinates { get { return coordinates; } set { if (coordinates != value) { coordinates = new Vector3(requestedApiVersion, handler, value); OnElementChanged(); } } }
 
             public virtual string Value { get { return ValueBuilder; } }
             #endregion
@@ -422,25 +506,43 @@ namespace s4pi.GenericRCOLResource
             {
                 uint[] slotNames = new uint[count];
                 uint[] boneNames = new uint[count];
+                MatrixRow[][] matrix = new MatrixRow[count][];
+                Vector3[] coords = new Vector3[count];
                 BinaryReader r = new BinaryReader(s);
                 for (int i = 0; i < slotNames.Length; i++) slotNames[i] = r.ReadUInt32();
                 for (int i = 0; i < boneNames.Length; i++) boneNames[i] = r.ReadUInt32();
+                for (int i = 0; i < count; i++)
+                {
+                    matrix[i] = new MatrixRow[3];
+                    float[] tmp = new float[3];
+                    for (int j = 0; j < 3; j++)
+                    {
+                        matrix[i][j] = new MatrixRow(0, elementHandler, s);
+                        tmp[j] = r.ReadSingle();
+                    }
+                    coords[i] = new Vector3(0, elementHandler, tmp[0], tmp[1], tmp[2]);
+                }
+              //  for (int i = 0; i < count; i++) this.Add(new Part(0, elementHandler, slotNames[i], boneNames[i],
+              //      new Vector3(0, elementHandler, s), new Vector3(0, elementHandler, s), new Vector3(0, elementHandler, s)));
                 for (int i = 0; i < count; i++) this.Add(new Part(0, elementHandler, slotNames[i], boneNames[i],
-                    new TransformElement(0, elementHandler, s), new TransformElement(0, elementHandler, s), new TransformElement(0, elementHandler, s)));
+                    matrix[i], coords[i]));
             }
             public override void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);
-                for (int i = 0; i < Count; i++) w.Write(this[i].SlotName);
-                for (int i = 0; i < Count; i++) w.Write(this[i].BoneName);
+                for (int i = 0; i < Count; i++) w.Write(this[i].PointSlotNameHash);
+                for (int i = 0; i < Count; i++) w.Write(this[i].TargetBoneNameHash);
                 for (int i = 0; i < Count; i++)
                 {
-                    if (this[i].X == null) this[i].X = new TransformElement(0, handler);
-                    this[i].X.UnParse(s);
-                    if (this[i].Y == null) this[i].Y = new TransformElement(0, handler);
-                    this[i].Y.UnParse(s);
-                    if (this[i].Z == null) this[i].Z = new TransformElement(0, handler);
-                    this[i].Z.UnParse(s);
+                    if (this[i].TransformMatrixX == null) this[i].TransformMatrixX = new MatrixRow(0, handler);
+                    this[i].TransformMatrixX.UnParse(s);
+                    w.Write(this[i].SlotCoordinates.X);
+                    if (this[i].TransformMatrixY == null) this[i].TransformMatrixY = new MatrixRow(0, handler);
+                    this[i].TransformMatrixY.UnParse(s);
+                    w.Write(this[i].SlotCoordinates.Y);
+                    if (this[i].TransformMatrixZ == null) this[i].TransformMatrixZ = new MatrixRow(0, handler);
+                    this[i].TransformMatrixZ.UnParse(s);
+                    w.Write(this[i].SlotCoordinates.Z);
                 }
             }
 
@@ -494,25 +596,44 @@ namespace s4pi.GenericRCOLResource
         }
         public class SlottedPart : Part, IEquatable<SlottedPart>
         {
-            SlotPlacement slotPlacementFlags;
-            public SlottedPart(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public SlottedPart(int APIversion, EventHandler handler, SlottedPart basis) : base(APIversion, handler, basis) { slotPlacementFlags = basis.slotPlacementFlags; }
-            public SlottedPart(int APIversion, EventHandler handler, uint slotName, uint boneName, SlotPlacement slotPlacementFlags,
-                TransformElement tX, TransformElement tY, TransformElement tZ)
-                : base(APIversion, handler, slotName, boneName, tX, tY, tZ) { this.slotPlacementFlags = slotPlacementFlags; }
+           // SlotPlacement slotPlacementFlags;
 
-            public bool Equals(SlottedPart other) { return ((Part)this).Equals((Part)other) && slotPlacementFlags.Equals(other.slotPlacementFlags); }
+            byte slotSize;  
+            ulong slotTypeSet; 
+            bool slotDirectionLocked; 
+            uint slotLegacyHash;
+
+            public SlottedPart(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public SlottedPart(int APIversion, EventHandler handler, SlottedPart basis) : base(APIversion, handler, basis) {
+                this.slotSize = basis.slotSize; this.slotTypeSet = basis.slotTypeSet; this.slotDirectionLocked = basis.slotDirectionLocked; this.slotLegacyHash = basis.slotLegacyHash;
+            }
+            public SlottedPart(int APIversion, EventHandler handler, uint slotName, uint boneName,
+                byte slotSize, ulong slotTypeSet, bool slotDirectionLocked, uint slotLegacyHash,
+                MatrixRow[] matrix, Vector3 coordinates)
+                : base(APIversion, handler, slotName, boneName, matrix, coordinates)
+            {
+                this.slotSize = slotSize; this.slotTypeSet = slotTypeSet; this.slotDirectionLocked = slotDirectionLocked; this.slotLegacyHash = slotLegacyHash;
+            }
+            
+            public bool Equals(SlottedPart other) { return ((Part)this).Equals((Part)other); }
             public override bool Equals(object obj)
             {
                 return obj as SlottedPart != null ? this.Equals(obj as SlottedPart) : false;
             }
             public override int GetHashCode()
             {
-                return base.GetHashCode() ^ slotPlacementFlags.GetHashCode();
+               // return base.GetHashCode() ^ slotPlacementFlags.GetHashCode();
+                return base.GetHashCode();
             }
 
             [ElementPriority(3)]
-            public SlotPlacement SlotPlacementFlags { get { return slotPlacementFlags; } set { if (slotPlacementFlags != value) { slotPlacementFlags = value; OnElementChanged(); } } }
+            public byte SlotSize { get { return slotSize; } set { if (slotSize != value) { slotSize = value; OnElementChanged(); } } }
+            [ElementPriority(4)]
+            public ulong SlotTypeSet { get { return slotTypeSet; } set { if (slotTypeSet != value) { slotTypeSet = value; OnElementChanged(); } } }
+            [ElementPriority(5)]
+            public bool SlotDirectionLocked { get { return slotDirectionLocked; } set { if (slotDirectionLocked != value) { slotDirectionLocked = value; OnElementChanged(); } } }
+            [ElementPriority(6)]
+            public uint SlotLegacyHash { get { return slotLegacyHash; } set { if (slotLegacyHash != value) { slotLegacyHash = value; OnElementChanged(); } } }
         }
         public class SlottedPartList : DependentList<SlottedPart>
         {
@@ -527,28 +648,56 @@ namespace s4pi.GenericRCOLResource
             {
                 uint[] slotNames = new uint[count];
                 uint[] boneNames = new uint[count];
-                uint[] flags = new uint[count];
+                byte[] slotSize = new byte[count];
+                ulong[] slotTypeSet = new ulong[count];
+                bool[] slotDirectionLocked = new bool[count];
+                uint[] slotLegacyHash = new uint[count];
                 BinaryReader r = new BinaryReader(s);
                 for (int i = 0; i < slotNames.Length; i++) slotNames[i] = r.ReadUInt32();
                 for (int i = 0; i < boneNames.Length; i++) boneNames[i] = r.ReadUInt32();
-                for (int i = 0; i < flags.Length; i++) flags[i] = r.ReadUInt32();
-                for (int i = 0; i < count; i++) this.Add(new SlottedPart(0, elementHandler, slotNames[i], boneNames[i], (SlotPlacement)flags[i],
-                    new TransformElement(0, elementHandler, s), new TransformElement(0, elementHandler, s), new TransformElement(0, elementHandler, s)));
+                for (int i = 0; i < count; i++) slotSize[i] = r.ReadByte(); 
+                for (int i = 0; i < count; i++) slotTypeSet[i] = r.ReadUInt64();
+                for (int i = 0; i < count; i++) slotDirectionLocked[i] = r.ReadBoolean();
+                for (int i = 0; i < count; i++) slotLegacyHash[i] = r.ReadUInt32();
+                MatrixRow[][] matrix = new MatrixRow[count][];
+                Vector3[] coords = new Vector3[count];
+                for (int i = 0; i < count; i++)
+                {
+                    matrix[i] = new MatrixRow[3];
+                    float[] tmp = new float[3];
+                    for (int j = 0; j < 3; j++)
+                    {
+                        matrix[i][j] = new MatrixRow(0, elementHandler, s);
+                        tmp[j] = r.ReadSingle();
+                    }
+                    coords[i] = new Vector3(0, elementHandler, tmp[0], tmp[1], tmp[2]);
+                }
+
+                for (int i = 0; i < count; i++) this.Add(new SlottedPart(0, elementHandler, slotNames[i], boneNames[i],
+                    slotSize[i], slotTypeSet[i], slotDirectionLocked[i], slotLegacyHash[i],
+                    matrix[i], coords[i]));
             }
             public override void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);
-                for (int i = 0; i < Count; i++) w.Write(this[i].SlotName);
-                for (int i = 0; i < Count; i++) w.Write(this[i].BoneName);
-                for (int i = 0; i < Count; i++) w.Write((uint)this[i].SlotPlacementFlags);
+                for (int i = 0; i < Count; i++) w.Write(this[i].PointSlotNameHash);
+                for (int i = 0; i < Count; i++) w.Write(this[i].TargetBoneNameHash);
+              //  for (int i = 0; i < Count; i++) w.Write((uint)this[i].SlotPlacementFlags);
+                for (int i = 0; i < Count; i++) w.Write(this[i].SlotSize);
+                for (int i = 0; i < Count; i++) w.Write(this[i].SlotTypeSet);
+                for (int i = 0; i < Count; i++) w.Write(this[i].SlotDirectionLocked);
+                for (int i = 0; i < Count; i++) w.Write(this[i].SlotLegacyHash);
                 for (int i = 0; i < Count; i++)
                 {
-                    if (this[i].X == null) this[i].X = new TransformElement(0, handler);
-                    this[i].X.UnParse(s);
-                    if (this[i].Y == null) this[i].Y = new TransformElement(0, handler);
-                    this[i].Y.UnParse(s);
-                    if (this[i].Z == null) this[i].Z = new TransformElement(0, handler);
-                    this[i].Z.UnParse(s);
+                    if (this[i].TransformMatrixX == null) this[i].TransformMatrixX = new MatrixRow(0, handler);
+                    this[i].TransformMatrixX.UnParse(s);
+                    w.Write(this[i].SlotCoordinates.X);
+                    if (this[i].TransformMatrixY == null) this[i].TransformMatrixY = new MatrixRow(0, handler);
+                    this[i].TransformMatrixY.UnParse(s);
+                    w.Write(this[i].SlotCoordinates.Y);
+                    if (this[i].TransformMatrixZ == null) this[i].TransformMatrixZ = new MatrixRow(0, handler);
+                    this[i].TransformMatrixZ.UnParse(s);
+                    w.Write(this[i].SlotCoordinates.Z);
                 }
             }
 
@@ -615,9 +764,9 @@ namespace s4pi.GenericRCOLResource
             #region Attributes
             protected uint slotName;
             protected uint boneName;
-            TransformElement tX;
-            TransformElement tY;
-            TransformElement tZ;
+            MatrixRow tX;
+            MatrixRow tY;
+            MatrixRow tZ;
             ConeElement cone;
             #endregion
 
@@ -625,21 +774,21 @@ namespace s4pi.GenericRCOLResource
             public ConePart(int APIversion, EventHandler handler)
                 : base(APIversion, handler)
             {
-                tX = new TransformElement(requestedApiVersion, handler);
-                tY = new TransformElement(requestedApiVersion, handler);
-                tZ = new TransformElement(requestedApiVersion, handler);
+                tX = new MatrixRow(requestedApiVersion, handler);
+                tY = new MatrixRow(requestedApiVersion, handler);
+                tZ = new MatrixRow(requestedApiVersion, handler);
             }
             public ConePart(int APIversion, EventHandler handler, ConePart basis)
                 : this(APIversion, handler, basis.slotName, basis.boneName, basis.tX, basis.tY, basis.tZ, basis.cone) { }
             public ConePart(int APIversion, EventHandler handler,
-                uint slotName, uint boneName, TransformElement tX, TransformElement tY, TransformElement tZ, ConeElement cone)
+                uint slotName, uint boneName, MatrixRow tX, MatrixRow tY, MatrixRow tZ, ConeElement cone)
                 : base(APIversion, handler)
             {
                 this.slotName = slotName;
                 this.boneName = boneName;
-                this.tX = new TransformElement(requestedApiVersion, handler, tX);
-                this.tY = new TransformElement(requestedApiVersion, handler, tY);
-                this.tZ = new TransformElement(requestedApiVersion, handler, tZ);
+                this.tX = new MatrixRow(requestedApiVersion, handler, tX);
+                this.tY = new MatrixRow(requestedApiVersion, handler, tY);
+                this.tZ = new MatrixRow(requestedApiVersion, handler, tZ);
                 this.cone = new ConeElement(requestedApiVersion, handler, cone);
             }
             #endregion
@@ -685,11 +834,11 @@ namespace s4pi.GenericRCOLResource
             [ElementPriority(2)]
             public uint BoneName { get { return boneName; } set { if (boneName != value) { boneName = value; OnElementChanged(); } } }
             [ElementPriority(4)]
-            public TransformElement X { get { return tX; } set { if (tX != value) { tX = new TransformElement(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            public MatrixRow X { get { return tX; } set { if (tX != value) { tX = new MatrixRow(requestedApiVersion, handler, value); OnElementChanged(); } } }
             [ElementPriority(5)]
-            public TransformElement Y { get { return tY; } set { if (tY != value) { tY = new TransformElement(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            public MatrixRow Y { get { return tY; } set { if (tY != value) { tY = new MatrixRow(requestedApiVersion, handler, value); OnElementChanged(); } } }
             [ElementPriority(6)]
-            public TransformElement Z { get { return tZ; } set { if (tZ != value) { tZ = new TransformElement(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            public MatrixRow Z { get { return tZ; } set { if (tZ != value) { tZ = new MatrixRow(requestedApiVersion, handler, value); OnElementChanged(); } } }
             [ElementPriority(7)]
             public ConeElement Cone { get { return cone; } set { if (cone != value) { cone = new ConeElement(requestedApiVersion, handler, value); OnElementChanged(); } } }
 
@@ -709,7 +858,7 @@ namespace s4pi.GenericRCOLResource
             {
                 uint[] slotNames = new uint[count];
                 uint[] boneNames = new uint[count];
-                TransformElement[][] transformElements = new TransformElement[count][];
+                MatrixRow[][] transformElements = new MatrixRow[count][];
                 ConeElement[] coneElements = new ConeElement[count];
                 BinaryReader r = new BinaryReader(s);
 
@@ -717,10 +866,10 @@ namespace s4pi.GenericRCOLResource
                 for (int i = 0; i < boneNames.Length; i++) boneNames[i] = r.ReadUInt32();
                 for (int i = 0; i < transformElements.Length; i++)
                 {
-                    transformElements[i] = new TransformElement[3];
-                    transformElements[i][0] = new TransformElement(0, elementHandler, s);//X
-                    transformElements[i][1] = new TransformElement(0, elementHandler, s);//Y
-                    transformElements[i][2] = new TransformElement(0, elementHandler, s);//Z
+                    transformElements[i] = new MatrixRow[3];
+                    transformElements[i][0] = new MatrixRow(0, elementHandler, s);//X
+                    transformElements[i][1] = new MatrixRow(0, elementHandler, s);//Y
+                    transformElements[i][2] = new MatrixRow(0, elementHandler, s);//Z
                 }
                 for (int i = 0; i < coneElements.Length; i++) coneElements[i] = new ConeElement(0, elementHandler, s);
 
@@ -734,11 +883,11 @@ namespace s4pi.GenericRCOLResource
                 for (int i = 0; i < Count; i++) w.Write(this[i].BoneName);
                 for (int i = 0; i < Count; i++)
                 {
-                    if (this[i].X == null) this[i].X = new TransformElement(0, handler);
+                    if (this[i].X == null) this[i].X = new MatrixRow(0, handler);
                     this[i].X.UnParse(s);
-                    if (this[i].Y == null) this[i].Y = new TransformElement(0, handler);
+                    if (this[i].Y == null) this[i].Y = new MatrixRow(0, handler);
                     this[i].Y.UnParse(s);
-                    if (this[i].Z == null) this[i].Z = new TransformElement(0, handler);
+                    if (this[i].Z == null) this[i].Z = new MatrixRow(0, handler);
                     this[i].Z.UnParse(s);
                 }
                 for (int i = 0; i < Count; i++)
@@ -781,4 +930,5 @@ namespace s4pi.GenericRCOLResource
         public string Value { get { return ValueBuilder; } }
         #endregion
     }
+
 }
