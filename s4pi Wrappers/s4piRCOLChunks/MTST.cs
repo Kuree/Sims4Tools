@@ -34,7 +34,8 @@ namespace s4pi.GenericRCOLResource
 
         uint nameHash = 0;
         GenericRCOLResource.ChunkReference index;
-        EntryList list = null;
+        Type200EntryList matdList200 = null;
+        Type300EntryList matdList300 = null;
         #endregion
 
         #region Constructors
@@ -47,24 +48,19 @@ namespace s4pi.GenericRCOLResource
             this.nameHash = basis.nameHash;
             this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion,
             handler, basis.index);
-            this.list = basis.list == null ? null : new EntryList(OnRCOLChanged, basis.list, basis.version);
+            this.matdList200 = basis.matdList200 == null ? null : new Type200EntryList(OnRCOLChanged, basis.matdList200);
+            this.matdList300 = basis.matdList300 == null ? null : new Type300EntryList(OnRCOLChanged, basis.matdList300);
         }
-        public MTST(int APIversion, EventHandler handler, uint nameHash, GenericRCOLResource.ChunkReference index, IEnumerable<Entry> list)
-            : base(APIversion, handler, null)
-        {
-            this.nameHash = nameHash;
-            this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
-            this.list = list == null ? null : new EntryList(OnRCOLChanged, list, version);
-        }
+      //  public MTST(int APIversion, EventHandler handler, uint nameHash, GenericRCOLResource.ChunkReference index, IEnumerable<Type300Entry> list)
+      //      : base(APIversion, handler, null)
+      //  {
+      //      this.nameHash = nameHash;
+      //      this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
+      //      this.matdList200 = list == null ? null : new Type200EntryList(OnRCOLChanged, list);
+      //  }
         #endregion
 
         #region ARCOLBlock
-        [ElementPriority(2)]
-        public override string Tag { get { return "MTST"; } }
-
-        [ElementPriority(3)]
-        public override uint ResourceType { get { return 0x02019972; } }
-
         protected override void Parse(Stream s)
         {
             BinaryReader r = new BinaryReader(s);
@@ -77,7 +73,14 @@ namespace s4pi.GenericRCOLResource
 
             nameHash = r.ReadUInt32();
             index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, s);
-            list = new EntryList(OnRCOLChanged, s, version);
+            if (this.version < 768U)
+            {
+                matdList200 = new Type200EntryList(OnRCOLChanged, s);
+            }
+            else
+            {
+                matdList300 = new Type300EntryList(OnRCOLChanged, s);
+            }
         }
 
         public override Stream UnParse()
@@ -91,9 +94,12 @@ namespace s4pi.GenericRCOLResource
             w.Write(nameHash);
             if (index == null) this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, 0);
             index.UnParse(ms);
-            if (list == null) this.list = new EntryList(OnRCOLChanged, version);
-            list.UnParse(ms);
-
+            if (matdList200 == null) this.matdList200 = new Type200EntryList(OnRCOLChanged);
+            if (matdList300 == null) this.matdList300 = new Type300EntryList(OnRCOLChanged);
+            if (this.version < 768U)
+                this.matdList200.UnParse(ms);
+            else
+                this.matdList300.UnParse(ms);
             return ms;
         }
         #endregion
@@ -109,44 +115,54 @@ namespace s4pi.GenericRCOLResource
             carLightsOff = 0xE4AF52C1,
         }
 
-        public class Entry : AHandlerElement, IEquatable<Entry>
+        public class Type300Entry : AHandlerElement, IEquatable<Type300Entry>
         {
             const int recommendedApiVersion = 1;
 
             #region Attributes
-            GenericRCOLResource.ChunkReference index;
+            GenericRCOLResource.ChunkReference matdIndex;
             State materialState = 0;
-            uint unknown = 0;
-            private uint version;
+            uint materialVariant = 0;
             #endregion
 
             #region Constructors
-            public Entry(int APIversion, EventHandler handler, uint version)
+            public Type300Entry(int APIversion, EventHandler handler)
+                : base(APIversion, handler) {}
+ 
+            public Type300Entry(int APIversion, EventHandler handler, Stream s)
                 : base(APIversion, handler)
             {
-                this.version = version;
+                Parse(s);
             }
-
-            public Entry(int APIversion, EventHandler handler, Stream s, uint version)
+            public Type300Entry(int APIversion, EventHandler handler, Type300Entry basis)
+                : this(APIversion, handler, basis.matdIndex, basis.materialState, basis.materialVariant) { }
+            public Type300Entry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet, uint materialVariant)
                 : base(APIversion, handler)
             {
-                this.version = version; Parse(s);
-            }
-            public Entry(int APIversion, EventHandler handler, Entry basis)
-                : this(APIversion, handler, basis.index, basis.materialState, basis.version) { }
-            public Entry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet, uint version)
-                : base(APIversion, handler)
-            {
-                this.version = version;
-                this.index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
+                this.matdIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
                 this.materialState = materialSet;
+                this.materialVariant = materialVariant;
             }
             #endregion
 
             #region Data I/O
-            void Parse(Stream s) { index = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, s); BinaryReader r = new BinaryReader(s); materialState = (State)r.ReadUInt32(); if (this.version == 0x00000300) { this.unknown = r.ReadUInt32(); } }
+            void Parse(Stream s) 
+            { 
+                BinaryReader r = new BinaryReader(s); 
+                matdIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, s); 
+                materialState = (State)r.ReadUInt32(); 
+                materialVariant = r.ReadUInt32(); 
+            }
 
-            internal void UnParse(Stream s) { index.UnParse(s); BinaryWriter w = new BinaryWriter(s); w.Write((uint)materialState); if (this.version == 0x00000300) { w.Write(this.unknown); } }
+            internal void UnParse(Stream s) 
+            { 
+                BinaryWriter w = new BinaryWriter(s);
+                if (this.matdIndex == null)
+                    this.matdIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, 0U);
+                matdIndex.UnParse(s); 
+                w.Write((uint)materialState); 
+                w.Write(materialVariant);
+            }
             #endregion
 
             #region AHandlerElement Members
@@ -157,11 +173,6 @@ namespace s4pi.GenericRCOLResource
                 get
                 {
                     var res = GetContentFields(requestedApiVersion, this.GetType());
-                    if (version != 0x00000300)
-                    {
-                        res.Remove("Unknown");
-                    }
-                    ;
                     return res;
                 }
             }
@@ -170,54 +181,143 @@ namespace s4pi.GenericRCOLResource
 
             #region IEquatable<Entry> Members
 
-            public bool Equals(Entry other) { return this.index == other.index && this.materialState == other.materialState; }
+            public bool Equals(Type300Entry other) { return this.matdIndex == other.matdIndex && this.materialState == other.materialState && this.materialVariant == other.materialVariant; }
             public override bool Equals(object obj)
             {
-                return obj as Entry != null && this.Equals(obj as Entry);
+                return obj as Type300Entry != null && this.Equals(obj as Type300Entry);
             }
             public override int GetHashCode()
             {
-                return index.GetHashCode() ^ materialState.GetHashCode();
+                return matdIndex.GetHashCode() ^ materialState.GetHashCode() ^ materialVariant.GetHashCode();
             }
 
             #endregion
 
             #region Content Fields
             [ElementPriority(1)]
-            public GenericRCOLResource.ChunkReference Index { get { return index; } set { if (index != value) { new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            public GenericRCOLResource.ChunkReference Index { get { return matdIndex; } set { if (matdIndex != value) { new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, value); OnElementChanged(); } } }
             [ElementPriority(2)]
             public State MaterialState { get { return materialState; } set { if (materialState != value) { materialState = value; OnElementChanged(); } } }
-            public uint Unknown
-            {
-                get { return this.unknown; }
-                set
-                {
-                    if (this.unknown != value)
-                    {
-                        this.unknown = value; this.OnElementChanged();
-                    }
-                }
-            }
+            [ElementPriority(3)]
+            public uint MaterialVariant { get { return this.materialVariant; } set { if (this.materialVariant != value) { this.materialVariant = value; this.OnElementChanged(); } } }
             public string Value { get { return ValueBuilder.Replace("\n", "; "); } }
             #endregion
         }
-        public class EntryList : DependentList<Entry>
+        public class Type300EntryList : DependentList<Type300Entry>
         {
-            private uint version;
             #region Constructors
-            public EntryList(EventHandler handler, uint version) : base(handler) { this.version = version; }
-            public EntryList(EventHandler handler, Stream s, uint version) : base(handler) { this.version = version; this.Parse(s); }
-            public EntryList(EventHandler handler, IEnumerable<Entry> le, uint version) : base(handler, le) { this.version = version; }
+            public Type300EntryList(EventHandler handler) : base(handler) { }
+            public Type300EntryList(EventHandler handler, Stream s) : base(handler) { this.Parse(s); }
+            public Type300EntryList(EventHandler handler, IEnumerable<Type300Entry> le) : base(handler, le) { }
             #endregion
 
             #region Data I/O
-            protected override Entry CreateElement(Stream s) { return new Entry(0, elementHandler, s, this.version); }
-            protected override void WriteElement(Stream s, Entry element) { element.UnParse(s); }
+            protected override Type300Entry CreateElement(Stream s) { return new Type300Entry(0, elementHandler, s); }
+            protected override void WriteElement(Stream s, Type300Entry element) { element.UnParse(s); }
+            #endregion
+        }
+        public class Type200Entry : AHandlerElement, IEquatable<Type200Entry>
+        {
+            const int recommendedApiVersion = 1;
+
+            #region Attributes
+            GenericRCOLResource.ChunkReference matdIndex;
+            State materialState = 0;
+            #endregion
+
+            #region Constructors
+            public Type200Entry(int APIversion, EventHandler handler)
+                : base(APIversion, handler) { }
+
+            public Type200Entry(int APIversion, EventHandler handler, Stream s)
+                : base(APIversion, handler)
+            {
+                Parse(s);
+            }
+            public Type200Entry(int APIversion, EventHandler handler, Type200Entry basis)
+                : this(APIversion, handler, basis.matdIndex, basis.materialState) { }
+            public Type200Entry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet)
+                : base(APIversion, handler)
+            {
+                this.matdIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
+                this.materialState = materialSet;
+            }
+            #endregion
+
+            #region Data I/O
+            void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                matdIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, s);
+                materialState = (State)r.ReadUInt32();
+            }
+
+            internal void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                if (this.matdIndex == null)
+                    this.matdIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, 0U);
+                matdIndex.UnParse(s);
+                w.Write((uint)materialState);
+            }
+            #endregion
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+
+            public override List<string> ContentFields
+            {
+                get
+                {
+                    var res = GetContentFields(requestedApiVersion, this.GetType());
+                    return res;
+                }
+            }
+
+            #endregion
+
+            #region IEquatable<Entry> Members
+
+            public bool Equals(Type200Entry other) { return this.matdIndex == other.matdIndex && this.materialState == other.materialState; }
+            public override bool Equals(object obj)
+            {
+                return obj as Type200Entry != null && this.Equals(obj as Type200Entry);
+            }
+            public override int GetHashCode()
+            {
+                return matdIndex.GetHashCode() ^ materialState.GetHashCode();
+            }
+
+            #endregion
+
+            #region Content Fields
+            [ElementPriority(1)]
+            public GenericRCOLResource.ChunkReference Index { get { return matdIndex; } set { if (matdIndex != value) { new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, value); OnElementChanged(); } } }
+            [ElementPriority(2)]
+            public State MaterialState { get { return materialState; } set { if (materialState != value) { materialState = value; OnElementChanged(); } } }
+            public string Value { get { return ValueBuilder.Replace("\n", "; "); } }
+            #endregion
+        }
+        public class Type200EntryList : DependentList<Type200Entry>
+        {
+            #region Constructors
+            public Type200EntryList(EventHandler handler) : base(handler) { }
+            public Type200EntryList(EventHandler handler, Stream s) : base(handler) { this.Parse(s); }
+            public Type200EntryList(EventHandler handler, IEnumerable<Type200Entry> le) : base(handler, le) { }
+            #endregion
+
+            #region Data I/O
+            protected override Type200Entry CreateElement(Stream s) { return new Type200Entry(0, elementHandler, s); }
+            protected override void WriteElement(Stream s, Type200Entry element) { element.UnParse(s); }
             #endregion
         }
         #endregion
 
         #region Content Fields
+        [ElementPriority(2)]
+        public override string Tag { get { return "MTST"; } }
+        [ElementPriority(3)]
+        public override uint ResourceType { get { return 0x02019972; } }
         [ElementPriority(11)]
         public uint Version { get { return version; } set { if (version != value) { version = value; OnRCOLChanged(this, EventArgs.Empty); } } }
         [ElementPriority(12)]
@@ -225,9 +325,25 @@ namespace s4pi.GenericRCOLResource
         [ElementPriority(13)]
         public GenericRCOLResource.ChunkReference Index { get { return index; } set { if (index != value) { new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, value); OnRCOLChanged(this, EventArgs.Empty); } } }
         [ElementPriority(14)]
-        public EntryList Entries { get { return list; } set { if (list != value) { list = value == null ? null : new EntryList(OnRCOLChanged, value, version); OnRCOLChanged(this, EventArgs.Empty); } } }
+        public Type200EntryList Type200Entries { get { return matdList200; } set { if (matdList200 != value) { matdList200 = value == null ? null : new Type200EntryList(OnRCOLChanged, value); OnRCOLChanged(this, EventArgs.Empty); } } }
+        [ElementPriority(15)]
+        public Type300EntryList Type300Entries { get { return matdList300; } set { if (matdList300 != value) { matdList300 = value == null ? null : new Type300EntryList(OnRCOLChanged, value); OnRCOLChanged(this, EventArgs.Empty); } } }
 
         public string Value { get { return ValueBuilder; } }
+
+        public override List<string> ContentFields
+        {
+            get
+            {
+                List<string> contentFields = base.ContentFields;
+                if (this.version < 768U)
+                    contentFields.Remove("Type300Entries");
+                else
+                    contentFields.Remove("Type200Entries");
+                return contentFields;
+            }
+        }
         #endregion
     }
+
 }
