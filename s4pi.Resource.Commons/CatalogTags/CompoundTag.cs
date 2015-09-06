@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Forms.Design;
-using System.Xml.Serialization;
+
 using s4pi.Interfaces;
 using s4pi.Resource.Commons.Extensions;
 using s4pi.Resource.Commons.Forms;
@@ -12,59 +13,58 @@ using s4pi.Resource.Commons.Forms;
 namespace s4pi.Resource.Commons.CatalogTags
 {
 	/// <summary>
-	/// Represents a category tag that contains index and value.
+	/// A compound tag that consists of category and value tag.
 	/// </summary>
-	[TypeConverter(typeof(TagTypeConverter))]
-	[Editor(typeof(TagTypeEditor), typeof(UITypeEditor))]
-	public class Tag
+	[TypeConverter(typeof(CompoundTagTypeConverter))]
+	[Editor(typeof(CompoundTagTypeEditor), typeof(UITypeEditor))]
+	public class CompoundTag
 	{
+		private Tag category;
+		private Tag value;
+
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Tag"/> class.
+		/// Gets or sets the category this compound tag belongs to.
 		/// </summary>
-		public Tag()
+		public Tag Category
 		{
-			this.Value = "unknown";
+			get { return this.category ?? new Tag(); }
+			set { this.category = value; }
 		}
 
 		/// <summary>
-		/// Gets or sets the index of this tag.
+		/// Gets or sets the value of this compound tag.
 		/// </summary>
-		[XmlAttribute(AttributeName = "ev")]
-		public ushort Index { get; set; }
-
-		/// <summary>
-		/// Gets or sets the human-readable value of this tag.
-		/// </summary>
-		[XmlText]
-		public string Value { get; set; }
-
-		/// <summary>
-		/// Converts the index of this tag to ushort.
-		/// </summary>
-		public static implicit operator UInt16(Tag tag)
+		public Tag Value
 		{
-			return tag.Index;
+			get { return this.value ?? new Tag(); }
+			set { this.value = value; }
 		}
 
-		#region Overrides of System.Object
+		#region Override of System.Object
 
 		public override string ToString()
 		{
-			return string.Format("0x{0:X4} {1}", this.Index, this.Value);
+			return string.Format("{0} - {1}", this.Category, this.Value);
 		}
 
 		public override bool Equals(object obj)
 		{
-			var other = obj as Tag;
+			var other = obj as CompoundTag;
 			if (other != null)
 			{
-				return this.Index == other.Index;
+				return this.Category == other.Category && this.Value == other.Value;
 			}
-
 			return false;
 		}
 
-		public static bool operator ==(Tag tag1, Tag tag2)
+		public override int GetHashCode()
+		{
+			// use GetHashCode implementation for anonymous types; 
+			// it's way smarter than anything we can come up with
+			return new { this.Category, this.Value }.GetHashCode();
+		}
+
+		public static bool operator ==(CompoundTag tag1, CompoundTag tag2)
 		{
 			if (tag1 != null)
 			{
@@ -73,36 +73,34 @@ namespace s4pi.Resource.Commons.CatalogTags
 			return tag2 == null;
 		}
 
-		public static bool operator !=(Tag tag1, Tag tag2)
+		public static bool operator !=(CompoundTag tag1, CompoundTag tag2)
 		{
 			return !(tag1 == tag2);
 		}
 
-		public override int GetHashCode()
-		{
-			return this.Index.GetHashCode();
-		}
-
 		#endregion
 
-		private class TagTypeConverter : TypeConverter
+		private class CompoundTagTypeConverter : TypeConverter
 		{
 			public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
 			{
 				return typeof(string) == destinationType;
 			}
 
-			public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+			public override object ConvertTo(ITypeDescriptorContext context,
+											 CultureInfo culture,
+											 object value,
+											 Type destinationType)
 			{
-				if (destinationType ==  typeof(string))
+				if (destinationType == typeof(string))
 				{
 					var typedValue = value as TypedValue;
 					if (typedValue != null)
 					{
-						var tag = typedValue.Value as Tag;
+						var tag = typedValue.Value as CompoundTag;
 						if (tag != null)
 						{
-							return tag.Value;
+							return string.Format("{0} - {1}", tag.Category.Value, tag.Value.Value);
 						}
 					}
 				}
@@ -111,7 +109,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 			}
 		}
 
-		private class TagTypeEditor : UITypeEditor
+		private class CompoundTagTypeEditor : UITypeEditor
 		{
 			public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
 			{
@@ -128,8 +126,8 @@ namespace s4pi.Resource.Commons.CatalogTags
 
 				listBox.AssignFlattenedSecondaryList(CatalogTagRegistry.AllTags().ToObjectArray());
 
-				Tag currentlySelectedTag = ExtractTag(value);
-				Tag currentCategory = GetCurrentCategory(currentlySelectedTag);
+				CompoundTag currentlySelectedTag = ExtractTag(value);
+				Tag currentCategory = currentlySelectedTag.Category;
 
 				listBox.AssignPrimaryList(categories.ToObjectArray());
 				AssignSelectedIndex(categories.ToObjectArray(), currentCategory, index => listBox.PrimarySelectedIndex = index);
@@ -138,26 +136,33 @@ namespace s4pi.Resource.Commons.CatalogTags
 				AssignSelectedIndex(availableTags, currentlySelectedTag, index => listBox.SecondarySelectedIndex = index);
 
 				listBox.PrimaryItemSelected += (sender, args) =>
-					                               {
-						                               int selectedIndex = listBox.PrimarySelectedIndex;
-						                               Tag selectedCategory = categories[selectedIndex];
+											   {
+												   int selectedIndex = listBox.PrimarySelectedIndex;
+												   Tag selectedCategory = categories[selectedIndex];
 
-													   UpdateTagListBox(selectedCategory, listBox);
-					                               };
+												   UpdateTagListBox(selectedCategory, listBox);
+											   };
 
 				listBox.SecondaryItemSelected += (sender, args) => editorService.CloseDropDown();
 
 				editorService.DropDownControl(listBox);
 
-				return listBox.SecondarySelectedItem ?? value;
+				Tag newCategory = listBox.PrimarySelectedItem as Tag;
+				Tag newValue = listBox.SecondarySelectedItem as Tag;
+
+				if (newCategory != null && newValue != null)
+				{
+					return new CompoundTag { Category = newCategory, Value = newValue };
+				}
+				return value;
 			}
 
 			#region Internals
 
-			private static Tag ExtractTag(object value)
+			private static CompoundTag ExtractTag(object value)
 			{
 				TypedValue typedValue = (TypedValue)value;
-				Tag currentlySelectedTag = (Tag)typedValue.Value;
+				CompoundTag currentlySelectedTag = (CompoundTag)typedValue.Value;
 
 				return currentlySelectedTag;
 			}

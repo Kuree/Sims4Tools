@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,7 +13,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 	public class CatalogTagRegistry
 	{
 		private const string CatalogTuningFileName = "S4_03B33DDF_00000000_D89CB9186B79ACB7.xml";
-		
+
 		private static Dictionary<ushort, Tag> tags;
 		private static Dictionary<ushort, Tag> categories;
 
@@ -50,8 +49,22 @@ namespace s4pi.Resource.Commons.CatalogTags
 		/// <returns>A <see cref="Tag"/> instance containing the matching value, or a default if no match was found.</returns>
 		public static Tag FetchTag(ushort index)
 		{
+			return GetTagOrDefault(tags, index);
+		}
+
+		/// <summary>
+		/// Fetches the matching category for the specified <paramref name="index"/>.
+		/// </summary>
+		/// <returns>A <see cref="Tag"/> instance containing the matching value, or a default if no match was found.</returns>
+		public static Tag FetchCategory(ushort index)
+		{
+			return GetTagOrDefault(categories, index);
+		}
+
+		private static Tag GetTagOrDefault(IDictionary<ushort, Tag> dictionary, ushort index)
+		{
 			Tag tag;
-			if (tags.TryGetValue(index, out tag))
+			if (dictionary.TryGetValue(index, out tag))
 			{
 				return tag;
 			}

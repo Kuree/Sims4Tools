@@ -25,6 +25,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using CASPartResource.Lists;
+
 namespace CASPartResource
 {
     public class SkinToneResource : AResource
@@ -40,9 +42,9 @@ namespace CASPartResource
         private ushort colorizeSaturation;
         private ushort colorizeHue;
         private uint colorizeOpacity;
-        CASPartResource.FlagList flagList;                  //Same as CASP flags
+        FlagList flagList;                  //Same as CASP flags
         private float makeupOpacity;
-        private CASPartResource.SwatchColorList swatchList;
+        private SwatchColorList swatchList;
         private float sortOrder;
         private float makeupOpacity2;
 
@@ -59,9 +61,9 @@ namespace CASPartResource
             this.colorizeSaturation = r.ReadUInt16();
             this.colorizeHue = r.ReadUInt16();
             this.colorizeOpacity = r.ReadUInt32();
-            flagList = new CASPartResource.FlagList(OnResourceChanged, s);
+            flagList = new FlagList(OnResourceChanged, s);
             this.makeupOpacity = r.ReadSingle();
-            this.swatchList = new CASPartResource.SwatchColorList(OnResourceChanged, s);
+            this.swatchList = new SwatchColorList(OnResourceChanged, s);
             this.sortOrder = r.ReadSingle();
             this.makeupOpacity2 = r.ReadSingle();
         }
@@ -77,10 +79,10 @@ namespace CASPartResource
             w.Write(this.colorizeSaturation);
             w.Write(this.colorizeHue);
             w.Write(this.colorizeOpacity);
-            if (this.flagList == null) this.flagList = new CASPartResource.FlagList(OnResourceChanged);
+            if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
             flagList.UnParse(ms);
             w.Write(this.makeupOpacity);
-            if (this.swatchList == null) this.swatchList = new CASPartResource.SwatchColorList(OnResourceChanged);
+            if (this.swatchList == null) this.swatchList = new SwatchColorList(OnResourceChanged);
             this.swatchList.UnParse(ms);
             w.Write(this.sortOrder);
             w.Write(this.makeupOpacity2);
@@ -153,11 +155,11 @@ namespace CASPartResource
         [ElementPriority(5)]
         public uint ColorizeOpacity { get { return this.colorizeOpacity; } set { if (!this.colorizeOpacity.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorizeOpacity = value; } } }
         [ElementPriority(6)]
-        public CASPartResource.FlagList TONEFlagList { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public FlagList TONEFlagList { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
         [ElementPriority(7)]
         public float MakeupOpacity { get { return this.makeupOpacity; } set { if (!this.makeupOpacity.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.makeupOpacity = value; } } }
         [ElementPriority(8)]
-        public CASPartResource.SwatchColorList SwatchList { get { return this.swatchList; } set { if (!this.swatchList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.swatchList = value; } } }
+        public SwatchColorList SwatchList { get { return this.swatchList; } set { if (!this.swatchList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.swatchList = value; } } }
         [ElementPriority(9)]
         public float SortOrder { get { return this.sortOrder; } set { if (!this.sortOrder.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.sortOrder = value; } } }
         [ElementPriority(10)]

@@ -43,8 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CatalogTags\CatalogTagRegistry.cs" />
+    <Compile Include="CatalogTags\CompoundTag.cs" />
     <Compile Include="CatalogTags\Tag.cs" />
     <Compile Include="CatalogTags\TagDocument.cs" />
+    <Compile Include="Extensions\TagEnumerableExtensions.cs" />
     <Compile Include="CatalogTags\TagListing.cs" />
     <Compile Include="Forms\DoubleListBox.cs">
       <SubType>UserControl</SubType>
