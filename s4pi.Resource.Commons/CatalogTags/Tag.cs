@@ -66,11 +66,11 @@ namespace s4pi.Resource.Commons.CatalogTags
 
 		public static bool operator ==(Tag tag1, Tag tag2)
 		{
-			if (tag1 != null)
+			if (!ReferenceEquals(tag1, null))
 			{
 				return tag1.Equals(tag2);
 			}
-			return tag2 == null;
+			return ReferenceEquals(tag2, null);
 		}
 
 		public static bool operator !=(Tag tag1, Tag tag2)

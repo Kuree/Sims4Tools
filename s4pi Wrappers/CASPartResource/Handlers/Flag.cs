@@ -14,9 +14,10 @@ namespace CASPartResource.Handlers
 		public Flag(int APIversion, EventHandler handler, Stream s)
 			: base(APIversion, handler)
 		{
-			var r = new BinaryReader(s);
-			var category = CatalogTagRegistry.FetchCategory(r.ReadUInt16());
-			var value = CatalogTagRegistry.FetchTag(r.ReadUInt16());
+			var reader = new BinaryReader(s);
+			var category = CatalogTagRegistry.FetchCategory(reader.ReadUInt16());
+			var value = CatalogTagRegistry.FetchTag(reader.ReadUInt16());
+			this.compoundTag = new CompoundTag { Category = category, Value = value };
 		}
 
 		public Flag(int APIversion, EventHandler handler) : base(APIversion, handler)
