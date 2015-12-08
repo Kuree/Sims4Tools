@@ -12,7 +12,7 @@ namespace CatalogResource.Common
 		private Tag tag;
 
 		#region Constructors
-            
+
 		public CatalogTag(int APIversion, EventHandler handler, CatalogTag other)
 			: this(APIversion, handler, other.tag)
 		{
@@ -68,7 +68,7 @@ namespace CatalogResource.Common
 		void Parse(Stream s)
 		{
 			var br = new BinaryReader(s);
-			this.tag = CatalogTagRegistry.FetchTag(br.ReadUInt16());
+			this.tag = CatalogTagRegistry.FetchTag(br.ReadUInt32());
 		}
 
 		public void UnParse(Stream s)

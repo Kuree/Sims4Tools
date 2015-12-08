@@ -62,6 +62,8 @@
   <ItemGroup>
     <Compile Include="48C28979CatalogResource.cs" />
     <Compile Include="A8F7B517CatalogResource.cs" />
+    <Compile Include="Common\BinaryReaderExtensions.cs" />
+    <Compile Include="Common\BinaryWriterExtensions.cs" />
     <Compile Include="Common\CatalogTag.cs" />
     <Compile Include="Common\CatalogTagList.cs" />
     <Compile Include="Common\ArrayExtensions.cs" />

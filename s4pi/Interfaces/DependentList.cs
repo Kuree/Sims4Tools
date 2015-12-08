@@ -109,7 +109,8 @@ namespace s4pi.Interfaces
 		{
 			this.Clear();
 			var inc = true;
-			for (var i = this.ReadCount(s); i > 0; i = i - (inc ? 1 : 0))
+			int count = this.ReadCount(s);
+			for (var i = count; i > 0; i = i - (inc ? 1 : 0))
 			{
 				base.Add(this.CreateElement(s, out inc));
 			}

@@ -30,7 +30,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 		/// Gets or sets the index of this tag.
 		/// </summary>
 		[XmlAttribute(AttributeName = "ev")]
-		public ushort Index { get; set; }
+		public uint Index { get; set; }
 
 		/// <summary>
 		/// Gets or sets the human-readable value of this tag.
@@ -41,7 +41,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 		/// <summary>
 		/// Converts the index of this tag to ushort.
 		/// </summary>
-		public static implicit operator UInt16(Tag tag)
+		public static implicit operator uint(Tag tag)
 		{
 			return tag.Index;
 		}
@@ -66,11 +66,11 @@ namespace s4pi.Resource.Commons.CatalogTags
 
 		public static bool operator ==(Tag tag1, Tag tag2)
 		{
-			if (!ReferenceEquals(tag1, null))
+			if (!object.ReferenceEquals(tag1, null))
 			{
 				return tag1.Equals(tag2);
 			}
-			return ReferenceEquals(tag2, null);
+			return object.ReferenceEquals(tag2, null);
 		}
 
 		public static bool operator !=(Tag tag1, Tag tag2)
@@ -181,8 +181,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 
 			private static Tag[] FetchAllCategories()
 			{
-				return
-					CatalogTagRegistry.AllCategoriesWithDummiesForUnpairedTags().Order().ToArray();
+				return CatalogTagRegistry.AllCategoriesWithDummiesForUnpairedTags().Order().ToArray();
 			}
 
 			private static Tag GetCurrentCategory(Tag currentlySelectedTag)

@@ -14,8 +14,8 @@ namespace s4pi.Resource.Commons.CatalogTags
 	{
 		private const string CatalogTuningFileName = "S4_03B33DDF_00000000_D89CB9186B79ACB7.xml";
 
-		private static Dictionary<ushort, Tag> tags;
-		private static Dictionary<ushort, Tag> categories;
+		private static Dictionary<uint, Tag> tags;
+		private static Dictionary<uint, Tag> categories;
 
 		static CatalogTagRegistry()
 		{
@@ -47,7 +47,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 		/// Fetches the matching tag for the specified <paramref name="index"/>.
 		/// </summary>
 		/// <returns>A <see cref="Tag"/> instance containing the matching value, or a default if no match was found.</returns>
-		public static Tag FetchTag(ushort index)
+		public static Tag FetchTag(uint index)
 		{
 			return GetTagOrDefault(tags, index);
 		}
@@ -56,12 +56,12 @@ namespace s4pi.Resource.Commons.CatalogTags
 		/// Fetches the matching category for the specified <paramref name="index"/>.
 		/// </summary>
 		/// <returns>A <see cref="Tag"/> instance containing the matching value, or a default if no match was found.</returns>
-		public static Tag FetchCategory(ushort index)
+		public static Tag FetchCategory(uint index)
 		{
 			return GetTagOrDefault(categories, index);
 		}
 
-		private static Tag GetTagOrDefault(IDictionary<ushort, Tag> dictionary, ushort index)
+		private static Tag GetTagOrDefault(IDictionary<uint, Tag> dictionary, uint index)
 		{
 			Tag tag;
 			if (dictionary.TryGetValue(index, out tag))
@@ -103,7 +103,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 					string prefix = tag.Value.Substring(0, index);
 					if (!knownCategories.Any(c => c.Value.Equals(prefix, StringComparison.OrdinalIgnoreCase)))
 					{
-						knownCategories.Add(new Tag { Index = ushort.MaxValue, Value = prefix });
+						knownCategories.Add(new Tag { Index = uint.MaxValue, Value = prefix });
 					}
 				}
 			}
@@ -125,7 +125,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 
 			var category = categories.Values.FirstOrDefault(t => t.Value.Equals(prefix, StringComparison.OrdinalIgnoreCase));
 
-			return category ?? new Tag { Index = ushort.MaxValue, Value = prefix };
+			return category ?? new Tag { Index = uint.MaxValue, Value = prefix };
 		}
 
 		/// <summary>
