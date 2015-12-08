@@ -106,6 +106,7 @@ namespace TextResource
     public class TextResourceHandler : AResourceHandler
     {
         #region Read config file
+
         static List<string> resourceTypes = null;
         static TextResourceHandler()
         {
@@ -118,6 +119,7 @@ namespace TextResource
                 resourceTypes.Add(t[0]);
             }
         }
+
         #endregion
 
         /// <summary>
