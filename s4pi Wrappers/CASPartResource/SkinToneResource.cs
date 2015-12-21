@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using CASPartResource.Lists;
+using CASPartResource.Handlers;
 
 namespace CASPartResource
 {
