@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 
 using CASPartResource.Lists;
+using CASPartResource.Handlers;
 
 namespace CASPartResource
 {
@@ -61,7 +62,18 @@ namespace CASPartResource
             this.colorizeSaturation = r.ReadUInt16();
             this.colorizeHue = r.ReadUInt16();
             this.colorizeOpacity = r.ReadUInt32();
-            flagList = new FlagList(OnResourceChanged, s);
+            if (this.version > 6) flagList = new FlagList(OnResourceChanged, s);
+            else
+            {
+                uint flagCount = r.ReadUInt32();
+                flagList = new FlagList(OnResourceChanged);
+                for (int i = 0; i < flagCount; i++)
+                {
+                    ushort cat = r.ReadUInt16();
+                    ushort val = r.ReadUInt16();
+                    flagList.Add(new Flag(recommendedApiVersion, OnResourceChanged, cat, val));
+                }
+            }
             this.makeupOpacity = r.ReadSingle();
             this.swatchList = new SwatchColorList(OnResourceChanged, s);
             this.sortOrder = r.ReadSingle();
@@ -79,8 +91,20 @@ namespace CASPartResource
             w.Write(this.colorizeSaturation);
             w.Write(this.colorizeHue);
             w.Write(this.colorizeOpacity);
-            if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
-            flagList.UnParse(ms);
+            if (this.version > 6)
+            {
+                if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
+                this.flagList.UnParse(ms);
+            }
+            else
+            {
+                w.Write(this.flagList.Count);
+                foreach (Flag f in this.flagList)
+                {
+                    w.Write((ushort)f.CompoundTag.Category);
+                    w.Write((ushort)f.CompoundTag.Value);
+                }
+            }
             w.Write(this.makeupOpacity);
             if (this.swatchList == null) this.swatchList = new SwatchColorList(OnResourceChanged);
             this.swatchList.UnParse(ms);
