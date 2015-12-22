@@ -20,14 +20,22 @@ namespace CASPartResource.Handlers
 			this.compoundTag = new CompoundTag { Category = category, Value = value };
 		}
 
-		public Flag(int APIversion, EventHandler handler) : base(APIversion, handler)
+        	public Flag(int APIversion, EventHandler handler, ushort flagCategory, uint flagValue)
+            		: base(APIversion, handler)
+        	{
+            		var category = CatalogTagRegistry.FetchCategory(flagCategory);
+            		var value = CatalogTagRegistry.FetchTag(flagValue);
+            		this.compoundTag = new CompoundTag { Category = category, Value = value };
+        	}
+        
+        	public Flag(int APIversion, EventHandler handler) : base(APIversion, handler)
 		{
 		}
 
 		public void UnParse(Stream s)
 		{
 			var w = new BinaryWriter(s);
-			w.Write(this.compoundTag.Category);
+			w.Write((ushort)this.compoundTag.Category);
 			w.Write(this.compoundTag.Value);
 		}
 
