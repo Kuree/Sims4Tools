@@ -39,7 +39,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 		public string Value { get; set; }
 
 		/// <summary>
-		/// Converts the index of this tag to ushort.
+		/// Converts the index of this tag to uint.
 		/// </summary>
 		public static implicit operator uint(Tag tag)
 		{
