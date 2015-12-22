@@ -24,6 +24,7 @@ using System.IO;
 using System.Text;
 
 using CASPartResource.Lists;
+using CASPartResource.Handlers;
 
 using s4pi.Interfaces;
 using s4pi.Settings;
@@ -50,26 +51,29 @@ namespace CASPartResource
 		private uint auralMaterialHash;
 		private ParmFlag parmFlags;
 		private ExcludePartFlag excludePartFlags;
-		private uint excludeModifierRegionFlags;
-		private FlagList flagList;
-		private uint simlolencePrice;
+        	private ulong excludeModifierRegionFlags;   // cmar - changed from uint to ulong with V 0x25
+        	private FlagList flagList;                  // property 16-bit tag / 32-bit value pairs
+        	private uint deprecatedPrice;               // deprecated
 		private uint partTitleKey;
 		private uint partDesptionKey;
 		private byte uniqueTextureSpace;
 		private BodyType bodyType;
-		private int unused1;
+        	int bodySubType;                            // cmar - changed from unused with V 0x25
 		private AgeGenderFlags ageGender;
-		private uint reserved1; // cmar - added V 0x20, set to 1
-		private byte unused2;
-		private byte unused3;
-		private SwatchColorList swatchColorCode;
+		private uint reserved1;                     // cmar - added V 0x20, set to 1
+        	short packID;                               // cmar - added V 0x25
+        	PackFlag packFlags;                         // cmar - added V 0x25
+        	byte[] reserved2;                           // cmar - added V 0x25, nine bytes, set to 0
+        	byte unused2;                               // cmar - only if V < 0x25
+        	byte unused3;                               // cmar - only if V < 0x25
+        	private SwatchColorList swatchColorCode;
 		private byte buffResKey;
 		private byte varientThumbnailKey;
 		private ulong voiceEffectHash;
-		private byte usedMaterialCount; // cmar - added V 0x1E
-		private uint materialSetUpperBodyHash; // cmar - added V 0x1E
-		private uint materialSetLowerBodyHash; // cmar - added V 0x1E
-		private uint materialSetShoesHash; // cmar - added V 0x1E
+		private byte usedMaterialCount;             // cmar - added V 0x1E
+		private uint materialSetUpperBodyHash;      // cmar - added V 0x1E
+		private uint materialSetLowerBodyHash;      // cmar - added V 0x1E
+		private uint materialSetShoesHash;          // cmar - added V 0x1E
 		private OccultTypesDisabled hideForOccultFlags; // cmar = added V 0x1F
 		private byte nakedKey;
 		private byte parentKey;
@@ -84,7 +88,7 @@ namespace CASPartResource
 		private byte normalMapKey;
 		private byte specularMapKey;
 		private uint sharedUVMapSpace;
-		private byte emissionMapKey; // cmar - added V 0x1E
+		private byte emissionMapKey;                // cmar - added V 0x1E
 		private CountedTGIBlockList tgiList;
 
 		#endregion
@@ -121,23 +125,45 @@ namespace CASPartResource
 			this.auralMaterialHash = r.ReadUInt32();
 			this.parmFlags = (ParmFlag)r.ReadByte();
 			this.excludePartFlags = (ExcludePartFlag)r.ReadUInt64();
-			this.excludeModifierRegionFlags = r.ReadUInt32();
+            		if (this.version >= 36) this.excludeModifierRegionFlags = r.ReadUInt64();
+            		else this.excludeModifierRegionFlags = r.ReadUInt32();
 
-			this.flagList = new FlagList(this.OnResourceChanged, s);
+            		if (this.version >= 37) flagList = new FlagList(OnResourceChanged, s);
+            		else
+            		{
+                		uint flagCount = r.ReadUInt32();
+                		flagList = new FlagList(OnResourceChanged);
+                		for (int i = 0; i < flagCount; i++)
+                		{
+                    			ushort cat = r.ReadUInt16();
+                			ushort val = r.ReadUInt16();
+                    			flagList.Add(new Flag(recommendedApiVersion, OnResourceChanged, cat, val));
+                		}
+            		}
 
-			this.simlolencePrice = r.ReadUInt32();
+			this.deprecatedPrice = r.ReadUInt32();
 			this.partTitleKey = r.ReadUInt32();
 			this.partDesptionKey = r.ReadUInt32();
 			this.uniqueTextureSpace = r.ReadByte();
 			this.bodyType = (BodyType)r.ReadInt32();
-			this.unused1 = r.ReadInt32();
+			this.bodySubType = r.ReadInt32();
 			this.ageGender = (AgeGenderFlags)r.ReadUInt32();
 			if (this.version >= 0x20)
 			{
 				this.reserved1 = r.ReadUInt32();
 			}
-			this.unused2 = r.ReadByte();
-			this.unused3 = r.ReadByte();
+            		if (this.version >= 34)
+            		{
+                		this.packID = r.ReadInt16();
+                		this.packFlags = (PackFlag)r.ReadByte();
+                		this.reserved2 = r.ReadBytes(9);
+            		}
+            		else
+            		{
+                		this.packID = 0;
+                		this.unused2 = r.ReadByte();
+                		if (this.unused2 > 0) this.unused3 = r.ReadByte();
+            		}
 
 			this.swatchColorCode = new SwatchColorList(this.OnResourceChanged, s);
 
@@ -214,26 +240,52 @@ namespace CASPartResource
 			w.Write(this.auralMaterialHash);
 			w.Write((byte)this.parmFlags);
 			w.Write((ulong)this.excludePartFlags);
-			w.Write(this.excludeModifierRegionFlags);
-			if (this.flagList == null)
-			{
-				this.flagList = new FlagList(this.OnResourceChanged);
-			}
-			this.flagList.UnParse(s);
-			w.Write(this.simlolencePrice);
+            		if (this.version >= 36)
+            		{
+                		w.Write(this.excludeModifierRegionFlags);
+            		}
+            		else
+            		{
+                		w.Write((uint)this.excludeModifierRegionFlags);
+            		}
+            		if (this.version >= 37)
+            		{
+                		if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
+                		this.flagList.UnParse(s);
+            		}
+            		else
+            		{
+                		w.Write(this.flagList.Count);
+                		foreach (Flag f in this.flagList)
+                		{
+                    			w.Write((ushort)f.CompoundTag.Category);
+                    			w.Write((ushort)f.CompoundTag.Value);
+                		}
+            		}
+            		w.Write(this.deprecatedPrice);
 			w.Write(this.partTitleKey);
 			w.Write(this.partDesptionKey);
 			w.Write(this.uniqueTextureSpace);
 			w.Write((uint)this.bodyType);
-			w.Write(this.unused1);
+			w.Write(this.bodySubType);
 			w.Write((uint)this.ageGender);
 			if (this.version >= 0x20)
 			{
 				w.Write(this.reserved1);
 			}
-			w.Write(this.unused2);
-			w.Write(this.unused3);
-			if (this.swatchColorCode == null)
+            		if (this.version >= 34)
+            		{
+                		w.Write(this.packID);
+        	 		w.Write((byte)this.packFlags);
+                		if (reserved2 == null) this.reserved2 = new byte[9];
+                		w.Write(this.reserved2);
+            		}
+            		else
+            		{
+                		w.Write(this.unused2);
+                		if (this.unused2 > 0) w.Write(this.unused3);
+            		}
+            		if (this.swatchColorCode == null)
 			{
 				this.swatchColorCode = new SwatchColorList(this.OnResourceChanged);
 			}
@@ -445,7 +497,7 @@ namespace CASPartResource
 		}
 
 		[ElementPriority(10)]
-		public uint ExcludeModifierRegionFlags
+		public ulong ExcludeModifierRegionFlags
 		{
 			get { return this.excludeModifierRegionFlags; }
 			set
@@ -473,14 +525,14 @@ namespace CASPartResource
 		}
 
 		[ElementPriority(12)]
-		public uint SimlolencePrice
+		public uint DeprecatedPrice
 		{
-			get { return this.simlolencePrice; }
+			get { return this.deprecatedPrice; }
 			set
 			{
-				if (!value.Equals(this.simlolencePrice))
+				if (!value.Equals(this.deprecatedPrice))
 				{
-					this.SimlolencePrice = value;
+					this.deprecatedPrice = value;
 				}
 				this.OnResourceChanged(this, EventArgs.Empty);
 			}
@@ -501,7 +553,7 @@ namespace CASPartResource
 		}
 
 		[ElementPriority(14)]
-		public uint PartDesptionKey
+		public uint PartDescriptionKey
 		{
 			get { return this.partDesptionKey; }
 			set
@@ -543,14 +595,14 @@ namespace CASPartResource
 		}
 
 		[ElementPriority(17)]
-		public int Unused1
+		public int BodySubType
 		{
-			get { return this.unused1; }
+			get { return this.bodySubType; }
 			set
 			{
-				if (!value.Equals(this.unused1))
+				if (!value.Equals(this.bodySubType))
 				{
-					this.unused1 = value;
+					this.bodySubType = value;
 				}
 				this.OnResourceChanged(this, EventArgs.Empty);
 			}
@@ -584,7 +636,45 @@ namespace CASPartResource
 			}
 		}
 
-		[ElementPriority(20)]
+        	[ElementPriority(20)]
+        	public short PackID 
+        	{
+            		get { return this.packID; } 
+            		set 
+            		{
+                		if (this.packID == 0 || value > 0)
+                		{
+                    			this.packID = value;
+                    			OnResourceChanged(this, EventArgs.Empty);
+                		}
+            		} 
+        	}
+
+        	[ElementPriority(21)]
+        	public PackFlag PackFlags 
+        	{
+            		get { return this.packFlags; } 
+            	set 
+            	{
+                	if (!value.Equals(this.packFlags))
+                	{
+                    	this.packFlags = value;
+                	}
+                	OnResourceChanged(this, EventArgs.Empty); 
+            	} 
+        	}
+
+        	[ElementPriority(22)]
+        	public byte[] Reserved2 
+        	{
+            		get { return this.reserved2; } 
+            		set 
+            		{
+                		if (!value.Equals(this.reserved2)) this.reserved2 = value; OnResourceChanged(this, EventArgs.Empty); 
+            		} 
+        	}
+
+        	[ElementPriority(20)]
 		public byte Unused2
 		{
 			get { return this.unused2; }
@@ -974,6 +1064,17 @@ namespace CASPartResource
 				{
 					res.Remove("Reserved1");
 				}
+                		if (this.version < 0x25)
+                		{
+                			res.Remove("PackID");
+                    			res.Remove("PackFlags");
+                    			res.Remove("Reserved2");
+                		}
+                		else
+                		{
+                    			res.Remove("Unused2");
+                    			res.Remove("Unused3");
+                		}
 				return res;
 			}
 		}
