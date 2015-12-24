@@ -1,3 +1,4 @@
+# This project is no longer under active development. Please go to https://github.com/s4ptacle/Sims4Tools
 
 S4PE and S4PI is an open source project based on s3pi and s3pe.
 
