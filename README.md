@@ -1,28 +1,31 @@
 
-S4PE and S4PI is an open source project based on s3pi and s3pe.
-
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Kuree/Sims4Tools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+s4pe/s4pi is an editing interface for the .package format used with [The Sims 4]. This is an open source project based on [s3pi and s3pe].
 
 
 Current Version
 ----
 
-0.3b
+0.4.1 is the most recent version. The [main repository] is not being maintained at this point in time. 
 
-Contributors:
+
+Contributors
 -----------
 
-Here is a list of contributors:
-* [Kuree] - the main contributor to the project.
-* [ChaosMageX] - a cool dude.
-* [andrewtavera] - for mesh parts and other help.
-* [IngeJones] - a kind lady who doesn't want her name mentioned.
-* [Rick] - a pioneer in TS4.
-* [granthes] - not active now, but helped a lot in early stage.
-* [snaitf] - helps a lot for decoding the resources.
-* [orangemittens] - helps a lot in wiki pages.
+Roughly in chronological order -- [full details here] (https://github.com/pboxx/Sims4Tools/graphs/contributors)
 
-Requirement
+* Peter Jones - Main author of s3pe/s3pi
+* [Rick] - a pioneer in TS4
+* [ChaosMageX] - Initial s4p* setup; work on DATA, RIG and GEOM wrappers
+* [andrewtavera] - Mesh parts and other help
+* [granthes] - Several contributions pre-release and in the early stages
+* [snaitf] - Decoding and contributions for CCOL, COBJ, trims as well as bugfixes
+* [IngeJones] - a kind lady who doesn't want her name mentioned
+* [Kuree] - Maintained the project in 2014 and 2015
+* [CmarNYC] - Continuous updates of CASP, TONE, FTPT and other wrappers
+* [pbox] - Updates to various labels/text lists; general maintenance
+* [Buzzler] - Some general cleanup; implementation of catalog tag lists
+
+Requirements
 --------------
 ```sh
 .NET 4.0
@@ -37,40 +40,30 @@ sims4tools2010.sln
 
 Helper Projects
 -------------
-* ~~I'm moving most of the helpers to a new repository,~~All the active helpers are hosted at [s4pe-helper] because it is much easier to manage. However, most of them will be shipped with the S4PE build.
-~~* Currently DST and Thumbnail helpers are hosted there.~~
+* The active helpers are hosted at [s4pe-helper]. However, most of them will be shipped with the S4PE build.
 
-
-
-Example Code for S4PI Library
-------------
-Coming soon
 
 How to Contribute
 -----------
-- Fork the project, modify it, and send us pull request!
-- Edit the [wiki] page if you discover something!
-- Star the project if you like it!
-
-DONATION
-------------
-- If you are very generous, you can even buy me some coffee! 
-- Buy me a cup of coffe via Paypal [![Buy me a cup of coffee via PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9FZDXF39BVWMS&lc=US&item_name=s4pe%2dproject%2ddonation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
-- Or send me coffee every day via [gratipay]!
+- Fork the project, modify it, and send us a pull request!
 
 
 License
 ----
-GPLV3
+[GNU General Public License v3] 
 
-Others
+
+Other
 ----
 #### Special thanks:
-Without peter's help and work on s3pe/s3pi project, there won't be this project, which highly depends on his two projects. His philosophy to share and distribute open source project will be carried on.
+Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy to share and distribute this as an open source project will be carried on.
+
 #### Edit History
 * 9/30/2014: first version.
 * 11/27/2014: update contributors and version number.
 * 1/16/2014: update the version number and helper project desc.
+* 2015-12-24: Quick update to reflect the current status a little better
+[s3pi and s3pe]: http://sourceforge.net/projects/sims3tools/
 [Kuree]:https://github.com/Kuree
 [ChaosMageX]:https://github.com/ChaosMageX
 [andrewtavera]:https://github.com/andrewtavera
@@ -80,5 +73,9 @@ Without peter's help and work on s3pe/s3pi project, there won't be this project,
 [snaitf]: https://github.com/Snaitf
 [s4pe-helper]: https://github.com/Kuree/s4p4-helper
 [wiki]:https://github.com/Kuree/s4p4-helper/wiki
-[gratipay]: https://gratipay.com/Kuree/
-[orangemittens]: https://github.com/orangemittens
+[Buzzler]:https://github.com/BrutalBuzzler
+[CmarNYC]:https://github.com/cmarNYC
+[pbox]:https://github.com/pboxx
+[main repository]:https://github.com/Kuree/Sims4Tools
+[GNU General Public License v3]:http://www.gnu.org/licenses/gpl-3.0.html
+[The Sims 4]:https://en.wikipedia.org/wiki/The_Sims_4
