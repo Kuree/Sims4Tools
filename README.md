@@ -1,11 +1,11 @@
 
-s4pe/s4pi is an editing interface for the .package format used with [The Sims 4]. This is an open source project based on [s3pi and s3pe].
+s4pe, based on the s4pi interface library, is an editing tool for the .package format used with [The Sims 4]. This is an open source project based on [s3pi and s3pe].
 
 
 Current Version
 ----
 
-0.4.1 is the most recent version. The [main repository] is not being maintained at this point in time. 
+[0.4.1] is the most recent version. The [main repository] is not being maintained at this point in time. 
 
 
 Contributors
@@ -79,3 +79,4 @@ Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy 
 [main repository]:https://github.com/Kuree/Sims4Tools
 [GNU General Public License v3]:http://www.gnu.org/licenses/gpl-3.0.html
 [The Sims 4]:https://en.wikipedia.org/wiki/The_Sims_4
+[0.4.1]:https://github.com/pboxx/Sims4Tools/releases/tag/0.4.1_beta
