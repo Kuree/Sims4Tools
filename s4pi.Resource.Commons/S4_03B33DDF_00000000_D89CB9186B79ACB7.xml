@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <M n="tag" s="15608553923092786359">
   <C n="TagCategory">
     <L n="_elements">
@@ -1449,8 +1449,12 @@
       <T ev="1490">Uniform_Costume_Yoda</T>
       <T ev="1491">Uniform_Repair</T>
       <T ev="1492">BuyTag_ShowIfWallsCutaway</T>
-      <T ev="1493">Style_Bohemian</T>
-      <T ev="1494">BuyCatLD_RugManaged</T>
+      <T ev="1493">Situation_PlayerVisiting_NPC</T>
+      <T ev="1494">Func_DoesntSpawnFire</T>
+      <T ev="1495">Style_Bohemian</T>
+      <T ev="1496">BuyCatLD_RugManaged</T>
+      <T ev="1497">Appropriateness_Visitor</T>
+      <T ev="1498">Func_Movie</T>
       <T ev="8194">Skill_Psychic</T>
       <T ev="8195">Style_Witch</T>
       <T ev="8196">Style_Pirate</T>
@@ -1797,6 +1801,12 @@
       <T ev="22564">Uniform_Costume_PumpkinBrown</T>
       <T ev="22565">Uniform_Costume_PumpkinPlum</T>
       <T ev="22566">Uniform_Costume_PirateWhite</T>
+      <T ev="28673">Func_PopcornPopper</T>
+      <T ev="28674">Func_Popcorn</T>
+      <T ev="28675">Func_Popcorn_Chedder</T>
+      <T ev="28676">Func_Popcorn_Caramel</T>
+      <T ev="28677">Func_Popcorn_Kettle</T>
+      <T ev="28678">Func_Popcorn_Buttered</T>
     </L>
   </C>
 </M>
