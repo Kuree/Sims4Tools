@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Inge Jones                                       *
  *                                                                         *
  *                                                                         *
@@ -49,14 +49,15 @@ namespace CatalogResource
 		private uint devCategoryFlags;
 		private CountedTGIBlockList productStyles;
 		private short packId;
-		private byte packFlags;
-		private byte[] reservedBytes;
+		private PackFlag packFlags;
+		private byte[] reservedBytes;       // 9 bytes always 0
+        	private byte unused2 = 1, unused3;
 		private CatalogTagList tagList;
 		private SellingPointList sellingPoints;
 		private uint unlockByHash;
 		private uint unlockedByHash;
-		private ushort unkCommon06;
-		private ulong unkCommon07;
+		private ushort swatchColorsSortPriority;
+		private ulong varientThumbImageHash;
 
 		#endregion
 
@@ -168,7 +169,7 @@ namespace CatalogResource
 		}
 
 		[ElementPriority(12)]
-		public byte PackFlags
+		public PackFlag PackFlags
 		{
 			get { return this.packFlags; }
 			set
@@ -181,6 +182,7 @@ namespace CatalogResource
 			}
 		}
 
+        [ElementPriority(13)]
 		public byte[] ReservedBytes
 		{
 			get { return this.reservedBytes; }
@@ -191,7 +193,29 @@ namespace CatalogResource
 			}
 		}
 
-		[ElementPriority(13)]
+        [ElementPriority(14)]
+        public byte Unused2
+        {
+            get { return this.unused2; }
+            set
+            {
+                this.unused2 = value;
+                this.OnElementChanged();
+            }
+        }
+
+        [ElementPriority(15)]
+        public byte Unused3
+        {
+            get { return this.unused3; }
+            set
+            {
+                this.unused3 = value;
+                this.OnElementChanged();
+            }
+        }
+
+		[ElementPriority(16)]
 		public CatalogTagList Tags
 		{
 			get { return this.tagList; }
@@ -204,7 +228,7 @@ namespace CatalogResource
 				}
 			}
 		}
-		[ElementPriority(14)]
+		[ElementPriority(17)]
 		public SellingPointList SellingPoints
 		{
 			get { return this.sellingPoints; }
@@ -216,7 +240,7 @@ namespace CatalogResource
 				}
 			}
 		}
-		[ElementPriority(15)]
+		[ElementPriority(18)]
 		public uint UnlockByHash
 		{
 			get { return this.unlockByHash; }
@@ -228,7 +252,7 @@ namespace CatalogResource
 				}
 			}
 		}
-		[ElementPriority(16)]
+		[ElementPriority(19)]
 		public uint UnlockedByHash
 		{
 			get { return this.unlockedByHash; }
@@ -240,38 +264,52 @@ namespace CatalogResource
 				}
 			}
 		}
-		[ElementPriority(17)]
-		public ushort SwatchSubsort
+		[ElementPriority(20)]
+		public ushort SwatchColorsSortPriority
 		{
-			get { return this.unkCommon06; }
+            get { return this.swatchColorsSortPriority; }
 			set
 			{
-				if (this.unkCommon06 != value)
+                if (this.swatchColorsSortPriority != value)
 				{
-					this.unkCommon06 = value; this.OnElementChanged();
+                    this.swatchColorsSortPriority = value; this.OnElementChanged();
 				}
 			}
 		}
-		[ElementPriority(18)]
-		public ulong UnkCommon07
+		[ElementPriority(21)]
+		public ulong VarientThumbImageHash
 		{
-			get { return this.unkCommon07; }
+			get { return this.varientThumbImageHash; }
 			set
 			{
-				if (this.unkCommon07 != value)
+				if (this.varientThumbImageHash != value)
 				{
-					this.unkCommon07 = value; this.OnElementChanged();
+					this.varientThumbImageHash = value; this.OnElementChanged();
 				}
 			}
 		}
 
 		public string Value { get { return this.ValueBuilder; } }
 
-		public override List<string> ContentFields
-		{
-			get { return AApiVersionedFields.GetContentFields(0, this.GetType()); }
-		}
-
+        public override List<string> ContentFields
+        {
+            get
+            {
+                var res = GetContentFields(RecommendedApiVersion, this.GetType());
+                if (this.CommonBlockVersion < 10)
+                {
+                    res.Remove("PackId");
+                    res.Remove("PackFlags");
+                    res.Remove("ReservedBytes");
+                }
+                else
+                {
+                    res.Remove("Unused2");
+                    res.Remove("Unused3");
+                }
+                return res;
+            }
+        }
 		#endregion
 
 		#region Data I/O
@@ -291,23 +329,35 @@ namespace CatalogResource
 			if (this.CommonBlockVersion >= 10)
 			{
 				this.packId = reader.ReadInt16();
-				this.packFlags = reader.ReadByte();
-
-				reader.ReadAndDiscardBytes(9);
-				this.reservedBytes = new byte[9];
+				this.packFlags = (PackFlag)reader.ReadByte();
+				this.reservedBytes = reader.ReadBytes(9);
 			}
 			else
 			{
-				reader.ReadAndDiscardBytes(2);
+				this.unused2 = reader.ReadByte();
+                if (this.unused2 > 0) this.unused3 = reader.ReadByte();
 			}
 
-			this.tagList = new CatalogTagList(this.handler, s);
+            if (this.commonBlockVersion >= 11)
+            {
+                this.tagList = new CatalogTagList(this.handler, s);
+            }
+            else
+            {
+                this.tagList = new CatalogTagList(this.handler);
+                uint count = reader.ReadUInt32();
+                for (int i = 0; i < count; i++)
+                {
+                    uint tagval = reader.ReadUInt16();
+                    this.tagList.Add(new CatalogTag(RecommendedApiVersion, handler, tagval));
+                }
+            }
 
 			this.sellingPoints = new SellingPointList(this.handler, s);
 			this.unlockByHash = reader.ReadUInt32();
 			this.unlockedByHash = reader.ReadUInt32();
-			this.unkCommon06 = reader.ReadUInt16();
-			this.unkCommon07 = reader.ReadUInt64();
+            		this.swatchColorsSortPriority = reader.ReadUInt16();
+			this.varientThumbImageHash = reader.ReadUInt64();
 		}
 
 		public void UnParse(Stream s)
@@ -326,20 +376,34 @@ namespace CatalogResource
 			if (this.CommonBlockVersion >= 10)
 			{
 				writer.Write(this.packId);
-				writer.Write(this.packFlags);
-				writer.WriteEmptyBytes(9);
+				writer.Write((byte)this.packFlags);
+                		if (this.reservedBytes == null) this.reservedBytes = new byte[9];
+                		writer.Write(this.reservedBytes);
 			}
 			else
 			{
-				writer.WriteEmptyBytes(2);
+                		writer.Write(this.unused2);
+                		if (this.unused2 > 0) writer.Write(this.unused3);
 			}
 
-			this.tagList.UnParse(s);
-			this.sellingPoints.UnParse(s);
+            if (this.commonBlockVersion >= 11)
+            {
+                this.tagList.UnParse(s);
+            }
+            else
+            {
+                writer.Write(this.tagList.Count);
+                for (int i = 0; i < this.tagList.Count; i++)
+                {
+                    writer.Write((ushort)this.tagList[i].Tag.Index);
+                }
+            }
+
+            this.sellingPoints.UnParse(s);
 			writer.Write(this.unlockByHash);
 			writer.Write(this.unlockedByHash);
-			writer.Write(this.unkCommon06);
-			writer.Write(this.unkCommon07);
+            writer.Write(this.swatchColorsSortPriority);
+			writer.Write(this.varientThumbImageHash);
 		}
 
 		public void MakeNew()
@@ -358,8 +422,8 @@ namespace CatalogResource
 			this.sellingPoints = new SellingPointList(this.handler);
 			this.unlockByHash = 0;
 			this.unlockedByHash = 0;
-			this.unkCommon06 = 0xffff;
-			this.unkCommon07 = 0;
+            		this.swatchColorsSortPriority = 0xffff;
+			this.varientThumbImageHash = 0;
 		}
 
 		#endregion
@@ -381,8 +445,8 @@ namespace CatalogResource
 							 SellingPointList sellingPoints,
 							 uint unlockByHash,
 							 uint unlockedByHash,
-							 ushort unkCommon06,
-							 ulong unkCommon07)
+                             ushort swatchColorsSortPriority,
+                             ulong varientThumbImageHash)
 			: base(APIversion, handler)
 		{
 			this.handler = handler;
@@ -399,8 +463,8 @@ namespace CatalogResource
 			this.sellingPoints = new SellingPointList(handler, sellingPoints);
 			this.unlockByHash = unlockByHash;
 			this.unlockedByHash = unlockedByHash;
-			this.unkCommon06 = unkCommon06;
-			this.unkCommon07 = unkCommon07;
+            		this.swatchColorsSortPriority = swatchColorsSortPriority;
+            		this.varientThumbImageHash = varientThumbImageHash;
 		}
 
 
@@ -420,8 +484,8 @@ namespace CatalogResource
 				   other.sellingPoints,
 				   other.unlockByHash,
 				   other.unlockedByHash,
-				   other.unkCommon06,
-				   other.unkCommon07)
+                   other.swatchColorsSortPriority,
+				   other.varientThumbImageHash)
 		{
 		}
 		public CatalogCommon(int APIversion, EventHandler handler)
@@ -451,14 +515,20 @@ namespace CatalogResource
 			this.sellingPoints == other.sellingPoints &&
 			this.unlockByHash == other.unlockByHash &&
 			this.unlockedByHash == other.unlockedByHash &&
-			this.unkCommon06 == other.unkCommon06 &&
-			this.unkCommon07 == other.unkCommon07;
+            		this.swatchColorsSortPriority == other.swatchColorsSortPriority &&
+			this.varientThumbImageHash == other.varientThumbImageHash;
 		}
 
 
 		#endregion
 
 		#region Sub-classes
+
+        [Flags]
+        public enum PackFlag : byte
+        {
+            HidePackIcon = 1
+        }
 
 		public class SellingPointList : DependentList<SellingPoint>
 		{
