@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Inge Jones                                       *
  *                                                                         *
  *                                                                         *
@@ -47,7 +47,7 @@ namespace CatalogResource
 		private uint auralQuality = 0x811C9DC5;
 		private uint auralAmbientObject = 0x811C9DC5;
 		private ulong ambienceFileInstanceId;
-		private byte isOverrideInstance;
+		private byte isOverrideAmbience;
 		private uint unused0;
 		private uint unused1;
 		private uint unused2;
@@ -61,10 +61,7 @@ namespace CatalogResource
 		private uint fenceHeight;
 		private byte isStackable;
 		private byte canItemDepreciate;
-		private uint unk10;
-		private uint unk11;
-		private uint unk12;
-		private uint unk13;
+        private TGIBlock fallbackObjectKey;
 
 		#endregion Attributes ======================================================
 
@@ -217,14 +214,14 @@ namespace CatalogResource
 		}
 
 		[ElementPriority(14)]
-		public byte IsOverrideInstance
+		public byte IsOverrideAmbience
 		{
-			get { return this.isOverrideInstance; }
+			get { return this.isOverrideAmbience; }
 			set
 			{
-				if (this.isOverrideInstance != value)
+				if (this.isOverrideAmbience != value)
 				{
-					this.isOverrideInstance = value;
+					this.isOverrideAmbience = value;
 					this.OnResourceChanged(this, EventArgs.Empty);
 				}
 			}
@@ -413,7 +410,7 @@ namespace CatalogResource
 		}
 
 		[ElementPriority(38)]
-		public uint Unk10
+        public TGIBlock FallbackObjectKey
 		{
 			get
 			{
@@ -421,7 +418,7 @@ namespace CatalogResource
 				{
 					throw new InvalidOperationException();
 				}
-				return this.unk10;
+                return this.fallbackObjectKey;
 			}
 			set
 			{
@@ -429,84 +426,9 @@ namespace CatalogResource
 				{
 					throw new InvalidOperationException();
 				}
-				if (this.unk10 != value)
+                if (this.fallbackObjectKey != value)
 				{
-					this.unk10 = value;
-					this.OnResourceChanged(this, EventArgs.Empty);
-				}
-			}
-		}
-
-		[ElementPriority(39)]
-		public uint Unk11
-		{
-			get
-			{
-				if (this.version < 0x00000019)
-				{
-					throw new InvalidOperationException();
-				}
-				return this.unk11;
-			}
-			set
-			{
-				if (this.version < 0x00000019)
-				{
-					throw new InvalidOperationException();
-				}
-				if (this.unk11 != value)
-				{
-					this.unk11 = value;
-					this.OnResourceChanged(this, EventArgs.Empty);
-				}
-			}
-		}
-
-		[ElementPriority(40)]
-		public uint Unk12
-		{
-			get
-			{
-				if (this.version < 0x00000019)
-				{
-					throw new InvalidOperationException();
-				}
-				return this.unk12;
-			}
-			set
-			{
-				if (this.version < 0x00000019)
-				{
-					throw new InvalidOperationException();
-				}
-				if (this.unk12 != value)
-				{
-					this.unk12 = value;
-					this.OnResourceChanged(this, EventArgs.Empty);
-				}
-			}
-		}
-
-		[ElementPriority(41)]
-		public uint Unk13
-		{
-			get
-			{
-				if (this.version < 0x00000019)
-				{
-					throw new InvalidOperationException();
-				}
-				return this.unk13;
-			}
-			set
-			{
-				if (this.version < 0x00000019)
-				{
-					throw new InvalidOperationException();
-				}
-				if (this.unk13 != value)
-				{
-					this.unk13 = value;
+                    this.fallbackObjectKey = value;
 					this.OnResourceChanged(this, EventArgs.Empty);
 				}
 			}
@@ -524,11 +446,17 @@ namespace CatalogResource
 				var res = base.ContentFields;
 				if (this.version < 0x00000019)
 				{
-					res.Remove("Unk10");
-					res.Remove("Unk11");
-					res.Remove("Unk12");
-					res.Remove("Unk13");
+                    res.Remove("FallbackObjectKey");
 				}
+                if (this.auralPropertiesVersion < 2)
+                {
+                    res.Remove("AuralAmbientObject");
+                }
+                if (this.auralPropertiesVersion < 3)
+                {
+                    res.Remove("AmbienceFileInstanceId");
+                    res.Remove("IsOverrideAmbience");
+                }
 				return res;
 			}
 		}
@@ -549,9 +477,15 @@ namespace CatalogResource
 			this.auralMaterials3 = reader.ReadUInt32();
 			this.auralPropertiesVersion = reader.ReadUInt32();
 			this.auralQuality = reader.ReadUInt32();
-			this.auralAmbientObject = reader.ReadUInt32();
-			this.ambienceFileInstanceId = reader.ReadUInt64();
-			this.isOverrideInstance = reader.ReadByte();
+            if (this.auralPropertiesVersion > 1)
+            {
+                this.auralAmbientObject = reader.ReadUInt32();
+            }
+            if (this.auralPropertiesVersion > 2)
+            {
+                this.ambienceFileInstanceId = reader.ReadUInt64();
+                this.isOverrideAmbience = reader.ReadByte();
+            }
 			this.unused0 = reader.ReadUInt32();
 			this.unused1 = reader.ReadUInt32();
 			this.unused2 = reader.ReadUInt32();
@@ -568,10 +502,7 @@ namespace CatalogResource
 
 			if (this.version >= 0x19)
 			{
-				this.unk10 = reader.ReadUInt32();
-				this.unk11 = reader.ReadUInt32();
-				this.unk12 = reader.ReadUInt32();
-				this.unk13 = reader.ReadUInt32();
+                this.fallbackObjectKey = new TGIBlock(RecommendedApiVersion, OnResourceChanged, "ITG", s);
 			}
 		}
 
@@ -592,9 +523,15 @@ namespace CatalogResource
 			writer.Write(this.auralMaterials3);
 			writer.Write(this.auralPropertiesVersion);
 			writer.Write(this.auralQuality);
-			writer.Write(this.auralAmbientObject);
-			writer.Write(this.ambienceFileInstanceId);
-			writer.Write(this.isOverrideInstance);
+            if (this.auralPropertiesVersion > 1)
+            {
+                writer.Write(this.auralAmbientObject);
+            }
+            if (this.auralPropertiesVersion > 2)
+            {
+                writer.Write(this.ambienceFileInstanceId);
+                writer.Write(this.isOverrideAmbience);
+            }
 			writer.Write(this.unused0);
 			writer.Write(this.unused1);
 			writer.Write(this.unused2);
@@ -614,10 +551,7 @@ namespace CatalogResource
 			writer.Write(this.canItemDepreciate);
 			if (this.version >= 0x19)
 			{
-				writer.Write(this.unk10);
-				writer.Write(this.unk11);
-				writer.Write(this.unk12);
-				writer.Write(this.unk13);
+                this.fallbackObjectKey.UnParse(s);
 			}
 			return s;
 		}
