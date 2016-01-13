@@ -1,0 +1,6 @@
+// Deformer Map export to Bitmap image
+ResourceType: 0xDB43E069
+Label: Export to Bitmap (Skintight data)
+Command: Helpers\DMAPHelper\DMAPImageHelper.exe
+Arguments: /export "{}" 
+Desc: Export DMAP Resource to Bitmap Image using Skintight Data
