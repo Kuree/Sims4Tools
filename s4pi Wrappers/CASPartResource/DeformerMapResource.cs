@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Keyi Zhang                                       *
  *  kz005@bucknell.edu                                                     *
  *                                                                         *
@@ -24,6 +24,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace CASPartResource
 {
@@ -35,30 +37,29 @@ namespace CASPartResource
         
         static bool checking = s4pi.Settings.Settings.Checking;
 
-        public uint version { get; set; }
-        public uint doubledWidth { get; set; }
-        public uint height { get; set; }
-        public AgeGenderFlags ageGender { get; set; }
-        public Physiques physique { get; set; }
-        public ShapeOrNormals shapeOrNormals { get; set; }
+        private uint version;
+        private uint doubledWidth;
+        private uint height;
+        private AgeGenderFlags ageGender;
+        private Physiques physique;
+        private ShapeOrNormals shapeOrNormals;
 
-        public uint minCol { get; private set; }
-        public uint maxCol { get; private set; }
-        public uint minRow { get; private set; }
-        public uint maxRow { get; private set; }
-        public RobeChannel robeChannel { get; set; }
+        private uint minCol;
+        private uint maxCol;
+        private uint minRow;
+        private uint maxRow;
+        private RobeChannel robeChannel;
 
-        private byte[] scanLineData;
+        private ScanLine[] scanLines;
 
-        public string WrapperValue 
-        { 
-            get {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendFormat("Empty Deformer Map Resource.\nVersion: {0:X8}", this.version);
-                sb.AppendFormat("AgeGender: {0}\nPhysiques: {1}\nShapeOrNormals: {2}\nRobeChannel: {3}", this.ageGender, this.physique, this.shapeOrNormals, this.robeChannel);
-                return sb.ToString();
-            } 
-        }
+      //  public Bitmap SkinImage { get
+      //      {
+      //          if (this.maxCol > 0) return (Bitmap)Bitmap.FromStream(this.ToBitMap(OutputType.Skin));
+      //          else return new Bitmap(1, 1); ;
+      //      }
+      //  }
+
+      //  public string Value { get { return ValueBuilder; } }
 
         public DeformerMapResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
         
@@ -78,7 +79,21 @@ namespace CASPartResource
             this.minRow = r.ReadUInt32();
             this.maxRow = r.ReadUInt32();
             this.robeChannel = (RobeChannel)r.ReadByte();
-            this.scanLineData = r.ReadBytes(r.ReadInt32());
+            int totalBytes = r.ReadInt32();
+            if (totalBytes == 0)
+            {
+                this.scanLines = new ScanLine[0];
+            }
+            else
+            {
+                int width = (int)(maxCol - minCol + 1);
+                uint numScanLines = maxRow - minRow + 1;
+                this.scanLines = new ScanLine[numScanLines];
+                for (int i = 0; i < numScanLines; i++)
+                {
+                    scanLines[i] = new ScanLine(recommendedApiVersion, OnResourceChanged, s, width);
+                }
+            }
         }
 
         protected override Stream UnParse()
@@ -96,9 +111,12 @@ namespace CASPartResource
             w.Write(this.minRow);
             w.Write(this.maxRow);
             w.Write((byte)this.robeChannel);
-            if (this.scanLineData == null) this.scanLineData = new byte[0];
-            w.Write(this.scanLineData.Length);
-            w.Write(this.scanLineData);
+            if (this.scanLines == null) this.scanLines = new ScanLine[0];
+            w.Write(this.scanLines.Length);
+            for (int i = 0; i < this.scanLines.Length; i++)
+            {
+                this.scanLines[i].UnParse(ms);
+            }
             return ms;
         }
         #endregion
@@ -135,48 +153,122 @@ namespace CASPartResource
             ROBECHANNEL_ISCOPY = 2,     // Robe data not present but is the same as skin tight data.
         }
 
-        private class ScanLine
+        public class ScanLine : AHandlerElement, IEquatable<ScanLine>
         {
-            public bool IsCompressed { get; set; }
-            public byte[] UncompressedPixels { get; private set; }
-            public int Width { get; private set; }
-            public RobeChannel RobeChannel { get; private set; }
-            public UInt16[] PixelPosIndexes { get; private set; }
-            public UInt16[] DataPosIndexes { get; private set; }
-            public byte[] RLEArrayOfPixels { get; private set; }
-            public byte NumIndexes { get; private set; }
+            private UInt16 scanLineDataSize;
+            private bool isCompressed;
+            private byte[] uncompressedPixels;
+            private int width;
+            private RobeChannel robeChannel;
+            private UInt16[] pixelPosIndexes;
+            private UInt16[] dataPosIndexes;
+            private byte[] rleArrayOfPixels;
+            private byte numIndexes;
 
-            public ScanLine(int width, Stream s)
+            public ScanLine(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public ScanLine(int APIversion, EventHandler handler, Stream s, int width) : base(APIversion, handler) { this.width = width; Parse(s); }
+
+            #region AHandlerElement Members
+            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
+            #endregion
+
+            #region Content Fields
+            [ElementPriority(0)]
+            public UInt16  ScanLineDataSize { get { return this.scanLineDataSize; } }
+            [ElementPriority(1)]
+            public bool IsCompressed { get { return this.isCompressed; } }
+            [ElementPriority(2)]
+            public int Width { get { return this.width; } }
+            [ElementPriority(3)]
+            public RobeChannel RobeChannel { get { return this.robeChannel; } }
+            [ElementPriority(4)]
+            public byte[] UncompressedPixels { get { return this.uncompressedPixels; } }
+            [ElementPriority(5)]
+            public byte NumIndexes { get { return this.numIndexes; } }
+            [ElementPriority(6)]
+            public UInt16[] PixelPosIndexes { get { return this.pixelPosIndexes; } }
+            [ElementPriority(7)]
+            public UInt16[] DataPosIndexes { get { return this.dataPosIndexes; } }
+            [ElementPriority(8)]
+            public byte[] RLEArrayOfPixels { get { return this.rleArrayOfPixels; } }
+            #endregion
+
+            public string Value { get { return this.ValueBuilder; } }
+            public override List<string> ContentFields
             {
-                BinaryReader r = new BinaryReader(s);
-                UInt16 scanLineDataSize = r.ReadUInt16();
-                this.IsCompressed = r.ReadBoolean();
-                this.Width = width;
-                this.RobeChannel = (RobeChannel)r.ReadByte();
-
-                if (!IsCompressed)
+                get
                 {
-                    if (RobeChannel == RobeChannel.ROBECHANNEL_PRESENT)
+                    var res = GetContentFields(requestedApiVersion, this.GetType());
+                    if (this.isCompressed)
                     {
-                        this.UncompressedPixels = r.ReadBytes(width * 6);
+                        res.Remove("UncompressedPixels");
                     }
                     else
                     {
-                        this.UncompressedPixels = r.ReadBytes(width * 3);
+                        res.Remove("NumIndexes");
+                        res.Remove("PixelPosIndexes");
+                        res.Remove("DataPosIndexes");
+                        res.Remove("RLEArrayOfPixels");
+                    }
+                    res.Remove("Width");
+                    return res;
+                }
+            }
+
+            public void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                this.scanLineDataSize = r.ReadUInt16();
+                this.isCompressed = r.ReadBoolean();
+                this.robeChannel = (RobeChannel)r.ReadByte();
+
+                if (!isCompressed)
+                {
+                    if (robeChannel == RobeChannel.ROBECHANNEL_PRESENT)
+                    {
+                        this.uncompressedPixels = r.ReadBytes(this.width * 6);
+                    }
+                    else
+                    {
+                        this.uncompressedPixels = r.ReadBytes(this.width * 3);
                     }
                 }
                 else
                 {
-                    NumIndexes = r.ReadByte();
-                    this.PixelPosIndexes = new UInt16[NumIndexes];
-                    this.DataPosIndexes = new UInt16[NumIndexes];
-                    for (int i = 0; i < NumIndexes; i++) this.PixelPosIndexes[i] = r.ReadUInt16();
-                    for (int i = 0; i < NumIndexes; i++) this.DataPosIndexes[i] = r.ReadUInt16();
-                    uint headerdatasize = 4U + 1U + (4U * NumIndexes);
-                    this.RLEArrayOfPixels = new byte[scanLineDataSize - headerdatasize];
-                    for (int i = 0; i < RLEArrayOfPixels.Length; i++) this.RLEArrayOfPixels[i] = r.ReadByte();
+                    this.numIndexes = r.ReadByte();
+                    this.pixelPosIndexes = new UInt16[numIndexes];
+                    this.dataPosIndexes = new UInt16[numIndexes];
+                    for (int i = 0; i < numIndexes; i++) this.pixelPosIndexes[i] = r.ReadUInt16();
+                    for (int i = 0; i < numIndexes; i++) this.dataPosIndexes[i] = r.ReadUInt16();
+                    uint headerdatasize = 4U + 1U + (4U * numIndexes);
+                    this.rleArrayOfPixels = new byte[scanLineDataSize - headerdatasize];
+                    for (int i = 0; i < rleArrayOfPixels.Length; i++) this.rleArrayOfPixels[i] = r.ReadByte();
                 }
+            }
 
+            public void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write(this.scanLineDataSize);
+                w.Write(this.isCompressed);
+                w.Write((byte)this.robeChannel);
+
+                if (!isCompressed)
+                {
+                    w.Write(this.uncompressedPixels);
+                }
+                else
+                {
+                    w.Write(this.numIndexes);
+                    for (int i = 0; i < numIndexes; i++) w.Write(this.pixelPosIndexes[i]);
+                    for (int i = 0; i < numIndexes; i++) w.Write(this.dataPosIndexes[i]);
+                    w.Write(this.rleArrayOfPixels);
+                }
+            }
+
+            public bool Equals(ScanLine other)
+            {
+                return this.scanLineDataSize == other.scanLineDataSize && this.isCompressed == other.isCompressed && this.robeChannel == other.robeChannel;
             }
         }        
         #endregion
@@ -194,13 +286,8 @@ namespace CASPartResource
             MemoryStream ms = new MemoryStream();
             BinaryWriter w = new BinaryWriter(ms);
             if (maxCol == 0) return null;
-            int height = (int)(maxRow - minRow + 1);
-            int width = (int)(this.maxCol - this.minCol + 1);
-            ScanLine[] scanLines = new ScanLine[height];
-            using (MemoryStream scanLineStream = new MemoryStream(this.scanLineData))
-            {
-                for (int i = 0; i < scanLines.Length; i++) scanLines[i] = new ScanLine(width, scanLineStream);
-            }
+            uint height = this.maxRow - this.minRow + 1;
+            uint width = this.maxCol - this.minCol + 1;
 
             byte[] pixelArraySkinTight = new byte[width * height * 3];
             byte[] pixelArrayRobe = new byte[width * height * 3];
@@ -221,7 +308,7 @@ namespace CASPartResource
                     pixelsize = 3;
                 }
 
-                var scan = scanLines[i];
+                ScanLine scan = scanLines[i];
                 if (!scan.IsCompressed)
                 {
                     for (int j = 0; j < width; j++)
@@ -260,19 +347,19 @@ namespace CASPartResource
                         // proper RLE run in the buffer. Use index for this:
 
                         // Cache increment for indexing in pixel space?
-                        int step = 1 + width / (scan.NumIndexes - 1); // 1 entry was added for the remainder of the division
+                        uint step = 1U + width / (scan.NumIndexes - 1U); // 1 entry was added for the remainder of the division
 
                         // Find index into the positions and data table:
-                        int idx = j / step;
+                        uint idx = (uint)(j / step);
 
                         // This is location of the run first covering this interval.
-                        int pixelPosX = scan.PixelPosIndexes[idx];
+                        uint pixelPosX = scan.PixelPosIndexes[idx];
 
                         // Position of the RLE data of the place where need to unwind to the pixel. 
-                        int dataPos = scan.DataPosIndexes[idx] * (pixelsize + 1); // +1 for run length byte
+                        uint dataPos = scan.DataPosIndexes[idx] * (uint)(pixelsize + 1); // +1 for run length byte
 
                         // This is run length for the RLE entry found at 
-                        int runLength = scan.RLEArrayOfPixels[dataPos];
+                        uint runLength = scan.RLEArrayOfPixels[dataPos];
 
                         // Loop forward unwinding RLE data from the found indexed position. 
                         // Continue until the pixel position in question is not covered 
@@ -281,7 +368,7 @@ namespace CASPartResource
                         while (j >= pixelPosX + runLength)
                         {
                             pixelPosX += runLength;
-                            dataPos += (1 + pixelsize); // 1 for run length, +pixelSize for the run value
+                            dataPos += (uint)(1 + pixelsize); // 1 for run length, +pixelSize for the run value
 
                             runLength = scan.RLEArrayOfPixels[dataPos];
                         }
@@ -289,7 +376,7 @@ namespace CASPartResource
                         // After breaking out of the cycle, we have the current run length interval
                         // covering the pixel position x we are interested in. So just return the pointer
                         // to the pixel data we were after:
-                        int pixelStart = dataPos + 1;
+                        uint pixelStart = dataPos + 1;
 
                         //
                         pixelArraySkinTight[destSkinTight++] = scan.RLEArrayOfPixels[pixelStart + 0];
@@ -365,6 +452,7 @@ namespace CASPartResource
 
             int bytesPerLine = (int)Math.Ceiling(width * 24.0 / 8.0);
             int padding = 4 - bytesPerLine % 4;
+            if (padding == 4) padding = 0;
             long sourcePosition = 0;
 
             for (int i = 0; i < height; i++)
@@ -383,6 +471,35 @@ namespace CASPartResource
             return ms;
         }
         #endregion
+
+        #region Content Fields
+        [ElementPriority(0)]
+        public uint Version { get { return this.version; } set { if (!this.version.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.version = value; } } }
+        [ElementPriority(1)]
+        public uint DoubledWidth { get { return this.doubledWidth; } set { } }
+        [ElementPriority(2)]
+        public uint Height { get { return this.height; } set { } }
+        [ElementPriority(3)]
+        public AgeGenderFlags AgeGender { get { return this.ageGender; } set { if (!this.ageGender.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.ageGender = value; } } }
+        [ElementPriority(4)]
+        public Physiques Physique { get { return this.physique; } set { if (!this.physique.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.physique = value; } } }
+        [ElementPriority(5)]
+        public ShapeOrNormals IsShapeOrNormals { get { return this.shapeOrNormals; } set { if (!this.shapeOrNormals.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.shapeOrNormals = value; } } }
+        [ElementPriority(6)]
+        public uint MinCol { get { return minCol; } set { if (value != minCol) minCol = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(7)]
+        public uint MaxCol { get { return maxCol; } set { if (value != maxCol) maxCol = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(8)]
+        public uint MinRow { get { return minRow; } set { if (value != minRow) minRow = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(9)]
+        public uint MaxRow { get { return maxRow; } set { if (value != maxRow) maxRow = value; OnResourceChanged(this, EventArgs.Empty); } }
+        [ElementPriority(10)]
+        public RobeChannel HasRobeChannel { get { return this.robeChannel; } set { if (!this.robeChannel.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.robeChannel = value; } } }
+        [ElementPriority(11)]
+        public ScanLine[] ScanLines { get { return this.scanLines; } set { if (!this.scanLines.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.ScanLines = value; } } }
+        public string Value { get { return ValueBuilder; } }
+        #endregion
+
     }
 
     public class DeformerMapResourceHandler : AResourceHandler
