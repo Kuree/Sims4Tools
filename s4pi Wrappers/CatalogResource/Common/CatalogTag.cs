@@ -35,6 +35,13 @@ namespace CatalogResource.Common
 		{
 			this.tag = ctag;
 		}
+
+        	public CatalogTag(int APIversion, EventHandler handler, uint tagValue)
+        	    : base(APIversion, handler)
+        	{
+            		this.tag = CatalogTagRegistry.FetchTag(tagValue);
+        	}
+
 		public bool Equals(CatalogTag other)
 		{
 			return this.tag == other.tag;
