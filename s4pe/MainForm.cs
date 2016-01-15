@@ -33,9 +33,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
-
-using AutoUpdate;
-
 using s4pi.Extensions;
 using s4pi.Helpers;
 using s4pi.Interfaces;
@@ -45,7 +42,7 @@ using s4pi.WrapperDealer;
 using S4PIDemoFE.Settings;
 using S4PIDemoFE.Tools;
 
-using Version = AutoUpdate.Version;
+using Version = S4PIDemoFE.Settings.Version;
 
 namespace S4PIDemoFE
 {
@@ -1680,7 +1677,7 @@ namespace S4PIDemoFE
 
         private void settingsAutomaticUpdates()
         {
-            Checker.AutoUpdateChoice = !this.menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_updates);
+            UpdateChecker.AutoUpdateChoice = !this.menuBarWidget.IsChecked(MenuBarWidget.MB.MBS_updates);
         }
 
         private void settingsEnableDDSPreview()
@@ -1899,7 +1896,7 @@ namespace S4PIDemoFE
 
         private void helpUpdate()
         {
-            bool msgDisplayed = Checker.GetUpdate(false);
+            bool msgDisplayed = UpdateChecker.GetUpdate(false);
             if (!msgDisplayed)
                 CopyableMessageBox.Show("Your " + PortableSettingsProvider.ExecutableName + " is up to date", myName,
                     CopyableMessageBoxButtons.OK, CopyableMessageBoxIcon.Information);

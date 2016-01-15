@@ -95,7 +95,7 @@
     <Setting Name="AutoUpdateChoice" Provider="System.Configuration.PortableSettingsProvider" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="AULastUpdateTS" Provider="System.Configuration.PortableSettingsProvider" Type="System.DateTime" Scope="User">
+    <Setting Name="LastUpdateTimeStamp" Provider="System.Configuration.PortableSettingsProvider" Type="System.DateTime" Scope="User">
       <Value Profile="(Default)">2010-07-01</Value>
     </Setting>
     <Setting Name="AULastIgnoredVsn" Provider="System.Configuration.PortableSettingsProvider" Type="System.String" Scope="User">

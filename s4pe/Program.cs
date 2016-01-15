@@ -18,12 +18,13 @@
  *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
 
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-
 namespace S4PIDemoFE
 {
+    using System;
+    using System.Configuration;
+    using System.Windows.Forms;
+    using S4PIDemoFE.Settings;
+
     static class Program
     {
         /// <summary>
@@ -34,25 +35,15 @@ namespace S4PIDemoFE
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Settings();
-            AutoUpdate.Checker.Daily();
+            UpdateConfiguration();
+            UpdateChecker.DailyCheck();
 
             Application.Run(new MainForm(args));
-
-            //try
-            //{
-            //    Application.Run(new MainForm(args));
-            //}
-            //catch (Exception ex)
-            //{
-            //    MainForm.IssueException(ex, "Application failed");
-            //    return 1;
-            //}
 
             return 0;
         }
 
-        static void Settings()
+        static void UpdateConfiguration()
         {
             if( Properties.Settings.Default.UpgradeRequired ) {
                 // Bulk migrate settings from previous version
@@ -61,7 +52,7 @@ namespace S4PIDemoFE
                     Properties.Settings.Default.Upgrade();
                     Properties.Settings.Default.Reload();
                 }
-                catch (System.Configuration.ConfigurationException)
+                catch (ConfigurationException)
                 {
                     // Any problems, overwrite with current!
                     Properties.Settings.Default.Reset();

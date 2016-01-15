@@ -242,7 +242,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Settings.cs" />
-    <Compile Include="Settings\AutoUpdate.cs" />
+    <Compile Include="Settings\GitHubVersion.cs" />
+    <Compile Include="Settings\UpdateChecker.cs" />
     <Compile Include="Settings\ExternalProgramsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -273,6 +274,7 @@
     <Compile Include="Settings\OrganiseCustomPlacesDialog.Designer.cs">
       <DependentUpon>OrganiseCustomPlacesDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings\Version.cs" />
     <Compile Include="Splash\Splash.cs">
       <SubType>Form</SubType>
     </Compile>
