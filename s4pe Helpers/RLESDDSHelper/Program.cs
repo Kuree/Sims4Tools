@@ -1,6 +1,6 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Keyi Zhang                                       *
- *  kz005@bucknell.edu                                                     *
+ *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
+ *  Credits: Peter Jones, Keyi Zhang, Cmar                                 *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -16,9 +16,8 @@
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
- *																		   *
- *  Modified May 2015 by Camille Marinetti								   *
  ***************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +47,7 @@ namespace RLESDDSHelper
            {
                using (FileStream fs = new FileStream(args[1], FileMode.Open))
                {
-                   using (SaveFileDialog save = new SaveFileDialog() { Filter = "DDS DXT5|*.dds" })
+                   using (SaveFileDialog save = new SaveFileDialog() { Filter = "DDS DXT5|*.dds", FileName = Path.GetFileName(args[1]), Title = "Export to DDS" })
                    {
                        if (save.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                        {
