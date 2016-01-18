@@ -1,6 +1,6 @@
 /***************************************************************************
- *  Copyright (C) 2016 by Sims4Tools Team                                       *
- *  kz005@bucknell.edu                                                     *
+ *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
+ *  Credits: Peter Jones, Cmar                                             *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -17,6 +17,7 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
