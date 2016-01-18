@@ -1,6 +1,6 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Keyi Zhang                                       *
- *  kz005@bucknell.edu                                                     *
+ *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
+ *  Credits: Peter Jones, Keyi Zhang, Cmar                                 *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -15,10 +15,9 @@
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.    
- *
- *  Modified May 2015 by Camille Marinetti *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,7 +40,7 @@ namespace RLESDDSHelper
         public Import(Stream s)
         {
             InitializeComponent();
-            using (OpenFileDialog open = new OpenFileDialog() { Filter = "DDS File|*.dds" })
+            using (OpenFileDialog open = new OpenFileDialog() { Filter = "DDS File|*.dds", Title = "Select DDS image" })
             {
                 if (open.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
