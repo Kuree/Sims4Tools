@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Keyi Zhang                                       *
  *  kz005@bucknell.edu                                                     *
  *                                                                         *
@@ -46,7 +46,7 @@ namespace RLEDDSHelper
            {
                using (FileStream fs = new FileStream(args[1], FileMode.Open))
                {
-                   using (SaveFileDialog save = new SaveFileDialog() { Filter = "DDS DXT5|*.dds" })
+                   using (SaveFileDialog save = new SaveFileDialog() { Filter = "DDS DXT5|*.dds", FileName = Path.GetFileName(args[1]), Title = "Export to DDS" })
                    {
                        if (save.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                        {
