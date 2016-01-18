@@ -1,4 +1,4 @@
-﻿/***************************************************************************
+/***************************************************************************
  *  Copyright (C) 2014 by Keyi Zhang                                       *
  *  kz005@bucknell.edu                                                     *
  *                                                                         *
@@ -39,7 +39,7 @@ namespace RLEDDSHelper
         public Import(Stream s)
         {
             InitializeComponent();
-            using (OpenFileDialog open = new OpenFileDialog() { Filter = "DDS File|*.dds" })
+            using (OpenFileDialog open = new OpenFileDialog() { Filter = "DDS File|*.dds", Title = "Select DDS image" })
             {
                 if (open.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
