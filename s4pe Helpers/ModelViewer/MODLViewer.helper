@@ -1,5 +1,5 @@
-﻿ResourceType: 0x01661233
+ResourceType: 0x01661233
 Label: MODL Preview
-Command: Helpers\ModelViewer\ModelViewer.exe
+Command: Helpers\s4peHelpers\ModelViewer.exe
 Arguments: "{}"
 Desc: 3d Preview of MODL
