@@ -1,0 +1,6 @@
+// JFIF TS4 Thumbnail Export
+ResourceType: 0x0D338A3A 0x3BD45407 0x3C1AF1F2 0x3C2A8647 0x5B282D45 0x9C925813 0xA1FF2FC4 0xCD9DE247
+Label: Export to PNG
+Command: Helpers\s4peHelpers\ThumbnailHelper.exe
+Arguments: /export "{}" 
+Desc: Export a TS4 Thumbnail Resource to PNG
