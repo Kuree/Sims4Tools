@@ -1,6 +1,6 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Keyi Zhang                                       *
- *  kz005@bucknell.edu                                                     *
+ *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
+ *  Credits: Peter Jones, Keyi Zhang, Cmar                                 *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -9,7 +9,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s4pi is distributed in the hope that it will be useful,                *
+ *  s3pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -268,7 +268,20 @@ namespace CASPartResource
 
             public bool Equals(ScanLine other)
             {
-                return this.scanLineDataSize == other.scanLineDataSize && this.isCompressed == other.isCompressed && this.robeChannel == other.robeChannel;
+                if (! (this.scanLineDataSize == other.scanLineDataSize && 
+                    this.isCompressed == other.isCompressed && 
+                    this.robeChannel == other.robeChannel)) return false;
+                if (this.isCompressed)
+                {
+                    return ((this.numIndexes == other.numIndexes) &&
+                        (this.pixelPosIndexes != null ? this.pixelPosIndexes : new ushort[0]).SequenceEqual((other.pixelPosIndexes != null ? other.pixelPosIndexes : new ushort[0])) &&
+                        (this.dataPosIndexes != null ? this.dataPosIndexes : new ushort[0]).SequenceEqual((other.dataPosIndexes != null ? other.dataPosIndexes : new ushort[0])) &&
+                        (this.rleArrayOfPixels != null ? this.rleArrayOfPixels : new byte[0]).SequenceEqual((other.rleArrayOfPixels != null ? other.rleArrayOfPixels : new byte[0])));
+                }
+                else
+                {
+                    return (this.uncompressedPixels != null ? this.uncompressedPixels : new byte[0]).SequenceEqual((other.uncompressedPixels != null ? other.uncompressedPixels : new byte[0]));
+                }
             }
         }        
         #endregion
