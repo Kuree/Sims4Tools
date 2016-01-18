@@ -1,6 +1,6 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Keyi Zhang                                       *
- *  kz005@bucknell.edu                                                     *
+ *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
+ *  Credits: Peter Jones, Keyi Zhang, Cmar                                 *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -17,6 +17,7 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,7 +43,7 @@ namespace StblResource
         ulong numEntries;
         byte[] reserved;        //2 bytes
         uint stringLength;
-        StringEntry[] entries;
+        StringEntryList entries;
         #endregion
 
         public StblResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
@@ -68,11 +69,7 @@ namespace StblResource
             this.reserved = r.ReadBytes(2);
             this.stringLength = r.ReadUInt32();
 
-            entries = new StringEntry[this.numEntries];
-            for (ulong i = 0; i < this.numEntries; i++)
-            {
-                entries[i] = new StringEntry(recommendedApiVersion, OnResourceChanged, s);
-            }
+            this.entries = new StringEntryList(OnResourceChanged, s, this.numEntries);
 
            // if (sizeCount != stringLength) { throw new InvalidCastException(String.Format("Expected size 0x{0}; read 0x{1}", stringLength, sizeCount)); }
         }
@@ -87,8 +84,8 @@ namespace StblResource
 
             w.Write(this.isCompressed);
 
-            if (entries == null) entries = new StringEntry[0];
-            w.Write((ulong)entries.Length);
+            if (entries == null) entries = new StringEntryList(OnResourceChanged); 
+            w.Write((ulong)entries.Count);
 
             if (this.reserved == null) this.reserved = new byte[2];
             w.Write(reserved);
@@ -147,6 +144,7 @@ namespace StblResource
             #endregion
 
             public bool Equals(StringEntry other) { return this.keyHash == other.keyHash && this.flags == other.flags && string.Compare(this.stringValue, other.stringValue) == 0; }
+
             [ElementPriority(0)]
             public uint KeyHash { get { return this.keyHash; } set { if (this.keyHash != value) { OnElementChanged(); this.keyHash = value; } } }
             [ElementPriority(1)]
@@ -154,8 +152,35 @@ namespace StblResource
             [ElementPriority(2)]
             public string StringValue { get { return this.stringValue; } set { if (String.Compare(this.stringValue, value) != 0) { OnElementChanged(); this.stringValue = value; } } }
 
-            public string Value { get { return String.Format("Key {0}, Flags {1} : {2}", this.keyHash, this.flags, this.stringValue); } }
+            public string Value { get { return String.Format("Key 0x{0:X8}, Flags 0x{1:X2} : {2}", this.keyHash, this.flags, this.stringValue); } }
         }
+
+        public class StringEntryList : DependentList<StringEntry>
+        {
+            private ulong numberEntries;
+            public StringEntryList(EventHandler handler) : base(handler) { }
+            public StringEntryList(EventHandler handler, Stream s, ulong numEntries) : base(handler) { this.numberEntries = numEntries; Parse(s); }
+
+            #region Data I/O
+            protected override void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                for (ulong i = 0; i < numberEntries; i++)
+                    base.Add(new StringEntry(1, handler, s));
+            }
+
+            public override void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                foreach (var reference in this)
+                    reference.UnParse(s);
+            }
+            #endregion
+
+            protected override StringEntry CreateElement(Stream s) { return new StringEntry(1, handler, s); }
+            protected override void WriteElement(Stream s, StringEntry element) { element.UnParse(s); }
+        }
+
         #endregion
         
         #region Content Fields
@@ -170,7 +195,7 @@ namespace StblResource
         [ElementPriority(4)]
         public uint StringDataLength { get { return this.stringLength; } set { } }
         [ElementPriority(5)]
-        public StringEntry[] Entries { get { return this.entries; } set { if (this.entries != value) { this.entries = value; OnResourceChanged(this, EventArgs.Empty); } } }
+        public StringEntryList Entries { get { return this.entries; } set { if (this.entries != value) { this.entries = value; OnResourceChanged(this, EventArgs.Empty); } } }
 
         public String Value { get { return ValueBuilder; } }
         #endregion
