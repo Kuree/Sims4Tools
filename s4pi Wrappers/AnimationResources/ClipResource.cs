@@ -1,31 +1,35 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2009, 2010 by Peter L Jones                              *
- *  pljones@users.sf.net                                                   *
+ *  Copyright (C) 2009, 2015 by the Sims 4 Tools development team          *
  *                                                                         *
- *  This file is part of the Sims 3 Package Interface (s3pi)               *
+ *  Contributors:                                                          *
+ *  Peter L Jones (pljones@users.sf.net)                                   *
+ *  Keyi Zhang                                                             *
  *                                                                         *
- *  s3pi is free software: you can redistribute it and/or modify           *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using s4pi.Animation.S3CLIP;
-using s4pi.Interfaces;
 
 namespace s4pi.Animation
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+    using s4pi.Interfaces;
+    using s4pi.Settings;
+
     public class ClipResource : AResource
     {
         uint version;
@@ -34,7 +38,7 @@ namespace s4pi.Animation
         string clip_name;
 
         private string actor_name;
-        private String actor_list;
+        private string actor_list;
         private int ik_chain_count;
         private byte[] s3clip;
         private uint unknown1;
@@ -49,7 +53,7 @@ namespace s4pi.Animation
                 var vb = new StringBuilder(this.ValueBuilder);
                 vb.AppendFormat("IK Targets:{0}", this.ClipEvents.Value);
                 vb.AppendFormat("Events:{0}", this.IKTargets.Value);
-                
+
                 return vb.ToString();
             }
         }
@@ -65,62 +69,63 @@ namespace s4pi.Animation
                 return fields;
             }
         }
+
         public float Duration
         {
-            get { return duration; }
+            get { return this.duration; }
             set
             {
-                if (this.duration != value)
+                if (Math.Abs(this.duration - value) > float.MinValue)
                 {
-                    duration = value; this.OnResourceChanged(this, EventArgs.Empty);
+                    this.duration = value; this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
 
         public uint Unknown1
         {
-            get { return unknown1; }
-            set 
+            get { return this.unknown1; }
+            set
             {
                 if (this.unknown1 != value)
                 {
-                    unknown1 = value; this.OnResourceChanged(this,EventArgs.Empty);
+                    this.unknown1 = value; this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
 
         public string ClipName
         {
-            get { return clip_name; }
+            get { return this.clip_name; }
             set
             {
                 if (this.clip_name != value)
                 {
-                    clip_name = value; this.OnResourceChanged(this, EventArgs.Empty);
+                    this.clip_name = value; this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
 
         public uint[] UnknownHashes
         {
-            get { return unknown_hashes; }
+            get { return this.unknown_hashes; }
             set
             {
                 if (this.unknown_hashes != value)
                 {
-                    unknown_hashes = value; this.OnResourceChanged(this, EventArgs.Empty);
+                    this.unknown_hashes = value; this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
 
         public float[] UnknownFloats
         {
-            get { return unknown_floats; }
+            get { return this.unknown_floats; }
             set
             {
                 if (this.unknown_floats != value)
                 {
-                    unknown_floats = value; this.OnResourceChanged(this, EventArgs.Empty);
+                    this.unknown_floats = value; this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
@@ -130,63 +135,85 @@ namespace s4pi.Animation
             get { return new MemoryStream(this.s3clip); }
             set
             {
-                s3clip = new byte[value.Length];
+                this.s3clip = new byte[value.Length];
                 value.Position = 0L;
-                value.Write(this.s3clip,0,this.s3clip.Length);
-                OnResourceChanged(this,EventArgs.Empty);
+                value.Write(this.s3clip, 0, this.s3clip.Length);
+                this.OnResourceChanged(this, EventArgs.Empty);
             }
         }
 
         public int IKChainCount
         {
-            get { return ik_chain_count; }
+            get { return this.ik_chain_count; }
             set
             {
                 if (this.ik_chain_count != value)
                 {
-                    ik_chain_count = value; this.OnResourceChanged(this, EventArgs.Empty);
+                    this.ik_chain_count = value; this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
-        
-        public String ActorList
+
+        public string ActorList
         {
-            get { return actor_list; }
+            get { return this.actor_list; }
             set
             {
                 if (this.actor_list != value)
                 {
-                    actor_list = value; this.OnResourceChanged(this, EventArgs.Empty);
+                    this.actor_list = value; this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
         public string ActorName
         {
-            get { return actor_name; }
+            get { return this.actor_name; }
             set
             {
                 if (this.actor_name != value)
                 {
-                    actor_name = value; this.OnResourceChanged(this, EventArgs.Empty);
+                    this.actor_name = value; this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
-        public UInt32 Version {
+        public uint Version
+        {
             get { return this.version; }
-            set { if (this.version != value) { this.version = value; OnResourceChanged(this, EventArgs.Empty); } }
+            set
+            {
+                if (this.version != value)
+                {
+                    this.version = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
         }
         public IKTargetList IKTargets
         {
             get { return this.ik_targets; }
-            set { if (this.ik_targets != value) { this.ik_targets = value; OnResourceChanged(this, EventArgs.Empty); } }
+            set
+            {
+                if (this.ik_targets != value)
+                {
+                    this.ik_targets = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
         }
         public ClipEventList ClipEvents
         {
             get { return this.clip_events; }
-            set { if (this.clip_events != value) { this.clip_events = value; OnResourceChanged(this, EventArgs.Empty); } }
+            set
+            {
+                if (this.clip_events != value)
+                {
+                    this.clip_events = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
         }
         public ClipResource(int apiVersion)
-            : base(apiVersion,null) 
+            : base(apiVersion, null)
         {
             this.ik_targets = new IKTargetList(this.OnResourceChanged);
             this.clip_events = new ClipEventList(this.OnResourceChanged);
@@ -194,14 +221,14 @@ namespace s4pi.Animation
         public ClipResource(int apiVersion, Stream s)
             : base(apiVersion, s)
         {
-            
-            if (base.stream == null)
+
+            if (this.stream == null)
             {
-                base.stream = UnParse();
-                OnResourceChanged(this, new EventArgs());
+                this.stream = this.UnParse();
+                this.OnResourceChanged(this, new EventArgs());
             }
-            base.stream.Position = 0L;
-            Parse(s);
+            this.stream.Position = 0L;
+            this.Parse(s);
         }
         void Parse(Stream s)
         {
@@ -222,43 +249,42 @@ namespace s4pi.Animation
             }
             this.clip_name = br.ReadString32();
             this.actor_name = br.ReadString32();
-            var extra_actor_count = br.ReadInt32();
-            var extra_actors = new string[extra_actor_count];
-            for (int i = 0; i < extra_actor_count; i++)
+            var extraActorCount = br.ReadInt32();
+            var extraActors = new string[extraActorCount];
+            for (int i = 0; i < extraActorCount; i++)
             {
-                extra_actors[i] = br.ReadString32();
+                extraActors[i] = br.ReadString32();
             }
-            this.actor_list = string.Join(",", extra_actors);
-            var ik_target_count = br.ReadInt32();
+            this.actor_list = string.Join(",", extraActors);
+            var ikTargetCount = br.ReadInt32();
             this.IKChainCount = br.ReadInt32();
-            var ik_targets = new IKTarget[ik_target_count];
-            for (int i = 0; i < ik_target_count; i++)
+            var ikTargets = new IKTarget[ikTargetCount];
+            for (int i = 0; i < ikTargetCount; i++)
             {
-                ik_targets[i] = new IKTarget(RecommendedApiVersion, this.OnResourceChanged,s);
+                ikTargets[i] = new IKTarget(this.RecommendedApiVersion, this.OnResourceChanged, s);
             }
-            this.ik_targets = new IKTargetList(this.OnResourceChanged, ik_targets);
-            UInt32 next = br.ReadUInt32();
-            bool end = false;
+            this.ik_targets = new IKTargetList(this.OnResourceChanged, ikTargets);
+            uint next = br.ReadUInt32();
             var events = new List<ClipEvent>();
-            while (stream.Position+ next != stream.Length)
+            while (this.stream.Position + next != this.stream.Length)
             {
                 var size = br.ReadUInt32();
-                var evt = ClipEvent.Create(next,this.OnResourceChanged,size);       
-             
-                var evt_end =size+ br.BaseStream.Position ;
+                var evt = ClipEvent.Create(next, this.OnResourceChanged, size);
+
+                var evtEnd = size + br.BaseStream.Position;
                 evt.Parse(s);
                 events.Add(evt);
-                if (Settings.Settings.Checking && br.BaseStream.Position != evt_end)
+                if (Settings.Checking && br.BaseStream.Position != evtEnd)
                 {
                     throw new InvalidDataException();
                 }
 
-                next = br.ReadUInt32();           
+                next = br.ReadUInt32();
             }
             this.clip_events = new ClipEventList(this.OnResourceChanged, events);
             this.s3clip = new byte[next];
             s.Read(this.s3clip, 0, this.s3clip.Length);
-            
+
         }
 
         protected override Stream UnParse()
@@ -268,34 +294,33 @@ namespace s4pi.Animation
             bw.Write(this.version);
             bw.Write(this.unknown1);
             bw.Write(this.duration);
-            foreach (float t in unknown_floats)bw.Write(t);
-            foreach (var unknown_hash in this.unknown_hashes) bw.Write(unknown_hash);
+            foreach (float t in this.unknown_floats) bw.Write(t);
+            foreach (var unknownHash in this.unknown_hashes) bw.Write(unknownHash);
             bw.WriteString32(this.clip_name);
             bw.WriteString32(this.actor_name);
             var actors = this.actor_list.Split(',');
             bw.Write(actors.Length);
-            foreach(var actor in actors) bw.WriteString32(actor);
+            foreach (var actor in actors) bw.WriteString32(actor);
             bw.Write(this.ik_targets.Count);
             bw.Write(this.ik_chain_count);
-            foreach (var ik_target in this.ik_targets)ik_target.UnParse(ms);
-            foreach (var clip_event in clip_events)
+            foreach (var ikTarget in this.ik_targets) ikTarget.UnParse(ms);
+            foreach (var clipEvent in this.clip_events)
             {
-                byte[] event_buffer;
-                using (var event_stream = new MemoryStream())
+                byte[] eventBuffer;
+                using (var eventStream = new MemoryStream())
                 {
-                    clip_event.UnParse(event_stream);
-                    event_buffer = new byte[event_stream.Length];
-                    event_stream.Read(event_buffer, 0, event_buffer.Length);
+                    clipEvent.UnParse(eventStream);
+                    eventBuffer = new byte[eventStream.Length];
+                    eventStream.Read(eventBuffer, 0, eventBuffer.Length);
                 }
-                bw.Write(clip_event.TypeIdA);
-                bw.Write(event_buffer.Length);
-                bw.Write(event_buffer);
+                bw.Write(clipEvent.TypeIdA);
+                bw.Write(eventBuffer.Length);
+                bw.Write(eventBuffer);
             }
             bw.Write(this.s3clip.Length);
             bw.Write(this.s3clip);
             ms.Position = 0L;
             return ms;
-
         }
 
         public override int RecommendedApiVersion
@@ -303,20 +328,16 @@ namespace s4pi.Animation
             get { return 1; }
         }
 
-
-
-
-        public class ClipEventList : AHandlerList<ClipEvent>,IGenericAdd
+        public class ClipEventList : AHandlerList<ClipEvent>, IGenericAdd
         {
             public ClipEventList(EventHandler handler, IEnumerable<ClipEvent> items)
-                : base(handler,items)
+                : base(handler, items)
             {
             }
             public ClipEventList(EventHandler handler)
                 : base(handler)
             {
             }
-
 
             public void Add()
             {
@@ -325,10 +346,10 @@ namespace s4pi.Animation
 
             public void Add(Type instanceType)
             {
-                base.Add((ClipEvent)Activator.CreateInstance(instanceType, 0, this.handler)) ;
+                base.Add((ClipEvent)Activator.CreateInstance(instanceType, 0, this.handler));
             }
 
-            public String Value
+            public string Value
             {
                 get
                 {
@@ -351,14 +372,14 @@ namespace s4pi.Animation
                 : base(handler)
             {
             }
-            public IKTargetList(EventHandler handler,IEnumerable<IKTarget> items)
-                : base(handler,items)
+            public IKTargetList(EventHandler handler, IEnumerable<IKTarget> items)
+                : base(handler, items)
             {
             }
 
             public void Add()
             {
-                this.Add(new IKTarget(0,handler));
+                this.Add(new IKTarget(0, this.handler));
             }
 
             public void Add(Type instanceType)
@@ -366,7 +387,7 @@ namespace s4pi.Animation
                 this.Add();
             }
 
-            public String Value
+            public string Value
             {
                 get
                 {
@@ -391,7 +412,7 @@ namespace s4pi.Animation
             public IKTarget(int apiVersion, EventHandler handler, Stream s)
                 : this(apiVersion, handler)
             {
-                Parse(s);
+                this.Parse(s);
             }
 
             public IKTarget(int apiVersion, EventHandler handler, IKTarget basis)
@@ -399,49 +420,62 @@ namespace s4pi.Animation
             {
             }
 
-            public IKTarget(int APIversion, EventHandler handler, UInt16 chain_id, UInt16 chain_sequence, string actor, string target)
+            public IKTarget(int APIversion, EventHandler handler, ushort chainId, ushort chainSequence, string actor, string target)
                 : base(APIversion, handler)
             {
-                this.chainId = chain_id;
-                this.chainSequence = chain_sequence;
+                this.chainId = chainId;
+                this.chainSequence = chainSequence;
                 this.actor = actor;
                 this.target = target;
             }
 
 
-            private UInt16 chainId;
-            private UInt16 chainSequence;
+            private ushort chainId;
+            private ushort chainSequence;
             private string actor;
             private string target;
 
-            public UInt16 ChainID
+            public ushort ChainID
             {
-                get { return chainId; }
-                set { chainId = value; if (chainId != value) { this.OnElementChanged(); } }
+                get { return this.chainId; }
+                set
+                {
+                    this.chainId = value; if (this.chainId != value) { this.OnElementChanged(); }
+                }
             }
 
-            public UInt16 ChainSequence
+            public ushort ChainSequence
             {
-                get { return chainSequence; }
-                set { chainSequence = value; if (chainSequence != value) { this.OnElementChanged(); } }
+                get { return this.chainSequence; }
+                set
+                {
+                    this.chainSequence = value; if (this.chainSequence != value) { this.OnElementChanged(); }
+                }
             }
 
             public string Actor
             {
-                get { return actor; }
-                set { actor = value; if (actor != value) { this.OnElementChanged(); } }
+                get { return this.actor; }
+                set
+                {
+                    this.actor = value; if (this.actor != value) { this.OnElementChanged(); }
+                }
             }
 
             public string Target
             {
-                get { return target; }
-                set { target = value; if (target != value) { this.OnElementChanged(); } }
+                get { return this.target; }
+                set
+                {
+                    this.target = value; if (this.target != value) { this.OnElementChanged(); }
+                }
             }
 
             public string Value
             {
                 get { return this.ValueBuilder; }
             }
+
             public void Parse(Stream s)
             {
                 var br = new BinaryReader(s);
@@ -451,6 +485,7 @@ namespace s4pi.Animation
                 this.chainSequence = br.ReadUInt16();
 
             }
+
             public void UnParse(Stream s)
             {
                 var bw = new BinaryWriter(s);
@@ -459,6 +494,7 @@ namespace s4pi.Animation
                 bw.Write(this.chainId);
                 bw.Write(this.chainSequence);
             }
+
             public override int RecommendedApiVersion
             {
                 get { return 1; }
@@ -466,7 +502,7 @@ namespace s4pi.Animation
 
             public override List<string> ContentFields
             {
-                get { return GetContentFields(0, GetType()); }
+                get { return GetContentFields(0, this.GetType()); }
             }
 
             public bool Equals(IKTarget other)
@@ -476,40 +512,40 @@ namespace s4pi.Animation
         }
         public class ClipEvent3 : ClipEvent
         {
-            private string sound_name;
+            private string soundName;
 
             public string SoundName
             {
-                get { return sound_name; }
-                set { sound_name = value; }
+                get { return this.soundName; }
+                set { this.soundName = value; }
             }
-            
+
             public ClipEvent3(int apiVersion, EventHandler handler)
                 : base(apiVersion, handler, 3)
             {
             }
 
             public ClipEvent3(int apiVersion, EventHandler handler, uint typeId, Stream s)
-                : base(apiVersion, handler, typeId,s)
+                : base(apiVersion, handler, typeId, s)
             {
             }
 
             public ClipEvent3(int apiVersion, EventHandler handler, ClipEvent3 basis)
                 : base(apiVersion, handler, basis)
             {
-                this.sound_name = basis.sound_name;
+                this.soundName = basis.soundName;
             }
 
             protected override void ReadTypeData(Stream ms)
             {
                 var br = new BinaryReader(ms);
-                this.sound_name = br.ReadStringFixed();
+                this.soundName = br.ReadStringFixed();
             }
 
             protected override void WriteTypeData(Stream ms)
             {
                 var bw = new BinaryWriter(ms);
-                bw.WriteStringFixed(this.sound_name);
+                bw.WriteStringFixed(this.soundName);
             }
         }
 
@@ -523,32 +559,32 @@ namespace s4pi.Animation
 
             public byte[] UnknownBytes
             {
-                get { return unknown; }
-                set { unknown = value; }
+                get { return this.unknown; }
+                set { this.unknown = value; }
             }
 
             public uint SlotNameHash
             {
-                get { return slot_name_hash; }
-                set { slot_name_hash = value; }
+                get { return this.slot_name_hash; }
+                set { this.slot_name_hash = value; }
             }
 
             public uint ActorNameHash
             {
-                get { return actor_name_hash; }
-                set { actor_name_hash = value; }
+                get { return this.actor_name_hash; }
+                set { this.actor_name_hash = value; }
             }
 
             public string EffectName
             {
-                get { return effect_name; }
-                set { effect_name = value; }
+                get { return this.effect_name; }
+                set { this.effect_name = value; }
             }
 
             public string SlotName
             {
-                get { return slot_name; }
-                set { slot_name = value; }
+                get { return this.slot_name; }
+                set { this.slot_name = value; }
             }
 
             public ClipEvent5(int apiVersion, EventHandler handler)
@@ -601,20 +637,20 @@ namespace s4pi.Animation
 
             public uint SlotNameHash
             {
-                get { return slot_name; }
-                set { slot_name = value; }
+                get { return this.slot_name; }
+                set { this.slot_name = value; }
             }
 
             public uint ActorNameHash
             {
-                get { return actor_name; }
-                set { actor_name = value; }
+                get { return this.actor_name; }
+                set { this.actor_name = value; }
             }
 
             public string Unknown3
             {
-                get { return unknown_3; }
-                set { unknown_3 = value; }
+                get { return this.unknown_3; }
+                set { this.unknown_3 = value; }
             }
 
             public ClipEvent14(int apiVersion, EventHandler handler)
@@ -647,7 +683,7 @@ namespace s4pi.Animation
             {
                 var bw = new BinaryWriter(ms);
                 bw.Write(this.unknown_3);
-                
+
             }
         }
         public class ClipEvent19 : ClipEvent
@@ -656,8 +692,8 @@ namespace s4pi.Animation
 
             public float Unknown3
             {
-                get { return unknown_3; }
-                set { unknown_3 = value; }
+                get { return this.unknown_3; }
+                set { this.unknown_3 = value; }
             }
 
             public ClipEvent19(int apiVersion, EventHandler handler)
@@ -689,26 +725,27 @@ namespace s4pi.Animation
                 bw.Write(this.unknown_3);
             }
         }
-        public class ClipEventUnknown : ClipEvent {
+        public class ClipEventUnknown : ClipEvent
+        {
             private byte[] data;
 
             public byte[] Data
             {
-                get { return data; }
-                set { data = value; }
+                get { return this.data; }
+                set { this.data = value; }
             }
 
             public ClipEventUnknown(int apiVersion, EventHandler handler)
-                : this(apiVersion, handler,0,0)
+                : this(apiVersion, handler, 0, 0)
             {
             }
-            public ClipEventUnknown(int apiVersion, EventHandler handler, uint typeId,uint size)
+            public ClipEventUnknown(int apiVersion, EventHandler handler, uint typeId, uint size)
                 : base(apiVersion, handler, typeId)
             {
                 this.data = new byte[size - 4 * 3];
             }
 
-          
+
             protected override void ReadTypeData(Stream ms)
             {
                 ms.Read(this.data, 0, this.data.Length);
@@ -728,7 +765,7 @@ namespace s4pi.Animation
             protected ClipEvent(int apiVersion, EventHandler handler, uint typeId, Stream s)
                 : this(apiVersion, handler, typeId)
             {
-                Parse(s);
+                this.Parse(s);
             }
 
             protected ClipEvent(int apiVersion, EventHandler handler, ClipEvent basis)
@@ -749,28 +786,28 @@ namespace s4pi.Animation
 
             public string Value
             {
-                get { return ValueBuilder; }
+                get { return this.ValueBuilder; }
             }
             internal uint TypeIdA
             {
-                get { return typeId; }
+                get { return this.typeId; }
             }
             public uint Unknown1
             {
-                get { return unknown1; }
-                set { unknown1 = value; }
+                get { return this.unknown1; }
+                set { this.unknown1 = value; }
             }
 
             public uint Unknown2
             {
-                get { return unknown2; }
-                set { unknown2 = value; }
+                get { return this.unknown2; }
+                set { this.unknown2 = value; }
             }
 
             public float Timecode
             {
-                get { return timecode; }
-                set { timecode = value; }
+                get { return this.timecode; }
+                set { this.timecode = value; }
             }
 
 
@@ -801,14 +838,15 @@ namespace s4pi.Animation
 
             public override List<string> ContentFields
             {
-                get { return GetContentFields(requestedApiVersion, GetType()); }
+                get { return GetContentFields(this.requestedApiVersion, this.GetType()); }
             }
 
             public bool Equals(ClipEvent other)
             {
                 return base.Equals(other);
             }
-            public static ClipEvent Create(uint typeId,EventHandler handler,uint size) {
+            public static ClipEvent Create(uint typeId, EventHandler handler, uint size)
+            {
                 switch (typeId)
                 {
                     case 3:
@@ -820,7 +858,7 @@ namespace s4pi.Animation
                     case 19:
                         return new ClipEvent19(0, handler);
                     default:
-                        return new ClipEventUnknown(0,handler,typeId,size);
+                        return new ClipEventUnknown(0, handler, typeId, size);
                 }
             }
 

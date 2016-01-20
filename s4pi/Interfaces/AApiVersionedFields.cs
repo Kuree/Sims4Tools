@@ -1,21 +1,24 @@
 /***************************************************************************
- *  Copyright (C) 2009, 2010 by Peter L Jones                              *
- *  pljones@users.sf.net                                                   *
+ *  Copyright (C) 2009, 2015 by the Sims 4 Tools development team          *
  *                                                                         *
- *  This file is part of the Sims 3 Package Interface (s3pi)               *
+ *  Contributors:                                                          *
+ *  Peter L Jones (pljones@users.sf.net)                                   *
+ *  Keyi Zhang                                                             *
  *                                                                         *
- *  s3pi is free software: you can redistribute it and/or modify           *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
 
 using System;
@@ -27,7 +30,9 @@ using System.Text;
 
 namespace s4pi.Interfaces
 {
-	/// <summary>
+    using System.Globalization;
+
+    /// <summary>
 	///     API Objects should all descend from this Abstract class.
 	///     It will provide versioning support -- when implemented.
 	///     It provides ContentFields support
@@ -63,19 +68,19 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     A typed value on this object
 		/// </summary>
-		/// <param name="index">The name of the field (i.e. one of the values from ContentFields)</param>
+		/// <param name="index">The name of the field (value.e. one of the values from ContentFields)</param>
 		/// <returns>The typed value of the named field</returns>
 		/// <exception cref="ArgumentOutOfRangeException">Thrown when an unknown index name is requested</exception>
 		public virtual TypedValue this[string index]
 		{
 			get
 			{
-				var fields = index.Split('.');
+				string[] fields = index.Split('.');
 				object result = this;
-				var t = this.GetType();
-				foreach (var f in fields)
+				Type t = this.GetType();
+				foreach (string field in fields)
 				{
-					var p = t.GetProperty(f);
+					PropertyInfo p = t.GetProperty(field);
 					if (p == null)
 					{
 						throw new ArgumentOutOfRangeException("index", "Unexpected value received in index: " + index);
@@ -87,11 +92,11 @@ namespace s4pi.Interfaces
 			}
 			set
 			{
-				var fields = index.Split('.');
+				string[] fields = index.Split('.');
 				object result = this;
-				var t = this.GetType();
+				Type t = this.GetType();
 				PropertyInfo p = null;
-				for (var i = 0; i < fields.Length; i++)
+				for (int i = 0; i < fields.Length; i++)
 				{
 					p = t.GetProperty(fields[i]);
 					if (p == null)
@@ -120,36 +125,38 @@ namespace s4pi.Interfaces
 
 		static AApiVersionedFields()
 		{
-			var t = typeof(AApiVersionedFields);
-			AApiVersionedFields.banlist = new List<string>();
-			foreach (var m in t.GetProperties())
+			Type t = typeof(AApiVersionedFields);
+			banlist = new List<string>();
+			foreach (PropertyInfo m in t.GetProperties())
 			{
-				AApiVersionedFields.banlist.Add(m.Name);
+				banlist.Add(m.Name);
 			}
 		}
 
 		private static int Version(Type attribute, Type type, string field)
 		{
-			foreach (VersionAttribute attr in type.GetProperty(field).GetCustomAttributes(attribute, true))
-			{
-				return attr.Version;
-			}
-			return 0;
+		    int version = (type.GetProperty(field)
+		                       .GetCustomAttributes(attribute, true)
+		                       .Cast<VersionAttribute>()
+		                       .Select(attr => attr.Version))
+                           .FirstOrDefault();
+
+		    return version;
 		}
 
-		private static int MinimumVersion(Type type, string field)
+	    private static int MinimumVersion(Type type, string field)
 		{
-			return AApiVersionedFields.Version(typeof(MinimumVersionAttribute), type, field);
+			return Version(typeof(MinimumVersionAttribute), type, field);
 		}
 
 		private static int MaximumVersion(Type type, string field)
 		{
-			return AApiVersionedFields.Version(typeof(MaximumVersionAttribute), type, field);
+			return Version(typeof(MaximumVersionAttribute), type, field);
 		}
 
-		private static int getRecommendedApiVersion(Type t)
+		private static int GetRecommendedApiVersion(Type t)
 		{
-			var fi = t.GetField("recommendedApiVersion", BindingFlags.Static | BindingFlags.NonPublic);
+			FieldInfo fi = t.GetField("recommendedApiVersion", BindingFlags.Static | BindingFlags.NonPublic);
 			if (fi == null || fi.FieldType != typeof(int))
 			{
 				return 0;
@@ -157,18 +164,18 @@ namespace s4pi.Interfaces
 			return (int)fi.GetValue(null);
 		}
 
-		private static bool checkVersion(Type type, string field, int requestedApiVersion)
+		private static bool CheckVersion(Type type, string field, int requestedApiVersion)
 		{
 			if (requestedApiVersion == 0)
 			{
 				return true;
 			}
-			var min = AApiVersionedFields.MinimumVersion(type, field);
+			int min = MinimumVersion(type, field);
 			if (min != 0 && requestedApiVersion < min)
 			{
 				return false;
 			}
-			var max = AApiVersionedFields.MaximumVersion(type, field);
+			int max = MaximumVersion(type, field);
 			if (max != 0 && requestedApiVersion > max)
 			{
 				return false;
@@ -185,23 +192,23 @@ namespace s4pi.Interfaces
 		/// <returns>List of field names for the given API version</returns>
 		public static List<string> GetContentFields(int APIversion, Type t)
 		{
-			var fields = new List<string>();
+			List<string> fields = new List<string>();
 
-			var recommendedApiVersion = AApiVersionedFields.getRecommendedApiVersion(t);
-				//Could be zero if no "recommendedApiVersion" const field
-			var ap = t.GetProperties();
-			foreach (var m in ap)
+			int recommendedApiVersion = GetRecommendedApiVersion(t);
+			//Could be zero if no "recommendedApiVersion" const field
+			PropertyInfo[] ap = t.GetProperties();
+			foreach (PropertyInfo info in ap)
 			{
-				if (AApiVersionedFields.banlist.Contains(m.Name))
+				if (banlist.Contains(info.Name))
 				{
 					continue;
 				}
-				if (!AApiVersionedFields.checkVersion(t, m.Name, APIversion == 0 ? recommendedApiVersion : APIversion))
+				if (!CheckVersion(t, info.Name, APIversion == 0 ? recommendedApiVersion : APIversion))
 				{
 					continue;
 				}
 
-				fields.Add(m.Name);
+				fields.Add(info.Name);
 			}
 			fields.Sort(new PriorityComparer(t));
 
@@ -216,7 +223,7 @@ namespace s4pi.Interfaces
 		/// <returns>The TGIBlock list for a Content Field, if present; otherwise <c>null</c>.</returns>
 		public static DependentList<TGIBlock> GetTGIBlocks(AApiVersionedFields o, string f)
 		{
-			var tgiBlockListCF = TGIBlockListContentFieldAttribute.GetTGIBlockListContentField(o.GetType(), f);
+			string tgiBlockListCF = TGIBlockListContentFieldAttribute.GetTGIBlockListContentField(o.GetType(), f);
 			if (tgiBlockListCF != null)
 			{
 				try
@@ -237,7 +244,7 @@ namespace s4pi.Interfaces
 		/// <returns>The TGIBlock list for a Content Field, if present; otherwise <c>null</c>.</returns>
 		public DependentList<TGIBlock> GetTGIBlocks(string f)
 		{
-			return AApiVersionedFields.GetTGIBlocks(this, f);
+			return GetTGIBlocks(this, f);
 		}
 
 		private class PriorityComparer : IComparer<string>
@@ -251,7 +258,7 @@ namespace s4pi.Interfaces
 
 			public int Compare(string x, string y)
 			{
-				var res =
+				int res =
 					ElementPriorityAttribute.GetPriority(this.type, x).CompareTo(ElementPriorityAttribute.GetPriority(this.type, y));
 				if (res == 0)
 				{
@@ -273,12 +280,12 @@ namespace s4pi.Interfaces
 		{
 			get
 			{
-				var fields = this.ContentFields;
-				fields.RemoveAll(AApiVersionedFields.banlist.Contains);
-				fields.RemoveAll(AApiVersionedFields.valueBuilderBanlist.Contains);
+				List<string> fields = this.ContentFields;
+				fields.RemoveAll(banlist.Contains);
+				fields.RemoveAll(valueBuilderBanlist.Contains);
 				if (this is IDictionary)
 				{
-					fields.RemoveAll(AApiVersionedFields.dictionaryBanlist.Contains);
+					fields.RemoveAll(dictionaryBanlist.Contains);
 				}
 				return fields;
 			}
@@ -291,24 +298,24 @@ namespace s4pi.Interfaces
 		{
 			get
 			{
-				var sb = new StringBuilder();
+				StringBuilder sb = new StringBuilder();
 
-				var fields = this.ValueBuilderFields;
+				List<string> fields = this.ValueBuilderFields;
 
 				const string headerFormat = "\n--- {0}: {1} (0x{2:X}) ---";
 
-				foreach (var f in fields)
+				foreach (string f in fields)
 				{
-					var tv = this[f];
+					TypedValue tv = this[f];
 
 					if (typeof(AApiVersionedFields).IsAssignableFrom(tv.Type))
 					{
-						var apiObj = tv.Value as AApiVersionedFields;
+						AApiVersionedFields apiObj = tv.Value as AApiVersionedFields;
 						if (apiObj.ContentFields.Contains("Value") &&
 							typeof(string).IsAssignableFrom(
-								AApiVersionedFields.GetContentFieldTypes(this.requestedApiVersion, tv.Type)["Value"]))
+								GetContentFieldTypes(this.requestedApiVersion, tv.Type)["Value"]))
 						{
-							var elem = (string)apiObj["Value"].Value;
+							string elem = (string)apiObj["Value"].Value;
 							if (elem.Contains("\n"))
 							{
 								sb.Append("\n--- " + tv.Type.Name + ": " + f + " ---\n   " + elem.Replace("\n", "\n   ").TrimEnd() + "\n---");
@@ -321,9 +328,9 @@ namespace s4pi.Interfaces
 					}
 					else if (tv.Type.BaseType != null && tv.Type.BaseType.Name.Contains("IndexList`"))
 					{
-						var l = (IList)tv.Value;
-						var fmt = "\n   [{0:X" + l.Count.ToString("X").Length + "}]: {1}";
-						var i = 0;
+						IList l = (IList)tv.Value;
+						string fmt = "\n   [{0:X" + l.Count.ToString("X").Length + "}]: {1}";
+						int i = 0;
 
 						sb.Append(string.Format(headerFormat, tv.Type.Name, f, l.Count));
 						foreach (AHandlerElement v in l)
@@ -334,9 +341,9 @@ namespace s4pi.Interfaces
 					}
 					else if (tv.Type.BaseType != null && tv.Type.BaseType.Name.Contains("SimpleList`"))
 					{
-						var l = (IList)tv.Value;
-						var fmt = "\n   [{0:X" + l.Count.ToString("X").Length + "}]: {1}";
-						var i = 0;
+						IList l = (IList)tv.Value;
+						string fmt = "\n   [{0:X" + l.Count.ToString("X").Length + "}]: {1}";
+						int i = 0;
 
 						sb.Append(string.Format(headerFormat, tv.Type.Name, f, l.Count));
 						foreach (AHandlerElement v in l)
@@ -347,12 +354,12 @@ namespace s4pi.Interfaces
 					}
 					else if (typeof(DependentList<TGIBlock>).IsAssignableFrom(tv.Type))
 					{
-						var l = (DependentList<TGIBlock>)tv.Value;
-						var fmt = "\n   [{0:X" + l.Count.ToString("X").Length + "}]: {1}";
-						var i = 0;
+						DependentList<TGIBlock> l = (DependentList<TGIBlock>)tv.Value;
+						string fmt = "\n   [{0:X" + l.Count.ToString("X").Length + "}]: {1}";
+						int i = 0;
 
 						sb.Append(string.Format(headerFormat, tv.Type.Name, f, l.Count));
-						foreach (var v in l)
+						foreach (TGIBlock v in l)
 						{
 							sb.Append(string.Format(fmt, i++, v));
 						}
@@ -360,19 +367,19 @@ namespace s4pi.Interfaces
 					}
 					else if (tv.Type.BaseType != null && tv.Type.BaseType.Name.Contains("DependentList`"))
 					{
-						var l = (IList)tv.Value;
-						var fmtLong = "\n--- {0}[{1:X" + l.Count.ToString("X").Length + "}] ---\n   ";
-						var fmtShort = "\n   [{0:X" + l.Count.ToString("X").Length + "}]: {1}";
-						var i = 0;
+						IList l = (IList)tv.Value;
+						string fmtLong = "\n--- {0}[{1:X" + l.Count.ToString("X").Length + "}] ---\n   ";
+						string fmtShort = "\n   [{0:X" + l.Count.ToString("X").Length + "}]: {1}";
+						int i = 0;
 
 						sb.Append(string.Format(headerFormat, tv.Type.Name, f, l.Count));
 						foreach (AHandlerElement v in l)
 						{
 							if (v.ContentFields.Contains("Value") &&
 								typeof(string).IsAssignableFrom(
-									AApiVersionedFields.GetContentFieldTypes(this.requestedApiVersion, v.GetType())["Value"]))
+									GetContentFieldTypes(this.requestedApiVersion, v.GetType())["Value"]))
 							{
-								var elem = (string)v["Value"].Value;
+								string elem = (string)v["Value"].Value;
 								if (elem.Contains("\n"))
 								{
 									sb.Append(string.Format(fmtLong, f, i++) + elem.Replace("\n", "\n   ").TrimEnd());
@@ -386,23 +393,23 @@ namespace s4pi.Interfaces
 						sb.Append("\n---");
 					}
 					else if (tv.Type.HasElementType && typeof(AApiVersionedFields).IsAssignableFrom(tv.Type.GetElementType()))
-						// it's an AApiVersionedFields array, slightly glossy...
+					// it's an AApiVersionedFields array, slightly glossy...
 					{
 						sb.Append(string.Format(headerFormat, tv.Type.Name, f, ((Array)tv.Value).Length));
-						sb.Append("\n   " + tv.ToString().Replace("\n", "\n   ").TrimEnd() + "\n---");
+						sb.Append("\n   " + tv.ToString(CultureInfo.InvariantCulture).Replace("\n", "\n   ").TrimEnd() + "\n---");
 					}
 					else
 					{
-						var suffix = "";
-						var tgis = this.GetTGIBlocks(f);
+						string suffix = "";
+						DependentList<TGIBlock> tgis = this.GetTGIBlocks(f);
 						if (tgis != null && tgis.Count > 0)
 						{
 							try
 							{
-								var i = Convert.ToInt32(tv.Value);
+								int i = Convert.ToInt32(tv.Value);
 								if (i >= 0 && i < tgis.Count)
 								{
-									var tgi = tgis[i];
+									TGIBlock tgi = tgis[i];
 									suffix = " (" + tgi + ")";
 								}
 							}
@@ -415,18 +422,18 @@ namespace s4pi.Interfaces
 					}
 				}
 
-				if (typeof(IDictionary).IsAssignableFrom(this.GetType()))
+			    IDictionary dict = this as IDictionary;
+			    if (dict != null)
 				{
-					var l = (IDictionary)this;
-					var fmt = "\n   [{0:X" + l.Count.ToString("X").Length + "}] {1}: {2}";
-					var i = 0;
-					sb.Append("\n--- (0x" + l.Count.ToString("X") + ") ---");
-					foreach (var key in l.Keys)
+				    string fmt = "\n   [{0:X" + dict.Count.ToString("X").Length + "}] {1}: {2}";
+					int i = 0;
+					sb.Append("\n--- (0x" + dict.Count.ToString("X") + ") ---");
+					foreach (object key in dict.Keys)
 					{
 						sb.Append(string.Format(fmt,
 												i++,
 												new TypedValue(key.GetType(), key, "X"),
-												new TypedValue(l[key].GetType(), l[key], "X")));
+												new TypedValue(dict[key].GetType(), dict[key], "X")));
 					}
 					sb.Append("\n---");
 				}
@@ -463,18 +470,18 @@ namespace s4pi.Interfaces
 		/// <returns></returns>
 		public static Dictionary<string, Type> GetContentFieldTypes(int APIversion, Type t)
 		{
-			var types = new Dictionary<string, Type>();
+			Dictionary<string, Type> types = new Dictionary<string, Type>();
 
-			var recommendedApiVersion = AApiVersionedFields.getRecommendedApiVersion(t);
+			int recommendedApiVersion = GetRecommendedApiVersion(t);
 				//Could be zero if no "recommendedApiVersion" const field
-			var ap = t.GetProperties();
-			foreach (var m in ap)
+			PropertyInfo[] ap = t.GetProperties();
+			foreach (PropertyInfo m in ap)
 			{
-				if (AApiVersionedFields.banlist.Contains(m.Name))
+				if (banlist.Contains(m.Name))
 				{
 					continue;
 				}
-				if (!AApiVersionedFields.checkVersion(t, m.Name, APIversion == 0 ? recommendedApiVersion : APIversion))
+				if (!CheckVersion(t, m.Name, APIversion == 0 ? recommendedApiVersion : APIversion))
 				{
 					continue;
 				}
@@ -486,18 +493,20 @@ namespace s4pi.Interfaces
 		}
 
 #if UNDEF
+
         protected static List<string> getMethods(Int32 APIversion, Type t)
         {
             List<string> methods = null;
 
-            Int32 recommendedApiVersion = getRecommendedApiVersion(t);//Could be zero if no "recommendedApiVersion" const field
+            int recommendedApiVersion = GetRecommendedApiVersion(t);
+            //Could be zero if no "recommendedApiVersion" const field
             methods = new List<string>();
             MethodInfo[] am = t.GetMethods();
             foreach (MethodInfo m in am)
             {
                 if (!m.IsPublic || banlist.Contains(m.Name)) continue;
-                if ((m.Name.StartsWith("get_") && m.GetParameters().Length == 0)) continue;
-                if (!checkVersion(t, m.Name, APIversion == 0 ? recommendedApiVersion : APIversion)) continue;
+                if ((m.Name.StartsWith("get_", StringComparison.Ordinal) && m.GetParameters().Length == 0)) continue;
+                if (!CheckVersion(t, m.Name, APIversion == 0 ? recommendedApiVersion : APIversion)) continue;
 
                 methods.Add(m.Name);
             }
@@ -506,12 +515,16 @@ namespace s4pi.Interfaces
         }
 
         public List<string> Methods { get; }
-        
+
         public TypedValue Invoke(string method, params TypedValue[] parms)
         {
             Type[] at = new Type[parms.Length];
             object[] ao = new object[parms.Length];
-            for (int i = 0; i < parms.Length; i++) { at[i] = parms[i].Type; ao[i] = parms[i].Value; }//Array.Copy, please...
+            for (int i = 0; i < parms.Length; i++)
+            {
+                at[i] = parms[i].Type;
+                ao[i] = parms[i].Value;
+            } //Array.Copy, please...
 
             MethodInfo m = this.GetType().GetMethod(method, at);
             if (m == null)
@@ -573,31 +586,31 @@ namespace s4pi.Interfaces
 			{
 				throw new ArgumentLengthException("String", 8);
 			}
-			ulong i = 0;
-			for (var j = s.Length - 1; j >= 0; j--)
+			ulong result = 0;
+			for (int i = s.Length - 1; i >= 0; i--)
 			{
-				i += ((uint)s[j]) << (j * 8);
+				result += ((uint)s[i]) << (i * 8);
 			}
-			return i;
+			return result;
 		}
 
 		/// <summary>
-		///     Convert a UInt64 to a string (up to 8 characters, high-order zeros omitted)
+		/// Convert a <see cref="ulong"/> to a string (up to 8 characters, high-order zeros omitted)
 		/// </summary>
-		/// <param name="i">Bytes to convert</param>
-		/// <returns>String representation of <paramref name="i" /></returns>
-		public static string FOURCC(ulong i)
+		/// <param name="value">The value to convert.</param>
+		/// <returns>String representation of <paramref name="value" /></returns>
+		public static string FOURCC(ulong value)
 		{
-			var s = "";
-			for (var j = 7; j >= 0; j--)
+			string result = "";
+			for (int i = 7; i >= 0; i--)
 			{
-				var c = (char)((i >> (j * 8)) & 0xff);
-				if (s.Length > 0 || c != 0)
+				char c = (char)((value >> (i * 8)) & 0xff);
+				if (result.Length > 0 || c != 0)
 				{
-					s = c + s;
+					result = c + result;
 				}
 			}
-			return s;
+			return result;
 		}
 
 		/// <summary>
@@ -607,8 +620,8 @@ namespace s4pi.Interfaces
 		/// <returns>Valid enum names</returns>
 		public static string FlagNames(Type t)
 		{
-			var p = "";
-			foreach (var q in Enum.GetNames(t))
+			string p = "";
+			foreach (string q in Enum.GetNames(t))
 			{
 				p += " " + q;
 			}
@@ -649,15 +662,15 @@ namespace s4pi.Interfaces
 		/// <returns>Return a copy of the <see cref="AHandlerElement" /> but with a new change <see cref="EventHandler" />.</returns>
 		public virtual AHandlerElement Clone(EventHandler handler)
 		{
-			var args = new List<object>(new object[] { this.requestedApiVersion, handler, this });
+			List<object> args = new List<object>(new object[] { this.requestedApiVersion, handler, this });
 
 			// Default values for parameters are resolved by the compiler.
 			// Activator.CreateInstance does not simulate this, so we have to do it.
 			// Avoid writing a Binder class just for this...
-			var ci = this.GetType().GetConstructors()
+			ConstructorInfo ci = this.GetType().GetConstructors()
 						 .Where(c =>
 								{
-									var pi = c.GetParameters();
+									ParameterInfo[] pi = c.GetParameters();
 
 									// Our required arguments followed by one or more optional ones
 									if (pi.Length <= args.Count)
@@ -674,7 +687,7 @@ namespace s4pi.Interfaces
 									}
 
 									// Do the required args match?
-									for (var i = 0; i < args.Count; i++)
+									for (int i = 0; i < args.Count; i++)
 									{
 										// null matches anything except a value type
 										if (args[i] == null)
@@ -695,7 +708,7 @@ namespace s4pi.Interfaces
 									// OK, we have a match
 
 									// Pad the args with Type.Missing to save repeating the reflection
-									for (var i = args.Count; i < pi.Length; i++)
+									for (int i = args.Count; i < pi.Length; i++)
 									{
 										args.Add(Type.Missing);
 									}
@@ -804,7 +817,7 @@ namespace s4pi.Interfaces
 		/// </summary>
 		public override int RecommendedApiVersion
 		{
-			get { return HandlerElement<T>.recommendedApiVersion; }
+			get { return recommendedApiVersion; }
 		}
 
 		/// <summary>
@@ -812,7 +825,7 @@ namespace s4pi.Interfaces
 		/// </summary>
 		public override List<string> ContentFields
 		{
-			get { return AApiVersionedFields.GetContentFields(this.requestedApiVersion, this.GetType()); }
+			get { return GetContentFields(this.requestedApiVersion, this.GetType()); }
 		}
 
 		#endregion
@@ -847,7 +860,7 @@ namespace s4pi.Interfaces
 			}
 			if (obj is HandlerElement<T>)
 			{
-				return this.Equals(obj as HandlerElement<T>);
+				return this.Equals((HandlerElement<T>)obj);
 			}
 			return false;
 		}
@@ -902,7 +915,7 @@ namespace s4pi.Interfaces
 		/// </summary>
 		public string Value
 		{
-			get { return new TypedValue(typeof(T), this.val, "X").ToString(); }
+			get { return new TypedValue(typeof(T), this.val, "X").ToString(CultureInfo.InvariantCulture); }
 		}
 	}
 
@@ -981,7 +994,7 @@ namespace s4pi.Interfaces
 		/// </summary>
 		public override int RecommendedApiVersion
 		{
-			get { return TGIBlockListIndex<T>.recommendedApiVersion; }
+			get { return recommendedApiVersion; }
 		}
 
 		/// <summary>
@@ -991,7 +1004,7 @@ namespace s4pi.Interfaces
 		{
 			get
 			{
-				var res = AApiVersionedFields.GetContentFields(this.requestedApiVersion, this.GetType());
+				List<string> res = GetContentFields(this.requestedApiVersion, this.GetType());
 				res.Remove("ParentTGIBlocks");
 				return res;
 			}
