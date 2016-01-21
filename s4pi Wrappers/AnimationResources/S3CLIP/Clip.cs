@@ -1,144 +1,140 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2009, 2015 by the Sims 4 Tools development team          *
+ *  Copyright (C) 2009, 2010 by Peter L Jones                              *
+ *  pljones@users.sf.net                                                   *
  *                                                                         *
- *  Contributors:                                                          *
- *  Peter L Jones (pljones@users.sf.net)                                   *
- *  Keyi Zhang                                                             *
+ *  This file is part of the Sims 3 Package Interface (s3pi)               *
  *                                                                         *
- *  This file is part of the Sims 4 Package Interface (s4pi)               *
- *                                                                         *
- *  s4pi is free software: you can redistribute it and/or modify           *
+ *  s3pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s4pi is distributed in the hope that it will be useful,                *
+ *  s3pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using s4pi.Interfaces;
 
 namespace s4pi.Animation.S3CLIP
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using s4pi.Interfaces;
-
     public class Clip : AHandlerElement
     {
         #region Fields
 
-        private string mAnimName;
-        private float mFrameDuration;
-        private ushort mMaxFrameCount;
-        private string mSrcName;
+        private String mAnimName;
+        private Single mFrameDuration;
+        private UInt16 mMaxFrameCount;
+        private String mSrcName;
         private TrackList mTracks;
-        private uint mUnknown01;
-        private ushort mUnknown02;
-        private uint mVersion;
+        private UInt32 mUnknown01;
+        private UInt16 mUnknown02;
+        private UInt32 mVersion;
 
         #endregion
 
         #region ContentFields
 
         [ElementPriority(1)]
-        public uint Version
+        public UInt32 Version
         {
-            get { return this.mVersion; }
+            get { return mVersion; }
             set
             {
-                this.mVersion = value;
-                this.OnElementChanged();
+                mVersion = value;
+                OnElementChanged();
             }
         }
 
         [ElementPriority(2)]
-        public uint Unknown01
+        public UInt32 Unknown01
         {
-            get { return this.mUnknown01; }
+            get { return mUnknown01; }
             set
             {
-                this.mUnknown01 = value;
-                this.OnElementChanged();
+                mUnknown01 = value;
+                OnElementChanged();
             }
         }
 
         [ElementPriority(3)]
-        public float FrameDuration
+        public Single FrameDuration
         {
-            get { return this.mFrameDuration; }
+            get { return mFrameDuration; }
             set
             {
-                this.mFrameDuration = value;
-                this.OnElementChanged();
+                mFrameDuration = value;
+                OnElementChanged();
             }
         }
 
         [ElementPriority(4)]
-        public ushort MaxFrameCount
+        public UInt16 MaxFrameCount
         {
-            get { return this.mMaxFrameCount; }
+            get { return mMaxFrameCount; }
             set
             {
-                this.mMaxFrameCount = value;
-                this.OnElementChanged();
+                mMaxFrameCount = value;
+                OnElementChanged();
             }
         }
 
         [ElementPriority(5)]
-        public ushort Unknown02
+        public UInt16 Unknown02
         {
-            get { return this.mUnknown02; }
+            get { return mUnknown02; }
             set
             {
-                this.mUnknown02 = value;
-                this.OnElementChanged();
+                mUnknown02 = value;
+                OnElementChanged();
             }
         }
 
         [ElementPriority(6)]
-        public string AnimName
+        public String AnimName
         {
-            get { return this.mAnimName; }
+            get { return mAnimName; }
             set
             {
-                this.mAnimName = value;
-                this.OnElementChanged();
+                mAnimName = value;
+                OnElementChanged();
             }
         }
 
         [ElementPriority(7)]
-        public string SrcName
+        public String SrcName
         {
-            get { return this.mSrcName; }
+            get { return mSrcName; }
             set
             {
-                this.mSrcName = value;
-                this.OnElementChanged();
+                mSrcName = value;
+                OnElementChanged();
             }
         }
 
         [ElementPriority(8)]
         public TrackList Tracks
         {
-            get { return this.mTracks; }
+            get { return mTracks; }
             set
             {
-                this.mTracks = value;
-                this.OnElementChanged();
+                mTracks = value;
+                OnElementChanged();
             }
         }
 
         public string Value
         {
-            get { return this.ValueBuilder; }
+            get { return ValueBuilder; }
         }
 
         #endregion
@@ -148,35 +144,31 @@ namespace s4pi.Animation.S3CLIP
         public Clip(int apiVersion, EventHandler handler)
             : base(apiVersion, handler)
         {
-            this.mTracks = new TrackList(handler);
+            mTracks = new TrackList(handler);
         }
 
         public Clip(int apiVersion, EventHandler handler, Stream s)
             : base(apiVersion, handler)
         {
             s.Position = 0L;
-            this.Parse(s);
+            Parse(s);
         }
 
         #endregion
 
         #region I/O
-
         bool checking = Settings.Settings.Checking;
-
         protected void Parse(Stream s)
         {
             var br = new BinaryReader(s);
             string foo = FOURCC(br.ReadUInt64());
             if (foo != "_pilC3S_")
-            {
                 throw new Exception("Bad clip header: Expected \"_S3Clip_\"");
-            }
-            this.mVersion = br.ReadUInt32();
-            this.mUnknown01 = br.ReadUInt32();
-            this.mFrameDuration = br.ReadSingle();
-            this.mMaxFrameCount = br.ReadUInt16();
-            this.mUnknown02 = br.ReadUInt16();
+            mVersion = br.ReadUInt32();
+            mUnknown01 = br.ReadUInt32();
+            mFrameDuration = br.ReadSingle();
+            mMaxFrameCount = br.ReadUInt16();
+            mUnknown02 = br.ReadUInt16();
 
             uint curveCount = br.ReadUInt32();
             uint indexedFloatCount = br.ReadUInt32();
@@ -185,10 +177,8 @@ namespace s4pi.Animation.S3CLIP
             uint animNameOffset = br.ReadUInt32();
             uint srcNameOffset = br.ReadUInt32();
 
-            if (this.checking && s.Position != curveDataOffset)
-            {
+            if (checking && s.Position != curveDataOffset)
                 throw new InvalidDataException("Bad Curve Data Offset");
-            }
 
             var curveDataInfos = new List<CurveDataInfo>();
             for (int i = 0; i < curveCount; i++)
@@ -204,21 +194,15 @@ namespace s4pi.Animation.S3CLIP
                 curveDataInfos.Add(p);
             }
 
-            if (this.checking && s.Position != animNameOffset)
-            {
+            if (checking && s.Position != animNameOffset)
                 throw new InvalidDataException("Bad Name Offset");
-            }
-            this.mAnimName = br.ReadZString();
-            if (this.checking && s.Position != srcNameOffset)
-            {
+            mAnimName = br.ReadZString();
+            if (checking && s.Position != srcNameOffset)
                 throw new InvalidDataException("Bad SourceName Offset");
-            }
-            this.mSrcName = br.ReadZString();
+            mSrcName = br.ReadZString();
 
-            if (this.checking && s.Position != frameDataOffset)
-            {
+            if (checking && s.Position != frameDataOffset)
                 throw new InvalidDataException("Bad Indexed Floats Offset");
-            }
             var indexedFloats = new List<float>();
             for (int i = 0; i < indexedFloatCount; i++)
             {
@@ -229,15 +213,15 @@ namespace s4pi.Animation.S3CLIP
             var test = curveDataInfos.Where(x => x.Type != CurveType.Position && x.Type != CurveType.Orientation).ToArray();
             for (int i = 0; i < curveDataInfos.Count; i++)
             {
-                CurveDataInfo curveDataInfo = curveDataInfos[i];
+                    CurveDataInfo curveDataInfo = curveDataInfos[i];
                 try
                 {
 
-                    if (this.checking && s.Position != curveDataInfo.FrameDataOffset)
+                    if (checking && s.Position != curveDataInfo.FrameDataOffset)
                         throw new InvalidDataException("Bad FrameData offset.");
                     Curve curve;
 
-                    curve = new Curve(0, this.handler, curveDataInfo.Type, curveDataInfo.Flags.Type, s, curveDataInfo, indexedFloats);
+                    curve = new Curve(0, handler, curveDataInfo.Type, curveDataInfo.Flags.Type, s, curveDataInfo, indexedFloats);
 
                     if (!trackMap.ContainsKey(curveDataInfo.TrackKey))
                     {
@@ -255,11 +239,11 @@ namespace s4pi.Animation.S3CLIP
             var tracks = new List<Track>();
             foreach (uint k in trackMap.Keys)
             {
-                tracks.Add(new Track(0, this.handler, k, trackMap[k]));
+                tracks.Add(new Track(0, handler, k, trackMap[k]));
             }
-            this.mTracks = new TrackList(this.handler, tracks);
+            mTracks = new TrackList(handler, tracks);
 
-            if (this.checking && s.Position != s.Length)
+            if (checking && s.Position != s.Length)
                 throw new InvalidDataException("Unexpected End of Clip.");
         }
 
@@ -267,27 +251,27 @@ namespace s4pi.Animation.S3CLIP
         {
             var bw = new BinaryWriter(s);
             bw.Write(Encoding.ASCII.GetBytes("_pilC3S_"));
-            bw.Write(this.mVersion);
-            bw.Write(this.mUnknown01);
-            bw.Write(this.mFrameDuration);
-            bw.Write(this.mMaxFrameCount);
-            bw.Write(this.Unknown02);
+            bw.Write(mVersion);
+            bw.Write(mUnknown01);
+            bw.Write(mFrameDuration);
+            bw.Write(mMaxFrameCount);
+            bw.Write(Unknown02);
 
             var indexedFloats = new List<float>();
             var curveDataInfos = new List<CurveDataInfo>();
 
 
-            uint curveCount = 0;
+            UInt32 curveCount = 0;
             byte[] frameData;
             using (var frameStream = new MemoryStream())
             {
-                foreach (Track track in this.Tracks)
+                foreach (Track track in Tracks)
                 {
                     foreach (Curve curve in track.Curves)
                     {
                         curveCount++;
-                        float scale = 1f;
-                        float offset = 0f;
+                        Single scale = 1f;
+                        Single offset = 0f;
 
                         IEnumerable<float> values = curve.SelectFloats();
                         if (values.Any())
@@ -298,12 +282,12 @@ namespace s4pi.Animation.S3CLIP
                             scale = (min - max) / 2f;
                         }
                         //not sure what really determines whether to index or not
-                        bool isIndexed = curve.Frames.Count == 0 ? true : curve.Type == CurveType.Position ? IsIndexed(curve.Frames.Cast<Frame>()) : false;
+                        Boolean isIndexed = curve.Frames.Count == 0 ? true : curve.Type == CurveType.Position ? IsIndexed(curve.Frames.Cast<Frame>()) : false;
                         var flags = new CurveDataFlags();
                         flags.Format = isIndexed ? CurveDataFormat.Indexed : CurveDataFormat.Packed;
                         flags.Type = curve.Frames.DataType;
                         flags.Static = curve.Frames.Count == 0;
-                        var curveDataInfo = new CurveDataInfo { Offset = offset, Flags = flags, FrameCount = curve.Frames.Count, FrameDataOffset = (uint)frameStream.Position, Scale = scale, TrackKey = track.TrackKey, Type = curve.Type };
+                        var curveDataInfo = new CurveDataInfo { Offset = offset, Flags = flags, FrameCount = curve.Frames.Count, FrameDataOffset = (UInt32)frameStream.Position, Scale = scale, TrackKey = track.TrackKey, Type = curve.Type };
                         curve.UnParse(frameStream, curveDataInfo, indexedFloats);
                         curveDataInfos.Add(curveDataInfo);
                     }
@@ -318,26 +302,26 @@ namespace s4pi.Animation.S3CLIP
             uint frameDataOffset = 0;
             uint animNameOffset = 0;
             uint srcNameOffset = 0;
-            s.Seek(4 * sizeof(uint), SeekOrigin.Current);
+            s.Seek(4 * sizeof(UInt32), SeekOrigin.Current);
 
 
             curveDataOffset = (uint)s.Position;
-            var frameOffset = (uint)(curveDataOffset + (20 * curveDataInfos.Count) + this.mAnimName.Length + this.mSrcName.Length + 2 + (sizeof(float) * indexedFloats.Count));
+            var frameOffset = (uint)(curveDataOffset + (20 * curveDataInfos.Count) + mAnimName.Length + mSrcName.Length + 2 + (sizeof(Single) * indexedFloats.Count));
             foreach (CurveDataInfo curveDataInfo in curveDataInfos)
             {
                 bw.Write((curveDataInfo.FrameDataOffset + frameOffset));
                 bw.Write(curveDataInfo.TrackKey);
                 bw.Write(curveDataInfo.Offset);
                 bw.Write(curveDataInfo.Scale);
-                bw.Write((ushort)curveDataInfo.FrameCount);
+                bw.Write((UInt16)curveDataInfo.FrameCount);
                 bw.Write(curveDataInfo.Flags.Raw);
-                bw.Write((byte)curveDataInfo.Type);
+                bw.Write((Byte)curveDataInfo.Type);
             }
 
             animNameOffset = (uint)s.Position;
-            bw.WriteZString(this.AnimName);
+            bw.WriteZString( AnimName);
             srcNameOffset = (uint)s.Position;
-            bw.WriteZString(this.SrcName);
+            bw.WriteZString(SrcName);
 
             frameDataOffset = (uint)s.Position;
             foreach (float f in indexedFloats) bw.Write(f);
@@ -356,7 +340,7 @@ namespace s4pi.Animation.S3CLIP
 
         public override List<string> ContentFields
         {
-            get { return GetContentFields(0, this.GetType()); }
+            get { return GetContentFields(0, GetType()); }
         }
 
         public override int RecommendedApiVersion
@@ -364,7 +348,7 @@ namespace s4pi.Animation.S3CLIP
             get { return kRecommendedApiVersion; }
         }
 
-        private static bool IsIndexed(IEnumerable<Frame> source)
+        private static Boolean IsIndexed(IEnumerable<Frame> source)
         {
             if (source.Count() < 5) return false;
             IEnumerable<float> x = source.Select(frame => frame.Data[0]).Distinct();
