@@ -39,7 +39,6 @@
 0x03D843C2  CCHE   .cacheentry
 0x03D86EA4  DETL   .details
 0x03E9D964  _XML   .xml
-0x3F8662EA  JPEG   .jpg
 0x0418FE2A  CFEN   .fence
 0x044AE110  COMP   .complate
 0x049CA4CD  CSTR   .stairs
@@ -99,7 +98,7 @@
 0x11C258C0  CTRG   .bnry
 0x16CA6BC4  THUM   .jpg
 0x16CCF748  THUM   .jpg
-0x19301120  WCLR   .bnry
+0x19301120  WCLR   .worldcolortimeline
 0x1A3201CD  _MOD   .override
 0x1A8506C5  _XML   .xml
 0x1B25A024  _XML   .xml
@@ -156,6 +155,7 @@
 0x6B6D837D  SNAP   .png
 0x6B6D837E  SNAP   .png
 0x6B6D837F  SNAP   .png
+0x71A449C9  SKYB   .skyboxtexture
 0x71BDB8A2  STLK   .bnry
 0x72683C15  STPR   .sktonepreset
 0x736884F1  VPXY   .proxy
@@ -184,7 +184,7 @@
 0xA8D58BE5  SKIL   .xml
 0xA8F7B517  CWNS   .bnry
 0xAC03A936  CMTX   .bnry
-0xAC16FBEC  GREF   .bnry
+0xAC16FBEC  RMAP   .regionmap
 0xAD366F95  THUM   .png
 0xAD366F96  THUM   .png
 0xB0311D0F  CRTR   .rooftrim
@@ -212,6 +212,7 @@
 0xD84E7FC6  ICON   .png
 0xD84E7FC7  ICON   .png
 0xD9BD0909  WDNM   .wdescname
+0xDB43E069  DMAP   .deformermap
 0xDD3223A7  BUFF   .xml
 0xDD6233D6  HTML   .html
 0xDEA2951C  PETB   .breed
