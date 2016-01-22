@@ -1,7 +1,6 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2014 by Snaitf                                           *
- *  http://modthesims.info/member/Snaitf                                   *
- *  Keyi Zhang kz005@bucknell.edu                                          *
+ *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
+ *  Credits: Peter Jones, Snaitf, Keyi Zhang, Cmar                         *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -10,7 +9,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s4pi is distributed in the hope that it will be useful,                *
+ *  s3pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -53,7 +52,7 @@ namespace CASPartResource
         Male = 0x00001000,
         Female = 0x00002000
     }
-    
+
     public enum BodyType : uint
     {
         All = 0,
@@ -235,8 +234,8 @@ namespace CASPartResource
         UnknownE = 8192,
         UnknownF = 16384
     }
-    
-        public enum CASPartRegion : uint           //used in RegionMap / GEOMListResource
+
+    public enum CASPartRegion : uint           //used in RegionMap / GEOMListResource
     {
         // "Base" sub-part by definition does not compete with any other subparts of other 
         // parts and is always shown.
