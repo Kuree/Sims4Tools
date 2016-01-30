@@ -150,7 +150,7 @@ namespace S4PIDemoFE
 
                 this.ImportPackagesCommon(ib.Batch,
                     this.importPackagesDialog.Title,
-                    ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                    ib.Replace ? DuplicateHandling.Replace : DuplicateHandling.Reject,
                     ib.Compress,
                     ib.UseNames,
                     rename: ib.Rename);
@@ -183,7 +183,7 @@ namespace S4PIDemoFE
 
                 this.ImportPackagesCommon(ib.Batch,
                     this.importPackagesDialog.Title,
-                    DuplicateHandling.replace,
+                    DuplicateHandling.Replace,
                     ib.Compress,
                     selection: this.browserWidget1.SelectedResources);
             }
@@ -218,7 +218,7 @@ namespace S4PIDemoFE
                 }
                 this.ImportPackagesCommon(this.importPackagesDialog.FileNames,
                     this.importPackagesDialog.Title,
-                    DuplicateHandling.allow,
+                    DuplicateHandling.Allow,
                     true,
                     useNames: true,
                     dupsList: MainForm.allowList,
@@ -235,7 +235,7 @@ namespace S4PIDemoFE
                 {
                     IList<IResourceIndexEntry> ldups =
                         this.CurrentPackage.FindAll(rie => ((IResourceKey)dup).Equals(rie));
-                    IResourceIndexEntry newRie = this.NewResource(dup, null, DuplicateHandling.allow, true);
+                    IResourceIndexEntry newRie = this.NewResource(dup, null, DuplicateHandling.Allow, true);
                     IDictionary<ulong, string> newStbl =
                         (IDictionary<ulong, string>)WrapperDealer.GetResource(0, this.CurrentPackage, newRie);
                     foreach (IResourceIndexEntry rie in ldups)
@@ -426,10 +426,10 @@ namespace S4PIDemoFE
                                     // dups Replace | Reject | Allow
                                     // dupsList null | list of allowable dup types
                                     DuplicateHandling dupThis =
-                                        dups == DuplicateHandling.allow
+                                        dups == DuplicateHandling.Allow
                                             ? dupsList == null || dupsList.Contains(rie.ResourceType)
-                                                ? DuplicateHandling.allow
-                                                : DuplicateHandling.replace
+                                                ? DuplicateHandling.Allow
+                                                : DuplicateHandling.Replace
                                             : dups;
 
                                     limp.Add(Tuple.Create(impres, dupThis));
@@ -485,7 +485,7 @@ namespace S4PIDemoFE
                     {
                         imppkg.Dispose();
                     }
-                    if (autoSave && !this.fileSave())
+                    if (autoSave && !this.FileSave())
                     {
                         break;
                     }
@@ -608,7 +608,7 @@ namespace S4PIDemoFE
 
                 this.ImportPackagesCommon(new[] { filename },
                     title,
-                    ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                    ib.Replace ? DuplicateHandling.Replace : DuplicateHandling.Reject,
                     ib.Compress,
                     ib.UseNames);
             }
@@ -626,7 +626,7 @@ namespace S4PIDemoFE
                     ir.UseName,
                     ir.AllowRename,
                     ir.Compress,
-                    ir.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                    ir.Replace ? DuplicateHandling.Replace : DuplicateHandling.Reject,
                     true);
             }
         }
@@ -645,7 +645,7 @@ namespace S4PIDemoFE
                 ir.UseName,
                 ir.AllowRename,
                 ir.Compress,
-                ir.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                ir.Replace ? DuplicateHandling.Replace : DuplicateHandling.Reject,
                 true);
         }
 
@@ -701,7 +701,7 @@ namespace S4PIDemoFE
                 {
                     this.ImportPackagesCommon(packages.ToArray(),
                         title,
-                        importBatch.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                        importBatch.Replace ? DuplicateHandling.Replace : DuplicateHandling.Reject,
                         importBatch.Compress,
                         importBatch.UseNames);
                 }
@@ -714,7 +714,7 @@ namespace S4PIDemoFE
                         nmOK && importBatch.UseNames,
                         importBatch.Rename,
                         importBatch.Compress,
-                        importBatch.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                        importBatch.Replace ? DuplicateHandling.Replace : DuplicateHandling.Reject,
                         false);
                     Application.DoEvents();
                 }
@@ -765,7 +765,7 @@ namespace S4PIDemoFE
                         importBatch.UseNames,
                         importBatch.Rename,
                         importBatch.Compress,
-                        importBatch.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                        importBatch.Replace ? DuplicateHandling.Replace : DuplicateHandling.Reject,
                         false);
                     Application.DoEvents();
                 }
