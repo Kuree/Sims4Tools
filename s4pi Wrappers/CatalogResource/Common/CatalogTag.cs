@@ -81,7 +81,7 @@ namespace CatalogResource.Common
 		public void UnParse(Stream s)
 		{
 			var bw = new BinaryWriter(s);
-			bw.Write(this.Tag.ToUint32());
+			bw.Write(this.Tag.ToUInt32());
 		}
 
 		private void MakeNew()

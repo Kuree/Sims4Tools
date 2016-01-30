@@ -63,7 +63,7 @@ namespace s4pi.Resource.Commons.CatalogTags
         /// <summary>
         /// Converts the index of this tag to uint.
         /// </summary>
-	    public uint ToUint32()
+	    public uint ToUInt32()
 	    {
 	        return this.Index;
 	    }
@@ -71,7 +71,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 	    /// <summary>
 	    /// Converts the index of this tag to ushort.
 	    /// </summary>
-        public ushort ToUint16()
+        public ushort ToUInt16()
 	    {
 	        return (ushort)this.Index;
 	    }

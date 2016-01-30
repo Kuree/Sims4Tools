@@ -32,22 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="s4pi.GenericRCOLResource">
-      <HintPath>..\..\..\TheS4Studio\TheS4Studio\S4Studio.core\Lib\s4pi.GenericRCOLResource.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.Interfaces, Version=1408.23.1943.26505, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\TheS4Studio\TheS4Studio\S4Studio.core\Lib\s4pi.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="s4pi.Settings, Version=1408.23.1943.26505, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\TheS4Studio\TheS4Studio\S4Studio.core\Lib\s4pi.Settings.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Custom, Version=1408.23.1943.26505, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\TheS4Studio\TheS4Studio\S4Studio.core\Lib\System.Custom.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="S3CLIP\Curve.cs" />
@@ -70,6 +55,24 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
+      <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
+      <Name>CS System Classes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi\Interfaces\Interfaces.csproj">
+      <Project>{51023bd2-9139-438d-b794-95e5ec023537}</Project>
+      <Name>Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi\Settings\Settings.csproj">
+      <Project>{374f37cf-1f27-4613-96fd-9b956a3d82b1}</Project>
+      <Name>Settings</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GenericRCOLResource\GenericRCOLResource.csproj">
+      <Project>{47693A2A-1F86-47CA-A170-CC0C195A53B7}</Project>
+      <Name>GenericRCOLResource</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

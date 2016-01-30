@@ -64,8 +64,8 @@ namespace CASPartResource.Handlers
         public void UnParse(Stream stream)
         {
             var w = new BinaryWriter(stream);
-            w.Write(this.compoundTag.Category.ToUint16());
-            w.Write(this.compoundTag.Value.ToUint32());
+            w.Write(this.compoundTag.Category.ToUInt16());
+            w.Write(this.compoundTag.Value.ToUInt32());
         }
 
         #region AHandlerElement Members
@@ -73,8 +73,8 @@ namespace CASPartResource.Handlers
         public void WriteUInt16(Stream stream)
         {
             var w = new BinaryWriter(stream);
-            w.Write(this.compoundTag.Category.ToUint16());
-            w.Write(this.compoundTag.Value.ToUint16());
+            w.Write(this.compoundTag.Category.ToUInt16());
+            w.Write(this.compoundTag.Value.ToUInt16());
         }
 
         public override int RecommendedApiVersion
