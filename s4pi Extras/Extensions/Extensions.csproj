@@ -63,6 +63,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileNameConverter.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="ExtList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

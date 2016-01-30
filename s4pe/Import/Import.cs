@@ -1,485 +1,721 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2009, 2010 by Peter L Jones                              *
- *  pljones@users.sf.net                                                   *
+ *  Copyright (C) 2009, 2016 by the Sims 4 Tools development team          *
  *                                                                         *
- *  This file is part of the Sims 3 Package Interface (s3pi)               *
+ *  Contributors:                                                          *
+ *  Peter L Jones (pljones@users.sf.net)                                   *
+ *  Buzzler                                                                *
  *                                                                         *
- *  s3pi is free software: you can redistribute it and/or modify           *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
-
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Windows.Forms;
-using s4pi.Interfaces;
-using s4pi.Package;
-using s4pi.Extensions;
 
 namespace S4PIDemoFE
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.Specialized;
+    using System.IO;
+    using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Windows.Forms;
+    using s4pi.Commons.Extensions;
+    using s4pi.Extensions;
+    using s4pi.Interfaces;
+    using s4pi.Package;
+    using s4pi.WrapperDealer;
+
     partial class MainForm
     {
-        const string myDataFormatSingleFile = "x-application/s3pe.singleFile";
-        const string myDataFormatBatch = "x-application/s3pe.batch";
+        private const string DataFormatSingleFile = "x-application/s3pe.singleFile";
+        private const string DataFormatBatch = "x-application/s3pe.batch";
+
+        private static readonly string[] packageExtensions =
+        {
+            "package",
+            "world",
+            "dbc",
+            "nhd"
+        };
+
+        private static readonly List<uint> xmlList = new List<uint>(new uint[]
+                                                                    {
+                                                                        0x025C95B6, //xml: UI Layout definitions
+                                                                        0x025ED6F4, //xml: Sim Outfit
+                                                                        //-Anach: do not allow duplicates 0x0333406C, //xml: XML Resource (Uses include tuning constants)
+                                                                        0x03B33DDF,
+                                                                        //xml: Interaction Tuning (These are like the stuff you had in TTAB. Motive advertising and autonomy etc)
+                                                                        0x044AE110, //xml: Complate Preset
+                                                                        0x0604ABDA //xml:
+                                                                        //-Anach: delete these 0x73E93EEB, //xml: Package manifest
+                                                                    });
+
+        private static readonly List<uint> stblList = new List<uint>(new uint[]
+                                                                     {
+                                                                         0x220557DA //STBL
+                                                                     });
+
+        private static readonly List<uint> nmapList = new List<uint>(new uint[]
+                                                                     {
+                                                                         0x0166038C //NMAP
+                                                                     });
+
+        // See http://dino.drealm.info/den/denforum/index.php?topic=244.0
+
+        private static readonly List<uint> deleteList = new List<uint>(new uint[]
+                                                                       {
+                                                                           0x73E93EEB //xml: sims3pack manifest
+                                                                           //http://dino.drealm.info/den/denforum/index.php?topic=724.0
+                                                                           //-Anach: no, this is needed by CAS 0x626F60CD, //THUM: sims3pack
+                                                                           //http://dino.drealm.info/den/denforum/index.php?topic=253.msg1234#msg1234
+                                                                           //-Anach: no, this is needed by roofing 0x2E75C765, //ICON: sims3pack
+                                                                       });
+
+        private static readonly List<uint> allowList = new List<uint>();
+
+        private enum AutoSaveState
+        {
+            Never,
+            Ask,
+            Always
+        }
 
         [Serializable]
-        public struct myDataFormat
+        public struct MyDataFormat
         {
             public TGIN tgin;
             public byte[] data;
         }
 
-        private void resourceImport()
+        private void ResourceImport()
         {
-            bool useNames = controlPanel1.UseNames;
+            bool useNames = this.controlPanel1.UseNames;
             try
             {
                 this.Enabled = false;
-                browserWidget1.Visible = false;
-                controlPanel1.UseNames = false;
-                DialogResult dr = importResourcesDialog.ShowDialog();
-                if (dr != DialogResult.OK) return;
+                this.browserWidget1.Visible = false;
+                this.controlPanel1.UseNames = false;
+                DialogResult dr = this.importResourcesDialog.ShowDialog();
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
 
-                if (importResourcesDialog.FileNames.Length > 1)
-                    importBatch(importResourcesDialog.FileNames, importResourcesDialog.Title);
+                if (this.importResourcesDialog.FileNames.Length > 1)
+                {
+                    this.ImportBatch(this.importResourcesDialog.FileNames, this.importResourcesDialog.Title);
+                }
                 else
-                    importSingle(importResourcesDialog.FileName, importResourcesDialog.Title);
+                {
+                    this.ImportSingle(this.importResourcesDialog.FileName, this.importResourcesDialog.Title);
+                }
             }
-            finally { controlPanel1.UseNames = useNames; browserWidget1.Visible = true; this.Enabled = true; }
+            finally
+            {
+                this.controlPanel1.UseNames = useNames;
+                this.browserWidget1.Visible = true;
+                this.Enabled = true;
+            }
         }
 
-        private void resourceImportPackages()
+        private void ResourceImportPackages()
         {
             try
             {
                 this.Enabled = false;
-                DialogResult dr = importPackagesDialog.ShowDialog();
-                if (dr != DialogResult.OK) return;
+                DialogResult dr = this.importPackagesDialog.ShowDialog();
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
 
-                ImportBatch ib = new ImportBatch(importPackagesDialog.FileNames, ImportBatch.Mode.package);
+                ImportBatch ib = new ImportBatch(this.importPackagesDialog.FileNames, S4PIDemoFE.ImportBatch.Mode.package);
                 dr = ib.ShowDialog();
-                if (dr != DialogResult.OK) return;
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
 
-                importPackagesCommon(ib.Batch, importPackagesDialog.Title, ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, ib.Compress, ib.UseNames,
+                this.ImportPackagesCommon(ib.Batch,
+                    this.importPackagesDialog.Title,
+                    ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                    ib.Compress,
+                    ib.UseNames,
                     rename: ib.Rename);
             }
-            finally { this.Enabled = true; }
+            finally
+            {
+                this.Enabled = true;
+            }
         }
 
-        private void resourceReplaceFrom()
+        private void ResourceReplaceFrom()
         {
-            var savedTitle = importPackagesDialog.Title;
+            var savedTitle = this.importPackagesDialog.Title;
             try
             {
                 this.Enabled = false;
-                importPackagesDialog.Title = "Replace Selected Resources from Package(s)";
-                DialogResult dr = importPackagesDialog.ShowDialog();
-                if (dr != DialogResult.OK) return;
+                this.importPackagesDialog.Title = @"Replace Selected Resources from Package(s)";
+                DialogResult dr = this.importPackagesDialog.ShowDialog();
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
 
-                ImportBatch ib = new ImportBatch(importPackagesDialog.FileNames, ImportBatch.Mode.replaceFrom);
+                ImportBatch ib = new ImportBatch(this.importPackagesDialog.FileNames, S4PIDemoFE.ImportBatch.Mode.replaceFrom);
                 dr = ib.ShowDialog();
-                if (dr != DialogResult.OK) return;
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
 
-                importPackagesCommon(ib.Batch, importPackagesDialog.Title, DuplicateHandling.replace, ib.Compress, selection: browserWidget1.SelectedResources);
+                this.ImportPackagesCommon(ib.Batch,
+                    this.importPackagesDialog.Title,
+                    DuplicateHandling.replace,
+                    ib.Compress,
+                    selection: this.browserWidget1.SelectedResources);
             }
-            finally { this.Enabled = true; importPackagesDialog.Title = savedTitle; }
+            finally
+            {
+                this.Enabled = true;
+                this.importPackagesDialog.Title = savedTitle;
+            }
         }
 
-
-        static List<uint> xmlList = new List<uint>(new uint[] {
-            0x025C95B6, //xml: UI Layout definitions
-            0x025ED6F4, //xml: Sim Outfit
-            //-Anach: do not allow duplicates 0x0333406C, //xml: XML Resource (Uses include tuning constants)
-            0x03B33DDF, //xml: Interaction Tuning (These are like the stuff you had in TTAB. Motive advertising and autonomy etc)
-            0x044AE110, //xml: Complate Preset
-            0x0604ABDA, //xml:
-            //-Anach: delete these 0x73E93EEB, //xml: Package manifest
-        });
-        static List<uint> stblList = new List<uint>(new uint[] {
-            0x220557DA, //STBL
-        });
-        static List<uint> nmapList = new List<uint>(new uint[] {
-            0x0166038C, //NMAP
-        });
-        // See http://dino.drealm.info/den/denforum/index.php?topic=244.0
-        static List<uint> deleteList = new List<uint>(new uint[] {
-            0x73E93EEB, //xml: sims3pack manifest
-            //http://dino.drealm.info/den/denforum/index.php?topic=724.0
-            //-Anach: no, this is needed by CAS 0x626F60CD, //THUM: sims3pack
-            //http://dino.drealm.info/den/denforum/index.php?topic=253.msg1234#msg1234
-            //-Anach: no, this is needed by roofing 0x2E75C765, //ICON: sims3pack
-        });
-        static List<uint> allowList = new List<uint>();
-        private void resourceImportAsDBC()
+        private void ResourceImportAsDbc()
         {
-            if (allowList.Count == 0)
+            if (MainForm.allowList.Count == 0)
             {
-                allowList.AddRange(xmlList);
-                allowList.AddRange(stblList);
-                allowList.AddRange(nmapList);
+                MainForm.allowList.AddRange(MainForm.xmlList);
+                MainForm.allowList.AddRange(MainForm.stblList);
+                MainForm.allowList.AddRange(MainForm.nmapList);
             }
             try
             {
                 this.Enabled = false;
-                DialogResult dr = importPackagesDialog.ShowDialog();
-                if (dr != DialogResult.OK) return;
+                DialogResult dr = this.importPackagesDialog.ShowDialog();
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
 
                 AutoSaveState autoSaveState = AutoSaveState.Always;
-                if (S4PIDemoFE.Properties.Settings.Default.AskDBCAutoSave)
+                if (Properties.Settings.Default.AskDBCAutoSave)
+                {
                     autoSaveState = AutoSaveState.Ask;
-                importPackagesCommon(importPackagesDialog.FileNames, importPackagesDialog.Title, DuplicateHandling.allow, true,
+                }
+                this.ImportPackagesCommon(this.importPackagesDialog.FileNames,
+                    this.importPackagesDialog.Title,
+                    DuplicateHandling.allow,
+                    true,
                     useNames: true,
-                    dupsList: allowList,
+                    dupsList: MainForm.allowList,
                     autoSaveState: autoSaveState);
 
-                browserWidget1.Visible = false;
-                lbProgress.Text = "Doing DBC clean up...";
+                this.browserWidget1.Visible = false;
+                this.lbProgress.Text = @"Doing DBC clean up...";
 
                 Application.DoEvents();
                 DateTime now = DateTime.UtcNow;
-                IList<IResourceIndexEntry> lrie = dupsOnly(CurrentPackage.FindAll(x => stblList.Contains(x.ResourceType)));
+                IList<IResourceIndexEntry> lrie =
+                    this.DupsOnly(this.CurrentPackage.FindAll(x => MainForm.stblList.Contains(x.ResourceType)));
                 foreach (IResourceIndexEntry dup in lrie)
                 {
-                    IList<IResourceIndexEntry> ldups = CurrentPackage.FindAll(rie => ((IResourceKey)dup).Equals(rie));
-                    IResourceIndexEntry newRie = NewResource(dup, null, DuplicateHandling.allow, true);
-                    IDictionary<ulong, string> newStbl = (IDictionary<ulong, string>)s4pi.WrapperDealer.WrapperDealer.GetResource(0, CurrentPackage, newRie);
+                    IList<IResourceIndexEntry> ldups =
+                        this.CurrentPackage.FindAll(rie => ((IResourceKey)dup).Equals(rie));
+                    IResourceIndexEntry newRie = this.NewResource(dup, null, DuplicateHandling.allow, true);
+                    IDictionary<ulong, string> newStbl =
+                        (IDictionary<ulong, string>)WrapperDealer.GetResource(0, this.CurrentPackage, newRie);
                     foreach (IResourceIndexEntry rie in ldups)
                     {
-                        IDictionary<ulong, string> oldStbl = (IDictionary<ulong, string>)s4pi.WrapperDealer.WrapperDealer.GetResource(0, CurrentPackage, rie);
-                        foreach (var kvp in oldStbl) if (!newStbl.ContainsKey(kvp.Key)) newStbl.Add(kvp);
+                        IDictionary<ulong, string> oldStbl =
+                            (IDictionary<ulong, string>)WrapperDealer.GetResource(0, this.CurrentPackage, rie);
+                        foreach (var kvp in oldStbl)
+                        {
+                            if (!newStbl.ContainsKey(kvp.Key))
+                            {
+                                newStbl.Add(kvp);
+                            }
+                        }
                         rie.IsDeleted = true;
-                        if (now.AddMilliseconds(100) < DateTime.UtcNow) { Application.DoEvents(); now = DateTime.UtcNow; }
+                        if (now.AddMilliseconds(100) < DateTime.UtcNow)
+                        {
+                            Application.DoEvents();
+                            now = DateTime.UtcNow;
+                        }
                     }
-                    CurrentPackage.ReplaceResource(newRie, (IResource)newStbl);
-                    browserWidget1.Add(newRie, false);
+                    this.CurrentPackage.ReplaceResource(newRie, (IResource)newStbl);
+                    this.browserWidget1.Add(newRie, false);
                 }
 
                 // Get rid of Sims3Pack resource that sneak in
-                CurrentPackage.FindAll(x =>
-                {
-                    if (now.AddMilliseconds(100) < DateTime.UtcNow) { Application.DoEvents(); now = DateTime.UtcNow; }
-                    if (deleteList.Contains(x.ResourceType)) { x.IsDeleted = true; return false; }
-                    return false;
-                });
+                this.CurrentPackage.FindAll(x =>
+                                            {
+                                                if (now.AddMilliseconds(100) < DateTime.UtcNow)
+                                                {
+                                                    Application.DoEvents();
+                                                    now = DateTime.UtcNow;
+                                                }
+                                                if (MainForm.deleteList.Contains(x.ResourceType))
+                                                {
+                                                    x.IsDeleted = true;
+                                                    return false;
+                                                }
+                                                return false;
+                                            });
 
                 // If there are any remaining duplicate XMLs, give up - they're too messy to fix automatically
-                if (dupsOnly(CurrentPackage.FindAll(x => xmlList.Contains(x.ResourceType))).Count > 0)
+                if (this.DupsOnly(this.CurrentPackage.FindAll(x => MainForm.xmlList.Contains(x.ResourceType))).Count > 0)
+                {
                     CopyableMessageBox.Show("Manual merge of XML files required.");
+                }
             }
-            finally { browserWidget1.Visible = true; lbProgress.Text = ""; Application.DoEvents(); this.Enabled = true; }
+            finally
+            {
+                this.browserWidget1.Visible = true;
+                this.lbProgress.Text = "";
+                Application.DoEvents();
+                this.Enabled = true;
+            }
         }
-        IList<IResourceIndexEntry> dupsOnly(IList<IResourceIndexEntry> list)
+
+        private IList<IResourceIndexEntry> DupsOnly(IEnumerable<IResourceIndexEntry> list)
         {
             List<IResourceKey> seen = new List<IResourceKey>();
             List<IResourceIndexEntry> res = new List<IResourceIndexEntry>();
             foreach (IResourceIndexEntry rie in list)
             {
-                if (!seen.Contains(rie)) seen.Add(rie);
-                else if (!res.Contains(rie)) res.Add(rie);
+                if (!seen.Contains(rie))
+                {
+                    seen.Add(rie);
+                }
+                else if (!res.Contains(rie))
+                {
+                    res.Add(rie);
+                }
             }
             return res;
         }
 
-
-        internal enum AutoSaveState
-        {
-            Never,
-            Ask,
-            Always,
-        }
-        private void importPackagesCommon(string[] packageList, string title, DuplicateHandling dups, bool compress,
-            bool useNames = false,
-            bool rename = false,
-            List<uint> dupsList = null,
-            AutoSaveState autoSaveState = AutoSaveState.Ask,
-            IList<IResourceIndexEntry> selection = null
+        private void ImportPackagesCommon(string[] packageList,
+                                          string title,
+                                          DuplicateHandling dups,
+                                          bool compress,
+                                          bool useNames = false,
+                                          bool rename = false,
+                                          List<uint> dupsList = null,
+                                          AutoSaveState autoSaveState = AutoSaveState.Ask,
+                                          IList<IResourceIndexEntry> selection = null
             )
         {
-            bool CPuseNames = controlPanel1.UseNames;
+            bool cpUseNames = this.controlPanel1.UseNames;
             DateTime now = DateTime.UtcNow;
 
             bool autoSave = false;
             if (autoSaveState == AutoSaveState.Ask)
             {
-                switch (CopyableMessageBox.Show("Auto-save current package after each package imported?", title,
-                     CopyableMessageBoxButtons.YesNoCancel, CopyableMessageBoxIcon.Question))
+                switch (CopyableMessageBox.Show("Auto-save current package after each package imported?",
+                    title,
+                    CopyableMessageBoxButtons.YesNoCancel,
+                    CopyableMessageBoxIcon.Question))
                 {
-                    case 0: autoSave = true; break;
-                    case 2: return;
+                    case 0:
+                        autoSave = true;
+                        break;
+                    case 2:
+                        return;
                 }
             }
             else
+            {
                 autoSave = autoSaveState == AutoSaveState.Always;
+            }
 
             try
             {
-                browserWidget1.Visible = false;
-                controlPanel1.UseNames = false;
+                this.browserWidget1.Visible = false;
+                this.controlPanel1.UseNames = false;
 
                 bool skipAll = false;
                 foreach (string filename in packageList)
                 {
-                    if (Filename != null && Filename.Length > 0 && Path.GetFullPath(Filename).Equals(Path.GetFullPath(filename)))
+                    if (!string.IsNullOrEmpty(this.Filename)
+                        && Path.GetFullPath(this.Filename).Equals(Path.GetFullPath(filename)))
                     {
-                        CopyableMessageBox.Show("Skipping current package.", importPackagesDialog.Title);
+                        CopyableMessageBox.Show("Skipping current package.", this.importPackagesDialog.Title);
                         continue;
                     }
 
-                    lbProgress.Text = "Importing " + Path.GetFileNameWithoutExtension(filename) + "...";
+                    this.lbProgress.Text = "Importing " + Path.GetFileNameWithoutExtension(filename) + "...";
                     Application.DoEvents();
-                    IPackage imppkg = null;
+                    IPackage imppkg;
                     try
                     {
                         imppkg = Package.OpenPackage(0, filename);
                     }
                     catch (InvalidDataException ex)
                     {
-                        if (skipAll) continue;
-                        int btn = CopyableMessageBox.Show(String.Format("Could not open package {0}.\n{1}", Path.GetFileName(filename), ex.Message),
-                            title, CopyableMessageBoxIcon.Error, new List<string>(new string[] {
-                            "Skip this", "Skip all", "Abort"}), 0, 0);
-                        if (btn == 0) continue;
-                        if (btn == 1) { skipAll = true; continue; }
+                        if (skipAll)
+                        {
+                            continue;
+                        }
+                        int btn =
+                            CopyableMessageBox.Show(
+                                string.Format("Could not open package {0}.\n{1}", Path.GetFileName(filename), ex.Message),
+                                title,
+                                CopyableMessageBoxIcon.Error,
+                                new List<string>(new[] { "Skip this", "Skip all", "Abort" }),
+                                0,
+                                0);
+                        if (btn == 0)
+                        {
+                            continue;
+                        }
+                        if (btn == 1)
+                        {
+                            skipAll = true;
+                            continue;
+                        }
                         break;
                     }
                     try
                     {
-                        List<Tuple<myDataFormat, DuplicateHandling>> limp = new List<Tuple<myDataFormat, DuplicateHandling>>();
+                        List<Tuple<MyDataFormat, DuplicateHandling>> limp =
+                            new List<Tuple<MyDataFormat, DuplicateHandling>>();
                         List<IResourceIndexEntry> lrie = selection == null
                             ? imppkg.GetResourceList
                             : imppkg.FindAll(rie => selection.Any(tgt => ((AResourceKey)tgt).Equals(rie)));
-                        progressBar1.Value = 0;
-                        progressBar1.Maximum = lrie.Count;
+                        this.progressBar1.Value = 0;
+                        this.progressBar1.Maximum = lrie.Count;
                         foreach (IResourceIndexEntry rie in lrie)
                         {
                             try
                             {
-                                if (rie.ResourceType == 0x0166038C)//NMAP
+                                if (rie.ResourceType == 0x0166038C) //NMAP
                                 {
                                     if (useNames)
-                                        browserWidget1.MergeNamemap(s4pi.WrapperDealer.WrapperDealer.GetResource(0, imppkg, rie) as IDictionary<ulong, string>, true, rename);
+                                    {
+                                        this.browserWidget1.MergeNamemap(
+                                            WrapperDealer.GetResource(0, imppkg, rie) as IDictionary<ulong, string>,
+                                            true,
+                                            rename);
+                                    }
                                 }
                                 else
                                 {
-                                    IResource res = s4pi.WrapperDealer.WrapperDealer.GetResource(0, imppkg, rie, true);
+                                    IResource res = WrapperDealer.GetResource(0, imppkg, rie, true);
 
-                                    myDataFormat impres = new myDataFormat()
-                                    {
-                                        tgin = rie as AResourceIndexEntry,
-                                        data = res.AsBytes,
-                                    };
+                                    MyDataFormat impres = new MyDataFormat()
+                                                          {
+                                                              tgin = rie as AResourceIndexEntry,
+                                                              data = res.AsBytes
+                                                          };
 
                                     // dups Replace | Reject | Allow
                                     // dupsList null | list of allowable dup types
                                     DuplicateHandling dupThis =
                                         dups == DuplicateHandling.allow
-                                            ? dupsList == null || dupsList.Contains(rie.ResourceType) ? DuplicateHandling.allow : DuplicateHandling.replace
+                                            ? dupsList == null || dupsList.Contains(rie.ResourceType)
+                                                ? DuplicateHandling.allow
+                                                : DuplicateHandling.replace
                                             : dups;
 
                                     limp.Add(Tuple.Create(impres, dupThis));
-                                    progressBar1.Value++;
-                                    if (now.AddMilliseconds(100) < DateTime.UtcNow) { Application.DoEvents(); now = DateTime.UtcNow; }
+                                    this.progressBar1.Value++;
+                                    if (now.AddMilliseconds(100) < DateTime.UtcNow)
+                                    {
+                                        Application.DoEvents();
+                                        now = DateTime.UtcNow;
+                                    }
                                 }
                             }
                             catch (Exception ex)
                             {
                                 string rk = "";
-                                if (rie != null) rk = "(RK: " + rie + ")\n";
-                                else rk = "(RK is null)\n";
+                                if (rie != null)
+                                {
+                                    rk = "(RK: " + rie + ")\n";
+                                }
+                                else
+                                {
+                                    rk = "(RK is null)\n";
+                                }
 
-                                CopyableMessageBox.IssueException(ex, "Could not import all resources - aborting.\n" + rk, title);
+                                CopyableMessageBox.IssueException(ex,
+                                    "Could not import all resources - aborting.\n" + rk,
+                                    title);
                                 throw new IgnoredException(ex);
                             }
                         }
-                        progressBar1.Value = 0;
+                        this.progressBar1.Value = 0;
 
                         IEnumerable<IResourceIndexEntry> rieList = limp
-                            .Select(x => NewResource((AResourceKey)x.Item1.tgin, new MemoryStream(x.Item1.data), x.Item2, compress))
+                            .Select(
+                                x =>
+                                    this.NewResource((AResourceKey)x.Item1.tgin,
+                                        new MemoryStream(x.Item1.data),
+                                        x.Item2,
+                                        compress))
                             .Where(x => x != null);
-                        browserWidget1.AddRange(rieList);
+                        this.browserWidget1.AddRange(rieList);
                     }
-                    catch (IgnoredException) { break; }//just the thrown exception, stop looping
+                    catch (IgnoredException)
+                    {
+                        //just the thrown exception, stop looping
+                        break;
+                    }
                     catch (Exception ex)
                     {
                         CopyableMessageBox.IssueException(ex, "Could not import all resources - aborting.\n", title);
                         break;
                     }
-                    finally { imppkg.Dispose(); }//Package.ClosePackage(0, imppkg); }
-                    if (autoSave) if (!fileSave()) break;
+                    finally
+                    {
+                        imppkg.Dispose();
+                    }
+                    if (autoSave && !this.fileSave())
+                    {
+                        break;
+                    }
                 }
             }
             finally
             {
-                lbProgress.Text = "";
-                progressBar1.Value = 0;
-                progressBar1.Maximum = 0;
-                controlPanel1.UseNames = CPuseNames;
-                browserWidget1.Visible = true;
+                this.lbProgress.Text = "";
+                this.progressBar1.Value = 0;
+                this.progressBar1.Maximum = 0;
+                this.controlPanel1.UseNames = cpUseNames;
+                this.browserWidget1.Visible = true;
                 ForceFocus.Focus(Application.OpenForms[0]);
                 Application.DoEvents();
             }
         }
 
-        class IgnoredException : Exception
+        private class IgnoredException : Exception
         {
-            public IgnoredException(Exception innerException) : base("Ignore this", innerException) { }
+            public IgnoredException(Exception innerException) : base("Ignore this", innerException)
+            {
+            }
         }
 
-        private void resourcePaste()
+        private void ResourcePaste()
         {
             try
             {
                 this.Enabled = false;
-                if (Clipboard.ContainsData(myDataFormatSingleFile))
+                if (Clipboard.ContainsData(MainForm.DataFormatSingleFile))
                 {
                     IFormatter formatter = new BinaryFormatter();
-                    MemoryStream ms = Clipboard.GetData(myDataFormatSingleFile) as MemoryStream;
-                    myDataFormat d = (myDataFormat)formatter.Deserialize(ms);
-                    ms.Close();
+                    Stream stream = Clipboard.GetData(MainForm.DataFormatSingleFile) as MemoryStream;
+                    MyDataFormat d = (MyDataFormat)formatter.Deserialize(stream);
+                    stream.Close();
 
-                    importSingle(d);
+                    this.ImportSingle(d);
                 }
-                else if (Clipboard.ContainsData(myDataFormatBatch))
+                else if (Clipboard.ContainsData(MainForm.DataFormatBatch))
                 {
                     IFormatter formatter = new BinaryFormatter();
-                    MemoryStream ms = Clipboard.GetData(myDataFormatBatch) as MemoryStream;
-                    List<myDataFormat> l = (List<myDataFormat>)formatter.Deserialize(ms);
-                    ms.Close();
+                    Stream stream = Clipboard.GetData(MainForm.DataFormatBatch) as MemoryStream;
+                    List<MyDataFormat> l = (List<MyDataFormat>)formatter.Deserialize(stream);
+                    stream.Close();
 
-                    importBatch(l);
+                    this.ImportBatch(l);
                 }
                 else if (Clipboard.ContainsFileDropList())
                 {
-                    System.Collections.Specialized.StringCollection fileDrop = Clipboard.GetFileDropList();
-                    if (fileDrop == null || fileDrop.Count == 0) return;
+                    StringCollection fileDrop = Clipboard.GetFileDropList();
+                    if (fileDrop.Count == 0)
+                    {
+                        return;
+                    }
 
                     if (fileDrop.Count == 1)
                     {
-                        importSingle(fileDrop[0], "Resource->Paste");
+                        this.ImportSingle(fileDrop[0], "Resource->Paste");
                     }
                     else
                     {
-                        string[] batch = new string[fileDrop.Count];
-                        for (int i = 0; i < fileDrop.Count; i++) batch[i] = fileDrop[i];
-                        importBatch(batch, "Resource->Paste");
+                        string[] batch = fileDrop.OfType<string>().ToArray();
+
+                        this.ImportBatch(batch, "Resource->Paste");
                     }
                 }
             }
-            finally { this.Enabled = true; }
+            finally
+            {
+                this.Enabled = true;
+            }
         }
 
         private void browserWidget1_DragDrop(object sender, DragEventArgs e)
         {
-            string[] fileDrop = e.Data.GetData("FileDrop") as String[];
-            if (fileDrop == null || fileDrop.Length == 0) return;
+            string[] fileDrop = e.Data.GetData("FileDrop") as string[];
+            if (fileDrop == null || fileDrop.Length == 0)
+            {
+                return;
+            }
 
             Application.DoEvents();
             try
             {
                 this.Enabled = false;
                 if (fileDrop.Length > 1)
-                    importBatch(fileDrop, "File(s)->Drop");
+                {
+                    this.ImportBatch(fileDrop, "File(s)->Drop");
+                }
                 else if (Directory.Exists(fileDrop[0]))
-                    importBatch(fileDrop, "File(s)->Drop");
+                {
+                    this.ImportBatch(fileDrop, "File(s)->Drop");
+                }
                 else
-                    importSingle(fileDrop[0], "File(s)->Drop");
+                {
+                    this.ImportSingle(fileDrop[0], "File(s)->Drop");
+                }
             }
-            finally { this.Enabled = true; }
+            finally
+            {
+                this.Enabled = true;
+            }
         }
 
-        static string[] asPkgExts = new string[] { ".package", ".world", ".dbc", ".nhd", };
-        void importSingle(string filename, string title)
+        private void ImportSingle(string filename, string title)
         {
-            if (CurrentPackage == null)
-                fileNew();
-
-            if (new List<string>(asPkgExts).Contains(filename.Substring(filename.LastIndexOf('.'))))
+            if (this.CurrentPackage == null)
             {
-                ImportBatch ib = new ImportBatch(new string[] { filename, }, ImportBatch.Mode.package);
-                DialogResult dr = ib.ShowDialog();
-                if (dr != DialogResult.OK) return;
+                this.FileNew();
+            }
 
-                importPackagesCommon(new string[] { filename, }, title, ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, ib.Compress, ib.UseNames);
+            if (packageExtensions.Contains(filename.FileExtension()))
+            {
+                ImportBatch ib = new ImportBatch(new[] { filename }, S4PIDemoFE.ImportBatch.Mode.package);
+                DialogResult dr = ib.ShowDialog();
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
+
+                this.ImportPackagesCommon(new[] { filename },
+                    title,
+                    ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                    ib.Compress,
+                    ib.UseNames);
             }
             else
             {
-                ResourceDetails ir = new ResourceDetails(/*20120820 CurrentPackage.Find(x => x.ResourceType == 0x0166038C) != null/**/true, true);
-                ir.Filename = filename;
+                ResourceDetails ir = new ResourceDetails(true, true) { Filename = filename };
                 DialogResult dr = ir.ShowDialog();
-                if (dr != DialogResult.OK) return;
+                if (dr != DialogResult.OK)
+                {
+                    return;
+                }
 
-                importFile(ir.Filename, ir, ir.UseName, ir.AllowRename, ir.Compress, ir.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, true);
+                this.ImportFile(ir.Filename,
+                    ir,
+                    ir.UseName,
+                    ir.AllowRename,
+                    ir.Compress,
+                    ir.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                    true);
             }
         }
 
-        void importSingle(myDataFormat data)
+        private void ImportSingle(MyDataFormat data)
         {
-            ResourceDetails ir = new ResourceDetails(/*20120820 CurrentPackage.Find(x => x.ResourceType == 0x0166038C) != null/**/true, true);
-            ir.Filename = data.tgin;
+            ResourceDetails ir = new ResourceDetails(true, true) { Filename = data.tgin };
             DialogResult dr = ir.ShowDialog();
-            if (dr != DialogResult.OK) return;
+            if (dr != DialogResult.OK)
+            {
+                return;
+            }
 
             data.tgin = ir;
-            importStream(data, ir.UseName, ir.AllowRename, ir.Compress, ir.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, true);
+            this.ImportStream(data,
+                ir.UseName,
+                ir.AllowRename,
+                ir.Compress,
+                ir.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                true);
         }
 
-        string[] getFiles(string folder)
+        private IEnumerable<string> GetFiles(string folder)
         {
-            if (!Directory.Exists(folder)) return null;
+            if (!Directory.Exists(folder))
+            {
+                return null;
+            }
             List<string> files = new List<string>();
             foreach (string dir in Directory.GetDirectories(folder))
-                files.AddRange(getFiles(dir));
+            {
+                files.AddRange(this.GetFiles(dir));
+            }
             files.AddRange(Directory.GetFiles(folder));
             return files.ToArray();
         }
-        void importBatch(string[] batch, string title)
+
+        private void ImportBatch(string[] batch, string title)
         {
-            if (CurrentPackage == null)
-                fileNew();
+            if (this.CurrentPackage == null)
+            {
+                this.FileNew();
+            }
 
-            List<string> foo = new List<string>();
-            foreach (string bar in batch)
-                if (Directory.Exists(bar)) foo.AddRange(getFiles(bar));
-                else if (File.Exists(bar)) foo.Add(bar);
-            batch = foo.ToArray();
+            List<string> allFiles = new List<string>();
+            foreach (string path in batch)
+            {
+                if (Directory.Exists(path))
+                {
+                    allFiles.AddRange(this.GetFiles(path));
+                }
+                else if (File.Exists(path))
+                {
+                    allFiles.Add(path);
+                }
+            }
+            batch = allFiles.ToArray();
 
-            ImportBatch ib = new ImportBatch(batch);
-            ib.Text = title;
-            DialogResult dr = ib.ShowDialog();
-            if (dr != DialogResult.OK) return;
+            ImportBatch importBatch = new ImportBatch(batch) { Text = title };
+            DialogResult result = importBatch.ShowDialog();
+            if (result != DialogResult.OK)
+            {
+                return;
+            }
 
-            List<string> resList = new List<string>();
-            List<string> pkgList = new List<string>();
-            List<string> folders = new List<string>();
-
-            List<string> pkgExts = new List<string>(asPkgExts);
-            foreach (string s in batch)
-                (pkgExts.Contains(s.Substring(s.LastIndexOf('.'))) ? pkgList : resList).Add(s);
+            List<string> resources = batch.Where(p => !packageExtensions.Contains(p.FileExtension())).ToList();
+            List<string> packages = batch.Where(p => packageExtensions.Contains(p.FileExtension())).ToList();
 
             try
             {
-                if (pkgList.Count > 0)
-                    importPackagesCommon(pkgList.ToArray(), title, ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, ib.Compress, ib.UseNames);
+                if (packages.Count > 0)
+                {
+                    this.ImportPackagesCommon(packages.ToArray(),
+                        title,
+                        importBatch.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                        importBatch.Compress,
+                        importBatch.UseNames);
+                }
 
                 bool nmOK = true;
-                foreach (string filename in resList)
+                foreach (string file in resources)
                 {
-                    nmOK = importFile(filename, filename, nmOK && ib.UseNames, ib.Rename, ib.Compress, ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, false);
+                    nmOK = this.ImportFile(file,
+                        file,
+                        nmOK && importBatch.UseNames,
+                        importBatch.Rename,
+                        importBatch.Compress,
+                        importBatch.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                        false);
                     Application.DoEvents();
                 }
             }
@@ -489,28 +725,48 @@ namespace S4PIDemoFE
             }
         }
 
-        void importBatch(IList<myDataFormat> ldata)
+        private void ImportBatch(IList<MyDataFormat> ldata)
         {
-            ImportBatch ib = new ImportBatch(ldata);
-            DialogResult dr = ib.ShowDialog();
-            if (dr != DialogResult.OK) return;
-
-            List<myDataFormat> output = new List<myDataFormat>();
-            foreach (string b in ib.Batch)
+            ImportBatch importBatch = new ImportBatch(ldata);
+            DialogResult result = importBatch.ShowDialog();
+            if (result != DialogResult.OK)
             {
-                foreach (myDataFormat data in ldata)
-                    if (data.tgin == b) { output.Add(data); goto next; }
-            next: { }
+                return;
             }
 
-            if (output.Count == 0) return;
-            if (output.Count == 1) { importSingle(output[0]); return; }
+            List<MyDataFormat> output = new List<MyDataFormat>();
+            foreach (string b in importBatch.Batch)
+            {
+                foreach (MyDataFormat data in ldata)
+                {
+                    if (data.tgin == b)
+                    {
+                        output.Add(data);
+                        break;
+                    }
+                }
+            }
+
+            if (output.Count == 0)
+            {
+                return;
+            }
+            if (output.Count == 1)
+            {
+                this.ImportSingle(output[0]);
+                return;
+            }
 
             try
             {
-                foreach (myDataFormat data in output)
+                foreach (MyDataFormat data in output)
                 {
-                    importStream(data, ib.UseNames, ib.Rename, ib.Compress, ib.Replace ? DuplicateHandling.replace : DuplicateHandling.reject, false);
+                    this.ImportStream(data,
+                        importBatch.UseNames,
+                        importBatch.Rename,
+                        importBatch.Compress,
+                        importBatch.Replace ? DuplicateHandling.replace : DuplicateHandling.reject,
+                        false);
                     Application.DoEvents();
                 }
             }
@@ -520,7 +776,13 @@ namespace S4PIDemoFE
             }
         }
 
-        bool importFile(string filename, TGIN tgin, bool useName, bool rename, bool compress, DuplicateHandling dups, bool select)
+        private bool ImportFile(string filename,
+                                TGIN tgin,
+                                bool useName,
+                                bool rename,
+                                bool compress,
+                                DuplicateHandling dups,
+                                bool select)
         {
             IResourceKey rk = (TGIBlock)tgin;
             string resName = tgin.ResName;
@@ -532,21 +794,36 @@ namespace S4PIDemoFE
             r.Close();
             w.Flush();
 
-            if (useName && resName != null && resName.Length > 0)
-                nmOK = browserWidget1.ResourceName(rk.Instance, resName, true, rename);
+            if (useName && !string.IsNullOrEmpty(resName))
+            {
+                nmOK = this.browserWidget1.ResourceName(rk.Instance, resName, true, rename);
+            }
 
-            IResourceIndexEntry rie = NewResource(rk, ms, dups, compress);
-            if (rie != null) browserWidget1.Add(rie, select);
+            IResourceIndexEntry rie = this.NewResource(rk, ms, dups, compress);
+            if (rie != null)
+            {
+                this.browserWidget1.Add(rie, select);
+            }
             return nmOK;
         }
 
-        void importStream(myDataFormat data, bool useName, bool rename, bool compress, DuplicateHandling dups, bool select)
+        private void ImportStream(MyDataFormat data,
+                                  bool useName,
+                                  bool rename,
+                                  bool compress,
+                                  DuplicateHandling dups,
+                                  bool select)
         {
-            if (useName && data.tgin.ResName != null && data.tgin.ResName.Length > 0)
-                browserWidget1.ResourceName(data.tgin.ResInstance, data.tgin.ResName, true, rename);
+            if (useName && !string.IsNullOrEmpty(data.tgin.ResName))
+            {
+                this.browserWidget1.ResourceName(data.tgin.ResInstance, data.tgin.ResName, true, rename);
+            }
 
-            IResourceIndexEntry rie = NewResource((TGIBlock)data.tgin, new MemoryStream(data.data), dups, compress);
-            if (rie != null) browserWidget1.Add(rie, select);
+            IResourceIndexEntry rie = this.NewResource((TGIBlock)data.tgin, new MemoryStream(data.data), dups, compress);
+            if (rie != null)
+            {
+                this.browserWidget1.Add(rie, select);
+            }
         }
     }
 }

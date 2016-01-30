@@ -202,7 +202,7 @@ namespace S4PIDemoFE
                 try
                 {
                     this.Enabled = false;
-	                this.importBatch(this.cmdLineBatch.ToArray(), "-import");
+	                this.ImportBatch(this.cmdLineBatch.ToArray(), "-import");
                 }
                 finally { this.Enabled = true; }
 	            this.cmdLineBatch = new List<string>();
@@ -600,7 +600,7 @@ namespace S4PIDemoFE
                 switch (mn.mn)
                 {
                     case MenuBarWidget.MB.MBF_new:
-		                this.fileNew(); break;
+		                this.FileNew(); break;
                     case MenuBarWidget.MB.MBF_open:
 		                this.fileOpen(); break;
                     case MenuBarWidget.MB.MBF_save:
@@ -626,7 +626,7 @@ namespace S4PIDemoFE
             finally { this.Enabled = true; }
         }
 
-        private void fileNew()
+        private void FileNew()
         {
 	        this.Filename = "";
 	        this.CurrentPackage = Package.NewPackage(0);
@@ -1024,8 +1024,8 @@ namespace S4PIDemoFE
         {
             return this.CurrentPackage != null &&
                 (
-                Clipboard.ContainsData(myDataFormatSingleFile)
-                || Clipboard.ContainsData(myDataFormatBatch)
+                Clipboard.ContainsData(DataFormatSingleFile)
+                || Clipboard.ContainsData(DataFormatBatch)
                 || Clipboard.ContainsFileDropList()
                 //|| Clipboard.ContainsText()
                 );
@@ -1073,7 +1073,7 @@ namespace S4PIDemoFE
                     case MenuBarWidget.MB.MBR_copy:
 		                this.resourceCopy(); break;
                     case MenuBarWidget.MB.MBR_paste:
-		                this.resourcePaste(); break;
+		                this.ResourcePaste(); break;
                     case MenuBarWidget.MB.MBR_duplicate:
 		                this.resourceDuplicate(); break;
                     case MenuBarWidget.MB.MBR_replace:
@@ -1089,13 +1089,13 @@ namespace S4PIDemoFE
                     case MenuBarWidget.MB.MBR_copyRK:
 		                this.resourceCopyRK(); break;
                     case MenuBarWidget.MB.MBR_importResources:
-		                this.resourceImport(); break;
+		                this.ResourceImport(); break;
                     case MenuBarWidget.MB.MBR_importPackages:
-		                this.resourceImportPackages(); break;
+		                this.ResourceImportPackages(); break;
                     case MenuBarWidget.MB.MBR_replaceFrom:
-		                this.resourceReplaceFrom(); break;
+		                this.ResourceReplaceFrom(); break;
                     case MenuBarWidget.MB.MBR_importAsDBC:
-		                this.resourceImportAsDBC(); break;
+		                this.ResourceImportAsDbc(); break;
                     case MenuBarWidget.MB.MBR_exportResources:
 		                this.resourceExport(); break;
                     case MenuBarWidget.MB.MBR_exportToPackage:
@@ -1137,7 +1137,7 @@ namespace S4PIDemoFE
             {
                 if (this.browserWidget1.SelectedResources.Count == 1)
                 {
-                    myDataFormat d = new myDataFormat();
+                    MyDataFormat d = new MyDataFormat();
                     d.tgin = this.browserWidget1.SelectedResource as AResourceIndexEntry;
                     d.tgin.ResName = this.resourceName;
                     d.data = WrapperDealer.GetResource(0, this.CurrentPackage, this.browserWidget1.SelectedResource, true).AsBytes;//Don't need wrapper
@@ -1145,15 +1145,15 @@ namespace S4PIDemoFE
                     IFormatter formatter = new BinaryFormatter();
                     MemoryStream ms = new MemoryStream();
                     formatter.Serialize(ms, d);
-                    DataFormats.Format f = DataFormats.GetFormat(myDataFormatSingleFile);
-                    Clipboard.SetData(myDataFormatSingleFile, ms);
+                    DataFormats.Format f = DataFormats.GetFormat(DataFormatSingleFile);
+                    Clipboard.SetData(DataFormatSingleFile, ms);
                 }
                 else
                 {
-                    List<myDataFormat> l = new List<myDataFormat>();
+                    List<MyDataFormat> l = new List<MyDataFormat>();
                     foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
                     {
-                        myDataFormat d = new myDataFormat();
+                        MyDataFormat d = new MyDataFormat();
                         d.tgin = rie as AResourceIndexEntry;
                         d.tgin.ResName = this.browserWidget1.ResourceName(rie);
                         d.data = WrapperDealer.GetResource(0, this.CurrentPackage, rie, true).AsBytes;//Don't need wrapper
@@ -1163,8 +1163,8 @@ namespace S4PIDemoFE
                     IFormatter formatter = new BinaryFormatter();
                     MemoryStream ms = new MemoryStream();
                     formatter.Serialize(ms, l);
-                    DataFormats.Format f = DataFormats.GetFormat(myDataFormatBatch);
-                    Clipboard.SetData(myDataFormatBatch, ms);
+                    DataFormats.Format f = DataFormats.GetFormat(DataFormatBatch);
+                    Clipboard.SetData(DataFormatBatch, ms);
                 }
             }
             finally { Application.UseWaitCursor = false; Application.DoEvents(); }

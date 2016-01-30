@@ -62,7 +62,7 @@ namespace S4PIDemoFE
 
         public ImportBatch(string[] batch, Mode mode) : this(mode) { addDrop(batch); }
         public ImportBatch(string[] fileDrop) : this(fileDrop, Mode.file) { }
-        public ImportBatch(IList<MainForm.myDataFormat> ldata) : this(Mode.paste)
+        public ImportBatch(IList<MainForm.MyDataFormat> ldata) : this(Mode.paste)
         {
             string[] fileDrop = new string[ldata.Count];
             for (int i = 0; i < ldata.Count; i++) fileDrop[i] = ldata[i].tgin;
