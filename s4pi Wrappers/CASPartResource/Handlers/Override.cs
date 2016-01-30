@@ -11,15 +11,15 @@ namespace CASPartResource.Handlers
 		private byte region;
 		private float layer;
 
-		public Override(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public Override(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			var r = new BinaryReader(s);
 			this.region = r.ReadByte();
 			this.layer = r.ReadSingle();
 		}
 
-		public Override(int APIversion, EventHandler handler) : base(APIversion, handler)
+		public Override(int apiVersion, EventHandler handler) : base(apiVersion, handler)
 		{
 		}
 

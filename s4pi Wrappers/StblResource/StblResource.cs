@@ -114,8 +114,8 @@ namespace StblResource
             private byte flags;
             private string stringValue;
             internal uint EntrySize { get { return (uint)(stringValue.Length + 1); } }
-            public StringEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public StringEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { this.Parse(s); }
+            public StringEntry(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public StringEntry(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { this.Parse(s); }
 
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }

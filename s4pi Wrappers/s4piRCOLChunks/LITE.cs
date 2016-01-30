@@ -39,10 +39,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public LITE(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public LITE(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public LITE(int APIversion, EventHandler handler, LITE basis)
-            : base(APIversion, handler, null)
+        public LITE(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public LITE(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public LITE(int apiVersion, EventHandler handler, LITE basis)
+            : base(apiVersion, handler, null)
         {
             this.version = basis.version;
             this.unknown1 = basis.unknown1;
@@ -117,25 +117,25 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public LightSource(int APIversion, EventHandler handler)
-                : this(APIversion, handler, LightSourceType.Unknown,
+            public LightSource(int apiVersion, EventHandler handler)
+                : this(apiVersion, handler, LightSourceType.Unknown,
                 0f, 0f, 0f,
                 0f, 0f, 0f, 0f,
                 new float[] { 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, }) { }
-            public LightSource(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); PointToLightSourceData(); }
-            public LightSource(int APIversion, EventHandler handler, LightSource basis)
-                : this(APIversion, handler, basis.lightSource
+            public LightSource(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); PointToLightSourceData(); }
+            public LightSource(int apiVersion, EventHandler handler, LightSource basis)
+                : this(apiVersion, handler, basis.lightSource
                 , basis.transform.X, basis.transform.Y, basis.transform.Z
                 , basis.color.X, basis.color.Y, basis.color.Z, basis.intensity
                 , basis.lightSourceDataArray
                 ) { }
 
-            public LightSource(int APIversion, EventHandler handler, LightSourceType sectionType
+            public LightSource(int apiVersion, EventHandler handler, LightSourceType sectionType
                 , float X, float Y, float Z
                 , float R, float G, float B, float intensity
                 , float[] lightSourceData
                 )
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.lightSource = sectionType;
                 this.transform = new Vertex(requestedApiVersion, handler, X, Y, Z);
@@ -271,10 +271,10 @@ namespace s4pi.GenericRCOLResource
             public class RGB : Vertex
             {
                 #region Constructors
-                public RGB(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-                public RGB(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-                public RGB(int APIversion, EventHandler handler, RGB basis) : base(APIversion, handler, basis.X, basis.Y, basis.Z) { }
-                public RGB(int APIversion, EventHandler handler, float x, float y, float z) : base(APIversion, handler, x, y, z) { }
+                public RGB(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+                public RGB(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+                public RGB(int apiVersion, EventHandler handler, RGB basis) : base(apiVersion, handler, basis.X, basis.Y, basis.Z) { }
+                public RGB(int apiVersion, EventHandler handler, float x, float y, float z) : base(apiVersion, handler, x, y, z) { }
                 #endregion
 
                 public override List<string> ContentFields
@@ -301,8 +301,8 @@ namespace s4pi.GenericRCOLResource
             {
                 protected float[] lightSourceData;
 
-                public GeneralLightSourceType(int APIversion, EventHandler handler, float[] lightSourceData)
-                    : base(APIversion, handler)
+                public GeneralLightSourceType(int apiVersion, EventHandler handler, float[] lightSourceData)
+                    : base(apiVersion, handler)
                 { this.lightSourceData = lightSourceData; }
 
                 #region AHandlerElement
@@ -352,7 +352,7 @@ namespace s4pi.GenericRCOLResource
 
             public class SpotLightSourceType : GeneralLightSourceType
             {
-                public SpotLightSourceType(int APIversion, EventHandler handler, float[] lightSourceData) : base(APIversion, handler, lightSourceData) { }
+                public SpotLightSourceType(int apiVersion, EventHandler handler, float[] lightSourceData) : base(apiVersion, handler, lightSourceData) { }
 
                 #region AHandlerElement
                 public override int RecommendedApiVersion { get { return 0; } }
@@ -385,7 +385,7 @@ namespace s4pi.GenericRCOLResource
 
             public class LampShadeLightSourceType : GeneralLightSourceType
             {
-                public LampShadeLightSourceType(int APIversion, EventHandler handler, float[] lightSourceData) : base(APIversion, handler, lightSourceData) { }
+                public LampShadeLightSourceType(int apiVersion, EventHandler handler, float[] lightSourceData) : base(apiVersion, handler, lightSourceData) { }
 
                 #region AHandlerElement
                 public override int RecommendedApiVersion { get { return 0; } }
@@ -430,7 +430,7 @@ namespace s4pi.GenericRCOLResource
 
             public class TubeLightSourceType : GeneralLightSourceType
             {
-                public TubeLightSourceType(int APIversion, EventHandler handler, float[] lightSourceData) : base(APIversion, handler, lightSourceData) { }
+                public TubeLightSourceType(int apiVersion, EventHandler handler, float[] lightSourceData) : base(apiVersion, handler, lightSourceData) { }
 
                 #region AHandlerElement
                 public override int RecommendedApiVersion { get { return 0; } }
@@ -463,7 +463,7 @@ namespace s4pi.GenericRCOLResource
 
             public class SquareWindowLightSourceType : GeneralLightSourceType
             {
-                public SquareWindowLightSourceType(int APIversion, EventHandler handler, float[] lightSourceData) : base(APIversion, handler, lightSourceData) { }
+                public SquareWindowLightSourceType(int apiVersion, EventHandler handler, float[] lightSourceData) : base(apiVersion, handler, lightSourceData) { }
 
                 #region AHandlerElement
                 public override int RecommendedApiVersion { get { return 0; } }
@@ -513,7 +513,7 @@ namespace s4pi.GenericRCOLResource
 
             public class CircularWindowLightSourceType : GeneralLightSourceType
             {
-                public CircularWindowLightSourceType(int APIversion, EventHandler handler, float[] lightSourceData) : base(APIversion, handler, lightSourceData) { }
+                public CircularWindowLightSourceType(int apiVersion, EventHandler handler, float[] lightSourceData) : base(apiVersion, handler, lightSourceData) { }
 
                 #region AHandlerElement
                 public override int RecommendedApiVersion { get { return 0; } }
@@ -617,14 +617,14 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Occluder(int APIversion, EventHandler handler)
-                : this(APIversion, handler, Occluder.OccluderType.Disc,
+            public Occluder(int apiVersion, EventHandler handler)
+                : this(apiVersion, handler, Occluder.OccluderType.Disc,
                     new Vertex(0, null, 0f, 0f, 0f), new Vertex(0, null, 0f, 0f, 0f), new Vertex(0, null, 0f, 0f, 0f), new Vertex(0, null, 0f, 0f, 0f), 0f) { }
-            public Occluder(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Occluder(int APIversion, EventHandler handler, Occluder basis)
-                : this(APIversion, handler, basis.occluderType, basis.origin, basis.normal, basis.xAxis, basis.yAxis, basis.pairOffset) { }
-            public Occluder(int APIversion, EventHandler handler, OccluderType occluderType, Vertex origin, Vertex normal, Vertex xAxis, Vertex yAxis, float pairOffset)
-                : base(APIversion, handler)
+            public Occluder(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Occluder(int apiVersion, EventHandler handler, Occluder basis)
+                : this(apiVersion, handler, basis.occluderType, basis.origin, basis.normal, basis.xAxis, basis.yAxis, basis.pairOffset) { }
+            public Occluder(int apiVersion, EventHandler handler, OccluderType occluderType, Vertex origin, Vertex normal, Vertex xAxis, Vertex yAxis, float pairOffset)
+                : base(apiVersion, handler)
             {
                 this.occluderType = occluderType;
                 this.origin = new Vertex(requestedApiVersion, handler, origin);

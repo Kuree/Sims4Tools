@@ -49,10 +49,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public RSLT(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public RSLT(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public RSLT(int APIversion, EventHandler handler, RSLT basis)
-            : base(APIversion, handler, null)
+        public RSLT(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public RSLT(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public RSLT(int apiVersion, EventHandler handler, RSLT basis)
+            : base(apiVersion, handler, null)
         {
             this.version = basis.version;
             this.routes = new PartList(handler, basis.routes);
@@ -166,19 +166,19 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public SlotOffset(int APIversion, EventHandler handler)
-                : this(APIversion, handler, -1, new Vertex(0, null), new Vertex(0, null)) { }
-            public SlotOffset(int APIversion, EventHandler handler, SlotOffset basis)
-                : this(APIversion, handler, basis.slotIndex, basis.position, basis.rotation) { }
-            public SlotOffset(int APIversion, EventHandler handler,
+            public SlotOffset(int apiVersion, EventHandler handler)
+                : this(apiVersion, handler, -1, new Vertex(0, null), new Vertex(0, null)) { }
+            public SlotOffset(int apiVersion, EventHandler handler, SlotOffset basis)
+                : this(apiVersion, handler, basis.slotIndex, basis.position, basis.rotation) { }
+            public SlotOffset(int apiVersion, EventHandler handler,
                 int slotIndex, Vertex position, Vertex rotation)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.slotIndex = slotIndex;
                 this.position = new Vertex(requestedApiVersion, handler, position);
                 this.rotation = new Vertex(requestedApiVersion, handler, rotation);
             }
-            public SlotOffset(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public SlotOffset(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
             #endregion
 
             #region Data I/O
@@ -265,12 +265,12 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public MatrixRow(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public MatrixRow(int APIversion, EventHandler handler, MatrixRow basis)
-                : this(APIversion, handler, basis.rot1, basis.rot2, basis.rot3) { }
-            public MatrixRow(int APIversion, EventHandler handler, float x, float y, float z)
-                : base(APIversion, handler) { this.rot1 = x; this.rot2 = y; this.rot3 = z; }
-            public MatrixRow(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public MatrixRow(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public MatrixRow(int apiVersion, EventHandler handler, MatrixRow basis)
+                : this(apiVersion, handler, basis.rot1, basis.rot2, basis.rot3) { }
+            public MatrixRow(int apiVersion, EventHandler handler, float x, float y, float z)
+                : base(apiVersion, handler) { this.rot1 = x; this.rot2 = y; this.rot3 = z; }
+            public MatrixRow(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
             #endregion
 
             #region Data I/O
@@ -338,12 +338,12 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Vector3(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Vector3(int APIversion, EventHandler handler, Vector3 basis)
-                : this(APIversion, handler, basis.x, basis.y, basis.z) { }
-            public Vector3(int APIversion, EventHandler handler, float x, float y, float z)
-                : base(APIversion, handler) { this.x = x; this.y = y; this.z = z; }
-            public Vector3(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public Vector3(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Vector3(int apiVersion, EventHandler handler, Vector3 basis)
+                : this(apiVersion, handler, basis.x, basis.y, basis.z) { }
+            public Vector3(int apiVersion, EventHandler handler, float x, float y, float z)
+                : base(apiVersion, handler) { this.x = x; this.y = y; this.z = z; }
+            public Vector3(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
             #endregion
 
             #region Data I/O
@@ -409,19 +409,19 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Part(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public Part(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 matrixX = new MatrixRow(requestedApiVersion, handler);
                 matrixY = new MatrixRow(requestedApiVersion, handler);
                 matrixZ = new MatrixRow(requestedApiVersion, handler);
                 coordinates = new Vector3(requestedApiVersion, handler);
             }
-            public Part(int APIversion, EventHandler handler, Part basis)
-                : this(APIversion, handler, basis.slotName, basis.boneName, basis.matrixX, basis.matrixY, basis.matrixZ, basis.coordinates) { }
-            public Part(int APIversion, EventHandler handler,
+            public Part(int apiVersion, EventHandler handler, Part basis)
+                : this(apiVersion, handler, basis.slotName, basis.boneName, basis.matrixX, basis.matrixY, basis.matrixZ, basis.coordinates) { }
+            public Part(int apiVersion, EventHandler handler,
                 uint slotName, uint boneName, MatrixRow tX, MatrixRow tY, MatrixRow tZ, Vector3 coordinates)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.slotName = slotName;
                 this.boneName = boneName;
@@ -430,9 +430,9 @@ namespace s4pi.GenericRCOLResource
                 this.matrixZ = new MatrixRow(requestedApiVersion, handler, tZ);
                 this.coordinates = new Vector3(requestedApiVersion, handler, coordinates);
             }
-            public Part(int APIversion, EventHandler handler,
+            public Part(int apiVersion, EventHandler handler,
                 uint slotName, uint boneName, MatrixRow[] matrix, Vector3 coordinates)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.slotName = slotName;
                 this.boneName = boneName;
@@ -603,14 +603,14 @@ namespace s4pi.GenericRCOLResource
             bool slotDirectionLocked; 
             uint slotLegacyHash;
 
-            public SlottedPart(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public SlottedPart(int APIversion, EventHandler handler, SlottedPart basis) : base(APIversion, handler, basis) {
+            public SlottedPart(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public SlottedPart(int apiVersion, EventHandler handler, SlottedPart basis) : base(apiVersion, handler, basis) {
                 this.slotSize = basis.slotSize; this.slotTypeSet = basis.slotTypeSet; this.slotDirectionLocked = basis.slotDirectionLocked; this.slotLegacyHash = basis.slotLegacyHash;
             }
-            public SlottedPart(int APIversion, EventHandler handler, uint slotName, uint boneName,
+            public SlottedPart(int apiVersion, EventHandler handler, uint slotName, uint boneName,
                 byte slotSize, ulong slotTypeSet, bool slotDirectionLocked, uint slotLegacyHash,
                 MatrixRow[] matrix, Vector3 coordinates)
-                : base(APIversion, handler, slotName, boneName, matrix, coordinates)
+                : base(apiVersion, handler, slotName, boneName, matrix, coordinates)
             {
                 this.slotSize = slotSize; this.slotTypeSet = slotTypeSet; this.slotDirectionLocked = slotDirectionLocked; this.slotLegacyHash = slotLegacyHash;
             }
@@ -716,16 +716,16 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public ConeElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public ConeElement(int APIversion, EventHandler handler, ConeElement basis)
-                : this(APIversion, handler, basis.radius, basis.angle) { }
-            public ConeElement(int APIversion, EventHandler handler, float radius, float angle)
-                : base(APIversion, handler)
+            public ConeElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public ConeElement(int apiVersion, EventHandler handler, ConeElement basis)
+                : this(apiVersion, handler, basis.radius, basis.angle) { }
+            public ConeElement(int apiVersion, EventHandler handler, float radius, float angle)
+                : base(apiVersion, handler)
             {
                 this.radius = radius;
                 this.angle = angle;
             }
-            public ConeElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public ConeElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
             #endregion
 
             #region Data I/O
@@ -771,18 +771,18 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public ConePart(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public ConePart(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 tX = new MatrixRow(requestedApiVersion, handler);
                 tY = new MatrixRow(requestedApiVersion, handler);
                 tZ = new MatrixRow(requestedApiVersion, handler);
             }
-            public ConePart(int APIversion, EventHandler handler, ConePart basis)
-                : this(APIversion, handler, basis.slotName, basis.boneName, basis.tX, basis.tY, basis.tZ, basis.cone) { }
-            public ConePart(int APIversion, EventHandler handler,
+            public ConePart(int apiVersion, EventHandler handler, ConePart basis)
+                : this(apiVersion, handler, basis.slotName, basis.boneName, basis.tX, basis.tY, basis.tZ, basis.cone) { }
+            public ConePart(int apiVersion, EventHandler handler,
                 uint slotName, uint boneName, MatrixRow tX, MatrixRow tY, MatrixRow tZ, ConeElement cone)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.slotName = slotName;
                 this.boneName = boneName;

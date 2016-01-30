@@ -399,8 +399,8 @@ namespace s4pi.Animation
             {
             }
 
-            public IKTarget(int APIversion, EventHandler handler, UInt16 chain_id, UInt16 chain_sequence, string actor, string target)
-                : base(APIversion, handler)
+            public IKTarget(int apiVersion, EventHandler handler, UInt16 chain_id, UInt16 chain_sequence, string actor, string target)
+                : base(apiVersion, handler)
             {
                 this.chainId = chain_id;
                 this.chainSequence = chain_sequence;
@@ -736,8 +736,8 @@ namespace s4pi.Animation
             {
             }
 
-            protected ClipEvent(int APIversion, EventHandler handler, uint type, uint unknown1, uint unknown2, float timecode)
-                : base(APIversion, handler)
+            protected ClipEvent(int apiVersion, EventHandler handler, uint type, uint unknown1, uint unknown2, float timecode)
+                : base(apiVersion, handler)
             {
                 this.typeId = type;
                 this.unknown1 = unknown1;

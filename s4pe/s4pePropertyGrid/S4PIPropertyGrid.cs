@@ -1535,9 +1535,9 @@ namespace S4PIDemoFE
         static List<string> contentFields = new List<string>(new string[] { "Key", "Val", });
         DictionaryEntry entry;
 
-        public AsKVP(int APIversion, EventHandler handler, AsKVP basis) : this(APIversion, handler, basis.entry.Key, basis.entry.Value) { }
-        public AsKVP(int APIversion, EventHandler handler, DictionaryEntry entry) : this(APIversion, handler, entry.Key, entry.Value) { }
-        public AsKVP(int APIversion, EventHandler handler, object key, object value) : base(APIversion, handler) { entry = new DictionaryEntry(key, value); }
+        public AsKVP(int apiVersion, EventHandler handler, AsKVP basis) : this(apiVersion, handler, basis.entry.Key, basis.entry.Value) { }
+        public AsKVP(int apiVersion, EventHandler handler, DictionaryEntry entry) : this(apiVersion, handler, entry.Key, entry.Value) { }
+        public AsKVP(int apiVersion, EventHandler handler, object key, object value) : base(apiVersion, handler) { entry = new DictionaryEntry(key, value); }
 
         public override List<string> ContentFields { get { return contentFields; } }
         public override int RecommendedApiVersion { get { return 0; } }

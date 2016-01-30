@@ -52,19 +52,19 @@ namespace meshExpImp.ModelBlocks
         {
             private UInt32 mNameHash;
             private Matrix43 mInverseBindPose;
-            public Bone(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public Bone(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 mInverseBindPose = new Matrix43(0, handler);
             }
-            public Bone(int APIversion, EventHandler handler, UInt32 Bone, Matrix43 matrix43)
-                : base(APIversion, handler)
+            public Bone(int apiVersion, EventHandler handler, UInt32 Bone, Matrix43 matrix43)
+                : base(apiVersion, handler)
             {
                 mNameHash = Bone;
                 mInverseBindPose = new Matrix43(0, handler, matrix43);
             }
-            public Bone(int APIversion, EventHandler handler, Bone j)
-                : this(APIversion, handler, j.mNameHash, j.mInverseBindPose)
+            public Bone(int apiVersion, EventHandler handler, Bone j)
+                : this(apiVersion, handler, j.mNameHash, j.mInverseBindPose)
             {
             }
             public string Value { get { return ValueBuilder; } }
@@ -112,10 +112,10 @@ namespace meshExpImp.ModelBlocks
         private UInt32 mVersion;
         private BoneList mBones;
 
-        public SKIN(int APIversion, EventHandler handler): this(APIversion, handler, new BoneList(handler),0x00000001){}
-        public SKIN(int APIversion, EventHandler handler, SKIN basis) : this(APIversion, handler, new BoneList(handler, basis.Bones), basis.Version) { }
-        public SKIN(int APIversion, EventHandler handler, Stream s): base(APIversion, handler, s){}
-        public SKIN(int APIversion, EventHandler handler, BoneList bones, uint version) : base(APIversion, handler, null)
+        public SKIN(int apiVersion, EventHandler handler): this(apiVersion, handler, new BoneList(handler),0x00000001){}
+        public SKIN(int apiVersion, EventHandler handler, SKIN basis) : this(apiVersion, handler, new BoneList(handler, basis.Bones), basis.Version) { }
+        public SKIN(int apiVersion, EventHandler handler, Stream s): base(apiVersion, handler, s){}
+        public SKIN(int apiVersion, EventHandler handler, BoneList bones, uint version) : base(apiVersion, handler, null)
         {
             mBones = bones == null ? null : new BoneList(handler, bones);
             mVersion = version;

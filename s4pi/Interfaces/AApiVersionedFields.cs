@@ -634,11 +634,11 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     Initialize a new instance
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
-		public AHandlerElement(int APIversion, EventHandler handler)
+		public AHandlerElement(int apiVersion, EventHandler handler)
 		{
-			this.requestedApiVersion = APIversion;
+			this.requestedApiVersion = apiVersion;
 			this.handler = handler;
 		}
 
@@ -757,20 +757,20 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     Initialize a new instance with a default value.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
-		public HandlerElement(int APIversion, EventHandler handler) : this(APIversion, handler, default(T))
+		public HandlerElement(int apiVersion, EventHandler handler) : this(apiVersion, handler, default(T))
 		{
 		}
 
 		/// <summary>
 		///     Initialize a new instance with an initial value of <paramref name="basis" />.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="basis">Initial value for instance.</param>
-		public HandlerElement(int APIversion, EventHandler handler, T basis)
-			: base(APIversion, handler)
+		public HandlerElement(int apiVersion, EventHandler handler, T basis)
+			: base(apiVersion, handler)
 		{
 			this.val = basis;
 		}
@@ -778,11 +778,11 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     Initialize a new instance with an initial value from <paramref name="basis" />.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="basis">Element containing the initial value for instance.</param>
-		public HandlerElement(int APIversion, EventHandler handler, HandlerElement<T> basis)
-			: base(APIversion, handler)
+		public HandlerElement(int apiVersion, EventHandler handler, HandlerElement<T> basis)
+			: base(apiVersion, handler)
 		{
 			this.val = basis.val;
 		}
@@ -927,41 +927,41 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     Initialize a new instance with a default value.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="ParentTGIBlocks">Reference to list into which this is an index.</param>
-		public TGIBlockListIndex(int APIversion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null)
-			: this(APIversion, handler, default(T), ParentTGIBlocks)
+		public TGIBlockListIndex(int apiVersion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null)
+			: this(apiVersion, handler, default(T), ParentTGIBlocks)
 		{
 		}
 
 		/// <summary>
 		///     Initialize a new instance with an initial value from <paramref name="basis" />.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="basis">Element containing the initial value for instance.</param>
 		/// <param name="ParentTGIBlocks">
 		///     Reference to list into which this is an index, or null to use that in
 		///     <paramref name="basis" />.
 		/// </param>
-		public TGIBlockListIndex(int APIversion,
+		public TGIBlockListIndex(int apiVersion,
 								 EventHandler handler,
 								 TGIBlockListIndex<T> basis,
 								 DependentList<TGIBlock> ParentTGIBlocks = null)
-			: this(APIversion, handler, basis.data, ParentTGIBlocks ?? basis.ParentTGIBlocks)
+			: this(apiVersion, handler, basis.data, ParentTGIBlocks ?? basis.ParentTGIBlocks)
 		{
 		}
 
 		/// <summary>
 		///     Initialize a new instance with an initial value of <paramref name="value" />.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="value">Initial value for instance.</param>
 		/// <param name="ParentTGIBlocks">Reference to list into which this is an index.</param>
-		public TGIBlockListIndex(int APIversion, EventHandler handler, T value, DependentList<TGIBlock> ParentTGIBlocks = null)
-			: base(APIversion, handler)
+		public TGIBlockListIndex(int apiVersion, EventHandler handler, T value, DependentList<TGIBlock> ParentTGIBlocks = null)
+			: base(apiVersion, handler)
 		{
 			this.ParentTGIBlocks = ParentTGIBlocks;
 			this.data = value;

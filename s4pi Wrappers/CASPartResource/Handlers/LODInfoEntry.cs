@@ -17,18 +17,18 @@ namespace CASPartResource.Handlers
 		private LODAssetList lodAssetList;
 		private ByteIndexList lodKeyList;
 
-		public LODInfoEntry(int APIversion, EventHandler handler) : base(APIversion, handler)
+		public LODInfoEntry(int apiVersion, EventHandler handler) : base(apiVersion, handler)
 		{
 			this.UnParse(new MemoryStream());
 		}
 
-		public LODInfoEntry(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler)
+		public LODInfoEntry(int apiVersion, EventHandler handler, CountedTGIBlockList tgiList) : base(apiVersion, handler)
 		{
 			this.tgiList = tgiList;
 		}
 
-		public LODInfoEntry(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList)
-			: base(APIversion, handler)
+		public LODInfoEntry(int apiVersion, EventHandler handler, Stream s, CountedTGIBlockList tgiList)
+			: base(apiVersion, handler)
 		{
 			this.tgiList = tgiList;
 			this.Parse(s);
@@ -177,11 +177,11 @@ namespace CASPartResource.Handlers
 
 			#region Constructor
 
-			public LodAssets(int APIversion, EventHandler handler) : base(APIversion, handler)
+			public LodAssets(int apiVersion, EventHandler handler) : base(apiVersion, handler)
 			{
 			}
 
-			public LodAssets(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler)
+			public LodAssets(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler)
 			{
 				this.Parse(s);
 			}

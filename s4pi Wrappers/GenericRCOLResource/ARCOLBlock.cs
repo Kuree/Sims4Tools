@@ -50,12 +50,12 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Create a new instance based on the data in the supplied <see cref="Stream"/>.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The change event handler for the resource.</param>
         /// <param name="s">The <see cref="Stream"/> containing the data.</param>
         /// <seealso cref="Parse"/>
-        public ARCOLBlock(int APIversion, EventHandler handler, Stream s)
-            : base(APIversion, handler)
+        public ARCOLBlock(int apiVersion, EventHandler handler, Stream s)
+            : base(apiVersion, handler)
         {
             stream = s;
             if (stream == null) { stream = UnParse(); OnElementChanged(); }

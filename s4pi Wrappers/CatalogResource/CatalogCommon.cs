@@ -1,6 +1,8 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Inge Jones                                       *
+ *  Copyright (C) 2009, 2016 by the Sims 4 Tools development team          *
  *                                                                         *
+ *  Contributors:                                                          *
+ *  Inge Jones                                                             *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -17,7 +19,7 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
- 
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -430,7 +432,7 @@ namespace CatalogResource
 
 		#region Constructors
 
-		public CatalogCommon(int APIversion,
+		public CatalogCommon(int apiVersion,
 							 EventHandler handler,
 							 uint commonBlockVersion,
 							 uint nameHash,
@@ -447,7 +449,7 @@ namespace CatalogResource
 							 uint unlockedByHash,
                              ushort swatchColorsSortPriority,
                              ulong varientThumbImageHash)
-			: base(APIversion, handler)
+			: base(apiVersion, handler)
 		{
 			this.handler = handler;
 			this.commonBlockVersion = commonBlockVersion;
@@ -468,8 +470,8 @@ namespace CatalogResource
 		}
 
 
-		public CatalogCommon(int APIversion, EventHandler handler, CatalogCommon other)
-			: this(APIversion,
+		public CatalogCommon(int apiVersion, EventHandler handler, CatalogCommon other)
+			: this(apiVersion,
 				   handler,
 				   other.commonBlockVersion,
 				   other.nameHash,
@@ -488,13 +490,13 @@ namespace CatalogResource
 				   other.varientThumbImageHash)
 		{
 		}
-		public CatalogCommon(int APIversion, EventHandler handler)
-			: base(APIversion, handler)
+		public CatalogCommon(int apiVersion, EventHandler handler)
+			: base(apiVersion, handler)
 		{
 			this.MakeNew();
 		}
-		public CatalogCommon(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public CatalogCommon(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			this.Parse(s);
 		}
@@ -566,25 +568,25 @@ namespace CatalogResource
 
 			#region Constructors
 
-			public SellingPoint(int APIversion, EventHandler handler, SellingPoint other)
-				: this(APIversion, handler, other.commodity, other.amount)
+			public SellingPoint(int apiVersion, EventHandler handler, SellingPoint other)
+				: this(apiVersion, handler, other.commodity, other.amount)
 			{
 			}
 
-			public SellingPoint(int APIversion, EventHandler handler)
-				: base(APIversion, handler)
+			public SellingPoint(int apiVersion, EventHandler handler)
+				: base(apiVersion, handler)
 			{
 				this.MakeNew();
 			}
 
-			public SellingPoint(int APIversion, EventHandler handler, Stream s)
-				: base(APIversion, handler)
+			public SellingPoint(int apiVersion, EventHandler handler, Stream s)
+				: base(apiVersion, handler)
 			{
 				this.Parse(s);
 			}
 
-			public SellingPoint(int APIversion, EventHandler handler, Tag commodity, int value)
-				: base(APIversion, handler)
+			public SellingPoint(int apiVersion, EventHandler handler, Tag commodity, int value)
+				: base(apiVersion, handler)
 			{
 				this.commodity = commodity;
 				this.amount = value;
@@ -650,7 +652,7 @@ namespace CatalogResource
 			public void UnParse(Stream s)
 			{
 				var bw = new BinaryWriter(s);
-				bw.Write((ushort)this.commodity);
+				bw.Write(this.commodity.ToUInt16());
 				bw.Write(this.amount);
 			}
 			private void MakeNew()
@@ -774,22 +776,22 @@ namespace CatalogResource
 		#endregion ContentFields ========================================================
 
 		#region Constructors
-		public SpnFenMODLEntry(int APIversion, EventHandler handler, SpnFenMODLEntry other)
-			: this(APIversion, handler, other.modlLabel, other.modlRef)
+		public SpnFenMODLEntry(int apiVersion, EventHandler handler, SpnFenMODLEntry other)
+			: this(apiVersion, handler, other.modlLabel, other.modlRef)
 		{
 		}
-		public SpnFenMODLEntry(int APIversion, EventHandler handler)
-			: base(APIversion, handler)
+		public SpnFenMODLEntry(int apiVersion, EventHandler handler)
+			: base(apiVersion, handler)
 		{
 			this.MakeNew();
 		}
-		public SpnFenMODLEntry(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public SpnFenMODLEntry(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			this.Parse(s);
 		}
-		public SpnFenMODLEntry(int APIversion, EventHandler handler, ushort modlLabel, TGIBlock modlRef)
-			: base(APIversion, handler)
+		public SpnFenMODLEntry(int apiVersion, EventHandler handler, ushort modlLabel, TGIBlock modlRef)
+			: base(apiVersion, handler)
 		{
 			this.modlLabel = modlLabel;
 			this.modlRef = modlRef = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, modlRef);
@@ -901,22 +903,22 @@ namespace CatalogResource
 
 		#region Constructors
 
-		public Gp4references(int APIversion, EventHandler handler, Gp4references other)
-			: this(APIversion, handler, other.ref01, other.ref02, other.ref03, other.ref04)
+		public Gp4references(int apiVersion, EventHandler handler, Gp4references other)
+			: this(apiVersion, handler, other.ref01, other.ref02, other.ref03, other.ref04)
 		{
 		}
-		public Gp4references(int APIversion, EventHandler handler)
-			: base(APIversion, handler)
+		public Gp4references(int apiVersion, EventHandler handler)
+			: base(apiVersion, handler)
 		{
 			this.MakeNew();
 		}
-		public Gp4references(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public Gp4references(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			this.Parse(s);
 		}
-		public Gp4references(int APIversion, EventHandler handler, TGIBlock ref01, TGIBlock ref02, TGIBlock ref03, TGIBlock ref04)
-			: base(APIversion, handler)
+		public Gp4references(int apiVersion, EventHandler handler, TGIBlock ref01, TGIBlock ref02, TGIBlock ref03, TGIBlock ref04)
+			: base(apiVersion, handler)
 		{
 			this.ref01 = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, ref01);
 			this.ref02 = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, ref02);
@@ -1082,22 +1084,22 @@ namespace CatalogResource
 
 		#region Constructors
 
-		public Gp7references(int APIversion, EventHandler handler, Gp7references other)
-			: this(APIversion, handler, other.ref01, other.ref02, other.ref03, other.ref04, other.ref05, other.ref06, other.ref07)
+		public Gp7references(int apiVersion, EventHandler handler, Gp7references other)
+			: this(apiVersion, handler, other.ref01, other.ref02, other.ref03, other.ref04, other.ref05, other.ref06, other.ref07)
 		{
 		}
-		public Gp7references(int APIversion, EventHandler handler)
-			: base(APIversion, handler)
+		public Gp7references(int apiVersion, EventHandler handler)
+			: base(apiVersion, handler)
 		{
 			this.MakeNew();
 		}
-		public Gp7references(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public Gp7references(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			this.Parse(s);
 		}
-		public Gp7references(int APIversion, EventHandler handler, TGIBlock ref01, TGIBlock ref02, TGIBlock ref03, TGIBlock ref04, TGIBlock ref05, TGIBlock ref06, TGIBlock ref07)
-			: base(APIversion, handler)
+		public Gp7references(int apiVersion, EventHandler handler, TGIBlock ref01, TGIBlock ref02, TGIBlock ref03, TGIBlock ref04, TGIBlock ref05, TGIBlock ref06, TGIBlock ref07)
+			: base(apiVersion, handler)
 		{
 			this.ref01 = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, ref01);
 			this.ref02 = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, ref02);
@@ -1293,22 +1295,22 @@ namespace CatalogResource
 
 		#region Constructors
 
-		public Gp8references(int APIversion, EventHandler handler, Gp8references other)
-			: this(APIversion, handler, other.ref01, other.ref02, other.ref03, other.ref04, other.ref05, other.ref06, other.ref07, other.ref08)
+		public Gp8references(int apiVersion, EventHandler handler, Gp8references other)
+			: this(apiVersion, handler, other.ref01, other.ref02, other.ref03, other.ref04, other.ref05, other.ref06, other.ref07, other.ref08)
 		{
 		}
-		public Gp8references(int APIversion, EventHandler handler)
-			: base(APIversion, handler)
+		public Gp8references(int apiVersion, EventHandler handler)
+			: base(apiVersion, handler)
 		{
 			this.MakeNew();
 		}
-		public Gp8references(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public Gp8references(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			this.Parse(s);
 		}
-		public Gp8references(int APIversion, EventHandler handler, TGIBlock ref01, TGIBlock ref02, TGIBlock ref03, TGIBlock ref04, TGIBlock ref05, TGIBlock ref06, TGIBlock ref07, TGIBlock ref08)
-			: base(APIversion, handler)
+		public Gp8references(int apiVersion, EventHandler handler, TGIBlock ref01, TGIBlock ref02, TGIBlock ref03, TGIBlock ref04, TGIBlock ref05, TGIBlock ref06, TGIBlock ref07, TGIBlock ref08)
+			: base(apiVersion, handler)
 		{
 			this.ref01 = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, ref01);
 			this.ref02 = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, ref02);
@@ -1529,22 +1531,22 @@ namespace CatalogResource
 
 		#region Constructors
 
-		public Gp9references(int APIversion, EventHandler handler, Gp9references other)
-			: this(APIversion, handler, other.ref01, other.ref02, other.ref03, other.ref04, other.ref05, other.ref06, other.ref07, other.ref08, other.ref09)
+		public Gp9references(int apiVersion, EventHandler handler, Gp9references other)
+			: this(apiVersion, handler, other.ref01, other.ref02, other.ref03, other.ref04, other.ref05, other.ref06, other.ref07, other.ref08, other.ref09)
 		{
 		}
-		public Gp9references(int APIversion, EventHandler handler)
-			: base(APIversion, handler)
+		public Gp9references(int apiVersion, EventHandler handler)
+			: base(apiVersion, handler)
 		{
 			this.MakeNew();
 		}
-		public Gp9references(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public Gp9references(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			this.Parse(s);
 		}
-		public Gp9references(int APIversion, EventHandler handler, TGIBlock ref01, TGIBlock ref02, TGIBlock ref03, TGIBlock ref04, TGIBlock ref05, TGIBlock ref06, TGIBlock ref07, TGIBlock ref08, TGIBlock ref09)
-			: base(APIversion, handler)
+		public Gp9references(int apiVersion, EventHandler handler, TGIBlock ref01, TGIBlock ref02, TGIBlock ref03, TGIBlock ref04, TGIBlock ref05, TGIBlock ref06, TGIBlock ref07, TGIBlock ref08, TGIBlock ref09)
+			: base(apiVersion, handler)
 		{
 			this.ref01 = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, ref01);
 			this.ref02 = new TGIBlock(this.kRecommendedApiVersion, handler, TGIBlock.Order.ITG, ref02);

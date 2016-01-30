@@ -112,8 +112,8 @@ namespace s4pi.GenericRCOLResource
         }
 
         #region Constructors
-        public JazzChunk(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzChunk(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
+        public JazzChunk(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzChunk(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
         #endregion
 
         protected override void Parse(Stream s)
@@ -164,15 +164,15 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzStateMachine(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzStateMachine(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzStateMachine(int APIversion, EventHandler handler, JazzStateMachine basis)
-            : this(APIversion, handler
+        public JazzStateMachine(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzStateMachine(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzStateMachine(int apiVersion, EventHandler handler, JazzStateMachine basis)
+            : this(apiVersion, handler
             , basis.version, basis.nameHash, basis.actorDefinitionIndexes, basis.propertyDefinitionIndexes, basis.stateIndexes, basis.animations
             , basis.properties, basis.automationPriority, basis.awarenessOverlayLevel, basis.unknown2, basis.unknown3, basis.unknown4, basis.unknown5
             )
         { }
-        public JazzStateMachine(int APIversion, EventHandler handler
+        public JazzStateMachine(int apiVersion, EventHandler handler
             , uint version
             , uint nameHash
             , IEnumerable<GenericRCOLResource.ChunkReference> actorDefinitionIndexes
@@ -187,7 +187,7 @@ namespace s4pi.GenericRCOLResource
             , uint unknown4
             , uint unknown5
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.nameHash = nameHash;
@@ -273,20 +273,20 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Animation(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Animation(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Animation(int APIversion, EventHandler handler, Animation basis)
-                : this(APIversion, handler
+            public Animation(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Animation(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Animation(int apiVersion, EventHandler handler, Animation basis)
+                : this(apiVersion, handler
                 , basis.nameHash
                 , basis.actor1Hash
                 , basis.actor2Hash
                 ) { }
-            public Animation(int APIversion, EventHandler handler
+            public Animation(int apiVersion, EventHandler handler
                 , uint nameHash
                 , uint actor1Hash
                 , uint actor2Hash
                 )
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.nameHash = nameHash;
                 this.actor1Hash = actor1Hash;
@@ -412,10 +412,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzState(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzState(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzState(int APIversion, EventHandler handler, JazzState basis)
-            : this(APIversion, handler
+        public JazzState(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzState(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzState(int apiVersion, EventHandler handler, JazzState basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.nameHash
             , basis.flags
@@ -424,7 +424,7 @@ namespace s4pi.GenericRCOLResource
             , basis.awarenessOverlayLevel
             )
         { }
-        public JazzState(int APIversion, EventHandler handler
+        public JazzState(int apiVersion, EventHandler handler
             , uint version
             , uint nameHash
             , Flags flags
@@ -432,7 +432,7 @@ namespace s4pi.GenericRCOLResource
             , ChunkReferenceList outboundStateIndexes
             , AwarenessLevel awarenessOverlayLevel
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.nameHash = nameHash;
@@ -514,23 +514,23 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzDecisionGraph(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzDecisionGraph(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzDecisionGraph(int APIversion, EventHandler handler, JazzDecisionGraph basis)
-            : this(APIversion, handler
+        public JazzDecisionGraph(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzDecisionGraph(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzDecisionGraph(int apiVersion, EventHandler handler, JazzDecisionGraph basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.unknown1
             , basis.outboundDecisionGraphIndexes
             , basis.inboundDecisionGraphIndexes
             )
         { }
-        public JazzDecisionGraph(int APIversion, EventHandler handler
+        public JazzDecisionGraph(int apiVersion, EventHandler handler
             , uint version
             , uint unknown1
             , IEnumerable<GenericRCOLResource.ChunkReference> outboundDecisionGraphIndexes
             , IEnumerable<GenericRCOLResource.ChunkReference> inboundDecisionGraphIndexes
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.unknown1 = unknown1;
@@ -602,21 +602,21 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzActorDefinition(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzActorDefinition(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzActorDefinition(int APIversion, EventHandler handler, JazzActorDefinition basis)
-            : this(APIversion, handler
+        public JazzActorDefinition(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzActorDefinition(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzActorDefinition(int apiVersion, EventHandler handler, JazzActorDefinition basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.nameHash
             , basis.unknown1
             )
         { }
-        public JazzActorDefinition(int APIversion, EventHandler handler
+        public JazzActorDefinition(int apiVersion, EventHandler handler
             , uint version
             , uint nameHash
             , uint unknown1
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.nameHash = nameHash;
@@ -679,21 +679,21 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzParameterDefinition(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzParameterDefinition(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzParameterDefinition(int APIversion, EventHandler handler, JazzParameterDefinition basis)
-            : this(APIversion, handler
+        public JazzParameterDefinition(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzParameterDefinition(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzParameterDefinition(int apiVersion, EventHandler handler, JazzParameterDefinition basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.nameHash
             , basis.defaultValue
             )
         { }
-        public JazzParameterDefinition(int APIversion, EventHandler handler
+        public JazzParameterDefinition(int apiVersion, EventHandler handler
             , uint version
             , uint nameHash
             , uint defaultValue
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.nameHash = nameHash;
@@ -817,10 +817,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzPlayAnimationNode(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzPlayAnimationNode(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzPlayAnimationNode(int APIversion, EventHandler handler, JazzPlayAnimationNode basis)
-            : this(APIversion, handler
+        public JazzPlayAnimationNode(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzPlayAnimationNode(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzPlayAnimationNode(int apiVersion, EventHandler handler, JazzPlayAnimationNode basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.clipResource
             , basis.tkmkResource
@@ -850,7 +850,7 @@ namespace s4pi.GenericRCOLResource
             , basis.decisionGraphIndexes
             )
         { }
-        public JazzPlayAnimationNode(int APIversion, EventHandler handler
+        public JazzPlayAnimationNode(int apiVersion, EventHandler handler
             , uint version
             , IResourceKey clipResource
             , IResourceKey tkmkResource
@@ -879,7 +879,7 @@ namespace s4pi.GenericRCOLResource
             , uint unknown18
             , IEnumerable<GenericRCOLResource.ChunkReference> decisionGraphIndexes
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.clipResource = new TGIBlock(requestedApiVersion, handler, "ITG", clipResource);
@@ -1031,10 +1031,10 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public ActorSlot(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public ActorSlot(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public ActorSlot(int APIversion, EventHandler handler, ActorSlot basis)
-                : this(APIversion, handler
+            public ActorSlot(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public ActorSlot(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public ActorSlot(int apiVersion, EventHandler handler, ActorSlot basis)
+                : this(apiVersion, handler
                 , basis.chainId
                 , basis.slotId
                 , basis.actorNameHash
@@ -1042,13 +1042,13 @@ namespace s4pi.GenericRCOLResource
                 )
             {
             }
-            public ActorSlot(int APIversion, EventHandler handler
+            public ActorSlot(int apiVersion, EventHandler handler
                 , uint chainId
                 , uint slotId
                 , uint actorNameHash
                 , uint slotNameHash
                 )
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.chainId = chainId;
                 this.slotId = slotId;
@@ -1130,20 +1130,20 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public ActorSuffix(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public ActorSuffix(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public ActorSuffix(int APIversion, EventHandler handler, ActorSuffix basis)
-                : this(APIversion, handler
+            public ActorSuffix(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public ActorSuffix(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public ActorSuffix(int apiVersion, EventHandler handler, ActorSuffix basis)
+                : this(apiVersion, handler
                 , basis.actorNameHash
                 , basis.suffixHash
                 )
             {
             }
-            public ActorSuffix(int APIversion, EventHandler handler
+            public ActorSuffix(int apiVersion, EventHandler handler
                 , uint actorNameHash
                 , uint suffixHash
                 )
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.actorNameHash = actorNameHash;
                 this.suffixHash = suffixHash;
@@ -1284,21 +1284,21 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzRandomNode(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzRandomNode(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzRandomNode(int APIversion, EventHandler handler, JazzRandomNode basis)
-            : this(APIversion, handler
+        public JazzRandomNode(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzRandomNode(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzRandomNode(int apiVersion, EventHandler handler, JazzRandomNode basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.outcomes
             , basis.flags
             )
         { }
-        public JazzRandomNode(int APIversion, EventHandler handler
+        public JazzRandomNode(int apiVersion, EventHandler handler
             , uint version
             , IEnumerable<Outcome> outcomes
             , Flags flags
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.outcomes = new OutcomeList(handler, outcomes);
@@ -1352,20 +1352,20 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Outcome(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Outcome(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Outcome(int APIversion, EventHandler handler, Outcome basis)
-                : this(APIversion, handler
+            public Outcome(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Outcome(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Outcome(int apiVersion, EventHandler handler, Outcome basis)
+                : this(apiVersion, handler
                 , basis.weight
                 , basis.decisionGraphIndexes
                 )
             {
             }
-            public Outcome(int APIversion, EventHandler handler
+            public Outcome(int apiVersion, EventHandler handler
                 , float weight
                 , IEnumerable<GenericRCOLResource.ChunkReference> decisionGraphIndexes
                 )
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.weight = weight;
                 this.decisionGraphIndexes = new ChunkReferenceList(handler, decisionGraphIndexes);
@@ -1450,21 +1450,21 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzSelectOnParameterNode(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzSelectOnParameterNode(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzSelectOnParameterNode(int APIversion, EventHandler handler, JazzSelectOnParameterNode basis)
-            : this(APIversion, handler
+        public JazzSelectOnParameterNode(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzSelectOnParameterNode(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzSelectOnParameterNode(int apiVersion, EventHandler handler, JazzSelectOnParameterNode basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.parameterDefinitionIndex
             , basis.matches
             )
         { }
-        public JazzSelectOnParameterNode(int APIversion, EventHandler handler
+        public JazzSelectOnParameterNode(int apiVersion, EventHandler handler
             , uint version
             , GenericRCOLResource.ChunkReference parameterDefinitionIndex
             , IEnumerable<Match> matches
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.parameterDefinitionIndex = new GenericRCOLResource.ChunkReference(requestedAPIversion, handler, parameterDefinitionIndex);
@@ -1519,20 +1519,20 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Match(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Match(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Match(int APIversion, EventHandler handler, Match basis)
-                : this(APIversion, handler
+            public Match(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Match(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Match(int apiVersion, EventHandler handler, Match basis)
+                : this(apiVersion, handler
                 , basis.testValue
                 , basis.decisionGraphIndexes
                 )
             {
             }
-            public Match(int APIversion, EventHandler handler
+            public Match(int apiVersion, EventHandler handler
                 , uint testValue
                 , IEnumerable<GenericRCOLResource.ChunkReference> decisionGraphIndexes
                 )
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.testValue = testValue;
                 this.decisionGraphIndexes = new ChunkReferenceList(handler, decisionGraphIndexes);
@@ -1616,19 +1616,19 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzSelectOnDestinationNode(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzSelectOnDestinationNode(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzSelectOnDestinationNode(int APIversion, EventHandler handler, JazzSelectOnDestinationNode basis)
-            : this(APIversion, handler
+        public JazzSelectOnDestinationNode(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzSelectOnDestinationNode(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzSelectOnDestinationNode(int apiVersion, EventHandler handler, JazzSelectOnDestinationNode basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.matches
             )
         { }
-        public JazzSelectOnDestinationNode(int APIversion, EventHandler handler
+        public JazzSelectOnDestinationNode(int apiVersion, EventHandler handler
             , uint version
             , IEnumerable<Match> matches
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.matches = new MatchList(handler, matches);
@@ -1679,20 +1679,20 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Match(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Match(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Match(int APIversion, EventHandler handler, Match basis)
-                : this(APIversion, handler
+            public Match(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Match(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Match(int apiVersion, EventHandler handler, Match basis)
+                : this(apiVersion, handler
                 , basis.stateIndex
                 , basis.decisionGraphIndexes
                 )
             {
             }
-            public Match(int APIversion, EventHandler handler
+            public Match(int apiVersion, EventHandler handler
                 , GenericRCOLResource.ChunkReference stateIndex
                 , IEnumerable<GenericRCOLResource.ChunkReference> decisionGraphIndexes
                 )
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.stateIndex = stateIndex;
                 this.decisionGraphIndexes = new ChunkReferenceList(handler, decisionGraphIndexes);
@@ -1774,19 +1774,19 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzNextStateNode(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzNextStateNode(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzNextStateNode(int APIversion, EventHandler handler, JazzNextStateNode basis)
-            : this(APIversion, handler
+        public JazzNextStateNode(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzNextStateNode(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzNextStateNode(int apiVersion, EventHandler handler, JazzNextStateNode basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.stateIndex
             )
         { }
-        public JazzNextStateNode(int APIversion, EventHandler handler
+        public JazzNextStateNode(int apiVersion, EventHandler handler
             , uint version
             , GenericRCOLResource.ChunkReference stateIndex
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.stateIndex = stateIndex;
@@ -1855,10 +1855,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzCreatePropNode(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzCreatePropNode(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzCreatePropNode(int APIversion, EventHandler handler, JazzCreatePropNode basis)
-            : this(APIversion, handler
+        public JazzCreatePropNode(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzCreatePropNode(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzCreatePropNode(int apiVersion, EventHandler handler, JazzCreatePropNode basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.actorDefinitionIndex
             , basis.parameterDefinitionIndex
@@ -1871,7 +1871,7 @@ namespace s4pi.GenericRCOLResource
             , basis.decisionGraphIndexes
             )
         { }
-        public JazzCreatePropNode(int APIversion, EventHandler handler
+        public JazzCreatePropNode(int apiVersion, EventHandler handler
             , uint version
             , GenericRCOLResource.ChunkReference actorDefinitionIndex
             , GenericRCOLResource.ChunkReference parameterDefinitionIndex
@@ -1883,7 +1883,7 @@ namespace s4pi.GenericRCOLResource
             //, uint unknown6
             , IEnumerable<GenericRCOLResource.ChunkReference> decisionGraphIndexes
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.actorDefinitionIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, actorDefinitionIndex);
@@ -1994,10 +1994,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzActorOperationNode(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzActorOperationNode(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzActorOperationNode(int APIversion, EventHandler handler, JazzActorOperationNode basis)
-            : this(APIversion, handler
+        public JazzActorOperationNode(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzActorOperationNode(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzActorOperationNode(int apiVersion, EventHandler handler, JazzActorOperationNode basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.actorDefinitionIndex
             , basis.actorOp
@@ -2008,7 +2008,7 @@ namespace s4pi.GenericRCOLResource
             , basis.decisionGraphIndexes
             )
         { }
-        public JazzActorOperationNode(int APIversion, EventHandler handler
+        public JazzActorOperationNode(int apiVersion, EventHandler handler
             , uint version
             , GenericRCOLResource.ChunkReference actorDefinitionIndex
             , ActorOperation actorOp
@@ -2018,7 +2018,7 @@ namespace s4pi.GenericRCOLResource
             , uint unknown3
             , IEnumerable<GenericRCOLResource.ChunkReference> decisionGraphIndexes
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.actorDefinitionIndex = actorDefinitionIndex;
@@ -2134,10 +2134,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public JazzStopAnimationNode(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public JazzStopAnimationNode(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public JazzStopAnimationNode(int APIversion, EventHandler handler, JazzStopAnimationNode basis)
-            : this(APIversion, handler
+        public JazzStopAnimationNode(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public JazzStopAnimationNode(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public JazzStopAnimationNode(int apiVersion, EventHandler handler, JazzStopAnimationNode basis)
+            : this(apiVersion, handler
             , basis.version
             , basis.animationFlags
             , basis.animationPriority
@@ -2157,7 +2157,7 @@ namespace s4pi.GenericRCOLResource
             , basis.decisionGraphIndexes
             )
         { }
-        public JazzStopAnimationNode(int APIversion, EventHandler handler
+        public JazzStopAnimationNode(int apiVersion, EventHandler handler
             , uint version
             , JazzAnimationFlags animationFlags
             , AnimationPriority animationPriority
@@ -2176,7 +2176,7 @@ namespace s4pi.GenericRCOLResource
             , uint unknown11
             , IEnumerable<GenericRCOLResource.ChunkReference> decisionGraphIndexes
             )
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.animationFlags = animationFlags;

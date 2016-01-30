@@ -176,21 +176,21 @@ namespace RigResource
             #endregion
 
             #region Constructors
-            public Bone(int APIversion, EventHandler handler) : base(APIversion, handler)
+            public Bone(int apiVersion, EventHandler handler) : base(apiVersion, handler)
             {
                 position = new Vertex(requestedApiVersion, handler);
                 orientation = new Quaternion(requestedApiVersion, handler);
                 scaling = new Vertex(requestedApiVersion, handler);
                 name = "";
             }
-            public Bone(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Bone(int APIversion, EventHandler handler, Bone basis)
-                : this(APIversion, handler, basis.position, basis.orientation, basis.scaling,
+            public Bone(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Bone(int apiVersion, EventHandler handler, Bone basis)
+                : this(apiVersion, handler, basis.position, basis.orientation, basis.scaling,
                 basis.name, basis.opposingBoneIndex, basis.parentBoneIndex, basis.hash, basis.unknown2) { }
-            public Bone(int APIversion, EventHandler handler,
+            public Bone(int apiVersion, EventHandler handler,
                 Vertex position, Quaternion quaternion, Vertex scaling,
                 string name, int opposingBoneIndex, int parentBoneIndex, uint hash, uint unknown2)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.position = new Vertex(requestedApiVersion, handler, position);
                 this.orientation = new Quaternion(requestedApiVersion, handler, quaternion);
@@ -318,21 +318,21 @@ namespace RigResource
             #endregion
 
             #region Constructors
-            public IKElement(int APIversion, EventHandler handler, RigResource owner) : base(APIversion, handler)
+            public IKElement(int apiVersion, EventHandler handler, RigResource owner) : base(apiVersion, handler)
             {
                 this.owner = owner;
                 this.bones = new IntList(handler);
             }
-            public IKElement(int APIversion, EventHandler handler, RigResource owner, Stream s) : base(APIversion, handler) { this.owner = owner; Parse(s); }
-            public IKElement(int APIversion, EventHandler handler, RigResource owner, IKElement basis)
-                : this(APIversion, handler, owner, basis.bones,
+            public IKElement(int apiVersion, EventHandler handler, RigResource owner, Stream s) : base(apiVersion, handler) { this.owner = owner; Parse(s); }
+            public IKElement(int apiVersion, EventHandler handler, RigResource owner, IKElement basis)
+                : this(apiVersion, handler, owner, basis.bones,
                 basis.infoNode0Index, basis.infoNode1Index,
                 basis.infoNode2Index, basis.infoNode3Index,
                 basis.infoNode4Index, basis.infoNode5Index, basis.infoNode6Index,
                 basis.infoNode7Index, basis.infoNode8Index,
                 basis.infoNode9Index, basis.infoNodeAIndex,
                 basis.poleVectorIndex, basis.slotInfoIndex, basis.slotOffsetIndex, basis.rootIndex) { }
-            public IKElement(int APIversion, EventHandler handler, RigResource owner,
+            public IKElement(int apiVersion, EventHandler handler, RigResource owner,
                 IntList bones,
                 int infoNode0Index, int infoNode1Index,
                 int infoNode2Index, int infoNode3Index,
@@ -340,7 +340,7 @@ namespace RigResource
                 int infoNode7Index, int infoNode8Index,
                 int infoNode9Index, int infoNodeAIndex,
             int poleVectorIndex, int slotInfoIndex, int slotOffsetIndex, int rootIndex)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.bones = new IntList(handler, bones);
                 this.infoNode0Index = infoNode0Index;

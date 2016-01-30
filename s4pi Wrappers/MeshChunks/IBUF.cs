@@ -145,8 +145,8 @@ namespace meshExpImp.ModelBlocks
         public IBUF(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
         public IBUF(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
         public IBUF(int apiVersion, EventHandler handler, IBUF basis) : this(apiVersion, handler, basis.Version, basis.Flags, basis.DisplayListUsage, basis.Buffer) { }
-        public IBUF(int APIversion, EventHandler handler, uint version, FormatFlags flags, uint displayListUsage, Int32[] buffer)
-            : base(APIversion, handler, null)
+        public IBUF(int apiVersion, EventHandler handler, uint version, FormatFlags flags, uint displayListUsage, Int32[] buffer)
+            : base(apiVersion, handler, null)
         {
             mVersion = version;
             mFlags = flags;

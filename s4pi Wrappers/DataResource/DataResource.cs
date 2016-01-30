@@ -203,8 +203,8 @@ namespace s4pi.DataResource
             #endregion
 
             #region Constructors
-            public Structure(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Structure(int APIversion, EventHandler handler, BinaryReader r) : base(APIversion, handler) { Parse(r); }
+            public Structure(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Structure(int apiVersion, EventHandler handler, BinaryReader r) : base(apiVersion, handler) { Parse(r); }
             #endregion
 
             #region Data I/O
@@ -408,8 +408,8 @@ namespace s4pi.DataResource
             #endregion
 
             #region Constructors
-            public Field(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Field(int APIversion, EventHandler handler, BinaryReader r) : base(APIversion, handler) { Parse(r); }
+            public Field(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Field(int apiVersion, EventHandler handler, BinaryReader r) : base(apiVersion, handler) { Parse(r); }
             #endregion
 
             #region Data I/O
@@ -564,8 +564,8 @@ namespace s4pi.DataResource
             #endregion
 
             #region Constructors
-            public Data(int APIversion, EventHandler handler, DataResource owner) : base(APIversion, handler) { this.owner = owner; }
-            public Data(int APIversion, EventHandler handler, DataResource owner, BinaryReader r) : base(APIversion, handler) { this.owner = owner; Parse(r); }
+            public Data(int apiVersion, EventHandler handler, DataResource owner) : base(apiVersion, handler) { this.owner = owner; }
+            public Data(int apiVersion, EventHandler handler, DataResource owner, BinaryReader r) : base(apiVersion, handler) { this.owner = owner; Parse(r); }
             #endregion
 
             #region Data I/O

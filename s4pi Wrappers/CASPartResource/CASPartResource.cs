@@ -1,6 +1,6 @@
 /***************************************************************************
  *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
- *  Credits: Peter Jones, Keyi Zhang, Cmar                                 *
+ *  Credits: Peter Jones, Keyi Zhang, Cmar, Buzzler                        *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -129,17 +129,11 @@ namespace CASPartResource
             if (this.version >= 36) this.excludeModifierRegionFlags = r.ReadUInt64();
             else this.excludeModifierRegionFlags = r.ReadUInt32();
 
-            if (this.version >= 37) flagList = new FlagList(OnResourceChanged, s);
+            if (this.version >= 37)
+                this.flagList = new FlagList(this.OnResourceChanged, s);
             else
             {
-                uint flagCount = r.ReadUInt32();
-                flagList = new FlagList(OnResourceChanged);
-                for (int i = 0; i < flagCount; i++)
-                {
-                    ushort cat = r.ReadUInt16();
-                    ushort val = r.ReadUInt16();
-                    flagList.Add(new Flag(recommendedApiVersion, OnResourceChanged, cat, val));
-                }
+                this.flagList = FlagList.CreateWithUInt16Flags(this.OnResourceChanged, s, recommendedApiVersion);
             }
 
             this.deprecatedPrice = r.ReadUInt32();
@@ -249,19 +243,15 @@ namespace CASPartResource
             {
                 w.Write((uint)this.excludeModifierRegionFlags);
             }
+
+            this.flagList = this.flagList ?? new FlagList(this.OnResourceChanged);
             if (this.version >= 37)
             {
-                if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
                 this.flagList.UnParse(s);
             }
             else
             {
-                w.Write(this.flagList.Count);
-                foreach (Flag f in this.flagList)
-                {
-                    w.Write((ushort)f.CompoundTag.Category);
-                    w.Write((ushort)f.CompoundTag.Value);
-                }
+                this.flagList.WriteUInt16Flags(s);
             }
             w.Write(this.deprecatedPrice);
             w.Write(this.partTitleKey);
@@ -278,7 +268,7 @@ namespace CASPartResource
             {
                 w.Write(this.packID);
                 w.Write((byte)this.packFlags);
-                if (reserved2 == null) this.reserved2 = new byte[9];
+                if (this.reserved2 == null) this.reserved2 = new byte[9];
                 w.Write(this.reserved2);
             }
             else
@@ -646,7 +636,7 @@ namespace CASPartResource
                 if (this.packID == 0 || value > 0)
                 {
                     this.packID = value;
-                    OnResourceChanged(this, EventArgs.Empty);
+                    this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
         }
@@ -661,7 +651,7 @@ namespace CASPartResource
                 {
                     this.packFlags = value;
                 }
-                OnResourceChanged(this, EventArgs.Empty);
+                this.OnResourceChanged(this, EventArgs.Empty);
             }
         }
 
@@ -671,7 +661,8 @@ namespace CASPartResource
             get { return this.reserved2; }
             set
             {
-                if (!value.Equals(this.reserved2)) this.reserved2 = value; OnResourceChanged(this, EventArgs.Empty);
+                if (!value.Equals(this.reserved2)) this.reserved2 = value;
+                this.OnResourceChanged(this, EventArgs.Empty);
             }
         }
 

@@ -177,20 +177,20 @@ namespace s4pi.GenericRCOLResource
             /// <summary>
             /// Create a ChunkEntry from an existing <see cref="ChunkEntry"/>.
             /// </summary>
-            /// <param name="APIversion">Unused; the requested API version.</param>
+            /// <param name="apiVersion">Unused; the requested API version.</param>
             /// <param name="handler">The change event handler.</param>
             /// <param name="basis">An existing <see cref="ChunkEntry"/> to use as a basis.</param>
-            public ChunkEntry(int APIversion, EventHandler handler, ChunkEntry basis)
-                : this(APIversion, handler, basis.tgiBlock, basis.rcolBlock) { }
+            public ChunkEntry(int apiVersion, EventHandler handler, ChunkEntry basis)
+                : this(apiVersion, handler, basis.tgiBlock, basis.rcolBlock) { }
             /// <summary>
             /// Create a ChunkEntry from an existing <see cref="TGIBlock"/> and an existing <see cref="ARCOLBlock"/>.
             /// </summary>
-            /// <param name="APIversion">Unused; the requested API version.</param>
+            /// <param name="apiVersion">Unused; the requested API version.</param>
             /// <param name="handler">The change event handler.</param>
             /// <param name="tgiBlock">An existing <see cref="T:TGIBlock"/>.</param>
             /// <param name="rcolBlock">An existing <see cref="ARCOLBlock"/>.</param>
-            public ChunkEntry(int APIversion, EventHandler handler, TGIBlock tgiBlock, ARCOLBlock rcolBlock)
-                : base(APIversion, handler)
+            public ChunkEntry(int apiVersion, EventHandler handler, TGIBlock tgiBlock, ARCOLBlock rcolBlock)
+                : base(apiVersion, handler)
             {
                 this.tgiBlock = tgiBlock.Clone(handler) as TGIBlock;
                 this.rcolBlock = rcolBlock.Clone(handler) as ARCOLBlock;
@@ -405,34 +405,34 @@ namespace s4pi.GenericRCOLResource
             /// <summary>
             /// Create a new instance.
             /// </summary>
-            /// <param name="APIversion">Unused; requested API version.</param>
+            /// <param name="apiVersion">Unused; requested API version.</param>
             /// <param name="handler">Change <see cref="EventHandler"/> delegate.</param>
-            public ChunkReference(int APIversion, EventHandler handler)
-                : this(APIversion, handler, 0) { }
+            public ChunkReference(int apiVersion, EventHandler handler)
+                : this(apiVersion, handler, 0) { }
             /// <summary>
             /// Create a new instance from data in the provided <see cref="Stream"/>.
             /// </summary>
-            /// <param name="APIversion">Unused; requested API version.</param>
+            /// <param name="apiVersion">Unused; requested API version.</param>
             /// <param name="handler">Change <see cref="EventHandler"/> delegate.</param>
             /// <param name="s">The <see cref="Stream"/> containing the data.</param>
-            public ChunkReference(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler) { Parse(s); }
+            public ChunkReference(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler) { Parse(s); }
             /// <summary>
             /// Create a new instance based on the provided existing instance.
             /// </summary>
-            /// <param name="APIversion">Unused; requested API version.</param>
+            /// <param name="apiVersion">Unused; requested API version.</param>
             /// <param name="handler">Change <see cref="EventHandler"/> delegate.</param>
             /// <param name="basis">An existing instance.</param>
-            public ChunkReference(int APIversion, EventHandler handler, ChunkReference basis)
-                : this(APIversion, handler, basis.chunkReference) { }
+            public ChunkReference(int apiVersion, EventHandler handler, ChunkReference basis)
+                : this(apiVersion, handler, basis.chunkReference) { }
             /// <summary>
             /// Create a new instance from the provided <see cref="uint"/> value.
             /// </summary>
-            /// <param name="APIversion">Unused; requested API version.</param>
+            /// <param name="apiVersion">Unused; requested API version.</param>
             /// <param name="handler">Change <see cref="EventHandler"/> delegate.</param>
             /// <param name="chunkReference">The chunk reference as a &quot;raw&quot; <see cref="uint"/>.</param>
-            public ChunkReference(int APIversion, EventHandler handler, uint chunkReference)
-                : base(APIversion, handler) { this.chunkReference = chunkReference; }
+            public ChunkReference(int apiVersion, EventHandler handler, uint chunkReference)
+                : base(apiVersion, handler) { this.chunkReference = chunkReference; }
             #endregion
 
             #region Data I/O

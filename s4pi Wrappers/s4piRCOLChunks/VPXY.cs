@@ -41,16 +41,16 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public VPXY(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public VPXY(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public VPXY(int APIversion, EventHandler handler, VPXY basis)
-            : this(APIversion, handler,
+        public VPXY(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public VPXY(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public VPXY(int apiVersion, EventHandler handler, VPXY basis)
+            : this(apiVersion, handler,
             basis.version, basis.entryList, basis.tc02, basis.bounds, basis.unused, basis.modular, basis.ftptIndex,
             basis.tgiBlockList) { }
-        public VPXY(int APIversion, EventHandler handler,
+        public VPXY(int apiVersion, EventHandler handler,
             uint version, IEnumerable<Entry> entryList, byte tc02, BoundingBox bounds, byte[] unused, byte modular, int ftptIndex,
             IEnumerable<TGIBlock> tgiBlockList)
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             if (checking) if (version != 4)
@@ -153,7 +153,7 @@ namespace s4pi.GenericRCOLResource
             public abstract DependentList<TGIBlock> ParentTGIBlocks { get; set; }
 
             #region Constructors
-            protected Entry(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            protected Entry(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
 
             public static Entry CreateEntry(int APIversion, EventHandler handler, Stream s, DependentList<TGIBlock> ParentTGIBlocks)
             {
@@ -203,14 +203,14 @@ namespace s4pi.GenericRCOLResource
             byte entryID;
             Int32IndexList tgiIndexes;
 
-            public Entry00(int APIversion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null)
-                : this(APIversion, handler, 0, 0, new Int32IndexList(null), ParentTGIBlocks) { }
-            public Entry00(int APIversion, EventHandler handler, Entry00 basis, DependentList<TGIBlock> ParentTGIBlocks = null)
-                : this(APIversion, handler, 0, basis.entryID, basis.tgiIndexes, ParentTGIBlocks ?? basis._ParentTGIBlocks) { }
-            public Entry00(int APIversion, EventHandler handler, byte entryType, byte entryID, Stream s, DependentList<TGIBlock> ParentTGIBlocks = null)
-                : base(APIversion, handler) { _ParentTGIBlocks = ParentTGIBlocks; this.entryID = entryID; this.tgiIndexes = new Int32IndexList(handler, s, byte.MaxValue, ReadByte, WriteByte, _ParentTGIBlocks); }
-            public Entry00(int APIversion, EventHandler handler, byte entryType, byte entryID, IEnumerable<int> tgiIndexes, DependentList<TGIBlock> ParentTGIBlocks = null)
-                : base(APIversion, handler) { _ParentTGIBlocks = ParentTGIBlocks; this.entryID = entryID; this.tgiIndexes = new Int32IndexList(handler, tgiIndexes, byte.MaxValue, ReadByte, WriteByte, _ParentTGIBlocks); }
+            public Entry00(int apiVersion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null)
+                : this(apiVersion, handler, 0, 0, new Int32IndexList(null), ParentTGIBlocks) { }
+            public Entry00(int apiVersion, EventHandler handler, Entry00 basis, DependentList<TGIBlock> ParentTGIBlocks = null)
+                : this(apiVersion, handler, 0, basis.entryID, basis.tgiIndexes, ParentTGIBlocks ?? basis._ParentTGIBlocks) { }
+            public Entry00(int apiVersion, EventHandler handler, byte entryType, byte entryID, Stream s, DependentList<TGIBlock> ParentTGIBlocks = null)
+                : base(apiVersion, handler) { _ParentTGIBlocks = ParentTGIBlocks; this.entryID = entryID; this.tgiIndexes = new Int32IndexList(handler, s, byte.MaxValue, ReadByte, WriteByte, _ParentTGIBlocks); }
+            public Entry00(int apiVersion, EventHandler handler, byte entryType, byte entryID, IEnumerable<int> tgiIndexes, DependentList<TGIBlock> ParentTGIBlocks = null)
+                : base(apiVersion, handler) { _ParentTGIBlocks = ParentTGIBlocks; this.entryID = entryID; this.tgiIndexes = new Int32IndexList(handler, tgiIndexes, byte.MaxValue, ReadByte, WriteByte, _ParentTGIBlocks); }
 
             internal override void UnParse(Stream s)
             {
@@ -244,12 +244,12 @@ namespace s4pi.GenericRCOLResource
             public override DependentList<TGIBlock> ParentTGIBlocks { get; set; }
 
             int tgiIndex;
-            public Entry01(int APIversion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null)
-                : this(APIversion, handler, 1, 0, ParentTGIBlocks) { }
-            public Entry01(int APIversion, EventHandler handler, Entry01 basis, DependentList<TGIBlock> ParentTGIBlocks = null)
-                : this(APIversion, handler, 1, basis.tgiIndex, ParentTGIBlocks ?? basis.ParentTGIBlocks) { }
-            public Entry01(int APIversion, EventHandler handler, byte entryType, int tgiIndex, DependentList<TGIBlock> ParentTGIBlocks = null)
-                : base(APIversion, handler) { this.ParentTGIBlocks = ParentTGIBlocks; this.tgiIndex = tgiIndex; }
+            public Entry01(int apiVersion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null)
+                : this(apiVersion, handler, 1, 0, ParentTGIBlocks) { }
+            public Entry01(int apiVersion, EventHandler handler, Entry01 basis, DependentList<TGIBlock> ParentTGIBlocks = null)
+                : this(apiVersion, handler, 1, basis.tgiIndex, ParentTGIBlocks ?? basis.ParentTGIBlocks) { }
+            public Entry01(int apiVersion, EventHandler handler, byte entryType, int tgiIndex, DependentList<TGIBlock> ParentTGIBlocks = null)
+                : base(apiVersion, handler) { this.ParentTGIBlocks = ParentTGIBlocks; this.tgiIndex = tgiIndex; }
             internal override void UnParse(Stream s)
             {
                 BinaryWriter w = new BinaryWriter(s);

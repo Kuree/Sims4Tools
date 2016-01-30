@@ -31,14 +31,14 @@ namespace CatalogResource
     {
         private Color color;
         const int recommendedApiVersion = 1;
-        public SwatchColor(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-        public SwatchColor(int APIversion, EventHandler handler, Stream s)
-            : base(APIversion, handler)
+        public SwatchColor(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+        public SwatchColor(int apiVersion, EventHandler handler, Stream s)
+            : base(apiVersion, handler)
         {
             BinaryReader r = new BinaryReader(s);
             this.color = Color.FromArgb(r.ReadInt32());
         }
-        public SwatchColor(int APIversion, EventHandler handler, Color color) : base(APIversion, handler) { this.color = color; }
+        public SwatchColor(int apiVersion, EventHandler handler, Color color) : base(apiVersion, handler) { this.color = color; }
         public void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(this.color.ToArgb()); }
 
         #region AHandlerElement Members

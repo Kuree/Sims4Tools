@@ -85,21 +85,21 @@ namespace s4pi.Miscellaneous
             uint unk8;
             ulong unkIID_2 = 0x0000000000000000;
                         
-            public MTBLEntry(int APIversion, EventHandler handler, MTBLEntry other)
-                : this(APIversion, handler, other.modelIID, other.unkIID_1, other.unk1, other.unk2, other.unk3, other.unk4, other.unk5, other.unk6, other.unk7, other.unk8, other.unkIID_2)//,other.unk9, other.unk10)
+            public MTBLEntry(int apiVersion, EventHandler handler, MTBLEntry other)
+                : this(apiVersion, handler, other.modelIID, other.unkIID_1, other.unk1, other.unk2, other.unk3, other.unk4, other.unk5, other.unk6, other.unk7, other.unk8, other.unkIID_2)//,other.unk9, other.unk10)
             {
             }
-            public MTBLEntry(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public MTBLEntry(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
             }
-            public MTBLEntry(int APIversion, EventHandler handler, Stream s)
-                : this(APIversion, handler)
+            public MTBLEntry(int apiVersion, EventHandler handler, Stream s)
+                : this(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public MTBLEntry(int APIversion, EventHandler handler, ulong modelIID, ulong unkIID_1, uint unk1, float unk2, float unk3, float unk4, float unk5, float unk6, float unk7, uint unk8, ulong unkIID_2)//, float unk9, float unk10)
-                : base(APIversion, handler)
+            public MTBLEntry(int apiVersion, EventHandler handler, ulong modelIID, ulong unkIID_1, uint unk1, float unk2, float unk3, float unk4, float unk5, float unk6, float unk7, uint unk8, ulong unkIID_2)//, float unk9, float unk10)
+                : base(apiVersion, handler)
             {
                 this.modelIID = modelIID;
                 this.unkIID_1 = unkIID_1;
