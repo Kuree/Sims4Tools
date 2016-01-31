@@ -148,12 +148,14 @@ namespace s4pi.Interfaces
 
 			if (typeof(string).IsAssignableFrom(this.Type) || typeof(char[]).IsAssignableFrom(this.Type))
 			{
-				var s = typeof(string).IsAssignableFrom(this.Type) ? (string)this.Value : new string((char[])this.Value);
+				var s = typeof(string).IsAssignableFrom(this.Type)
+                    ? (string)this.Value
+                    : new string((char[])this.Value);
 				// -- It is not necessarily correct that a zero byte indicates a unicode string; these should have been
 				// correctly read in already so no translation should be needed... so the ToANSIString is currently commented out
 				if (s.IndexOf((char)0) != -1)
 				{
-					return /*s.Length % 2 == 0 ? ToANSIString(s) :/**/ TypedValue.ToDisplayString(s.ToCharArray());
+					return TypedValue.ToDisplayString(s.ToCharArray());
 				}
 				return s.Normalize();
 			}

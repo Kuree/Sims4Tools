@@ -649,74 +649,70 @@ namespace s4pi.Interfaces
 		/// <returns>Return a copy of the <see cref="AHandlerElement" /> but with a new change <see cref="EventHandler" />.</returns>
 		public virtual AHandlerElement Clone(EventHandler handler)
 		{
-			var args = new List<object>(new object[] { this.requestedApiVersion, handler, this });
+			var args = new object[] { this.requestedApiVersion, handler, this };
 
 			// Default values for parameters are resolved by the compiler.
 			// Activator.CreateInstance does not simulate this, so we have to do it.
 			// Avoid writing a Binder class just for this...
-			var ci = this.GetType().GetConstructors()
-						 .Where(c =>
-								{
-									var pi = c.GetParameters();
+			var constructorInfo = this.GetType()
+						 .GetConstructors()
+						 .FirstOrDefault(c => ArgumentsMatchConstructor(c, args));
 
-									// Our required arguments followed by one or more optional ones
-									if (pi.Length <= args.Count)
-									{
-										return false;
-									}
-									if (pi[args.Count - 1].IsOptional)
-									{
-										return false;
-									}
-									if (!pi[args.Count].IsOptional)
-									{
-										return false;
-									}
-
-									// Do the required args match?
-									for (var i = 0; i < args.Count; i++)
-									{
-										// null matches anything except a value type
-										if (args[i] == null)
-										{
-											if (pi[i].ParameterType.IsValueType)
-											{
-												return false;
-											}
-										}
-										else
-										// Otherwise check the target parameter is assignable from the provided argument
-											if (!pi[i].ParameterType.IsAssignableFrom(args[i].GetType()))
-											{
-												return false;
-											}
-									}
-
-									// OK, we have a match
-
-									// Pad the args with Type.Missing to save repeating the reflection
-									for (var i = args.Count; i < pi.Length; i++)
-									{
-										args.Add(Type.Missing);
-									}
-
-									// Say we've found "the" match
-									return true;
-								})
-				// Use the first one (or none...)
-						 .FirstOrDefault();
-
-			if (ci != null)
+			if (constructorInfo != null)
 			{
-				return ci.Invoke(args.ToArray()) as AHandlerElement;
+				return constructorInfo.Invoke(args) as AHandlerElement;
 			}
 
-			return Activator.CreateInstance(this.GetType(), args.ToArray(), null) as AHandlerElement;
+			return Activator.CreateInstance(this.GetType(), args, null) as AHandlerElement;
 		}
 
-		//public abstract AHandlerElement Clone(EventHandler handler);
+	    private static bool ArgumentsMatchConstructor(ConstructorInfo c, IList<object> args)
+	    {
+	        var pi = c.GetParameters();
 
-		/// <summary>
+	        // Our required arguments followed by one or more optional ones
+	        if (pi.Length <= args.Count)
+	        {
+	            return false;
+	        }
+	        if (pi[args.Count - 1].IsOptional)
+	        {
+	            return false;
+	        }
+	        if (!pi[args.Count].IsOptional)
+	        {
+	            return false;
+	        }
+
+	        // Do the required args match?
+	        for (var i = 0; i < args.Count; i++)
+	        {
+	            // null matches anything except a value type
+	            if (args[i] == null && pi[i].ParameterType.IsValueType)
+	            {
+	                return false;
+	            }
+	            else
+	            // Otherwise check the target parameter is assignable from the provided argument
+	                if (!pi[i].ParameterType.IsInstanceOfType(args[i]))
+	                {
+	                    return false;
+	                }
+	        }
+
+	        // OK, we have a match
+
+	        // Pad the args with Type.Missing to save repeating the reflection
+	        for (var i = args.Count; i < pi.Length; i++)
+	        {
+	            args.Add(Type.Missing);
+	        }
+
+	        // Say we've found "the" match
+	        return true;
+	    }
+
+	    /// <summary>
 		///     Flag the <see cref="AHandlerElement" /> as dirty and invoke the <see cref="EventHandler" /> delegate.
 		/// </summary>
 		protected virtual void OnElementChanged()
