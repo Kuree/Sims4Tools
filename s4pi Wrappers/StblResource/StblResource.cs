@@ -67,6 +67,7 @@ namespace StblResource
         {
             if (this.stream == null)
             {
+                this.version = 5;
                 this.stream = this.UnParse();
                 this.OnResourceChanged(this, EventArgs.Empty);
             }
