@@ -165,8 +165,8 @@ namespace CASPartResource
             private byte[] rleArrayOfPixels;
             private byte numIndexes;
 
-            public ScanLine(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public ScanLine(int APIversion, EventHandler handler, Stream s, int width) : base(APIversion, handler) { this.width = width; Parse(s); }
+            public ScanLine(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public ScanLine(int apiVersion, EventHandler handler, Stream s, int width) : base(apiVersion, handler) { this.width = width; Parse(s); }
 
             #region AHandlerElement Members
             public override int RecommendedApiVersion { get { return recommendedApiVersion; } }

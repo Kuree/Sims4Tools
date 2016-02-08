@@ -42,10 +42,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public FTPT(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public FTPT(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public FTPT(int APIversion, EventHandler handler, FTPT basis)
-            : base(APIversion, handler, null)
+        public FTPT(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public FTPT(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public FTPT(int apiVersion, EventHandler handler, FTPT basis)
+            : base(apiVersion, handler, null)
         {
             this.version = basis.version;
             this.instance = basis.instance;
@@ -137,12 +137,12 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public PolygonHeightOverride(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public PolygonHeightOverride(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public PolygonHeightOverride(int APIversion, EventHandler handler, PolygonHeightOverride basis)
-                : this(APIversion, handler, basis.nameHash, basis.height) { }
-            public PolygonHeightOverride(int APIversion, EventHandler handler, uint NameHash, float Height)
-                : base(APIversion, handler)
+            public PolygonHeightOverride(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public PolygonHeightOverride(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public PolygonHeightOverride(int apiVersion, EventHandler handler, PolygonHeightOverride basis)
+                : this(apiVersion, handler, basis.nameHash, basis.height) { }
+            public PolygonHeightOverride(int apiVersion, EventHandler handler, uint NameHash, float Height)
+                : base(apiVersion, handler)
             {
                 this.nameHash = NameHash;
                 this.height = Height;
@@ -231,12 +231,12 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public PolygonPoint(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public PolygonPoint(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public PolygonPoint(int APIversion, EventHandler handler, PolygonPoint basis)
-                : this(APIversion, handler, basis.x, basis.z) { }
-            public PolygonPoint(int APIversion, EventHandler handler, float X, float Z)
-                : base(APIversion, handler)
+            public PolygonPoint(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public PolygonPoint(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public PolygonPoint(int apiVersion, EventHandler handler, PolygonPoint basis)
+                : this(apiVersion, handler, basis.x, basis.z) { }
+            public PolygonPoint(int apiVersion, EventHandler handler, float X, float Z)
+                : base(apiVersion, handler)
             {
                 this.x = X;
                 this.z = Z;
@@ -383,7 +383,7 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Area(int APIversion, EventHandler handler, uint version) : base(APIversion, handler)
+            public Area(int apiVersion, EventHandler handler, uint version) : base(apiVersion, handler)
             {
                 this.ParentVersion = version;
                 Stream ms = new MemoryStream();
@@ -391,19 +391,19 @@ namespace s4pi.GenericRCOLResource
                 ms.Position = 0;
                 Parse(ms);
             }
-            public Area(int APIversion, EventHandler handler, Stream s, uint version) : base(APIversion, handler) { this.ParentVersion = version; Parse(s); }
-            public Area(int APIversion, EventHandler handler, Area basis)
-                : this(APIversion, handler, basis.ParentVersion,
+            public Area(int apiVersion, EventHandler handler, Stream s, uint version) : base(apiVersion, handler) { this.ParentVersion = version; Parse(s); }
+            public Area(int apiVersion, EventHandler handler, Area basis)
+                : this(apiVersion, handler, basis.ParentVersion,
                 basis.name, basis.priority, basis.areaTypeFlags, basis.pointList,
                 basis.intersectionObjectType, basis.allowIntersectionTypes, basis.surfaceTypeFlags, basis.surfaceAttributeFlags,
                 basis.deprecatedLevelOffset,
                 basis.boundingBox3D) { }
-            public Area(int APIversion, EventHandler handler, uint version,
+            public Area(int apiVersion, EventHandler handler, uint version,
                 uint name, byte priority, FootprintPolyFlags areaTypeFlags, IEnumerable<PolygonPoint> closedPolygon,
                 IntersectionFlags intersectionObjectType, IntersectionFlags allowIntersectionTypes, 
                 SurfaceTypeFlags surfaceTypeFlags, SurfaceAttribute surfaceAttributeFlags,
                 byte deprecatedLevelOffset, BoundingBox boundingBox3D)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.ParentVersion = version;
                 this.name = name;
@@ -415,7 +415,7 @@ namespace s4pi.GenericRCOLResource
                 this.surfaceTypeFlags = surfaceTypeFlags;
                 this.surfaceAttributeFlags = surfaceAttributeFlags;
                 this.deprecatedLevelOffset = deprecatedLevelOffset;
-                this.boundingBox3D = new BoundingBox(APIversion, handler, boundingBox3D);
+                this.boundingBox3D = new BoundingBox(apiVersion, handler, boundingBox3D);
             }
             #endregion
 

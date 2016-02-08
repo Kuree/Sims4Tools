@@ -1,9 +1,8 @@
-﻿using System;
-using System.Xml.Serialization;
-
-namespace s4pi.Resource.Commons.CatalogTags
+﻿namespace s4pi.Resource.Commons.CatalogTags
 {
-	[XmlRoot("M")]
+    using System.Xml.Serialization;
+
+    [XmlRoot("M")]
 	public class TagDocument
 	{
 		[XmlElement("C", ElementName = "C")]

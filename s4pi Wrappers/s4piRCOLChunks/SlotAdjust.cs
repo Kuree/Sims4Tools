@@ -36,12 +36,12 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public SlotAdjust(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public SlotAdjust(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public SlotAdjust(int APIversion, EventHandler handler, SlotAdjust basis)
-            : this(APIversion, handler, basis.version, basis.adjustments) { }
-        public SlotAdjust(int APIversion, EventHandler handler, uint version, IEnumerable<Adjustment> adjustments)
-            : base(APIversion, handler, null)
+        public SlotAdjust(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public SlotAdjust(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public SlotAdjust(int apiVersion, EventHandler handler, SlotAdjust basis)
+            : this(apiVersion, handler, basis.version, basis.adjustments) { }
+        public SlotAdjust(int apiVersion, EventHandler handler, uint version, IEnumerable<Adjustment> adjustments)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.adjustments = new AdjustmentList(handler, adjustments);
@@ -105,14 +105,14 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Adjustment(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Adjustment(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Adjustment(int APIversion, EventHandler handler, Adjustment basis)
-                : this(APIversion, handler,
+            public Adjustment(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Adjustment(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Adjustment(int apiVersion, EventHandler handler, Adjustment basis)
+                : this(apiVersion, handler,
                 basis.slotName, basis.offsetX, basis.offsetY, basis.offsetZ, basis.scaleX, basis.scaleY, basis.scaleZ, basis.quatX, basis.quatY, basis.quatZ, basis.quatW) { }
-            public Adjustment(int APIversion, EventHandler handler,
+            public Adjustment(int apiVersion, EventHandler handler,
                 uint slotName, float offsetX, float offsetY, float offsetZ, float scaleX, float scaleY, float scaleZ, float quatX, float quatY, float quatZ, float quatW)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.slotName = slotName;
                 this.offsetX = offsetX;

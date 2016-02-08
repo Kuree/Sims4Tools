@@ -165,8 +165,8 @@ namespace s4pi.Miscellaneous
                     other.remapTimeline)
             {
             } */
-            public ColorTimeLine(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public ColorTimeLine(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 this.version = 13;
                 this.ambientColors = new ColorTimeLineData(1, handler);
@@ -194,8 +194,8 @@ namespace s4pi.Miscellaneous
                 this.sunRadiusMultipliers = new ColorTimeLineData(1, handler);
                 this.remapTimeline = true;
             }
-            public ColorTimeLine(int APIversion, EventHandler handler, Stream s)
-                : this(APIversion, handler)
+            public ColorTimeLine(int apiVersion, EventHandler handler, Stream s)
+                : this(apiVersion, handler)
             {
                 this.Parse(s);
             }
@@ -395,22 +395,22 @@ namespace s4pi.Miscellaneous
 
             ColorDataList colorData;
 
-            public ColorTimeLineData(int APIversion, EventHandler handler, ColorTimeLineData other)
-                : this(APIversion, handler, other.colorData)
+            public ColorTimeLineData(int apiVersion, EventHandler handler, ColorTimeLineData other)
+                : this(apiVersion, handler, other.colorData)
             {
             }
-            public ColorTimeLineData(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public ColorTimeLineData(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 this.colorData = new ColorDataList(handler);
             }
-            public ColorTimeLineData(int APIversion, EventHandler handler, Stream s)
-                : this(APIversion, handler)
+            public ColorTimeLineData(int apiVersion, EventHandler handler, Stream s)
+                : this(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public ColorTimeLineData(int APIversion, EventHandler handler, ColorDataList colorData)
-                : base(APIversion, handler)
+            public ColorTimeLineData(int apiVersion, EventHandler handler, ColorDataList colorData)
+                : base(apiVersion, handler)
             {
                 this.colorData = new ColorDataList(handler, colorData);
             }
@@ -475,21 +475,21 @@ namespace s4pi.Miscellaneous
             float r, g, b, a;
             float time;
 
-            public ColorData(int APIversion, EventHandler handler, ColorData other)
-                : this(APIversion, handler, other.r, other.g, other.b, other.a, other.time)
+            public ColorData(int apiVersion, EventHandler handler, ColorData other)
+                : this(apiVersion, handler, other.r, other.g, other.b, other.a, other.time)
             {
             }
-            public ColorData(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public ColorData(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
             }
-            public ColorData(int APIversion, EventHandler handler, Stream s)
-                : this(APIversion, handler)
+            public ColorData(int apiVersion, EventHandler handler, Stream s)
+                : this(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public ColorData(int APIversion, EventHandler handler, float r, float g, float b, float a, float time)
-                : base(APIversion, handler)
+            public ColorData(int apiVersion, EventHandler handler, float r, float g, float b, float a, float time)
+                : base(apiVersion, handler)
             {
                 this.r = r;
                 this.g = g;

@@ -39,10 +39,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public MTST(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public MTST(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public MTST(int APIversion, EventHandler handler, MTST basis)
-            : base(APIversion, handler, null)
+        public MTST(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public MTST(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public MTST(int apiVersion, EventHandler handler, MTST basis)
+            : base(apiVersion, handler, null)
         {
             this.version = basis.version;
             this.nameHash = basis.nameHash;
@@ -126,18 +126,18 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Type300Entry(int APIversion, EventHandler handler)
-                : base(APIversion, handler) {}
+            public Type300Entry(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler) {}
  
-            public Type300Entry(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
+            public Type300Entry(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler)
             {
                 Parse(s);
             }
-            public Type300Entry(int APIversion, EventHandler handler, Type300Entry basis)
-                : this(APIversion, handler, basis.matdIndex, basis.materialState, basis.materialVariant) { }
-            public Type300Entry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet, uint materialVariant)
-                : base(APIversion, handler)
+            public Type300Entry(int apiVersion, EventHandler handler, Type300Entry basis)
+                : this(apiVersion, handler, basis.matdIndex, basis.materialState, basis.materialVariant) { }
+            public Type300Entry(int apiVersion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet, uint materialVariant)
+                : base(apiVersion, handler)
             {
                 this.matdIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
                 this.materialState = materialSet;
@@ -226,18 +226,18 @@ namespace s4pi.GenericRCOLResource
             #endregion
 
             #region Constructors
-            public Type200Entry(int APIversion, EventHandler handler)
-                : base(APIversion, handler) { }
+            public Type200Entry(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler) { }
 
-            public Type200Entry(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
+            public Type200Entry(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler)
             {
                 Parse(s);
             }
-            public Type200Entry(int APIversion, EventHandler handler, Type200Entry basis)
-                : this(APIversion, handler, basis.matdIndex, basis.materialState) { }
-            public Type200Entry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet)
-                : base(APIversion, handler)
+            public Type200Entry(int apiVersion, EventHandler handler, Type200Entry basis)
+                : this(apiVersion, handler, basis.matdIndex, basis.materialState) { }
+            public Type200Entry(int apiVersion, EventHandler handler, GenericRCOLResource.ChunkReference index, State materialSet)
+                : base(apiVersion, handler)
             {
                 this.matdIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, index);
                 this.materialState = materialSet;

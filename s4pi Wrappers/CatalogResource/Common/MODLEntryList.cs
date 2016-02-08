@@ -13,8 +13,8 @@ namespace CatalogResource
         private TGIBlock modlReference;
         const int recommendedApiVersion = 1;
 
-        public ModlEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
-        public ModlEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+        public ModlEntry(int apiVersion, EventHandler handler) : base(apiVersion, handler) { this.UnParse(new MemoryStream()); }
+        public ModlEntry(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
 
         private void Parse(Stream s)
         {

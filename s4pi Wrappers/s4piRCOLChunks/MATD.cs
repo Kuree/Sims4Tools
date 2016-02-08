@@ -39,10 +39,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public MATD(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public MATD(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public MATD(int APIversion, EventHandler handler, MATD basis)
-            : base(APIversion, handler, null)
+        public MATD(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public MATD(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public MATD(int apiVersion, EventHandler handler, MATD basis)
+            : base(apiVersion, handler, null)
         {
             this.version = basis.version;
             this.materialNameHash = basis.materialNameHash;
@@ -63,9 +63,9 @@ namespace s4pi.GenericRCOLResource
             }
         }
 
-        public MATD(int APIversion, EventHandler handler,
+        public MATD(int apiVersion, EventHandler handler,
             uint version, uint materialNameHash, ShaderType shader, MTRL mtrl)
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.materialNameHash = materialNameHash;
@@ -77,9 +77,9 @@ namespace s4pi.GenericRCOLResource
                 : new MTRL(requestedApiVersion, OnRCOLChanged);
         }
 
-        public MATD(int APIversion, EventHandler handler,
+        public MATD(int apiVersion, EventHandler handler,
             uint version, uint materialNameHash, ShaderType shader, bool isVideoSurface, bool isPaintingSurface, MTNF mtnf)
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.materialNameHash = materialNameHash;
@@ -190,16 +190,16 @@ namespace s4pi.GenericRCOLResource
             ushort mtrlUnknown3;
             ShaderDataList sdList = null;
 
-            public MTRL(int APIversion, EventHandler handler, MTRL basis)
-                : base(APIversion, handler)
+            public MTRL(int apiVersion, EventHandler handler, MTRL basis)
+                : base(apiVersion, handler)
             {
                 this.mtrlUnknown1 = basis.mtrlUnknown1;
                 this.mtrlUnknown2 = basis.mtrlUnknown2;
                 this.mtrlUnknown3 = basis.mtrlUnknown3;
                 this.sdList = basis.sdList == null ? null : new ShaderDataList(handler, basis.sdList);
             }
-            public MTRL(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public MTRL(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public MTRL(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public MTRL(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
 
             #region Data I/O
             private void Parse(Stream s)

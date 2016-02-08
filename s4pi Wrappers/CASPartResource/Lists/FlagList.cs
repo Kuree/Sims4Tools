@@ -51,17 +51,27 @@ namespace CASPartResource.Lists
             }
         }
 
-        public override void UnParse(Stream s)
+        public override void UnParse(Stream stream)
         {
-            var w = new BinaryWriter(s);
-            w.Write((uint)this.Count);
-            foreach (var flag in this)
+            var writer = new BinaryWriter(stream);
+            writer.Write((uint)this.Count);
+            foreach (Flag flag in this)
             {
-                flag.UnParse(s);
+                flag.UnParse(stream);
             }
         }
 
         #endregion
+
+        public void WriteUInt16Flags(Stream stream)
+        {
+            var writer = new BinaryWriter(stream);
+            writer.Write((uint)this.Count);
+            foreach (Flag flag in this)
+            {
+                flag.WriteUInt16(stream);
+            }
+        }
 
         protected override Flag CreateElement(Stream s)
         {
@@ -71,6 +81,24 @@ namespace CASPartResource.Lists
         protected override void WriteElement(Stream s, Flag element)
         {
             element.UnParse(s);
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="FlagList"/> based on 16Bit tag values.
+        /// </summary>
+        public static FlagList CreateWithUInt16Flags(EventHandler onResourceChanged, Stream stream, int apiVersion)
+        {
+            BinaryReader reader = new BinaryReader(stream);
+
+            uint flagCount = reader.ReadUInt32();
+            FlagList list = new FlagList(onResourceChanged);
+            for (int i = 0; i < flagCount; i++)
+            {
+                ushort cat = reader.ReadUInt16();
+                uint val = reader.ReadUInt16();
+                list.Add(new Flag(apiVersion, onResourceChanged, cat, val));
+            }
+            return list;
         }
     }
 }

@@ -105,24 +105,24 @@ namespace s4pi.Miscellaneous
             TGIBlock tgiKey;
             string texturePath;
 
-            public SkyBoxTexture(int APIversion, EventHandler handler, SkyBoxTexture other)
-                : this(APIversion, handler, other.type, other.tgiKey, other.texturePath)
+            public SkyBoxTexture(int apiVersion, EventHandler handler, SkyBoxTexture other)
+                : this(apiVersion, handler, other.type, other.tgiKey, other.texturePath)
             {
             }
-            public SkyBoxTexture(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public SkyBoxTexture(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 this.type = SkyBoxTextureType.SkyBox_Texture_None;
                 this.tgiKey = new TGIBlock(1, handler);
                 this.texturePath = "";
             }
-            public SkyBoxTexture(int APIversion, EventHandler handler, Stream s)
-                : this(APIversion, handler)
+            public SkyBoxTexture(int apiVersion, EventHandler handler, Stream s)
+                : this(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public SkyBoxTexture(int APIversion, EventHandler handler, SkyBoxTextureType type, TGIBlock tgiKey, string texturePath)
-                : base(APIversion, handler)
+            public SkyBoxTexture(int apiVersion, EventHandler handler, SkyBoxTextureType type, TGIBlock tgiKey, string texturePath)
+                : base(apiVersion, handler)
             {
                 this.type = type;
                 this.tgiKey = tgiKey;

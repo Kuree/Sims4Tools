@@ -634,11 +634,11 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     Initialize a new instance
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
-		public AHandlerElement(int APIversion, EventHandler handler)
+		public AHandlerElement(int apiVersion, EventHandler handler)
 		{
-			this.requestedApiVersion = APIversion;
+			this.requestedApiVersion = apiVersion;
 			this.handler = handler;
 		}
 
@@ -649,74 +649,70 @@ namespace s4pi.Interfaces
 		/// <returns>Return a copy of the <see cref="AHandlerElement" /> but with a new change <see cref="EventHandler" />.</returns>
 		public virtual AHandlerElement Clone(EventHandler handler)
 		{
-			var args = new List<object>(new object[] { this.requestedApiVersion, handler, this });
+			var args = new object[] { this.requestedApiVersion, handler, this };
 
 			// Default values for parameters are resolved by the compiler.
 			// Activator.CreateInstance does not simulate this, so we have to do it.
 			// Avoid writing a Binder class just for this...
-			var ci = this.GetType().GetConstructors()
-						 .Where(c =>
-								{
-									var pi = c.GetParameters();
+			var constructorInfo = this.GetType()
+						 .GetConstructors()
+						 .FirstOrDefault(c => ArgumentsMatchConstructor(c, args));
 
-									// Our required arguments followed by one or more optional ones
-									if (pi.Length <= args.Count)
-									{
-										return false;
-									}
-									if (pi[args.Count - 1].IsOptional)
-									{
-										return false;
-									}
-									if (!pi[args.Count].IsOptional)
-									{
-										return false;
-									}
-
-									// Do the required args match?
-									for (var i = 0; i < args.Count; i++)
-									{
-										// null matches anything except a value type
-										if (args[i] == null)
-										{
-											if (pi[i].ParameterType.IsValueType)
-											{
-												return false;
-											}
-										}
-										else
-										// Otherwise check the target parameter is assignable from the provided argument
-											if (!pi[i].ParameterType.IsAssignableFrom(args[i].GetType()))
-											{
-												return false;
-											}
-									}
-
-									// OK, we have a match
-
-									// Pad the args with Type.Missing to save repeating the reflection
-									for (var i = args.Count; i < pi.Length; i++)
-									{
-										args.Add(Type.Missing);
-									}
-
-									// Say we've found "the" match
-									return true;
-								})
-				// Use the first one (or none...)
-						 .FirstOrDefault();
-
-			if (ci != null)
+			if (constructorInfo != null)
 			{
-				return ci.Invoke(args.ToArray()) as AHandlerElement;
+				return constructorInfo.Invoke(args) as AHandlerElement;
 			}
 
-			return Activator.CreateInstance(this.GetType(), args.ToArray(), null) as AHandlerElement;
+			return Activator.CreateInstance(this.GetType(), args, null) as AHandlerElement;
 		}
 
-		//public abstract AHandlerElement Clone(EventHandler handler);
+	    private static bool ArgumentsMatchConstructor(ConstructorInfo c, IList<object> args)
+	    {
+	        var pi = c.GetParameters();
 
-		/// <summary>
+	        // Our required arguments followed by one or more optional ones
+	        if (pi.Length <= args.Count)
+	        {
+	            return false;
+	        }
+	        if (pi[args.Count - 1].IsOptional)
+	        {
+	            return false;
+	        }
+	        if (!pi[args.Count].IsOptional)
+	        {
+	            return false;
+	        }
+
+	        // Do the required args match?
+	        for (var i = 0; i < args.Count; i++)
+	        {
+	            // null matches anything except a value type
+	            if (args[i] == null && pi[i].ParameterType.IsValueType)
+	            {
+	                return false;
+	            }
+	            else
+	            // Otherwise check the target parameter is assignable from the provided argument
+	                if (!pi[i].ParameterType.IsInstanceOfType(args[i]))
+	                {
+	                    return false;
+	                }
+	        }
+
+	        // OK, we have a match
+
+	        // Pad the args with Type.Missing to save repeating the reflection
+	        for (var i = args.Count; i < pi.Length; i++)
+	        {
+	            args.Add(Type.Missing);
+	        }
+
+	        // Say we've found "the" match
+	        return true;
+	    }
+
+	    /// <summary>
 		///     Flag the <see cref="AHandlerElement" /> as dirty and invoke the <see cref="EventHandler" /> delegate.
 		/// </summary>
 		protected virtual void OnElementChanged()
@@ -757,20 +753,20 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     Initialize a new instance with a default value.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
-		public HandlerElement(int APIversion, EventHandler handler) : this(APIversion, handler, default(T))
+		public HandlerElement(int apiVersion, EventHandler handler) : this(apiVersion, handler, default(T))
 		{
 		}
 
 		/// <summary>
 		///     Initialize a new instance with an initial value of <paramref name="basis" />.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="basis">Initial value for instance.</param>
-		public HandlerElement(int APIversion, EventHandler handler, T basis)
-			: base(APIversion, handler)
+		public HandlerElement(int apiVersion, EventHandler handler, T basis)
+			: base(apiVersion, handler)
 		{
 			this.val = basis;
 		}
@@ -778,11 +774,11 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     Initialize a new instance with an initial value from <paramref name="basis" />.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="basis">Element containing the initial value for instance.</param>
-		public HandlerElement(int APIversion, EventHandler handler, HandlerElement<T> basis)
-			: base(APIversion, handler)
+		public HandlerElement(int apiVersion, EventHandler handler, HandlerElement<T> basis)
+			: base(apiVersion, handler)
 		{
 			this.val = basis.val;
 		}
@@ -927,41 +923,41 @@ namespace s4pi.Interfaces
 		/// <summary>
 		///     Initialize a new instance with a default value.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="ParentTGIBlocks">Reference to list into which this is an index.</param>
-		public TGIBlockListIndex(int APIversion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null)
-			: this(APIversion, handler, default(T), ParentTGIBlocks)
+		public TGIBlockListIndex(int apiVersion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null)
+			: this(apiVersion, handler, default(T), ParentTGIBlocks)
 		{
 		}
 
 		/// <summary>
 		///     Initialize a new instance with an initial value from <paramref name="basis" />.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="basis">Element containing the initial value for instance.</param>
 		/// <param name="ParentTGIBlocks">
 		///     Reference to list into which this is an index, or null to use that in
 		///     <paramref name="basis" />.
 		/// </param>
-		public TGIBlockListIndex(int APIversion,
+		public TGIBlockListIndex(int apiVersion,
 								 EventHandler handler,
 								 TGIBlockListIndex<T> basis,
 								 DependentList<TGIBlock> ParentTGIBlocks = null)
-			: this(APIversion, handler, basis.data, ParentTGIBlocks ?? basis.ParentTGIBlocks)
+			: this(apiVersion, handler, basis.data, ParentTGIBlocks ?? basis.ParentTGIBlocks)
 		{
 		}
 
 		/// <summary>
 		///     Initialize a new instance with an initial value of <paramref name="value" />.
 		/// </summary>
-		/// <param name="APIversion">The requested API version.</param>
+		/// <param name="apiVersion">The requested API version.</param>
 		/// <param name="handler">The <see cref="EventHandler" /> delegate to invoke if the <see cref="AHandlerElement" /> changes.</param>
 		/// <param name="value">Initial value for instance.</param>
 		/// <param name="ParentTGIBlocks">Reference to list into which this is an index.</param>
-		public TGIBlockListIndex(int APIversion, EventHandler handler, T value, DependentList<TGIBlock> ParentTGIBlocks = null)
-			: base(APIversion, handler)
+		public TGIBlockListIndex(int apiVersion, EventHandler handler, T value, DependentList<TGIBlock> ParentTGIBlocks = null)
+			: base(apiVersion, handler)
 		{
 			this.ParentTGIBlocks = ParentTGIBlocks;
 			this.data = value;

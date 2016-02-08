@@ -84,9 +84,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CreateAssemblyVersion\CreateAssemblyVersion.csproj">
-      <Project>{114622FB-D6BF-4EA7-9BB9-FB06B5A01212}</Project>
+      <Project>{114622fb-d6bf-4ea7-9bb9-fb06b5a01212}</Project>
       <Name>CreateAssemblyVersion</Name>
-      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,6 +1,11 @@
 /***************************************************************************
- *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
- *  Credits: Peter Jones, Keyi Zhang, Buzzler, Cmar                        *
+ *  Copyright (C) 2009, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Peter L Jones (pljones@users.sf.net)                                   *
+ *  Keyi Zhang                                                             *
+ *  Buzzler                                                                *
+ *  Cmar                                                                   *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -9,7 +14,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -31,8 +36,8 @@ namespace CASPartResource.Handlers
     {
         private CompoundTag compoundTag;
 
-        public Flag(int APIversion, EventHandler handler, Stream s)
-            : base(APIversion, handler)
+        public Flag(int apiVersion, EventHandler handler, Stream s)
+            : base(apiVersion, handler)
         {
             var reader = new BinaryReader(s);
             var category = CatalogTagRegistry.FetchCategory(reader.ReadUInt16());
@@ -40,30 +45,37 @@ namespace CASPartResource.Handlers
             this.compoundTag = new CompoundTag { Category = category, Value = value };
         }
 
-        public Flag(int APIversion, EventHandler handler, ushort flagCategory, uint flagValue)
-            : base(APIversion, handler)
+        public Flag(int apiVersion, EventHandler handler, ushort flagCategory, uint flagValue)
+            : base(apiVersion, handler)
         {
             var category = CatalogTagRegistry.FetchCategory(flagCategory);
             var value = CatalogTagRegistry.FetchTag(flagValue);
             this.compoundTag = new CompoundTag { Category = category, Value = value };
         }
 
-        public Flag(int APIversion, EventHandler handler)
-            : base(APIversion, handler)
+        public Flag(int apiVersion, EventHandler handler)
+            : base(apiVersion, handler)
         {
             var category = CatalogTagRegistry.FetchCategory(0);
             var value = CatalogTagRegistry.FetchTag(0);
             this.compoundTag = new CompoundTag { Category = category, Value = value };
         }
 
-        public void UnParse(Stream s)
+        public void UnParse(Stream stream)
         {
-            var w = new BinaryWriter(s);
-            w.Write((ushort)this.compoundTag.Category);
-            w.Write((uint)this.compoundTag.Value);
+            var w = new BinaryWriter(stream);
+            w.Write(this.compoundTag.Category.ToUInt16());
+            w.Write(this.compoundTag.Value.ToUInt32());
         }
 
         #region AHandlerElement Members
+
+        public void WriteUInt16(Stream stream)
+        {
+            var w = new BinaryWriter(stream);
+            w.Write(this.compoundTag.Category.ToUInt16());
+            w.Write(this.compoundTag.Value.ToUInt16());
+        }
 
         public override int RecommendedApiVersion
         {

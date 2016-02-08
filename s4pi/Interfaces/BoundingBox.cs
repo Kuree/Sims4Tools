@@ -40,34 +40,34 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Create a vertex at { 0, 0, 0 }.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
-        public Vertex(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+        public Vertex(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
         /// <summary>
         /// Create a vertex from a <see cref="Stream"/>.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="s"><see cref="Stream"/> containing coordinates.</param>
-        public Vertex(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+        public Vertex(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
         /// <summary>
         /// Create a vertex from a given value.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="basis"><see cref="Vertex"/> to copy.</param>
-        public Vertex(int APIversion, EventHandler handler, Vertex basis)
-            : this(APIversion, handler, basis.x, basis.y, basis.z) { }
+        public Vertex(int apiVersion, EventHandler handler, Vertex basis)
+            : this(apiVersion, handler, basis.x, basis.y, basis.z) { }
         /// <summary>
         /// Create a vertex at { x, y, z }.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="x">X coordinate.</param>
         /// <param name="y">Y coordinate.</param>
         /// <param name="z">Z coordinate.</param>
-        public Vertex(int APIversion, EventHandler handler, float x, float y, float z)
-            : base(APIversion, handler)
+        public Vertex(int apiVersion, EventHandler handler, float x, float y, float z)
+            : base(apiVersion, handler)
         {
             this.x = x;
             this.y = y;
@@ -190,9 +190,9 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Create an zero-sized bounding box.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
-        public BoundingBox(int APIversion, EventHandler handler) : base(APIversion, handler)
+        public BoundingBox(int apiVersion, EventHandler handler) : base(apiVersion, handler)
         {
             min = new Vertex(requestedApiVersion, handler);
             max = new Vertex(requestedApiVersion, handler);
@@ -200,27 +200,27 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Create a bounding box from a <see cref="Stream"/>.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="s"><see cref="Stream"/> containing vertices.</param>
-        public BoundingBox(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+        public BoundingBox(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
         /// <summary>
         /// Create a bounding box from a given value.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="basis"><see cref="BoundingBox"/> to copy.</param>
-        public BoundingBox(int APIversion, EventHandler handler, BoundingBox basis)
-            : this(APIversion, handler, basis.min, basis.max) { }
+        public BoundingBox(int apiVersion, EventHandler handler, BoundingBox basis)
+            : this(apiVersion, handler, basis.min, basis.max) { }
         /// <summary>
         /// Create a bounding box with the specified minimum and maximum vertices.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="min">Minimum vertex.</param>
         /// <param name="max">Maximum vertex.</param>
-        public BoundingBox(int APIversion, EventHandler handler, Vertex min, Vertex max)
-            : base(APIversion, handler)
+        public BoundingBox(int apiVersion, EventHandler handler, Vertex min, Vertex max)
+            : base(apiVersion, handler)
         {
             this.min = new Vertex(requestedApiVersion, handler, min);
             this.max = new Vertex(requestedApiVersion, handler, max);

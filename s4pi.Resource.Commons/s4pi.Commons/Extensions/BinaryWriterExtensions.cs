@@ -1,8 +1,7 @@
-/***************************************************************************
- *  Copyright (C) 2009, 2016 by the Sims 4 Tools development team          *
+﻿/***************************************************************************
+ *  Copyright (C) 2016 by the Sims 4 Tools development team          *
  *                                                                         *
  *  Contributors:                                                          *
- *  Inge Jones                                                             *
  *  Buzzler                                                                *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
@@ -21,25 +20,24 @@
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
 
-namespace CatalogResource
+namespace s4pi.Commons.Extensions
 {
-    using System.Collections.Generic;
     using System.IO;
-    using s4pi.Interfaces;
 
-    public class COBJResource : AbstractCatalogResource
-	{
-		public COBJResource(int APIversion, Stream s)
-			: base(APIversion, s)
-		{
-		}
-	}
-
-	public class COBJResourceHandler : AResourceHandler
-	{
-		public COBJResourceHandler()
-		{
-			this.Add(typeof(COBJResource), new List<string>(new[] { "0x319E4F1D" }));
-		}
-	}
+    /// <summary>
+    /// Extensions for the <see cref="BinaryWriter"/> class.
+    /// </summary>
+    public static class BinaryWriterExtensions
+    {
+        /// <summary>
+        /// Writes the specified number of empty bytes using the <see cref="BinaryWriter"/>.
+        /// </summary>
+        public static void WriteEmptyBytes(this BinaryWriter writer, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                writer.Write((byte)0);
+            }
+        }
+    }
 }

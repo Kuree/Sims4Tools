@@ -35,8 +35,8 @@ namespace CatalogResource
         const int recommendedApiVersion = 1;
         #endregion
 
-        public MATDEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-        public MATDEntry(int APIversion, EventHandler handler, Stream s, bool hasLabel = true) : base(APIversion, handler) { this.hasLabel = hasLabel; Parse(s, hasLabel); }
+        public MATDEntry(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+        public MATDEntry(int apiVersion, EventHandler handler, Stream s, bool hasLabel = true) : base(apiVersion, handler) { this.hasLabel = hasLabel; Parse(s, hasLabel); }
 
 
         #region Data I/O

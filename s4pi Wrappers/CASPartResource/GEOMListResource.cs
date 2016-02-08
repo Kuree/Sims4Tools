@@ -126,9 +126,9 @@ namespace CASPartResource
             public bool isReplacement { get; set; }
             public TGIBlockList tgiList { get; set; }
 
-            public ReferenceBlock(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
+            public ReferenceBlock(int apiVersion, EventHandler handler) : base(apiVersion, handler) { this.UnParse(new MemoryStream()); }
 
-            public ReferenceBlock(int APIversion, EventHandler handler, Stream s) :base(APIversion, handler)
+            public ReferenceBlock(int apiVersion, EventHandler handler, Stream s) :base(apiVersion, handler)
             {
                 BinaryReader r = new BinaryReader(s);
                 this.region = (CASPartRegion)r.ReadUInt32();

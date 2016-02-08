@@ -11,19 +11,19 @@ namespace CASPartResource.Handlers
 	{
 		private Color color;
 
-		public SwatchColor(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public SwatchColor(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			var r = new BinaryReader(s);
 			this.color = Color.FromArgb(r.ReadInt32());
 		}
 
-		public SwatchColor(int APIversion, EventHandler handler, Color color) : base(APIversion, handler)
+		public SwatchColor(int apiVersion, EventHandler handler, Color color) : base(apiVersion, handler)
 		{
 			this.color = color;
 		}
 
-		public SwatchColor(int APIversion, EventHandler handler) : base(APIversion, handler)
+		public SwatchColor(int apiVersion, EventHandler handler) : base(apiVersion, handler)
 		{
 		}
 

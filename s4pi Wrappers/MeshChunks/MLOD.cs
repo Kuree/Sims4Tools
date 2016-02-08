@@ -39,11 +39,11 @@ namespace meshExpImp.ModelBlocks
         #endregion
 
         #region Constructors
-        public MLOD(int APIversion, EventHandler handler, MLOD basis) : this(APIversion, handler, basis.Version, new MeshList(handler,basis, basis.mMeshes)) { }
-        public MLOD(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public MLOD(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public MLOD(int APIversion, EventHandler handler, uint version, MeshList meshes)
-            : base(APIversion, handler, null)
+        public MLOD(int apiVersion, EventHandler handler, MLOD basis) : this(apiVersion, handler, basis.Version, new MeshList(handler,basis, basis.mMeshes)) { }
+        public MLOD(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public MLOD(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public MLOD(int apiVersion, EventHandler handler, uint version, MeshList meshes)
+            : base(apiVersion, handler, null)
         {
             mVersion = version;
             mMeshes = meshes;
@@ -90,11 +90,11 @@ namespace meshExpImp.ModelBlocks
             private Int32 mVertexCount;
             private Int32 mPrimitiveCount;
 
-            public GeometryState(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public GeometryState(int APIversion, EventHandler handler, GeometryState basis) : this(APIversion, handler, basis.Name, basis.StartIndex, basis.MinVertexIndex, basis.VertexCount, basis.PrimitiveCount) { }
-            public GeometryState(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public GeometryState(int APIversion, EventHandler handler, uint name, int startIndex, int minVertexIndex, int vertexCount, int primitiveCount)
-                : base(APIversion, handler)
+            public GeometryState(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public GeometryState(int apiVersion, EventHandler handler, GeometryState basis) : this(apiVersion, handler, basis.Name, basis.StartIndex, basis.MinVertexIndex, basis.VertexCount, basis.PrimitiveCount) { }
+            public GeometryState(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public GeometryState(int apiVersion, EventHandler handler, uint name, int startIndex, int minVertexIndex, int vertexCount, int primitiveCount)
+                : base(apiVersion, handler)
             {
                 mName = name;
                 mStartIndex = startIndex;
@@ -248,8 +248,8 @@ namespace meshExpImp.ModelBlocks
             #endregion
 
             #region Constructors
-            public Mesh(int APIversion, EventHandler handler, MLOD owner)
-                : base(APIversion, handler)
+            public Mesh(int apiVersion, EventHandler handler, MLOD owner)
+                : base(apiVersion, handler)
             {
                 mOwner = owner;
 
@@ -264,8 +264,8 @@ namespace meshExpImp.ModelBlocks
                 mScaleOffsetIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, 0);
                 mMirrorPlane = new Vector4(requestedApiVersion, handler);//mOwner.Version > 0x00000201
             }
-            public Mesh(int APIversion, EventHandler handler, Mesh basis)
-                : this(APIversion, handler, basis.mOwner,
+            public Mesh(int apiVersion, EventHandler handler, Mesh basis)
+                : this(apiVersion, handler, basis.mOwner,
                 basis.mName,
                 basis.mMaterialIndex, basis.mVertexFormatIndex, basis.mVertexBufferIndex, basis.mIndexBufferIndex,
                 basis.mPrimitiveType, basis.mFlags,
@@ -275,7 +275,7 @@ namespace meshExpImp.ModelBlocks
                 basis.mParentName, basis.mMirrorPlane,
                 basis.mUnknown1
                 ) { }
-            public Mesh(int APIversion, EventHandler handler, MLOD owner,
+            public Mesh(int apiVersion, EventHandler handler, MLOD owner,
                 uint name,
                 GenericRCOLResource.ChunkReference materialIndex, GenericRCOLResource.ChunkReference vertexFormatIndex,
                 GenericRCOLResource.ChunkReference vertexBufferIndex, GenericRCOLResource.ChunkReference indexBufferIndex,
@@ -285,7 +285,7 @@ namespace meshExpImp.ModelBlocks
                 UIntList jointReferences, GeometryStateList geometryStates, GenericRCOLResource.ChunkReference scaleOffsetIndex,
                 uint parentName, Vector4 mirrorPlane, uint unknown1
                 )
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 mOwner = owner;
 
@@ -317,7 +317,7 @@ namespace meshExpImp.ModelBlocks
                     mUnknown1 = unknown1;
                 }
             }
-            public Mesh(int APIversion, EventHandler handler, MLOD owner, Stream s) : base(APIversion, handler) { mOwner = owner; Parse(s); }
+            public Mesh(int apiVersion, EventHandler handler, MLOD owner, Stream s) : base(apiVersion, handler) { mOwner = owner; Parse(s); }
             #endregion
 
             #region Data I/O

@@ -142,11 +142,11 @@ namespace meshExpImp.ModelBlocks
             private UInt32 mByteOffset;
             private SwizzleList mSwizzles;
 
-            public SegmentInfo(int APIversion, EventHandler handler) : this(APIversion, handler, 0, 0, 0, new SwizzleList(handler)) { }
-            public SegmentInfo(int APIversion, EventHandler handler, SegmentInfo basis) : this(APIversion, handler, basis.VertexSize, basis.VertexCount, basis.ByteOffset, basis.Swizzles) { }
-            public SegmentInfo(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public SegmentInfo(int APIversion, EventHandler handler, Int32 vertexSize, Int32 vertexCount, UInt32 byteOffset, SwizzleList swizzles)
-                : base(APIversion, handler)
+            public SegmentInfo(int apiVersion, EventHandler handler) : this(apiVersion, handler, 0, 0, 0, new SwizzleList(handler)) { }
+            public SegmentInfo(int apiVersion, EventHandler handler, SegmentInfo basis) : this(apiVersion, handler, basis.VertexSize, basis.VertexCount, basis.ByteOffset, basis.Swizzles) { }
+            public SegmentInfo(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public SegmentInfo(int apiVersion, EventHandler handler, Int32 vertexSize, Int32 vertexCount, UInt32 byteOffset, SwizzleList swizzles)
+                : base(apiVersion, handler)
             {
                 mVertexSize = vertexSize;
                 mVertexCount = vertexCount;
@@ -282,11 +282,11 @@ namespace meshExpImp.ModelBlocks
                     ;
             }
         }
-        public VBSI(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public VBSI(int APIversion, EventHandler handler, VBSI basis) : this(APIversion, handler, new SegmentList(handler, basis.Segments)) { }
-        public VBSI(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public VBSI(int APIversion, EventHandler handler, SegmentList segments)
-            : base(APIversion, handler, null)
+        public VBSI(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public VBSI(int apiVersion, EventHandler handler, VBSI basis) : this(apiVersion, handler, new SegmentList(handler, basis.Segments)) { }
+        public VBSI(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public VBSI(int apiVersion, EventHandler handler, SegmentList segments)
+            : base(apiVersion, handler, null)
         {
             mSegments = segments;
         }

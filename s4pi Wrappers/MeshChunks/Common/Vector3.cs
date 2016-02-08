@@ -26,15 +26,15 @@ namespace meshExpImp.ModelBlocks
     public class Vector3 : Vector2
     {
         protected float mZ;
-        public Vector3(int APIversion, EventHandler handler, float x, float y, float z)
-            : base(APIversion, handler,x,y)
+        public Vector3(int apiVersion, EventHandler handler, float x, float y, float z)
+            : base(apiVersion, handler,x,y)
         {
             mZ = z;
         }
-        public Vector3(int APIversion, EventHandler handler,Stream s) : base(APIversion, handler,s) { }
+        public Vector3(int apiVersion, EventHandler handler,Stream s) : base(apiVersion, handler,s) { }
 
-        public Vector3(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-        public Vector3(int APIversion, EventHandler handler, Vector3 basis) : this(APIversion, handler, basis.X, basis.Y, basis.Z) { }
+        public Vector3(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+        public Vector3(int apiVersion, EventHandler handler, Vector3 basis) : this(apiVersion, handler, basis.X, basis.Y, basis.Z) { }
 
         [ElementPriority(3)]
         public float Z

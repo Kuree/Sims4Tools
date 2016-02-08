@@ -34,8 +34,8 @@ namespace CatalogResource
         const int recommendedApiVersion = 1;
         #endregion
 
-        public ThumbnailEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
-        public ThumbnailEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+        public ThumbnailEntry(int apiVersion, EventHandler handler) : base(apiVersion, handler) { this.UnParse(new MemoryStream()); }
+        public ThumbnailEntry(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
 
 
         #region Data I/O

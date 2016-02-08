@@ -91,11 +91,11 @@ namespace meshExpImp.ModelBlocks
             private float mMinZValue;
             private float mMaxZValue;
 
-            public LODEntry(int APIversion, EventHandler handler) : this(APIversion, handler, new GenericRCOLResource.ChunkReference(APIversion, handler, 0), (LODInfoFlags)0, LODId.LowDetail, float.MinValue, float.MaxValue) { }
-            public LODEntry(int APIversion, EventHandler handler, LODEntry basis) : this(APIversion, handler, basis.ModelLodIndex, basis.Flags, basis.Id, basis.MinZValue, basis.MaxZValue) { }
-            public LODEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public LODEntry(int APIversion, EventHandler handler, GenericRCOLResource.ChunkReference modelLodIndex, LODInfoFlags flags, LODId id, float minZValue, float maxZValue)
-                : base(APIversion, handler)
+            public LODEntry(int apiVersion, EventHandler handler) : this(apiVersion, handler, new GenericRCOLResource.ChunkReference(apiVersion, handler, 0), (LODInfoFlags)0, LODId.LowDetail, float.MinValue, float.MaxValue) { }
+            public LODEntry(int apiVersion, EventHandler handler, LODEntry basis) : this(apiVersion, handler, basis.ModelLodIndex, basis.Flags, basis.Id, basis.MinZValue, basis.MaxZValue) { }
+            public LODEntry(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public LODEntry(int apiVersion, EventHandler handler, GenericRCOLResource.ChunkReference modelLodIndex, LODInfoFlags flags, LODId id, float minZValue, float maxZValue)
+                : base(apiVersion, handler)
             {
                 mModelLodIndex = new GenericRCOLResource.ChunkReference(requestedApiVersion, handler, modelLodIndex);
                 mFlags = flags;
@@ -200,11 +200,11 @@ namespace meshExpImp.ModelBlocks
         private BoundingBoxList mExtraBounds;
         private LODEntryList mEntries;
 
-        public MODL(int APIversion, EventHandler handler) : this(APIversion, handler, 256, new BoundingBox(0, handler), new BoundingBoxList(handler), 0, 0f, new LODEntryList(handler)) { }
-        public MODL(int APIversion, EventHandler handler, MODL basis) : this(APIversion, handler, basis.Version, new BoundingBox(0, handler, basis.Bounds), new BoundingBoxList(handler, basis.ExtraBounds), basis.FadeType, basis.CustomFadeDistance, new LODEntryList(handler, basis.Entries)) { }
-        public MODL(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public MODL(int APIversion, EventHandler handler, uint version, BoundingBox bounds, BoundingBoxList extraBounds, uint fadeType, float customFadeDistance, LODEntryList entries)
-            : base(APIversion, handler, null)
+        public MODL(int apiVersion, EventHandler handler) : this(apiVersion, handler, 256, new BoundingBox(0, handler), new BoundingBoxList(handler), 0, 0f, new LODEntryList(handler)) { }
+        public MODL(int apiVersion, EventHandler handler, MODL basis) : this(apiVersion, handler, basis.Version, new BoundingBox(0, handler, basis.Bounds), new BoundingBoxList(handler, basis.ExtraBounds), basis.FadeType, basis.CustomFadeDistance, new LODEntryList(handler, basis.Entries)) { }
+        public MODL(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public MODL(int apiVersion, EventHandler handler, uint version, BoundingBox bounds, BoundingBoxList extraBounds, uint fadeType, float customFadeDistance, LODEntryList entries)
+            : base(apiVersion, handler, null)
         {
             mVersion = version;
             mBounds = bounds;

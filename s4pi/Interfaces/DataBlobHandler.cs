@@ -37,12 +37,12 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Initialize a new instance containing the given number of bytes, all of which are set to the default value.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="length">The number of bytes stored in this data blob.</param>
         /// <exception cref="ArgumentOutOfRangeException">The given <paramref name="length"/> is less than zero.</exception>
-        public DataBlobHandler(int APIversion, EventHandler handler, long length)
-            : base(APIversion, handler)
+        public DataBlobHandler(int apiVersion, EventHandler handler, long length)
+            : base(apiVersion, handler)
         {
             if (length < 0) throw new ArgumentOutOfRangeException("length");
             this.data = new byte[length];
@@ -50,14 +50,14 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Initialize a new instance containing the given number of bytes read from the given stream.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="length">The number of bytes stored in this data blob.</param>
         /// <param name="s">The stream from which to read the data contained in the data blob.</param>
         /// <exception cref="ArgumentOutOfRangeException">The given <paramref name="length"/> is less than zero.</exception>
         /// <exception cref="ArgumentNullException">The given stream <paramref name="s"/> is null.</exception>
-        public DataBlobHandler(int APIversion, EventHandler handler, long length, Stream s)
-            : this(APIversion, handler, length)
+        public DataBlobHandler(int apiVersion, EventHandler handler, long length, Stream s)
+            : this(apiVersion, handler, length)
         {
             if (s == null) throw new ArgumentNullException("s");
             s.Read(this.data, 0, this.data.Length);
@@ -65,12 +65,12 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Initialize a new instance with a copy of the data contained in the given <paramref name="basis"/>.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="basis">The data blob from which to copy the data that will be contained in the new data blob.</param>
         /// <exception cref="ArgumentNullException">The given <paramref name="basis"/> is null.</exception>
-        public DataBlobHandler(int APIversion, EventHandler handler, DataBlobHandler basis)
-            : base(APIversion, handler)
+        public DataBlobHandler(int apiVersion, EventHandler handler, DataBlobHandler basis)
+            : base(apiVersion, handler)
         {
             if (basis == null) throw new ArgumentNullException("basis");
             this.data = new byte[basis.data.Length];
@@ -79,12 +79,12 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Initialize a new instance containing the given <paramref name="data"/>
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="data">The data that will be contained in the new data blob.</param>
         /// <exception cref="ArgumentNullException">The given <paramref name="data"/> is null.</exception>
-        public DataBlobHandler(int APIversion, EventHandler handler, byte[] data)
-            : base(APIversion, handler)
+        public DataBlobHandler(int apiVersion, EventHandler handler, byte[] data)
+            : base(apiVersion, handler)
         {
             if (data == null) throw new ArgumentNullException("data");
             this.data = new byte[data.Length];

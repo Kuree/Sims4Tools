@@ -29,11 +29,11 @@ namespace meshExpImp.ModelBlocks
 
         private Vector3 mRight, mUp, mBack, mTranslate;
 
-        public Matrix43(int APIversion, EventHandler handler) : this(APIversion, handler, new Vector3(0, handler, 1, 0, 0), new Vector3(0, handler, 0, 1, 0), new Vector3(0, handler, 0, 0, 1), new Vector3(0, handler, 0, 0, 0)) { }
-        public Matrix43(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-        public Matrix43(int APIversion, EventHandler handler, Matrix43 basis) : this(APIversion, handler, basis.mRight, basis.mUp, basis.mBack, basis.mTranslate) { }
-        public Matrix43(int APIversion, EventHandler handler, Vector3 right, Vector3 up, Vector3 back, Vector3 translate)
-            : base(APIversion, handler)
+        public Matrix43(int apiVersion, EventHandler handler) : this(apiVersion, handler, new Vector3(0, handler, 1, 0, 0), new Vector3(0, handler, 0, 1, 0), new Vector3(0, handler, 0, 0, 1), new Vector3(0, handler, 0, 0, 0)) { }
+        public Matrix43(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+        public Matrix43(int apiVersion, EventHandler handler, Matrix43 basis) : this(apiVersion, handler, basis.mRight, basis.mUp, basis.mBack, basis.mTranslate) { }
+        public Matrix43(int apiVersion, EventHandler handler, Vector3 right, Vector3 up, Vector3 back, Vector3 translate)
+            : base(apiVersion, handler)
         {
             mRight = new Vector3(0, handler, right);
             mUp = new Vector3(0, handler, up);

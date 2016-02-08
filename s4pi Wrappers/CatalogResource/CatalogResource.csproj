@@ -62,8 +62,7 @@
   <ItemGroup>
     <Compile Include="48C28979CatalogResource.cs" />
     <Compile Include="A8F7B517CatalogResource.cs" />
-    <Compile Include="Common\BinaryReaderExtensions.cs" />
-    <Compile Include="Common\BinaryWriterExtensions.cs" />
+    <Compile Include="AbstractCatalogResource.cs" />
     <Compile Include="Common\CatalogTag.cs" />
     <Compile Include="Common\CatalogTagList.cs" />
     <Compile Include="Common\ArrayExtensions.cs" />
@@ -100,27 +99,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
-      <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
-      <Name>CS System Classes</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s4pi.Resource.Commons\s4pi.Resource.Commons.csproj">
-      <Project>{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}</Project>
-      <Name>s4pi.Resource.Commons</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s4pi\Interfaces\Interfaces.csproj">
-      <Project>{51023BD2-9139-438D-B794-95E5EC023537}</Project>
-      <Name>Interfaces</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\s4pi\Settings\Settings.csproj">
-      <Project>{374F37CF-1F27-4613-96FD-9B956A3D82B1}</Project>
-      <Name>Settings</Name>
-      <Private>False</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
@@ -137,7 +115,20 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
+      <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
+      <Name>CS System Classes</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi.Resource.Commons\s4pi.Resource.Commons.csproj">
+      <Project>{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}</Project>
+      <Name>s4pi.Resource.Commons</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi\Interfaces\Interfaces.csproj">
+      <Project>{51023BD2-9139-438D-B794-95E5EC023537}</Project>
+      <Name>Interfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
