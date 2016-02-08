@@ -50,23 +50,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="S3CLIP\Curve.cs" />
-    <Compile Include="S3CLIP\CurveDataFlags.cs" />
-    <Compile Include="S3CLIP\CurveDataFormat.cs" />
-    <Compile Include="S3CLIP\CurveDataInfo.cs" />
-    <Compile Include="S3CLIP\CurveDataType.cs" />
-    <Compile Include="S3CLIP\CurveList.cs" />
-    <Compile Include="S3CLIP\CurveType.cs" />
+    <Compile Include="ClipEvents.cs" />
     <Compile Include="ClipResource.cs" />
     <Compile Include="ClipResourceHandler.cs" />
-    <Compile Include="ClipResourceSims3.cs" />
-    <Compile Include="S3CLIP\Frame.cs" />
-    <Compile Include="S3CLIP\FrameList.cs" />
+    <Compile Include="IkConfiguration.cs" />
     <Compile Include="IOExt.cs" />
-    <Compile Include="S3CLIP\Clip.cs" />
-    <Compile Include="S3CLIP\Track.cs" />
-    <Compile Include="S3CLIP\TrackList.cs" />
-    <Compile Include="TrackMask.cs" />
+    <Compile Include="S3CLIP.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

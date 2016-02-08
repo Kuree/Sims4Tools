@@ -2,7 +2,7 @@
  *  Copyright (C) 2009, 2010 by Peter L Jones                              *
  *  pljones@users.sf.net                                                   *
  *                                                                         *
- *  This file is part of the Sims 3 Package Interface (s3pi)               *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
  *  s3pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
