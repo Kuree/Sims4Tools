@@ -58,7 +58,6 @@ namespace S4PIDemoFE
         private static readonly List<string> unwantedFilterFields =
             new List<string>(new[] { "Chunkoffset", "Filesize", "Memsize", "Unknown2" });
 
-        private static List<string> ddsResources = new List<string>(new[] { "0x00B2D882", "0x8FFB80F6" });
         private static readonly string myName;
         private static readonly string tempName;
 
@@ -242,7 +241,7 @@ namespace S4PIDemoFE
                 return;
             }
 
-            this.saveSettings();
+            this.SaveAppSettingsAndRaiseSettingsEvent();
 
             this.CleanUpTemp();
         }
@@ -1119,7 +1118,7 @@ namespace S4PIDemoFE
                                              : "Hex dumps (*.hex)|*.hex|All files (*.*)|*.*",
                                      FilterIndex = 1,
                                      OverwritePrompt = true,
-                                     Title = "Save preview content",
+                                     Title = @"Save preview content",
                                      ValidateNames = true
                                  };
             DialogResult dr = sfd.ShowDialog();
@@ -1132,7 +1131,7 @@ namespace S4PIDemoFE
             {
                 if (this.pnAuto.Controls[0] is RichTextBox)
                 {
-                    sw.Write((this.pnAuto.Controls[0] as RichTextBox).Text.Replace("\n", "\r\n"));
+                    sw.Write(((RichTextBox)this.pnAuto.Controls[0]).Text.Replace("\n", "\r\n"));
                 }
                 sw.Flush();
                 sw.Close();
@@ -1184,10 +1183,10 @@ namespace S4PIDemoFE
                 return;
             }
 
-            string text = "";
+            string text;
             if (this.pnAuto.Controls[0] is RichTextBox)
             {
-                text = (this.pnAuto.Controls[0] as RichTextBox).Text;
+                text = ((RichTextBox)this.pnAuto.Controls[0]).Text;
             }
             else
             {
@@ -1218,11 +1217,16 @@ namespace S4PIDemoFE
             }
             File.SetAttributes(filename, FileAttributes.ReadOnly | FileAttributes.Temporary);
 
-            Process p = new Process();
+            Process p = new Process
+                        {
+                            StartInfo =
+                            {
+                                FileName = command,
+                                Arguments = filename,
+                                UseShellExecute = false
+                            }
+                        };
 
-            p.StartInfo.FileName = command;
-            p.StartInfo.Arguments = filename;
-            p.StartInfo.UseShellExecute = false;
             p.Exited += this.p_Exited;
             p.EnableRaisingEvents = true;
 
@@ -1380,71 +1384,63 @@ namespace S4PIDemoFE
 
         private void menuBarWidget1_MBResource_Click(object sender, MenuBarWidget.MBClickEventArgs mn)
         {
-            try
+            Application.DoEvents();
+            switch (mn.mn)
             {
-                //this.Enabled = false;
-                Application.DoEvents();
-                switch (mn.mn)
-                {
-                    case MenuBarWidget.MB.MBR_add:
-                        this.ResourceAdd();
-                        break;
-                    case MenuBarWidget.MB.MBR_copy:
-                        this.ResourceCopy();
-                        break;
-                    case MenuBarWidget.MB.MBR_paste:
-                        this.ResourcePaste();
-                        break;
-                    case MenuBarWidget.MB.MBR_duplicate:
-                        this.ResourceDuplicate();
-                        break;
-                    case MenuBarWidget.MB.MBR_replace:
-                        this.ResourceReplace();
-                        break;
-                    case MenuBarWidget.MB.MBR_compressed:
-                        this.ResourceCompressed();
-                        break;
-                    case MenuBarWidget.MB.MBR_isdeleted:
-                        this.ResourceIsDeleted();
-                        break;
-                    case MenuBarWidget.MB.MBR_details:
-                        this.ResourceDetails();
-                        break;
-                    case MenuBarWidget.MB.MBR_selectAll:
-                        this.ResourceSelectAll();
-                        break;
-                    case MenuBarWidget.MB.MBR_copyRK:
-                        this.ResourceCopyRk();
-                        break;
-                    case MenuBarWidget.MB.MBR_importResources:
-                        this.ResourceImport();
-                        break;
-                    case MenuBarWidget.MB.MBR_importPackages:
-                        this.ResourceImportPackages();
-                        break;
-                    case MenuBarWidget.MB.MBR_replaceFrom:
-                        this.ResourceReplaceFrom();
-                        break;
-                    case MenuBarWidget.MB.MBR_importAsDBC:
-                        this.ResourceImportAsDbc();
-                        break;
-                    case MenuBarWidget.MB.MBR_exportResources:
-                        this.ResourceExport();
-                        break;
-                    case MenuBarWidget.MB.MBR_exportToPackage:
-                        this.ResourceExportToPackage();
-                        break;
-                    case MenuBarWidget.MB.MBR_hexEditor:
-                        this.ResourceHexEdit();
-                        break;
-                    case MenuBarWidget.MB.MBR_textEditor:
-                        this.ResourceTextEdit();
-                        break;
-                }
-            }
-            finally
-            {
-                /*this.Enabled = true;/**/
+                case MenuBarWidget.MB.MBR_add:
+                    this.ResourceAdd();
+                    break;
+                case MenuBarWidget.MB.MBR_copy:
+                    this.ResourceCopy();
+                    break;
+                case MenuBarWidget.MB.MBR_paste:
+                    this.ResourcePaste();
+                    break;
+                case MenuBarWidget.MB.MBR_duplicate:
+                    this.ResourceDuplicate();
+                    break;
+                case MenuBarWidget.MB.MBR_replace:
+                    this.ResourceReplace();
+                    break;
+                case MenuBarWidget.MB.MBR_compressed:
+                    this.ResourceCompressed();
+                    break;
+                case MenuBarWidget.MB.MBR_isdeleted:
+                    this.ResourceIsDeleted();
+                    break;
+                case MenuBarWidget.MB.MBR_details:
+                    this.ResourceDetails();
+                    break;
+                case MenuBarWidget.MB.MBR_selectAll:
+                    this.ResourceSelectAll();
+                    break;
+                case MenuBarWidget.MB.MBR_copyRK:
+                    this.ResourceCopyRk();
+                    break;
+                case MenuBarWidget.MB.MBR_importResources:
+                    this.ResourceImport();
+                    break;
+                case MenuBarWidget.MB.MBR_importPackages:
+                    this.ResourceImportPackages();
+                    break;
+                case MenuBarWidget.MB.MBR_replaceFrom:
+                    this.ResourceReplaceFrom();
+                    break;
+                case MenuBarWidget.MB.MBR_importAsDBC:
+                    this.ResourceImportAsDbc();
+                    break;
+                case MenuBarWidget.MB.MBR_exportResources:
+                    this.ResourceExport();
+                    break;
+                case MenuBarWidget.MB.MBR_exportToPackage:
+                    this.ResourceExportToPackage();
+                    break;
+                case MenuBarWidget.MB.MBR_hexEditor:
+                    this.ResourceHexEdit();
+                    break;
+                case MenuBarWidget.MB.MBR_textEditor:
+                    this.ResourceTextEdit();
+                    break;
             }
         }
 
@@ -1472,13 +1468,11 @@ namespace S4PIDemoFE
             this.browserWidget1.Add(rie);
             this.package.ReplaceResource(rie, this.resource); //Ensure there's an actual resource in the package
 
-            if (ir.UseName && ir.ResourceName != null && ir.ResourceName.Length > 0)
+            if (ir.UseName && !string.IsNullOrEmpty(ir.ResourceName))
             {
                 this.browserWidget1.ResourceName(ir.Instance, ir.ResourceName, true, ir.AllowRename);
             }
         }
-
-        //private void resourceCut() { resourceCopy(); if (browserWidget1.SelectedResource != null) package.DeleteResource(browserWidget1.SelectedResource); }
 
         private void ResourceCopy()
         {
@@ -1493,8 +1487,12 @@ namespace S4PIDemoFE
             {
                 if (this.browserWidget1.SelectedResources.Count == 1)
                 {
-                    MyDataFormat d = new MyDataFormat();
-                    d.tgin = this.browserWidget1.SelectedResource as AResourceIndexEntry;
+                    MyDataFormat d = new MyDataFormat
+                                     {
+                                         tgin =
+                                             this.browserWidget1.SelectedResource as
+                                             AResourceIndexEntry
+                                     };
                     d.tgin.ResName = this.resourceName;
                     d.data =
                         WrapperDealer.GetResource(0, this.CurrentPackage, this.browserWidget1.SelectedResource, true)
@@ -1503,7 +1501,6 @@ namespace S4PIDemoFE
                     IFormatter formatter = new BinaryFormatter();
                     MemoryStream ms = new MemoryStream();
                     formatter.Serialize(ms, d);
-                    DataFormats.Format f = DataFormats.GetFormat(DataFormatSingleFile);
                     Clipboard.SetData(DataFormatSingleFile, ms);
                 }
                 else
@@ -1511,8 +1508,7 @@ namespace S4PIDemoFE
                     List<MyDataFormat> l = new List<MyDataFormat>();
                     foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
                     {
-                        MyDataFormat d = new MyDataFormat();
-                        d.tgin = rie as AResourceIndexEntry;
+                        MyDataFormat d = new MyDataFormat { tgin = rie as AResourceIndexEntry };
                         d.tgin.ResName = this.browserWidget1.ResourceName(rie);
                         d.data = WrapperDealer.GetResource(0, this.CurrentPackage, rie, true).AsBytes;
                             //Don't need wrapper
@@ -1522,7 +1518,6 @@ namespace S4PIDemoFE
                     IFormatter formatter = new BinaryFormatter();
                     MemoryStream ms = new MemoryStream();
                     formatter.Serialize(ms, l);
-                    DataFormats.Format f = DataFormats.GetFormat(DataFormatBatch);
                     Clipboard.SetData(DataFormatBatch, ms);
                 }
             }
@@ -1571,11 +1566,7 @@ namespace S4PIDemoFE
 
         private void ResourceIsDeleted()
         {
-            bool target = true;
-            if (this.IsDeletedCheckState() == CheckState.Checked)
-            {
-                target = false;
-            }
+            bool target = this.IsDeletedCheckState() != CheckState.Checked;
             foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
             {
                 this.IsPackageDirty = !this.isPackageDirty || rie.IsDeleted != target;
@@ -1590,10 +1581,12 @@ namespace S4PIDemoFE
                 return;
             }
 
-            ResourceDetails ir = new ResourceDetails(this.resourceName != null && this.resourceName.Length > 0,
+            ResourceDetails ir = new ResourceDetails(!string.IsNullOrEmpty(this.resourceName),
                 false,
-                this.browserWidget1.SelectedResource);
-            ir.Compress = this.browserWidget1.SelectedResource.Compressed != 0;
+                this.browserWidget1.SelectedResource)
+                                 {
+                                     Compress = this.browserWidget1.SelectedResource.Compressed != 0
+                                 };
             if (ir.UseName)
             {
                 ir.ResourceName = this.resourceName;
@@ -1608,7 +1601,7 @@ namespace S4PIDemoFE
             this.browserWidget1.ResourceKey = ir;
             this.browserWidget1.SelectedResource.Compressed = (ushort)(ir.Compress ? 0x5A42 : 0);
 
-            if (ir.UseName && ir.ResourceName != null && ir.ResourceName.Length > 0)
+            if (ir.UseName && !string.IsNullOrEmpty(ir.ResourceName))
             {
                 this.browserWidget1.ResourceName(ir.Instance, ir.ResourceName, true, ir.AllowRename);
             }
@@ -1715,7 +1708,7 @@ namespace S4PIDemoFE
 
         private IResourceIndexEntry NewResource(IResourceKey rk, MemoryStream ms, DuplicateHandling dups, bool compress)
         {
-            IResourceIndexEntry rie = this.CurrentPackage.Find(x => rk.Equals(x));
+            IResourceIndexEntry rie = this.CurrentPackage.Find(rk.Equals);
             if (rie != null)
             {
                 if (dups == DuplicateHandling.Reject)
@@ -1763,11 +1756,11 @@ namespace S4PIDemoFE
                 return;
             }
 
-            if (this.browserWidget1.SelectedResource as AResourceIndexEntry == null)
+            if (!(this.browserWidget1.SelectedResource is AResourceIndexEntry))
             {
                 return;
             }
-            TGIN tgin = this.browserWidget1.SelectedResource as AResourceIndexEntry;
+            TGIN tgin = (AResourceIndexEntry)this.browserWidget1.SelectedResource;
             tgin.ResName = this.resourceName;
 
             this.exportFileDialog.FileName = tgin;
@@ -1811,7 +1804,7 @@ namespace S4PIDemoFE
             {
                 foreach (IResourceIndexEntry rie in this.browserWidget1.SelectedResources)
                 {
-                    if (rie as AResourceIndexEntry == null)
+                    if (!(rie is AResourceIndexEntry))
                     {
                         continue;
                     }
@@ -1887,7 +1880,7 @@ namespace S4PIDemoFE
                 return;
             }
 
-            if (this.Filename != null && this.Filename.Length > 0
+            if (!string.IsNullOrEmpty(this.Filename)
                 && Path.GetFullPath(this.Filename).Equals(Path.GetFullPath(this.exportToPackageDialog.FileName)))
             {
                 CopyableMessageBox.Show("Target must not be same as source.",
@@ -1983,7 +1976,8 @@ namespace S4PIDemoFE
             {
                 Application.UseWaitCursor = true;
                 this.lbProgress.Text = "Exporting to "
-                                       + Path.GetFileNameWithoutExtension(this.exportToPackageDialog.FileName) + "...";
+                                       + Path.GetFileNameWithoutExtension(this.exportToPackageDialog.FileName)
+                                       + "...";
                 Application.DoEvents();
 
                 this.progressBar1.Value = 0;
@@ -2035,11 +2029,9 @@ namespace S4PIDemoFE
                     if (nmrie != null)
                     {
                         IResource newnmap = WrapperDealer.GetResource(0, target, nmrie);
-                        if (newnmap != null && typeof (IDictionary<ulong, string>).IsAssignableFrom(newnmap.GetType()))
+                        if (newnmap is IDictionary<ulong, string>)
                         {
                             IDictionary<ulong, string> targetNames = (IDictionary<ulong, string>)newnmap;
-                            sourceNames.Where(kv => targetNames.ContainsKey(kv.Key))
-                                       .Select(kv => targetNames[kv.Key] = kv.Value);
                             foreach (var kv in sourceNames)
                             {
                                 if (!targetNames.ContainsKey(kv.Key))
@@ -2057,7 +2049,7 @@ namespace S4PIDemoFE
                 this.lbProgress.Text = "Saving...";
                 Application.DoEvents();
                 target.SavePackage();
-                target.Dispose(); //Package.ClosePackage(0, target);
+                target.Dispose();
             }
             finally
             {
@@ -2065,7 +2057,7 @@ namespace S4PIDemoFE
                 this.lbProgress.Text = "";
                 Application.UseWaitCursor = false;
                 Application.DoEvents();
-            } //Package.ClosePackage(0, target)
+            }
         }
 
         private void ExportResourceToPackage(IPackage tgtpkg, IResourceIndexEntry srcrie, bool replace)
@@ -2087,7 +2079,7 @@ namespace S4PIDemoFE
             }
             rie.Compressed = srcrie.Compressed;
 
-            IResource srcres = WrapperDealer.GetResource(0, this.CurrentPackage, srcrie, true); //Don't need wrapper
+            IResource srcres = WrapperDealer.GetResource(0, this.CurrentPackage, srcrie, true); // Don't need wrapper
             tgtpkg.ReplaceResource(rie, srcres);
         }
 
@@ -2157,10 +2149,12 @@ namespace S4PIDemoFE
 
         private void ToolsSearch()
         {
-            SearchForm searchForm = new SearchForm();
-            searchForm.Width = this.Width * 4 / 5;
-            searchForm.Height = this.Height * 4 / 5;
-            searchForm.CurrentPackage = this.CurrentPackage;
+            SearchForm searchForm = new SearchForm
+                                    {
+                                        Width = this.Width * 4 / 5,
+                                        Height = this.Height * 4 / 5,
+                                        CurrentPackage = this.CurrentPackage
+                                    };
             searchForm.Go += this.searchForm_Go;
             searchForm.Show();
         }
@@ -2210,7 +2204,7 @@ namespace S4PIDemoFE
                         this.SettingsManageWrappers();
                         break;
                     case MenuBarWidget.MB.MBS_saveSettings:
-                        this.saveSettings();
+                        this.SaveAppSettingsAndRaiseSettingsEvent();
                         break;
                 }
             }
@@ -2410,7 +2404,7 @@ namespace S4PIDemoFE
             this.browserWidget1.SelectedResource = rie;
         }
 
-        private void saveSettings()
+        private void SaveAppSettingsAndRaiseSettingsEvent()
         {
             this.OnSaveSettings(this, new EventArgs());
             Properties.Settings.Default.Save();
@@ -2837,14 +2831,12 @@ namespace S4PIDemoFE
                 {
                     c.ContextMenuStrip = this.menuBarWidget.previewContextMenuStrip;
                     c.Dock = DockStyle.Fill;
-                    if (c is RichTextBox)
+                    RichTextBox richTextBox = c as RichTextBox;
+                    if (richTextBox != null)
                     {
-                        (c as RichTextBox).ZoomFactor = Properties.Settings.Default.PreviewZoomFactor;
-                        (c as RichTextBox).ContentsResized +=
-                            (s, cre) =>
-                            {
-                                Properties.Settings.Default.PreviewZoomFactor = (s as RichTextBox).ZoomFactor;
-                            };
+                        richTextBox.ZoomFactor = Properties.Settings.Default.PreviewZoomFactor;
+                        richTextBox.ContentsResized +=
+                            (s, cre) => Properties.Settings.Default.PreviewZoomFactor = ((RichTextBox)s).ZoomFactor;
                     }
                 }
             }
@@ -2917,14 +2909,14 @@ namespace S4PIDemoFE
             f.Icon = this.Icon;
 
             f.Text = this.Text
-                     + ((this.resourceName != null && this.resourceName.Length > 0) ? " - " + this.resourceName : "");
+                     + (!string.IsNullOrEmpty(this.resourceName) ? " - " + this.resourceName : "");
 
-            if (c.GetType().Equals(typeof (RichTextBox)))
+            if (c.GetType() == typeof(RichTextBox))
             {
                 f.ClientSize = new Size(this.ClientSize.Width - (this.ClientSize.Width / 5),
                     this.ClientSize.Height - (this.ClientSize.Height / 5));
             }
-            else if (c.GetType().Equals(typeof (PictureBox)))
+            else if (c.GetType() == typeof(PictureBox))
             {
                 f.ClientSize = c.Size;
                 f.SizeGripStyle = SizeGripStyle.Hide;
@@ -2938,9 +2930,10 @@ namespace S4PIDemoFE
 
         private void f_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (!(sender as Form).IsDisposed)
+            Form form = (Form)sender;
+            if (!form.IsDisposed)
             {
-                (sender as Form).Dispose();
+                form.Dispose();
             }
         }
 
