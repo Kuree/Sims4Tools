@@ -1,5 +1,5 @@
 ResourceType: 0x01D10F34
 Label: MLOD Preview
-Command: Helpers\s4peHelpers\ModelViewer.exe
+Command: Helpers\ModelViewer\ModelViewer.exe
 Arguments: "{}"
 Desc: 3d Preview of MLOD
