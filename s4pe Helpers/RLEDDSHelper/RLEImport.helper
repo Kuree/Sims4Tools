@@ -1,6 +1,6 @@
 // RLE Import
 ResourceType: 0x3453CF95
 Label: Import From DDS
-Command: Helpers\s4peHelpers\RLEDDSHelper.exe
+Command: Helpers\RLEDDSHelper\RLEDDSHelper.exe
 Arguments: /import "{}" 
 Desc: Import a DDS into RLE Resource

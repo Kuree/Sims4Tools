@@ -1,4 +1,4 @@
 DDS
-Command: Helpers\s4peHelpers\DDSHelper.exe
+Command: Helpers\DDSHelper\DDSHelper.exe
 Arguments: /export "{}" 
 Desc: Export DDS/DST Resource to DDS/DXT compatible with editors
