@@ -53,13 +53,13 @@ A wrapper should be as dumb as possible and not hide or rearrange any of the dat
 
 *  Download the latest s4pi library.  Unpack into folder somewhere your Visual Studio can access.
 *  Begin your C# solution
-*  As you need to use any s3pi dll, add it to your solution references.  This will cause it to be added to your solution's bin folder. 
+*  As you need to use any s4pi dll, add it to your solution references.  This will cause it to be added to your solution's bin folder. 
 *  Any s4pi dlls in your bin/Release folder should be included with what you publish.  You should not design your tool so it has to use the s4pi dlls in your user's s3pe folder.   
 *  Support for writing your .helper file can be found in your installed s4pe/Helpfiles folder, called Helpers.txt
 
 (Peter Jones, updated Jan 15th 2012 by Inge)
 
--------------
+-----------
 * There is a separate (old) repo for Helper projects, [s4pe-helper]. However, this looks just as abandoned as Kuree's main repo.
 
 How to Contribute
