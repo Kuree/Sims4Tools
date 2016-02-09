@@ -35,7 +35,32 @@ Project Setup
 
 Helper Projects
 -------------
-* The active helpers are hosted at [s4pe-helper]. However, most of them will be shipped with the S4PE build.
+
+Simplified overview how to make a helper tool using s4pi
+
+**Overview**
+
+* A helper is a standalone tool that can open resources as they are exported from a package - long cryptic names and all. At minimum it must be able to be opened by being called from another application (e.g. s4pe) with the filename of the resource as a parameter.  But you can enhance your tool if you wish, so that it can be opened in other ways and used for other roles.
+* The interface between s4pe and your app is a .helper text file, which you edit to call your app in the appropriate way and provide with your tool.  The user may have to edit that if they install somewhere you did not forsee.
+* The helper should include all library dlls it relies on. It should not rely on finding the dlls that are installed with the user's copy of s4pe. This is so that if the user has an older or newer version of s4pe than the one you had when you wrote your tool, they won't end up with compatibility problems trying to use your tool.  Your tool needs to have access to the version of the dlls YOU compiled it with.
+* A helper app can be installed in two different ways.  It can either be totally outside the s4pe folder like any external program, or it can live under the /Helpers folder in s4pe, inside its own subfolder along with its own dlls, with only its .helper textfile directly under /Helpers
+
+**The difference in concept between a helper and a wrapper**
+
+A wrapper should be as dumb as possible and not hide or rearrange any of the data in a resource, even if we do not know what it represents, or if it is stored in a strange order.  A helper on the other hand can display the resource contents in a user-friendly way, prettied up, and bits hidden if they might confuse the user.
+
+**How to make**
+
+*  Download the latest s4pi library.  Unpack into folder somewhere your Visual Studio can access.
+*  Begin your C# solution
+*  As you need to use any s3pi dll, add it to your solution references.  This will cause it to be added to your solution's bin folder. 
+*  Any s4pi dlls in your bin/Release folder should be included with what you publish.  You should not design your tool so it has to use the s4pi dlls in your user's s3pe folder.   
+*  Support for writing your .helper file can be found in your installed s4pe/Helpfiles folder, called Helpers.txt
+
+(Peter Jones, updated Jan 15th 2012 by Inge)
+
+-------------
+* There is a separate (old) repo for Helper projects, [s4pe-helper]. However, this looks just as abandoned as Kuree's main repo.
 
 How to Contribute
 -----------
@@ -56,6 +81,7 @@ Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy 
 * 11/27/2014: update contributors and version number.
 * 1/16/2014: update the version number and helper project desc.
 * 2015-12-24: Quick update to reflect the current status a little better
+* 2016-02-09: Helper instructions moved over from simlogical archive
 [s3pi and s3pe]: http://sourceforge.net/projects/sims3tools/
 [Kuree]:https://github.com/Kuree
 [ChaosMageX]:https://github.com/ChaosMageX
