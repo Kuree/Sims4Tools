@@ -5,13 +5,13 @@ s4pe, based on the s4pi interface library, is an editing tool for the .package f
 Current Version
 ----
 
-[0.4.1] is the most recent version. The [main repository] is not being maintained at this point in time. 
+[0.4.2] is the most recent version. The [main repository] is not being maintained any more. 
 
 
 Contributors
 -----------
 
-Roughly in chronological order -- [full details here] (https://github.com/pboxx/Sims4Tools/graphs/contributors)
+Roughly in chronological order -- [full details here] (https://github.com/s4ptacle/Sims4Tools/graphs/contributors)
 
 * Peter Jones - Main author of s3pe/s3pi
 * [Rick] - a pioneer in TS4
@@ -26,27 +26,20 @@ Roughly in chronological order -- [full details here] (https://github.com/pboxx/
 * [Buzzler] - Some general cleanup; implementation of catalog tag lists
 
 Requirements
---------------
-```sh
+-------------
 .NET 4.0
-```
+
 Project Setup
 -------------
-Visual Studio is currently required. We have two main version, 2013 and 2010. You can pick up one of them below to start.
-```
-sims4tools.sln
-sims4tools2010.sln
-```
+Visual Studio is currently required. sims4tools.sln is the solution currently in use.
 
 Helper Projects
 -------------
 * The active helpers are hosted at [s4pe-helper]. However, most of them will be shipped with the S4PE build.
 
-
 How to Contribute
 -----------
 - Fork the project, modify it, and send us a pull request!
-
 
 License
 ----
@@ -79,4 +72,4 @@ Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy 
 [main repository]:https://github.com/Kuree/Sims4Tools
 [GNU General Public License v3]:http://www.gnu.org/licenses/gpl-3.0.html
 [The Sims 4]:https://en.wikipedia.org/wiki/The_Sims_4
-[0.4.1]:https://github.com/pboxx/Sims4Tools/releases/tag/0.4.1_beta
+[0.4.2]:https://github.com/s4ptacle/Sims4Tools/releases/tag/v0.4.2-beta
