@@ -27,11 +27,11 @@ Roughly in chronological order -- [full details here] (https://github.com/s4ptac
 
 Requirements
 -------------
-.NET 4.0
+* .NET 4.0
 
 Project Setup
 -------------
-Visual Studio is currently required. sims4tools.sln is the solution currently in use.
+* Visual Studio is currently required. sims4tools.sln is the solution currently in use.
 
 Helper Projects
 -------------
@@ -39,7 +39,7 @@ Helper Projects
 
 How to Contribute
 -----------
-- Fork the project, modify it, and send us a pull request!
+* Fork the project, modify it, and send us a pull request!
 
 License
 ----
