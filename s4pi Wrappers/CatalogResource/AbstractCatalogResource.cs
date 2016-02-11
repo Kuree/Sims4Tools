@@ -541,7 +541,7 @@ namespace CatalogResource
             writer.Write(this.version);
             if (this.commonA == null)
             {
-                this.commonA = new CatalogCommon(COBJResource.kRecommendedApiVersion, this.OnResourceChanged);
+                this.commonA = new CatalogCommon(kRecommendedApiVersion, this.OnResourceChanged);
             }
             this.commonA.UnParse(s);
             writer.Write(this.auralMaterialsVersion);
@@ -580,6 +580,10 @@ namespace CatalogResource
             writer.Write(this.fenceHeight);
             writer.Write(this.isStackable);
             writer.Write(this.canItemDepreciate);
+            if (this.fallbackObjectKey == null)
+            {
+                this.fallbackObjectKey = new TGIBlock(kRecommendedApiVersion, this.OnResourceChanged);
+            }
             if (this.version >= 0x19)
             {
                 this.fallbackObjectKey.UnParse(s);

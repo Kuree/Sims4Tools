@@ -30,7 +30,7 @@ namespace CatalogResource
 {
     public class CCOLResource : AbstractCatalogResource
     {
-        private uint unknown01;
+        private uint unknown02;
         private uint refIndicator;
         private Gp9references modlRefs; //only if unk15 != 0
         private Gp9references ftptRefs; //only if unk15 != 0
@@ -61,14 +61,14 @@ namespace CatalogResource
          */
 
         [ElementPriority(40)]
-        public uint Unknown01
+        public uint Unknown02
         {
-            get { return this.unknown01; }
+            get { return this.unknown02; }
             set
             {
-                if (this.unknown01 != value)
+                if (this.unknown02 != value)
                 {
-                    this.unknown01 = value;
+                    this.unknown02 = value;
                     this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
@@ -164,7 +164,7 @@ namespace CatalogResource
             base.Parse(s);
             var reader = new BinaryReader(s);
 
-            this.unknown01 = reader.ReadUInt32();
+            this.unknown02 = reader.ReadUInt32();
             this.refIndicator = reader.ReadUInt32();
             if (this.refIndicator == 0)
             {
@@ -182,7 +182,7 @@ namespace CatalogResource
             Stream stream = base.UnParse();
             var writer = new BinaryWriter(stream);
 
-            writer.Write(this.unknown01);
+            writer.Write(this.unknown02);
             writer.Write(this.refIndicator);
             if (this.refIndicator == 0)
             {

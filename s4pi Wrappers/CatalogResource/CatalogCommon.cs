@@ -442,7 +442,7 @@ namespace CatalogResource
 
         public void MakeNew()
         {
-            this.commonBlockVersion = 0x9;
+            this.commonBlockVersion = 0xB;
             this.nameHash = 0;
             this.descriptionHash = 0;
             this.price = 0;
