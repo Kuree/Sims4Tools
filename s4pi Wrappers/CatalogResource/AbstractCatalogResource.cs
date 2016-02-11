@@ -41,6 +41,7 @@ namespace CatalogResource
         private uint auralAmbientObject = 0x811C9DC5;
         private ulong ambienceFileInstanceId;
         private byte isOverrideAmbience;
+        private byte unknown01;
         private uint unused0;
         private uint unused1;
         private uint unused2;
@@ -230,6 +231,20 @@ namespace CatalogResource
                 if (this.isOverrideAmbience != value)
                 {
                     this.isOverrideAmbience = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(15)]
+        public byte Unknown01
+        {
+            get { return this.unknown01; }
+            set
+            {
+                if (this.unknown01 != value)
+                {
+                    this.unknown01 = value;
                     this.OnResourceChanged(this, EventArgs.Empty);
                 }
             }
@@ -460,10 +475,14 @@ namespace CatalogResource
                 {
                     res.Remove("AuralAmbientObject");
                 }
-                if (this.auralPropertiesVersion < 3)
+                if (this.auralPropertiesVersion != 3)
                 {
                     res.Remove("AmbienceFileInstanceId");
                     res.Remove("IsOverrideAmbience");
+                }
+                if (this.auralPropertiesVersion != 4)
+                {
+                    res.Remove("Unknown01");
                 }
                 return res;
             }
@@ -485,10 +504,14 @@ namespace CatalogResource
             {
                 this.auralAmbientObject = reader.ReadUInt32();
             }
-            if (this.auralPropertiesVersion > 2)
+            if (this.auralPropertiesVersion == 3)
             {
                 this.ambienceFileInstanceId = reader.ReadUInt64();
                 this.isOverrideAmbience = reader.ReadByte();
+            }
+            if (this.auralPropertiesVersion == 4)
+            {
+                this.unknown01 = reader.ReadByte();
             }
             this.unused0 = reader.ReadUInt32();
             this.unused1 = reader.ReadUInt32();
@@ -531,10 +554,14 @@ namespace CatalogResource
             {
                 writer.Write(this.auralAmbientObject);
             }
-            if (this.auralPropertiesVersion > 2)
+            if (this.auralPropertiesVersion == 3)
             {
                 writer.Write(this.ambienceFileInstanceId);
                 writer.Write(this.isOverrideAmbience);
+            }
+            if (this.auralPropertiesVersion == 4)
+            {
+                writer.Write(this.unknown01);
             }
             writer.Write(this.unused0);
             writer.Write(this.unused1);
