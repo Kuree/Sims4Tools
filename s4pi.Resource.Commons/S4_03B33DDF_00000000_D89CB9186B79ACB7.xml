@@ -1455,6 +1455,8 @@
       <T ev="1496">BuyCatLD_RugManaged</T>
       <T ev="1497">Appropriateness_Visitor</T>
       <T ev="1498">Func_Movie</T>
+      <T ev="1499">Food_GrilledCheese</T>
+      <T ev="1500">Func_CoatRack</T>
       <T ev="8194">Skill_Psychic</T>
       <T ev="8195">Style_Witch</T>
       <T ev="8196">Style_Pirate</T>
@@ -1807,6 +1809,8 @@
       <T ev="28676">Func_Popcorn_Caramel</T>
       <T ev="28677">Func_Popcorn_Kettle</T>
       <T ev="28678">Func_Popcorn_Buttered</T>
+      <T ev="30721">Func_ParkFountain</T>
+      <T ev="30722">Func_WishingWell</T>
     </L>
   </C>
 </M>
