@@ -76,6 +76,10 @@ namespace s4pi.Miscellaneous
             ulong modelIID = 0x0000000000000000;
             ulong baseFileNameHash = 0x0000000000000000;
             byte widthAndMappingFlags;
+            // From EA template:
+            // bits 0-5: Width of cutout in tiles.
+            // bit 6: Indicates single texture cutout.
+            // bit 7: Indicates diagonal cutout mapping in use (1 texture = sqrt(2) meters).
             byte minimumWallHeight;
             byte numberOfLevels;
             byte unused;
