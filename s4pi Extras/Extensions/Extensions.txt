@@ -80,7 +80,7 @@
 0x0D338A3A  THUM   .jpg
 0x11C258C0  CTRG   .bnry
 0x16CA6BC4  _THM   .jpg
-0x16CCF748  THUM   .jpg
+0x16CCF748  THUM   .png
 0x19301120  WCLR   .worldcolortimeline
 0x1A3201CD  _MOD   .override
 0x1A8506C5  _XML   .xml
@@ -207,9 +207,9 @@
 0xDD3223A7  BUFF   .xml
 0xDD6233D6  HTML   .html
 0xDEA2951C  PETB   .breed
-0xE18CAEE2  THUM   .jpg
+0xE18CAEE2  THUM   .png
 0xE231B3D8  _XML   .xml
-0xE254AE6E  THUM   .jpg
+0xE254AE6E  THUM   .png
 0xE5105066  _XML   .xml
 0xE5105067  RMLS   .xml
 0xE5105068  _XML   .xml

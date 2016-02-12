@@ -326,7 +326,7 @@ namespace s4pi.ImageResource
     {
         public ThumbnailResourceHandler()
         {
-            this.Add(typeof(ThumbnailResource), new List<string>(new string[] { "0x3C1AF1F2", "0xCD9DE247", "0x5B282D45", "0x0D338A3A", "0x3BD45407", "0x3C2A8647", }));
+            this.Add(typeof(ThumbnailResource), new List<string>(new string[] { "0x0D338A3A", "0x16CCF748", "0x3BD45407", "0x3C1AF1F2", "0x3C2A8647", "0x5B282D45", "0xCD9DE247", "0xE18CAEE2", "0xE254AE6E", }));
         }
     }
 }

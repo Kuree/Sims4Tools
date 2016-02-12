@@ -279,7 +279,7 @@ namespace S4PIDemoFE
             0x05B1B524, //  THUM   .png
             0x05B1B525, //  THUM   .png
             0x05B1B526, //  THUM   .png
-            0x0668F635, //  TWNI   .png
+            0x0668F635, //  TWNI   .png 
             0x2653E3C8, //  THUM   .png
             0x2653E3C9, //  THUM   .png
             0x2653E3CA, //  THUM   .png
@@ -427,19 +427,18 @@ namespace S4PIDemoFE
         //TODO: static constructor read this from file
         //TODO: temporarily use the one from s4pi ImageResource wrapper source
         static uint[] resourceTypes = new uint[] {
+            0x0D338A3A,
+            0x16CCF748,
             0x3BD45407,
             0x3C1AF1F2,
-            0x5B282D45,
-            0x56278554,
-            0xCD9DE247,
-            0x0D338A3A,
-            0x3BD45407,
             0x3C2A8647,
-            0xE254AE6E,
-            0x16CCF748,
-            0xE18CAEE2,
+            0x56278554,
+            0x5B282D45,
             0x9C925813,
-            0xA1FF2FC4
+            0xA1FF2FC4,
+            0xCD9DE247,
+            0xE18CAEE2,
+            0xE254AE6E
         };
 
         PictureBox pb = new PictureBox();
