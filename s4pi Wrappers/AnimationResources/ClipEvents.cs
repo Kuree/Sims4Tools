@@ -3,18 +3,18 @@
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
- *  s3pi is free software: you can redistribute it and/or modify           *
+ *  s4pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -62,7 +62,7 @@ namespace s4pi.Animation
         } 
     } 
 
-    public class ClipEvent3 : ClipEvent
+    public class ClipEventSound : ClipEvent
     {
         private string sound_name;
 
@@ -79,9 +79,9 @@ namespace s4pi.Animation
 
         protected override bool isEqual(ClipEvent other)
         {
-            if (other is ClipEvent3)
+            if (other is ClipEventSound)
             {
-                ClipEvent3 f = other as ClipEvent3;
+                ClipEventSound f = other as ClipEventSound;
                 return String.Compare(this.sound_name, f.sound_name) == 0;
             }
             else
@@ -90,17 +90,17 @@ namespace s4pi.Animation
             }
         }
 
-        public ClipEvent3(int apiVersion, EventHandler handler)
+        public ClipEventSound(int apiVersion, EventHandler handler)
             : base(apiVersion, handler, ClipEventType.SOUND)
         {
         }
 
-        public ClipEvent3(int apiVersion, EventHandler handler, ClipEventType typeId, Stream s)
+        public ClipEventSound(int apiVersion, EventHandler handler, ClipEventType typeId, Stream s)
             : base(apiVersion, handler, typeId, s)
         {
         }
 
-        public ClipEvent3(int apiVersion, EventHandler handler, ClipEvent3 basis)
+        public ClipEventSound(int apiVersion, EventHandler handler, ClipEventSound basis)
             : base(apiVersion, handler, basis)
         {
             this.sound_name = basis.sound_name;
@@ -119,7 +119,55 @@ namespace s4pi.Animation
         }
     }
 
-    public class ClipEvent5 : ClipEvent
+    public class ClipEventScript : ClipEvent
+    {
+        private byte[] data;
+
+        public byte[] Data
+        {
+            get { return data; }
+            set { if (this.data != value) { this.data = value; OnElementChanged(); } }
+        }
+
+        protected override uint typeSize
+        {
+            get { return (uint)this.data.Length; }
+        }
+
+        protected override bool isEqual(ClipEvent other)
+        {
+            if (other is ClipEventScript)
+            {
+                ClipEventScript f = other as ClipEventScript;
+                return Enumerable.SequenceEqual(this.data, f.data);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public ClipEventScript(int apiVersion, EventHandler handler)
+            : this(apiVersion, handler, 0, 12)
+        {
+        }
+        public ClipEventScript(int apiVersion, EventHandler handler, ClipEventType typeId, uint size)
+            : base(apiVersion, handler, typeId)
+        {
+            this.data = new byte[size - 4 * 3];
+        }
+
+        protected override void ReadTypeData(Stream ms)
+        {
+            ms.Read(this.data, 0, this.data.Length);
+        }
+        protected override void WriteTypeData(Stream ms)
+        {
+            ms.Write(this.data, 0, this.data.Length);
+        }
+    }
+
+    public class ClipEventEffect : ClipEvent
     {
         private string slot_name;
         private uint actor_name_hash;
@@ -165,9 +213,9 @@ namespace s4pi.Animation
 
         protected override bool isEqual(ClipEvent other)
         {
-            if (other is ClipEvent5)
+            if (other is ClipEventEffect)
             {
-                ClipEvent5 f = other as ClipEvent5;
+                ClipEventEffect f = other as ClipEventEffect;
                 return (String.Compare(this.slot_name, f.slot_name) == 0 && String.Compare(this.effect_name, f.effect_name) == 0 &&
                     this.actor_name_hash == f.actor_name_hash && this.slot_name_hash == f.slot_name_hash &&
                     Enumerable.SequenceEqual(this.unknown, f.unknown));
@@ -178,17 +226,17 @@ namespace s4pi.Animation
             }
         }
 
-        public ClipEvent5(int apiVersion, EventHandler handler)
+        public ClipEventEffect(int apiVersion, EventHandler handler)
             : base(apiVersion, handler, ClipEventType.EFFECT)
         {
         }
 
-        public ClipEvent5(int apiVersion, EventHandler handler, ClipEventType typeId, Stream s)
+        public ClipEventEffect(int apiVersion, EventHandler handler, ClipEventType typeId, Stream s)
             : base(apiVersion, handler, typeId, s)
         {
         }
 
-        public ClipEvent5(int apiVersion, EventHandler handler, ClipEvent5 basis)
+        public ClipEventEffect(int apiVersion, EventHandler handler, ClipEventEffect basis)
             : base(apiVersion, handler, basis)
         {
             this.unknown = basis.unknown;
@@ -220,7 +268,55 @@ namespace s4pi.Animation
         }
     }
 
-    public class ClipEvent14 : ClipEvent
+    public class ClipEventSNAP : ClipEvent
+    {
+        private byte[] data;
+
+        public byte[] Data
+        {
+            get { return data; }
+            set { if (this.data != value) { this.data = value; OnElementChanged(); } }
+        }
+
+        protected override uint typeSize
+        {
+            get { return (uint)this.data.Length; }
+        }
+
+        protected override bool isEqual(ClipEvent other)
+        {
+            if (other is ClipEventSNAP)
+            {
+                ClipEventSNAP f = other as ClipEventSNAP;
+                return Enumerable.SequenceEqual(this.data, f.data);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public ClipEventSNAP(int apiVersion, EventHandler handler)
+            : this(apiVersion, handler, 0, 12)
+        {
+        }
+        public ClipEventSNAP(int apiVersion, EventHandler handler, ClipEventType typeId, uint size)
+            : base(apiVersion, handler, typeId)
+        {
+            this.data = new byte[size - 4 * 3];
+        }
+
+        protected override void ReadTypeData(Stream ms)
+        {
+            ms.Read(this.data, 0, this.data.Length);
+        }
+        protected override void WriteTypeData(Stream ms)
+        {
+            ms.Write(this.data, 0, this.data.Length);
+        }
+    }
+
+    public class ClipEventDoubleModifierSound : ClipEvent
     {
         private string unknown_3;
         private uint actor_name;
@@ -252,9 +348,9 @@ namespace s4pi.Animation
 
         protected override bool isEqual(ClipEvent other)
         {
-            if (other is ClipEvent14)
+            if (other is ClipEventDoubleModifierSound)
             {
-                ClipEvent14 f = other as ClipEvent14;
+                ClipEventDoubleModifierSound f = other as ClipEventDoubleModifierSound;
                 return (String.Compare(this.unknown_3, f.unknown_3) == 0 &&
                     this.actor_name == f.actor_name && this.slot_name == f.slot_name);
             }
@@ -264,17 +360,17 @@ namespace s4pi.Animation
             }
         }
 
-        public ClipEvent14(int apiVersion, EventHandler handler)
+        public ClipEventDoubleModifierSound(int apiVersion, EventHandler handler)
             : base(apiVersion, handler, (ClipEventType)14)
         {
         }
 
-        public ClipEvent14(int apiVersion, EventHandler handler, ClipEventType typeId, Stream s)
+        public ClipEventDoubleModifierSound(int apiVersion, EventHandler handler, ClipEventType typeId, Stream s)
             : base(apiVersion, handler, typeId, s)
         {
         }
 
-        public ClipEvent14(int apiVersion, EventHandler handler, ClipEvent14 basis)
+        public ClipEventDoubleModifierSound(int apiVersion, EventHandler handler, ClipEventDoubleModifierSound basis)
             : base(apiVersion, handler, basis)
         {
             this.slot_name = basis.slot_name;
@@ -299,7 +395,7 @@ namespace s4pi.Animation
         }
     }
 
-    public class ClipEvent19 : ClipEvent
+    public class ClipEventCensor : ClipEvent
     {
         private float unknown_3;
 
@@ -316,9 +412,9 @@ namespace s4pi.Animation
 
         protected override bool isEqual(ClipEvent other)
         {
-            if (other is ClipEvent19)
+            if (other is ClipEventCensor)
             {
-                ClipEvent19 f = other as ClipEvent19;
+                ClipEventCensor f = other as ClipEventCensor;
                 return this.unknown_3 == f.unknown_3;
             }
             else
@@ -327,17 +423,17 @@ namespace s4pi.Animation
             }
         }
 
-        public ClipEvent19(int apiVersion, EventHandler handler)
+        public ClipEventCensor(int apiVersion, EventHandler handler)
             : base(apiVersion, handler, (ClipEventType)19)
         {
         }
 
-        public ClipEvent19(int apiVersion, EventHandler handler, ClipEventType typeId, Stream s)
+        public ClipEventCensor(int apiVersion, EventHandler handler, ClipEventType typeId, Stream s)
             : base(apiVersion, handler, typeId, s)
         {
         }
 
-        public ClipEvent19(int apiVersion, EventHandler handler, ClipEvent19 basis)
+        public ClipEventCensor(int apiVersion, EventHandler handler, ClipEventCensor basis)
             : base(apiVersion, handler, basis)
         {
             this.unknown_3 = basis.unknown_3;
@@ -386,7 +482,7 @@ namespace s4pi.Animation
         }
 
         public ClipEventUnknown(int apiVersion, EventHandler handler)
-            : this(apiVersion, handler, 0, 0)
+            : this(apiVersion, handler, 0, 12)
         {
         }
         public ClipEventUnknown(int apiVersion, EventHandler handler, ClipEventType typeId, uint size)
@@ -466,7 +562,7 @@ namespace s4pi.Animation
         }
 
         protected abstract uint typeSize { get; }
-        public uint Size
+        internal uint Size
         {
             get { return this.typeSize + 12; }
         }
@@ -514,13 +610,17 @@ namespace s4pi.Animation
             switch ((uint)typeId)
             {
                 case 3:
-                    return new ClipEvent3(0, handler);
+                    return new ClipEventSound(0, handler);
+                case 4:
+                    return new ClipEventScript(0, handler, typeId, size);
                 case 5:
-                    return new ClipEvent5(0, handler);
+                    return new ClipEventEffect(0, handler);
+                case 12:
+                    return new ClipEventSNAP(0, handler, typeId, size);
                 case 14:
-                    return new ClipEvent14(0, handler);
+                    return new ClipEventDoubleModifierSound(0, handler);
                 case 19:
-                    return new ClipEvent19(0, handler);
+                    return new ClipEventCensor(0, handler);
                 default:
                     return new ClipEventUnknown(0, handler, typeId, size);
             }

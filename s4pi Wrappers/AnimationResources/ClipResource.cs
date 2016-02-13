@@ -3,18 +3,18 @@
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
- *  s3pi is free software: you can redistribute it and/or modify           *
+ *  s4pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -37,10 +37,9 @@ namespace s4pi.Animation
         private uint surfacechildNamespaceHash;
         private string clip_name;
         private string rigNameSpace;
-        private string[] explicitNamespaces;
-        IkConfiguration slot_assignments;
-        ClipEventList clip_events;
-        private uint codecDataLength;
+        private ExplicitNameSpaceList explicitNamespaces;
+        private IkConfiguration slot_assignments;
+        private ClipEventList clip_events;
         private S3CLIP codecData;
 
         public string Value
@@ -132,7 +131,7 @@ namespace s4pi.Animation
             set { if (this.rigNameSpace != value) { rigNameSpace = value; this.OnResourceChanged(this, EventArgs.Empty); } }
         }
         [ElementPriority(11)]
-        public string[] ExplicitNamespaces
+        public ExplicitNameSpaceList ExplicitNamespaces
         {
             get { return explicitNamespaces; }
             set { if (this.explicitNamespaces != value) { explicitNamespaces = value; this.OnResourceChanged(this, EventArgs.Empty); } }
@@ -156,26 +155,17 @@ namespace s4pi.Animation
             set { if (this.codecData != value) { this.codecData = value; OnResourceChanged(this, EventArgs.Empty); } }
         }
 
-        public ClipResource(int apiVersion)
-            : base(apiVersion,null) 
-        {
-            this.initialOffsetQ = new Quaternion(RecommendedApiVersion, OnResourceChanged);
-            this.initialOffsetT = new Vector3(RecommendedApiVersion, OnResourceChanged);
-            this.slot_assignments = new IkConfiguration(this.OnResourceChanged);
-            this.clip_events = new ClipEventList(this.OnResourceChanged);
-            this.codecData = new S3CLIP(RecommendedApiVersion, OnResourceChanged);
-        }
         public ClipResource(int apiVersion, Stream s)
             : base(apiVersion, s)
         {
             
-            if (base.stream == null)
+            if (this.stream == null || this.stream.Length == 0)
             {
-                base.stream = UnParse();
+                this.stream = UnParse();
                 OnResourceChanged(this, new EventArgs());
             }
-            base.stream.Position = 0L;
-            Parse(s);
+            this.stream.Position = 0L;
+            Parse(this.stream);
         }
         void Parse(Stream s)
         {
@@ -206,12 +196,7 @@ namespace s4pi.Animation
             this.rigNameSpace = br.ReadString32();
             if (version >= 4)
             {
-                int explicitNamespaceCount = br.ReadInt32();
-                explicitNamespaces = new string[explicitNamespaceCount];
-                for (int i = 0; i < explicitNamespaceCount; i++)
-                {
-                    explicitNamespaces[i] = br.ReadString32();
-                }
+                explicitNamespaces = new ExplicitNameSpaceList(OnResourceChanged, s);
             }
             this.slot_assignments = new IkConfiguration(OnResourceChanged, s);
             uint clipEventLength = br.ReadUInt32();
@@ -225,8 +210,8 @@ namespace s4pi.Animation
                 events.Add(evt);
             }
             this.clip_events = new ClipEventList(this.OnResourceChanged, events);
-            this.codecDataLength = br.ReadUInt32();
-            if (this.codecDataLength > 0)
+            uint codecDataLength = br.ReadUInt32();
+            if (codecDataLength > 0)
             {
                 this.codecData = new S3CLIP(RecommendedApiVersion, OnResourceChanged, s);
             }
@@ -236,10 +221,13 @@ namespace s4pi.Animation
         {
             var ms = new MemoryStream();
             var bw = new BinaryWriter(ms);
+            if (this.version == 0) this.version = 14;
             bw.Write(this.version);
             bw.Write(this.flags);
             bw.Write(this.duration);
+            if (this.initialOffsetQ == null) this.initialOffsetQ = new Quaternion(RecommendedApiVersion, OnResourceChanged);
             this.initialOffsetQ.UnParse(ms);
+            if (this.initialOffsetT == null) this.initialOffsetT = new Vector3(RecommendedApiVersion, OnResourceChanged);
             this.initialOffsetT.UnParse(ms);
             if (version >= 5)
             {
@@ -257,19 +245,19 @@ namespace s4pi.Animation
             }
             if (version >= 7)
             {
+                if (this.clip_name == null) this.clip_name = "";
                 bw.WriteString32(this.clip_name);
             }
+            if (this.rigNameSpace == null) this.rigNameSpace = "";
             bw.WriteString32(this.rigNameSpace);
             if (version >= 4)
             {
-                if (this.explicitNamespaces == null) this.explicitNamespaces = new string[0];
-                bw.Write(this.explicitNamespaces.Length);
-                for (int i = 0; i < this.explicitNamespaces.Length; i++)
-                {
-                    bw.WriteString32(explicitNamespaces[i]);
-                }
+                if (this.explicitNamespaces == null) this.explicitNamespaces = new ExplicitNameSpaceList(OnResourceChanged);
+                this.explicitNamespaces.UnParse(ms);
             }
+            if (this.slot_assignments == null) this.slot_assignments = new IkConfiguration(OnResourceChanged);
             this.slot_assignments.UnParse(ms);
+            if (this.clip_events == null) this.clip_events = new ClipEventList(OnResourceChanged);
             bw.Write(this.clip_events.Count);
             foreach (var clip_event in clip_events)
             {
@@ -277,8 +265,13 @@ namespace s4pi.Animation
                 bw.Write(clip_event.Size);
                 clip_event.UnParse(ms);
             }
-            bw.Write(this.codecDataLength);
+            long codecStart = ms.Position;
+            bw.Write(0);
+            if (this.codecData == null) this.codecData = new S3CLIP(RecommendedApiVersion, OnResourceChanged);
             this.codecData.UnParse(ms);
+            long codecEnd = ms.Position;
+            ms.Position = codecStart;
+            bw.Write((uint)(codecEnd - codecStart - 4));
             ms.Position = 0L;
             return ms;
         }
@@ -421,6 +414,111 @@ namespace s4pi.Animation
                 get { return "X: " + this.x.ToString() + ", Y: " + this.y.ToString() + ", Z: " + this.z.ToString() + ", W: " + this.w.ToString(); }
             }
         } 
+
+        public class ExplicitNameSpaceList : DependentList<ExplicitNameSpace>
+        {
+            public ExplicitNameSpaceList(EventHandler handler)
+                : base(handler)
+            {
+            }
+
+            public ExplicitNameSpaceList(EventHandler handler, Stream s)
+                : base(handler)
+            {
+                this.Parse(s);
+            }
+
+            protected override void Parse(Stream s)
+            {
+                BinaryReader br = new BinaryReader(s);
+                int strCount = br.ReadInt32();
+                for (var i = 0; i < strCount; i++)
+                {
+                    this.Add(new ExplicitNameSpace(1, handler, s));
+                }
+            }
+
+            public override void UnParse(Stream s)
+            {
+                BinaryWriter bw = new BinaryWriter(s);
+                bw.Write(this.Count);
+                foreach (ExplicitNameSpace p in this)
+                {
+                    p.UnParse(s);
+                }
+            }
+
+            protected override ExplicitNameSpace CreateElement(Stream s)
+            {
+                return new ExplicitNameSpace(1, handler, s);
+            }
+
+            protected override void WriteElement(Stream s, ExplicitNameSpace element)
+            {
+                element.UnParse(s);
+            }
+
+        }
+
+        public class ExplicitNameSpace : AHandlerElement, IEquatable<ExplicitNameSpace>
+        {
+            private string nameSpace;
+
+            public string NameSpace
+            {
+                get { return nameSpace; }
+                set { if (this.nameSpace != value) { this.nameSpace = value; OnElementChanged(); } }
+            }
+
+            public string Value
+            {
+                get { return NameSpace; }
+            }
+
+            #region AHandlerElement Members
+
+            public override int RecommendedApiVersion
+            {
+                get { return this.requestedApiVersion; }
+            }
+
+            public override List<string> ContentFields
+            {
+                get { return GetContentFields(this.requestedApiVersion, this.GetType()); }
+            }
+            #endregion
+
+            public bool Equals(ExplicitNameSpace other)
+            {
+                return string.Compare(this.nameSpace, other.nameSpace) == 0;
+            }
+
+            public ExplicitNameSpace(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
+            {
+            }
+            public ExplicitNameSpace(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler)
+            {
+                this.Parse(s);
+            }
+            public ExplicitNameSpace(int apiVersion, EventHandler handler, ExplicitNameSpace basis)
+                : base(apiVersion, handler)
+            {
+                this.nameSpace = basis.nameSpace;
+            }
+
+            public void Parse(Stream s)
+            {
+                BinaryReader br = new BinaryReader(s);
+                this.nameSpace = br.ReadString32();
+            }
+            public void UnParse(Stream s)
+            {
+                BinaryWriter bw = new BinaryWriter(s);
+                bw.WriteString32(this.nameSpace);
+            }
+        }
     }
 
 }
