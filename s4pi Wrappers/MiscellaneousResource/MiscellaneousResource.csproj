@@ -36,6 +36,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModelFlags.cs" />
     <Compile Include="MTBLResource.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="AUEVResource.cs" />
@@ -45,6 +46,7 @@
     <Compile Include="THMResource.cs" />
     <Compile Include="TMLTResource.cs" />
     <Compile Include="TRIMResource.cs" />
+    <Compile Include="WidthAndMappingFlags.cs" />
     <Compile Include="WorldColorTimelineResource.cs" />
   </ItemGroup>
   <ItemGroup>
