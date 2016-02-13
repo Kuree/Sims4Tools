@@ -1,6 +1,9 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Inge Jones                                       *
- *  Modified by pbox 2015-04-25                                            *
+ *  Copyright (C) 2014, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Inge Jones                                                             *
+ *  pbox                                                                   *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -17,6 +20,7 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using s4pi.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -75,7 +79,7 @@ namespace s4pi.Miscellaneous
             long offset = 0;
             ulong modelIID = 0x0000000000000000;
             ulong baseFileNameHash = 0x0000000000000000;
-            byte widthAndMappingFlags;
+            WidthAndMappingFlags widthAndMappingFlags;
             byte minimumWallHeight;
             byte numberOfLevels;
             byte unused;
@@ -85,11 +89,11 @@ namespace s4pi.Miscellaneous
             float thumbnailBoundsMaxX;
             float thumbnailBoundsMaxZ;
             float thumbnailBoundsMaxY;
-            uint flags;
+            ModelFlags modelFlags;
             ulong vfxHash = 0x0000000000000000;
-                        
+
             public MTBLEntry(int apiVersion, EventHandler handler, MTBLEntry other)
-                : this(apiVersion, handler, other.modelIID, other.baseFileNameHash, other.widthAndMappingFlags, other.minimumWallHeight, other.numberOfLevels, other.unused, other.thumbnailBoundsMinX, other.thumbnailBoundsMinZ, other.thumbnailBoundsMinY, other.thumbnailBoundsMaxX, other.thumbnailBoundsMaxZ, other.thumbnailBoundsMaxY, other.flags, other.vfxHash)
+                : this(apiVersion, handler, other.modelIID, other.baseFileNameHash, other.widthAndMappingFlags, other.minimumWallHeight, other.numberOfLevels, other.unused, other.thumbnailBoundsMinX, other.thumbnailBoundsMinZ, other.thumbnailBoundsMinY, other.thumbnailBoundsMaxX, other.thumbnailBoundsMaxZ, other.thumbnailBoundsMaxY, other.modelFlags, other.vfxHash)
             {
             }
             public MTBLEntry(int apiVersion, EventHandler handler)
@@ -101,7 +105,7 @@ namespace s4pi.Miscellaneous
             {
                 this.Parse(s);
             }
-            public MTBLEntry(int apiVersion, EventHandler handler, ulong modelIID, ulong baseFileNameHash, byte widthAndMappingFlags, byte minimumWallHeight, byte numberOfLevels, byte unused, float thumbnailBoundsMinX, float thumbnailBoundsMinZ, float thumbnailBoundsMinY, float thumbnailBoundsMaxX, float thumbnailBoundsMaxZ, float thumbnailBoundsMaxY, uint flags, ulong vfxHash)
+            public MTBLEntry(int apiVersion, EventHandler handler, ulong modelIID, ulong baseFileNameHash, WidthAndMappingFlags widthAndMappingFlags, byte minimumWallHeight, byte numberOfLevels, byte unused, float thumbnailBoundsMinX, float thumbnailBoundsMinZ, float thumbnailBoundsMinY, float thumbnailBoundsMaxX, float thumbnailBoundsMaxZ, float thumbnailBoundsMaxY, ModelFlags modelFlags, ulong vfxHash)
                 : base(apiVersion, handler)
             {
                 this.modelIID = modelIID;
@@ -116,7 +120,7 @@ namespace s4pi.Miscellaneous
                 this.thumbnailBoundsMaxX = thumbnailBoundsMaxX;
                 this.thumbnailBoundsMaxZ = thumbnailBoundsMaxZ;
                 this.thumbnailBoundsMaxY = thumbnailBoundsMaxY;
-                this.flags = flags;
+                this.modelFlags = modelFlags;
                 this.vfxHash = vfxHash;
             }
 
@@ -138,7 +142,7 @@ namespace s4pi.Miscellaneous
                 set { this.baseFileNameHash = value; OnElementChanged(); }
             }
             [ElementPriority(3)]
-            public byte WidthAndMappingFlags
+            public WidthAndMappingFlags WidthAndMappingFlags
             {
                 get { return widthAndMappingFlags; }
                 set { this.widthAndMappingFlags = value; OnElementChanged(); }
@@ -200,10 +204,10 @@ namespace s4pi.Miscellaneous
             }
 
             [ElementPriority(13)]
-            public uint Flags
+            public ModelFlags ModelFlags
             {
-                get { return flags; }
-                set { this.flags = value; OnElementChanged(); }
+                get { return modelFlags; }
+                set { this.modelFlags = value; OnElementChanged(); }
             }
 
             [ElementPriority(14)]
@@ -229,7 +233,7 @@ namespace s4pi.Miscellaneous
                 this.offset = s.Position;
                 this.modelIID = br.ReadUInt64();
                 this.baseFileNameHash = br.ReadUInt64();
-                this.widthAndMappingFlags = br.ReadByte();
+                this.widthAndMappingFlags = (WidthAndMappingFlags)br.ReadByte();
                 this.minimumWallHeight = br.ReadByte();
                 this.numberOfLevels = br.ReadByte();
                 this.unused = br.ReadByte();
@@ -239,7 +243,7 @@ namespace s4pi.Miscellaneous
                 this.thumbnailBoundsMaxX = br.ReadSingle();
                 this.thumbnailBoundsMaxZ = br.ReadSingle();
                 this.thumbnailBoundsMaxY = br.ReadSingle();
-                this.flags = br.ReadUInt32();
+                this.modelFlags = (ModelFlags)br.ReadUInt32();
                 this.vfxHash = br.ReadUInt64();
 
             }
@@ -250,7 +254,7 @@ namespace s4pi.Miscellaneous
                 var bw = new BinaryWriter(s);
                 bw.Write(this.modelIID);
                 bw.Write(this.baseFileNameHash);
-                bw.Write(this.widthAndMappingFlags);
+                bw.Write((byte)this.widthAndMappingFlags);
                 bw.Write(this.minimumWallHeight);
                 bw.Write(this.numberOfLevels);
                 bw.Write(this.unused);
@@ -260,7 +264,7 @@ namespace s4pi.Miscellaneous
                 bw.Write(this.thumbnailBoundsMaxX);
                 bw.Write(this.thumbnailBoundsMaxZ);
                 bw.Write(this.thumbnailBoundsMaxY);
-                bw.Write(this.flags);
+                bw.Write((uint)this.modelFlags);
                 bw.Write(this.vfxHash);
 
             }
@@ -278,7 +282,7 @@ namespace s4pi.Miscellaneous
                     && this.thumbnailBoundsMaxX == other.thumbnailBoundsMaxX
                     && this.thumbnailBoundsMaxZ == other.thumbnailBoundsMaxZ
                     && this.thumbnailBoundsMaxY == other.thumbnailBoundsMaxY
-                    && this.flags == other.flags
+                    && this.modelFlags == other.modelFlags
                     && this.vfxHash == other.vfxHash;
             }
 
@@ -309,6 +313,10 @@ namespace s4pi.Miscellaneous
 
             w.Write(version);
 
+            if (entryList == null)
+            {
+                entryList = new MTBLEntryList(this.OnResourceChanged);
+            }
             this.entryList.UnParse(ms);
 
             return ms;

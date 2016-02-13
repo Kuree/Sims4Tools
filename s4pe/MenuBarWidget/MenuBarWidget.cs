@@ -49,8 +49,8 @@ namespace S4PIDemoFE
             tsMB = new List<ToolStripMenuItem>(new ToolStripMenuItem[]
             {
                 //File
-                newToolStripMenuItem, openToolStripMenuItem, saveToolStripMenuItem, saveAsToolStripMenuItem,
-                saveCopyAsToolStripMenuItem, closeToolStripMenuItem,
+                newToolStripMenuItem, openToolStripMenuItem, openReadOnlyToolStripMenuItem, saveToolStripMenuItem,
+                saveAsToolStripMenuItem, saveCopyAsToolStripMenuItem, closeToolStripMenuItem,
                 setMaxRecentToolStripMenuItem, bookmarkCurrentToolStripMenuItem, setMaxBookmarksToolStripMenuItem,
                 organiseBookmarksToolStripMenuItem,
                 exitToolStripMenuItem,
@@ -122,6 +122,7 @@ namespace S4PIDemoFE
         {
             MBF_new = 0,
             MBF_open,
+            MBF_openReadOnly,
             MBF_save,
             MBF_saveAs,
             MBF_saveCopyAs,

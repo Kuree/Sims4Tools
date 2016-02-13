@@ -79,7 +79,7 @@
 0x0C772E27  _XML   .xml
 0x0D338A3A  THUM   .jpg
 0x11C258C0  CTRG   .bnry
-0x16CA6BC4  _THM   .jpg
+0x16CA6BC4  _THM   .bnry
 0x16CCF748  THUM   .png
 0x19301120  WCLR   .worldcolortimeline
 0x1A3201CD  _MOD   .override
@@ -176,7 +176,6 @@
 0xAD366F95  THUM   .png
 0xAD366F96  THUM   .png
 0xB0118C15  TMLT   .bnry
-0xB011BC15  TMLT   .bnry
 0xB0311D0F  CRTR   .rooftrim
 0xB1CC1AF6  _VID   .video
 0xB4DD716B  _INV   .inventory

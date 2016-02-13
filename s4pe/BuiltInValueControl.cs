@@ -1,21 +1,24 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2009, 2010 by Peter L Jones, 2014 By Keyi Zhang          *
- *  pljones@users.sf.net, kz005@bucknell.edu                               *
+ *  Copyright (C) 2009, 2014 by the Sims 4 Tools development team          *
  *                                                                         *
- *  This file is part of the Sims 3 Package Interface (s3pi)               *
+ *  Contributors:                                                          *
+ *  Peter L Jones, pljones@users.sf.net                                    *
+ *  Keyi Zhang, kz005@bucknell.edu                                         *
  *                                                                         *
- *  s3pi is free software: you can redistribute it and/or modify           *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
 
 using System;
