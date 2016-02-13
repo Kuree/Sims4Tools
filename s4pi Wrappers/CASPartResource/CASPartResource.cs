@@ -1,6 +1,11 @@
 /***************************************************************************
- *  Copyright (C) 2016 by Sims 4 Tools Development Team                    *
- *  Credits: Peter Jones, Keyi Zhang, Cmar, Buzzler                        *
+ *  Copyright (C) 2014, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Peter Jones                                                            *
+ *  Keyi Zhang                                                             *
+ *  CmarNYC                                                                *
+ *  Buzzler                                                                *  
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -9,7 +14,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *

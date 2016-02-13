@@ -1,5 +1,9 @@
 /***************************************************************************
- *  Copyright (C) 2016 by Inge Jones                                       *
+ *  Copyright (C) 2016 by the Sims 4 Tools development team                *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Inge Jones                                                             *
+ *  pbox                                                                   *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
