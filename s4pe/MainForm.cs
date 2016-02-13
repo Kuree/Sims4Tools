@@ -746,6 +746,9 @@ namespace S4PIDemoFE
                     case MenuBarWidget.MB.MBF_open:
                         this.FileOpen();
                         break;
+                    case MenuBarWidget.MB.MBF_openReadOnly:
+                        this.FileOpenReadOnly();
+                        break;
                     case MenuBarWidget.MB.MBF_save:
                         this.FileSave();
                         break;
@@ -788,11 +791,15 @@ namespace S4PIDemoFE
             this.IsPackageDirty = true;
         }
 
-        private void FileOpen()
+        private void FileOpenReadOnly()
+        {
+            this.FileOpen(true);
+        }
+
+        private void FileOpen(bool readOnly = false)
         {
             this.openFileDialog1.FileName = "";
             this.openFileDialog1.FilterIndex = 1;
-            this.openFileDialog1.ShowReadOnly = true;
 
             // CAS demo path
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -828,7 +835,7 @@ namespace S4PIDemoFE
                 return;
             }
 
-            this.Filename = (this.openFileDialog1.ReadOnlyChecked ? "0:" : "1:") + this.openFileDialog1.FileName;
+            this.Filename = (readOnly ? "0:" : "1:") + this.openFileDialog1.FileName;
         }
 
         private bool FileSave()
