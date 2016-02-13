@@ -5,7 +5,7 @@ s4pe, based on the s4pi interface library, is an editing tool for the .package f
 Current Version
 ----
 
-[0.4.2] is the most recent version. The [main repository] is not being maintained any more. 
+[0.4.3] is the most recent version. The [main repository] is not being maintained any more. 
 
 
 Contributors
@@ -21,9 +21,9 @@ Roughly in chronological order -- [full details here] (https://github.com/s4ptac
 * [snaitf] - Decoding and contributions for CCOL, COBJ, trims as well as bugfixes
 * [IngeJones] - a kind lady who doesn't want her name mentioned
 * [Kuree] - Maintained the project in 2014 and 2015
-* [CmarNYC] - Continuous updates of CASP, TONE, FTPT and other wrappers
-* [pbox] - Updates to various labels/text lists; general maintenance
-* [Buzzler] - Some general cleanup; implementation of catalog tag lists
+* [CmarNYC] - current contributions see [here] (https://github.com/s4ptacle/Sims4Tools/commits/develop?author=cmarNYC)
+* [pbox] - current contributions see [here] (https://github.com/s4ptacle/Sims4Tools/commits/develop?author=pboxx)
+* [Buzzler] - current contributions see [here] (https://github.com/s4ptacle/Sims4Tools/commits/develop?author=BrutalBuzzler)
 
 Requirements
 -------------
@@ -53,13 +53,13 @@ A wrapper should be as dumb as possible and not hide or rearrange any of the dat
 
 *  Download the latest s4pi library.  Unpack into folder somewhere your Visual Studio can access.
 *  Begin your C# solution
-*  As you need to use any s4pi dll, add it to your solution references.  This will cause it to be added to your solution's bin folder. 
+*  As you need to use any s3pi dll, add it to your solution references.  This will cause it to be added to your solution's bin folder. 
 *  Any s4pi dlls in your bin/Release folder should be included with what you publish.  You should not design your tool so it has to use the s4pi dlls in your user's s3pe folder.   
 *  Support for writing your .helper file can be found in your installed s4pe/Helpfiles folder, called Helpers.txt
 
 (Peter Jones, updated Jan 15th 2012 by Inge)
 
------------
+-------------
 * There is a separate (old) repo for Helper projects, [s4pe-helper]. However, this looks just as abandoned as Kuree's main repo.
 
 How to Contribute
@@ -81,7 +81,6 @@ Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy 
 * 11/27/2014: update contributors and version number.
 * 1/16/2014: update the version number and helper project desc.
 * 2015-12-24: Quick update to reflect the current status a little better
-* 2016-02-09: Helper instructions moved over from simlogical archive
 [s3pi and s3pe]: http://sourceforge.net/projects/sims3tools/
 [Kuree]:https://github.com/Kuree
 [ChaosMageX]:https://github.com/ChaosMageX
@@ -98,4 +97,4 @@ Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy 
 [main repository]:https://github.com/Kuree/Sims4Tools
 [GNU General Public License v3]:http://www.gnu.org/licenses/gpl-3.0.html
 [The Sims 4]:https://en.wikipedia.org/wiki/The_Sims_4
-[0.4.2]:https://github.com/s4ptacle/Sims4Tools/releases/tag/v0.4.2-beta
+[0.4.3]:https://github.com/s4ptacle/Sims4Tools/releases/tag/0.4.3-beta
