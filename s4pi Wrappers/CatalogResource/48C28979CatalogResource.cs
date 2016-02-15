@@ -26,6 +26,14 @@ using s4pi.Interfaces;
 
 namespace CatalogResource
 {
+    public class _48C28979CatalogResourceHandler : AResourceHandler
+    {
+        public _48C28979CatalogResourceHandler()
+        {
+            this.Add(typeof(_48C28979CatalogResource), new List<string>(new string[] { "0x48C28979", }));
+        }
+    }
+
     class _48C28979CatalogResource : ObjectCatalogResource
     {
         #region Attributes

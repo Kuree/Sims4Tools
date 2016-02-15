@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="S3PIDemoFE.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="S4PIDemoFE.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="MRUList" Provider="System.Configuration.PortableSettingsProvider" Type="System.Collections.Specialized.StringCollection" Scope="User">
@@ -127,6 +127,12 @@
     </Setting>
     <Setting Name="PreviewZoomFactor" Type="System.Single" Scope="User">
       <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="CustomPlaces" Type="System.Collections.Specialized.StringCollection" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CustomPlacesCount" Type="System.Int16" Scope="User">
+      <Value Profile="(Default)">4</Value>
     </Setting>
   </Settings>
 </SettingsFile>

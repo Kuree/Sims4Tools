@@ -17,20 +17,20 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
-using s4pi.Interfaces;
-using s4pi.Settings;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
+
+using s4pi.Interfaces;
 
 namespace s4pi.Animation
 {
     public class ClipResourceSims3 : AResource
     {
         private const int kRecommendedApiVersion = 1;
-        private static readonly bool checking = s4pi.Settings.Settings.Checking;
+        private static readonly bool checking = Settings.Settings.Checking;
         private string mActorName;
         private ClipEndSection mEndSection;
         private EventTable mEventSectionTable;

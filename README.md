@@ -1,77 +1,88 @@
 # This project is no longer under active development. Please go to https://github.com/s4ptacle/Sims4Tools
 
-S4PE and S4PI is an open source project based on s3pi and s3pe.
-
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/Kuree/Sims4Tools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+s4pe, based on the s4pi interface library, is an editing tool for the .package format used with [The Sims 4]. This is an open source project based on [s3pi and s3pe].
 
 
 Current Version
 ----
 
-0.3b
+[0.4.3] is the most recent version. The [main repository] is not being maintained any more. 
 
-Contributors:
+
+Contributors
 -----------
 
-Here is a list of contributors:
-* [Kuree] - the main contributor to the project.
-* [ChaosMageX] - a cool dude.
-* [andrewtavera] - for mesh parts and other help.
-* [IngeJones] - a kind lady who doesn't want her name mentioned.
-* [Rick] - a pioneer in TS4.
-* [granthes] - not active now, but helped a lot in early stage.
-* [snaitf] - helps a lot for decoding the resources.
-* [orangemittens] - helps a lot in wiki pages.
+Roughly in chronological order -- [full details here] (https://github.com/s4ptacle/Sims4Tools/graphs/contributors)
 
-Requirement
---------------
-```sh
-.NET 4.0
-```
+* Peter Jones - Main author of s3pe/s3pi
+* [Rick] - a pioneer in TS4
+* [ChaosMageX] - Initial s4p* setup; work on DATA, RIG and GEOM wrappers
+* [andrewtavera] - Mesh parts and other help
+* [granthes] - Several contributions pre-release and in the early stages
+* [snaitf] - Decoding and contributions for CCOL, COBJ, trims as well as bugfixes
+* [IngeJones] - a kind lady who doesn't want her name mentioned
+* [Kuree] - Maintained the project in 2014 and 2015
+* [CmarNYC] - current contributions see [here] (https://github.com/s4ptacle/Sims4Tools/commits/develop?author=cmarNYC)
+* [pbox] - current contributions see [here] (https://github.com/s4ptacle/Sims4Tools/commits/develop?author=pboxx)
+* [Buzzler] - current contributions see [here] (https://github.com/s4ptacle/Sims4Tools/commits/develop?author=BrutalBuzzler)
+
+Requirements
+-------------
+* .NET 4.0
+
 Project Setup
 -------------
-Visual Studio is currently required. We have two main version, 2013 and 2010. You can pick up one of them below to start.
-```
-sims4tools.sln
-sims4tools2010.sln
-```
+* Visual Studio is currently required. sims4tools.sln is the solution currently in use.
 
 Helper Projects
 -------------
-* ~~I'm moving most of the helpers to a new repository,~~All the active helpers are hosted at [s4pe-helper] because it is much easier to manage. However, most of them will be shipped with the S4PE build.
-~~* Currently DST and Thumbnail helpers are hosted there.~~
 
+Simplified overview how to make a helper tool using s4pi
 
+**Overview**
 
-Example Code for S4PI Library
-------------
-Coming soon
+* A helper is a standalone tool that can open resources as they are exported from a package - long cryptic names and all. At minimum it must be able to be opened by being called from another application (e.g. s4pe) with the filename of the resource as a parameter.  But you can enhance your tool if you wish, so that it can be opened in other ways and used for other roles.
+* The interface between s4pe and your app is a .helper text file, which you edit to call your app in the appropriate way and provide with your tool.  The user may have to edit that if they install somewhere you did not forsee.
+* The helper should include all library dlls it relies on. It should not rely on finding the dlls that are installed with the user's copy of s4pe. This is so that if the user has an older or newer version of s4pe than the one you had when you wrote your tool, they won't end up with compatibility problems trying to use your tool.  Your tool needs to have access to the version of the dlls YOU compiled it with.
+* A helper app can be installed in two different ways.  It can either be totally outside the s4pe folder like any external program, or it can live under the /Helpers folder in s4pe, inside its own subfolder along with its own dlls, with only its .helper textfile directly under /Helpers
+
+**The difference in concept between a helper and a wrapper**
+
+A wrapper should be as dumb as possible and not hide or rearrange any of the data in a resource, even if we do not know what it represents, or if it is stored in a strange order.  A helper on the other hand can display the resource contents in a user-friendly way, prettied up, and bits hidden if they might confuse the user.
+
+**How to make**
+
+*  Download the latest s4pi library.  Unpack into folder somewhere your Visual Studio can access.
+*  Begin your C# solution
+*  As you need to use any s3pi dll, add it to your solution references.  This will cause it to be added to your solution's bin folder. 
+*  Any s4pi dlls in your bin/Release folder should be included with what you publish.  You should not design your tool so it has to use the s4pi dlls in your user's s3pe folder.   
+*  Support for writing your .helper file can be found in your installed s4pe/Helpfiles folder, called Helpers.txt
+
+(Peter Jones, updated Jan 15th 2012 by Inge)
+
+-------------
+* There is a separate (old) repo for Helper projects, [s4pe-helper]. However, this looks just as abandoned as Kuree's main repo.
 
 How to Contribute
 -----------
-- Fork the project, modify it, and send us pull request!
-- Edit the [wiki] page if you discover something!
-- Star the project if you like it!
-
-DONATION
-------------
-- If you are very generous, you can even buy me some coffee! 
-- Buy me a cup of coffe via Paypal [![Buy me a cup of coffee via PayPal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=9FZDXF39BVWMS&lc=US&item_name=s4pe%2dproject%2ddonation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
-- Or send me coffee every day via [gratipay]!
-
+* Fork the project, modify it, and send us a pull request!
 
 License
 ----
-GPLV3
+[GNU General Public License v3] 
 
-Others
+
+Other
 ----
 #### Special thanks:
-Without peter's help and work on s3pe/s3pi project, there won't be this project, which highly depends on his two projects. His philosophy to share and distribute open source project will be carried on.
+Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy to share and distribute this as an open source project will be carried on.
+
 #### Edit History
 * 9/30/2014: first version.
 * 11/27/2014: update contributors and version number.
 * 1/16/2014: update the version number and helper project desc.
+* 2015-12-24: Quick update to reflect the current status a little better
+[s3pi and s3pe]: http://sourceforge.net/projects/sims3tools/
 [Kuree]:https://github.com/Kuree
 [ChaosMageX]:https://github.com/ChaosMageX
 [andrewtavera]:https://github.com/andrewtavera
@@ -81,5 +92,10 @@ Without peter's help and work on s3pe/s3pi project, there won't be this project,
 [snaitf]: https://github.com/Snaitf
 [s4pe-helper]: https://github.com/Kuree/s4p4-helper
 [wiki]:https://github.com/Kuree/s4p4-helper/wiki
-[gratipay]: https://gratipay.com/Kuree/
-[orangemittens]: https://github.com/orangemittens
+[Buzzler]:https://github.com/BrutalBuzzler
+[CmarNYC]:https://github.com/cmarNYC
+[pbox]:https://github.com/pboxx
+[main repository]:https://github.com/Kuree/Sims4Tools
+[GNU General Public License v3]:http://www.gnu.org/licenses/gpl-3.0.html
+[The Sims 4]:https://en.wikipedia.org/wiki/The_Sims_4
+[0.4.3]:https://github.com/s4ptacle/Sims4Tools/releases/tag/0.4.3-beta

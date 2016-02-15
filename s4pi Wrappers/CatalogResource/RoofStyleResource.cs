@@ -22,9 +22,18 @@
 using System;
 using System.IO;
 using s4pi.Interfaces;
+using System.Collections.Generic;
 
 namespace CatalogResource
 {
+    public class RoofStyleResourceHandler : AResourceHandler
+    {
+        public RoofStyleResourceHandler()
+        {
+            this.Add(typeof(RoofStyleResource), new List<string>(new string[] { "0x91EDBD3E", }));
+        }
+    }
+
     class RoofStyleResource : ObjectCatalogResource
     {
         #region Attributes

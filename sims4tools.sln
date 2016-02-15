@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateAssemblyVersion", "s4pi\CreateAssemblyVersion\CreateAssemblyVersion.csproj", "{114622FB-D6BF-4EA7-9BB9-FB06B5A01212}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CS System Classes", "CS System Classes\CS System Classes.csproj", "{00200E76-C245-42A7-B567-5C30EDBCE977}"
@@ -70,6 +68,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelViewer", "s4pe Helpers\ModelViewer\ModelViewer.csproj", "{D31E7FC7-E51D-40E4-B2FB-49DE645291E5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimationResources", "s4pi Wrappers\AnimationResources\AnimationResources.csproj", "{B33F19DE-F211-4D32-8D03-43024B88F177}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "s4pi.Resource.Commons", "s4pi.Resource.Commons\s4pi.Resource.Commons.csproj", "{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -421,6 +421,16 @@ Global
 		{B33F19DE-F211-4D32-8D03-43024B88F177}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{B33F19DE-F211-4D32-8D03-43024B88F177}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B33F19DE-F211-4D32-8D03-43024B88F177}.Release|x86.ActiveCfg = Release|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

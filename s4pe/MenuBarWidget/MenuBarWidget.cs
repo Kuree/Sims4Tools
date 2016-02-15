@@ -59,7 +59,7 @@ namespace S4PIDemoFE
                 fNVHashToolStripMenuItem, searchToolStripMenuItem,
                 //Settings
                 automaticUpdateChecksToolStripMenuItem, enableDDSPreviewToolStripMenuItem, enableFallbackTextPreviewToolStripMenuItem, enableFallbackHexPreviewToolStripMenuItem, askToAutosaveDBCToolStripMenuItem,
-                organiseBookmarksSettingsToolStripMenuItem, externalProgramsToolStripMenuItem, manageWrappersToolStripMenuItem,
+                organiseBookmarksSettingsToolStripMenuItem, organiseFolderBookmarksToolStripMenuItem, externalProgramsToolStripMenuItem, manageWrappersToolStripMenuItem,
                 saveSettingsToolStripMenuItem,
                 //Help
                 contentsToolStripMenuItem, aboutToolStripMenuItem, checkForUpdateToolStripMenuItem, warrantyToolStripMenuItem, licenceToolStripMenuItem,
@@ -114,7 +114,7 @@ namespace S4PIDemoFE
             MBR_hexEditor, MBR_textEditor,
             MBT_fnvHash, MBT_search,
             MBS_updates, MBS_previewDDS, MBS_fallbackTextPreview, MBS_fallbackHexPreview, MBS_askAutoSaveDBC,
-            MBS_bookmarks, MBS_externals, MBS_wrappers,
+			MBS_bookmarks, MBS_customplaces, MBS_externals, MBS_wrappers,
             MBS_saveSettings,
             MBH_contents, MBH_about, MBH_update, MBH_warranty, MBH_licence,
             CMF_pasteRK,
