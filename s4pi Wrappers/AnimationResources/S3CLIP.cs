@@ -670,9 +670,9 @@ namespace s4pi.Animation
                     case 10:
                         uint data = br.ReadUInt32();
                         indices = new ushort[3];
-                        indices[0] = (ushort)((data << 2) >> 22);
+                        indices[2] = (ushort)((data << 2) >> 22);
                         indices[1] = (ushort)((data << 12) >> 22);
-                        indices[2] = (ushort)((data << 22) >> 22);
+                        indices[0] = (ushort)((data << 22) >> 22);
                         break;
                     default:
                         this.indices = new ushort[0];
@@ -706,7 +706,7 @@ namespace s4pi.Animation
                         if (this.indices.Length % 2 != 0) bw.Write(new byte[] { 0, 0 });
                         break;
                     case 10:
-                        uint data = ((uint)(indices[0] << 20)) + ((uint)(indices[1] << 10)) + ((uint)(indices[2]));
+                        uint data = ((uint)(indices[2] << 20)) + ((uint)(indices[1] << 10)) + ((uint)(indices[0]));
                         bw.Write(data);
                         break;
                     default:
