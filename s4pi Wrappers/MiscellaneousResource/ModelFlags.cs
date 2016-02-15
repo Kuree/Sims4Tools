@@ -1,5 +1,5 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2014, 2016 by the Sims 4 Tools development team          *
+ *  Copyright (C) 2016 by the Sims 4 Tools development team                *
  *                                                                         *
  *  Contributors:                                                          *
  *  pbox                                                                   *
