@@ -2,7 +2,6 @@
 0x029E333B Audio controllers
 0x02C9EFF2 Audio Submix
 0x02D5DF13 JAZZ tuning
-0x02FAC0B6 Spore "Guide notes" from Text.package?
 0x03B33DDF TS4 XML tuning
 0x03E9D964 TS4 XML -- pie_menu_category
 0x04D2B465 TS4 XML -- achievement_collection
