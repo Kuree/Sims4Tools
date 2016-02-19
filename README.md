@@ -76,11 +76,7 @@ Other
 #### Special thanks:
 Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy to share and distribute this as an open source project will be carried on.
 
-#### Edit History
-* 9/30/2014: first version.
-* 11/27/2014: update contributors and version number.
-* 1/16/2014: update the version number and helper project desc.
-* 2015-12-24: Quick update to reflect the current status a little better
+
 [s3pi and s3pe]: http://sourceforge.net/projects/sims3tools/
 [Sims 3 Package Interface]: https://sourceforge.net/projects/s3pi/
 [Kuree]:https://github.com/Kuree
@@ -98,4 +94,4 @@ Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy 
 [repository we forked from]:https://github.com/Kuree/Sims4Tools
 [GNU General Public License v3]:http://www.gnu.org/licenses/gpl-3.0.html
 [The Sims 4]:https://en.wikipedia.org/wiki/The_Sims_4
-[0.4.3]:https://github.com/s4ptacle/Sims4Tools/releases/tag/0.4.3-beta
+[0.4.3]:https://github.com/s4ptacle/Sims4Tools/releases/tag/0.4.3
