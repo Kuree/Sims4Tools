@@ -147,9 +147,10 @@ namespace CatalogResource
 					case PropertyID.EnvironmentScoreEmotionTags:
 						count = r.ReadInt32();
 
-						var tags = new ushort[count];
+						var tags = new uint[count];
 						for (int m = 0; m < count; m++)
 						{
+							// Tags are now 32Bit unsigned, but environment score emotion tags stay 16Bit
 							tags[m] = r.ReadUInt16();
 						}
 
@@ -253,11 +254,12 @@ namespace CatalogResource
 						w.Write(this.Unknown2);
 						break;
 					case PropertyID.EnvironmentScoreEmotionTags:
-						ushort[] tags = this.environmentScoreEmotionTags.Select(t => t.Tag.Index).ToArray();
+						// Tags are now 32Bit unsigned, but environment score emotion tags stay 16Bit
+						uint[] tags = this.environmentScoreEmotionTags.Select(t => t.Tag.Index).ToArray();
 						w.Write(tags.Length);
 						foreach (var value in tags)
 						{
-							w.Write(value);
+							w.Write((ushort)value);
 						}
 						break;
 					case PropertyID.EnvironmentScores:

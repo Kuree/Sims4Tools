@@ -30,8 +30,8 @@ namespace meshExpImp.ModelBlocks
     {
         public class Default : VRTF
         {
-            public Default(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public Default(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
             }
             public override bool IsDefault()
@@ -184,10 +184,10 @@ namespace meshExpImp.ModelBlocks
             private ElementFormat mFormat;
             private byte mOffset;
 
-            public ElementLayout(int APIversion, EventHandler handler): base(APIversion, handler){}
-            public ElementLayout(int APIversion, EventHandler handler, ElementLayout basis): this(APIversion, handler,basis.Format,basis.Offset,basis.Usage,basis.UsageIndex){}
-            public ElementLayout(int APIversion, EventHandler handler, Stream s): base(APIversion, handler){Parse(s);}
-            public ElementLayout(int APIversion, EventHandler handler, ElementFormat format, byte offset, ElementUsage usage, byte usageIndex) : base(APIversion, handler)
+            public ElementLayout(int apiVersion, EventHandler handler): base(apiVersion, handler){}
+            public ElementLayout(int apiVersion, EventHandler handler, ElementLayout basis): this(apiVersion, handler,basis.Format,basis.Offset,basis.Usage,basis.UsageIndex){}
+            public ElementLayout(int apiVersion, EventHandler handler, Stream s): base(apiVersion, handler){Parse(s);}
+            public ElementLayout(int apiVersion, EventHandler handler, ElementFormat format, byte offset, ElementUsage usage, byte usageIndex) : base(apiVersion, handler)
             {
                 mFormat = format;
                 mOffset = offset;
@@ -294,14 +294,14 @@ namespace meshExpImp.ModelBlocks
         private bool mExtendedFormat;
         private VertexElementLayoutList mLayouts;
 
-        public VRTF(int APIversion, EventHandler handler)
-            : base(APIversion, handler, null)
+        public VRTF(int apiVersion, EventHandler handler)
+            : base(apiVersion, handler, null)
         {
             mVersion = 0x00000002;
         }
-        public VRTF(int APIversion, EventHandler handler, VRTF basis): this(APIversion, handler,basis.Version,basis.Stride, basis.Layouts, basis.ExtendedFormat){}
-        public VRTF(int APIversion, EventHandler handler, Stream s): base(APIversion, handler, s){}
-        public VRTF(int APIversion, EventHandler handler, uint version, int stride, VertexElementLayoutList layouts, bool extendedFormat) : base(APIversion, handler, null)
+        public VRTF(int apiVersion, EventHandler handler, VRTF basis): this(apiVersion, handler,basis.Version,basis.Stride, basis.Layouts, basis.ExtendedFormat){}
+        public VRTF(int apiVersion, EventHandler handler, Stream s): base(apiVersion, handler, s){}
+        public VRTF(int apiVersion, EventHandler handler, uint version, int stride, VertexElementLayoutList layouts, bool extendedFormat) : base(apiVersion, handler, null)
         {
             mExtendedFormat = extendedFormat;
             mLayouts = layouts == null ? null : new VertexElementLayoutList(handler, layouts);

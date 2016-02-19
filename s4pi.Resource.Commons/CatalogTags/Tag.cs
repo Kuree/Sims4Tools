@@ -1,4 +1,26 @@
-﻿using System;
+﻿/***************************************************************************
+ *  Copyright (C) 2015, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Buzzler                                                                *
+ *                                                                         *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation, either version 3 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  s4pi is distributed in the hope that it will be useful,                *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *  You should have received a copy of the GNU General Public License      *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ ***************************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Design;
@@ -6,6 +28,7 @@ using System.Linq;
 using System.Windows.Forms.Design;
 using System.Xml.Serialization;
 using s4pi.Interfaces;
+using s4pi.Resource.Commons.Extensions;
 using s4pi.Resource.Commons.Forms;
 
 namespace s4pi.Resource.Commons.CatalogTags
@@ -29,21 +52,29 @@ namespace s4pi.Resource.Commons.CatalogTags
 		/// Gets or sets the index of this tag.
 		/// </summary>
 		[XmlAttribute(AttributeName = "ev")]
-		public ushort Index { get; set; }
+		public uint Index { get; set; }
 
 		/// <summary>
-		/// Gets or sets the human-readably value of this tag.
+		/// Gets or sets the human-readable value of this tag.
 		/// </summary>
 		[XmlText]
 		public string Value { get; set; }
 
-		/// <summary>
-		/// Converts the index of this tag to ushort.
-		/// </summary>
-		public static implicit operator UInt16(Tag tag)
-		{
-			return tag.Index;
-		}
+        /// <summary>
+        /// Converts the index of this tag to uint.
+        /// </summary>
+	    public uint ToUInt32()
+	    {
+	        return this.Index;
+	    }
+
+	    /// <summary>
+	    /// Converts the index of this tag to ushort.
+	    /// </summary>
+        public ushort ToUInt16()
+	    {
+	        return (ushort)this.Index;
+	    }
 
 		#region Overrides of System.Object
 
@@ -61,6 +92,20 @@ namespace s4pi.Resource.Commons.CatalogTags
 			}
 
 			return false;
+		}
+
+		public static bool operator ==(Tag tag1, Tag tag2)
+		{
+			if (!object.ReferenceEquals(tag1, null))
+			{
+				return tag1.Equals(tag2);
+			}
+			return object.ReferenceEquals(tag2, null);
+		}
+
+		public static bool operator !=(Tag tag1, Tag tag2)
+		{
+			return !(tag1 == tag2);
 		}
 
 		public override int GetHashCode()
@@ -166,8 +211,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 
 			private static Tag[] FetchAllCategories()
 			{
-				return
-					CatalogTagRegistry.AllCategoriesWithDummiesForUnpairedTags().Order().ToArray();
+				return CatalogTagRegistry.AllCategoriesWithDummiesForUnpairedTags().Order().ToArray();
 			}
 
 			private static Tag GetCurrentCategory(Tag currentlySelectedTag)
@@ -181,19 +225,6 @@ namespace s4pi.Resource.Commons.CatalogTags
 			}
 
 			#endregion
-		}
-	}
-
-	internal static class Extensions
-	{
-		public static object[] ToObjectArray(this IEnumerable<Tag> tags)
-		{
-			return tags.Cast<object>().ToArray();
-		}
-
-		public static IOrderedEnumerable<Tag> Order(this IEnumerable<Tag> tags)
-		{
-			return tags.OrderBy(t => t.Index).ThenBy(t => t.Value);
 		}
 	}
 }

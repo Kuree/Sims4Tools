@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using CASPartResource.Lists;
+
 namespace CASPartResource
 {
     public class StyleLookResource : AResource
@@ -50,8 +52,8 @@ namespace CASPartResource
         private string animationStateName1;
         private ulong animationReference2;
         private string animationStateName2;
-        private CASPartResource.SwatchColorList colorList;
-        private CASPartResource.FlagList flagList;
+        private SwatchColorList colorList;
+        private FlagList flagList;
 
         public StyleLookResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null || stream.Length == 0) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
         
@@ -75,8 +77,8 @@ namespace CASPartResource
             this.animationStateName1 = System.Text.Encoding.ASCII.GetString(r.ReadBytes(r.ReadInt32()));
             this.animationReference2 = r.ReadUInt64();
             this.animationStateName2 = System.Text.Encoding.ASCII.GetString(r.ReadBytes(r.ReadInt32()));
-            this.colorList = new CASPartResource.SwatchColorList(OnResourceChanged, s);
-            this.flagList = new CASPartResource.FlagList(OnResourceChanged, s);
+            this.colorList = new SwatchColorList(OnResourceChanged, s);
+            this.flagList = new FlagList(OnResourceChanged, s);
         }
 
         protected override Stream UnParse()
@@ -100,9 +102,9 @@ namespace CASPartResource
             w.Write(this.animationReference2);
             w.Write(Encoding.ASCII.GetByteCount(this.animationStateName2));
             w.Write(Encoding.ASCII.GetBytes(this.animationStateName2));
-            if (this.colorList == null) this.colorList = new CASPartResource.SwatchColorList(OnResourceChanged);
+            if (this.colorList == null) this.colorList = new SwatchColorList(OnResourceChanged);
             this.colorList.UnParse(ms);
-            if (this.flagList == null) this.flagList = new CASPartResource.FlagList(OnResourceChanged);
+            if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
             this.flagList.UnParse(ms);
             ms.Position = 0;
             return ms;
@@ -142,9 +144,9 @@ namespace CASPartResource
         [ElementPriority(14)]
         public string AnimationStateName2 { get { return this.animationStateName2; } set { if (!this.animationStateName2.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.animationStateName2 = value; } } }
         [ElementPriority(15)]
-        public CASPartResource.SwatchColorList ColorList { get { return this.colorList; } set { if (!this.colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
+        public SwatchColorList ColorList { get { return this.colorList; } set { if (!this.colorList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.colorList = value; } } }
         [ElementPriority(16)]
-        public CASPartResource.FlagList CASPFlagList { get { return this.flagList; } set { if (!this.CASPFlagList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.flagList = value; } } }
+        public FlagList CASPFlagList { get { return this.flagList; } set { if (!this.CASPFlagList.Equals(value)) { OnResourceChanged(this, EventArgs.Empty); this.flagList = value; } } }
         #endregion
 
     }

@@ -45,27 +45,27 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Initialize a new instance
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AResourceKey"/> changes.</param>
-        public AResourceKey(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+        public AResourceKey(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
         /// <summary>
         /// Initialize a new instance
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AResourceKey"/> changes.</param>
         /// <param name="basis">The <see cref="IResourceKey"/> values to use to initialise the instance.</param>
-        public AResourceKey(int APIversion, EventHandler handler, IResourceKey basis)
-            : this(APIversion, handler, basis.ResourceType, basis.ResourceGroup, basis.Instance) { }
+        public AResourceKey(int apiVersion, EventHandler handler, IResourceKey basis)
+            : this(apiVersion, handler, basis.ResourceType, basis.ResourceGroup, basis.Instance) { }
         /// <summary>
         /// Initialize a new instance
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AResourceKey"/> changes.</param>
         /// <param name="resourceType">The type of the resource.</param>
         /// <param name="resourceGroup">The group of the resource.</param>
         /// <param name="instance">The instance of the resource.</param>
-        public AResourceKey(int APIversion, EventHandler handler, uint resourceType, uint resourceGroup, ulong instance)
-            : base(APIversion, handler)
+        public AResourceKey(int apiVersion, EventHandler handler, uint resourceType, uint resourceGroup, ulong instance)
+            : base(apiVersion, handler)
         {
             this.resourceType = resourceType;
             this.resourceGroup = resourceGroup;

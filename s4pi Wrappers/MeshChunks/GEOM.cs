@@ -53,21 +53,21 @@ namespace meshExpImp.ModelBlocks
         #endregion
 
         #region Constructors
-        public GEOM(int APIversion, EventHandler handler) : base(APIversion, handler, null) { }
-        public GEOM(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public GEOM(int APIversion, EventHandler handler, GEOM basis)
-            : this(APIversion, handler,
+        public GEOM(int apiVersion, EventHandler handler) : base(apiVersion, handler, null) { }
+        public GEOM(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public GEOM(int apiVersion, EventHandler handler, GEOM basis)
+            : this(apiVersion, handler,
             basis.version, basis.shader, basis.mtnf, basis.mergeGroup, basis.sortOrder,
             basis.vertexFormats, basis.vertexData,
             basis.faces, basis.skinIndex, basis.unknownThings, basis.unknownThings2, basis.boneHashes,
             basis.tgiBlockList) { }
-        public GEOM(int APIversion, EventHandler handler,
+        public GEOM(int apiVersion, EventHandler handler,
             uint version, ShaderType shader, MTNF mtnf, uint mergeGroup, uint sortOrder,
             IEnumerable<VertexFormat> vertexFormats, IEnumerable<VertexDataElement> vertexData,
             IEnumerable<Face> facePoints, int skinIndex,
             UnknownThingList unknownThings, UnknownThing2List unknownThings2, IEnumerable<uint> boneHashes,
             IEnumerable<TGIBlock> tgiBlockList)
-            : base(APIversion, handler, null)
+            : base(apiVersion, handler, null)
         {
             this.version = version;
             this.shader = shader;
@@ -316,12 +316,12 @@ namespace meshExpImp.ModelBlocks
             uint version;
             UsageType usage;
 
-            public VertexFormat(int APIversion, EventHandler handler, uint version) : base(APIversion, handler) { this.version = version; }
-            public VertexFormat(int APIversion, EventHandler handler, uint version, Stream s) : base(APIversion, handler) { this.version = version; Parse(s); }
-            public VertexFormat(int APIversion, EventHandler handler, VertexFormat basis)
-                : this(APIversion, handler, basis.version, basis.usage) { }
-            public VertexFormat(int APIversion, EventHandler handler, uint version, UsageType usage)
-                : base(APIversion, handler)
+            public VertexFormat(int apiVersion, EventHandler handler, uint version) : base(apiVersion, handler) { this.version = version; }
+            public VertexFormat(int apiVersion, EventHandler handler, uint version, Stream s) : base(apiVersion, handler) { this.version = version; Parse(s); }
+            public VertexFormat(int apiVersion, EventHandler handler, VertexFormat basis)
+                : this(apiVersion, handler, basis.version, basis.usage) { }
+            public VertexFormat(int apiVersion, EventHandler handler, uint version, UsageType usage)
+                : base(apiVersion, handler)
             {
                 this.version = version;
                 this.usage = usage;
@@ -441,8 +441,8 @@ namespace meshExpImp.ModelBlocks
         {
             const int recommendedApiVersion = 1;
 
-            protected VertexElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            protected VertexElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            protected VertexElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            protected VertexElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
 
             protected abstract void Parse(Stream s);
             internal abstract void UnParse(Stream s);
@@ -461,10 +461,10 @@ namespace meshExpImp.ModelBlocks
         {
             protected float x, y, z;
 
-            public PositionElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public PositionElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public PositionElement(int APIversion, EventHandler handler, PositionElement basis) : this(APIversion, handler, basis.x, basis.y, basis.z) { }
-            public PositionElement(int APIversion, EventHandler handler, float x, float y, float z) : base(APIversion, handler) { this.x = x; this.y = y; this.z = z; }
+            public PositionElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public PositionElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public PositionElement(int apiVersion, EventHandler handler, PositionElement basis) : this(apiVersion, handler, basis.x, basis.y, basis.z) { }
+            public PositionElement(int apiVersion, EventHandler handler, float x, float y, float z) : base(apiVersion, handler) { this.x = x; this.y = y; this.z = z; }
 
             protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); x = r.ReadSingle(); y = r.ReadSingle(); z = r.ReadSingle(); }
             internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(x); w.Write(y); w.Write(z); }
@@ -483,10 +483,10 @@ namespace meshExpImp.ModelBlocks
         }
         public class NormalElement : PositionElement
         {
-            public NormalElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public NormalElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public NormalElement(int APIversion, EventHandler handler, NormalElement basis) : this(APIversion, handler, basis.x, basis.y, basis.z) { }
-            public NormalElement(int APIversion, EventHandler handler, float x, float y, float z) : base(APIversion, handler) { this.x = x; this.y = y; this.z = z; }
+            public NormalElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public NormalElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public NormalElement(int apiVersion, EventHandler handler, NormalElement basis) : this(apiVersion, handler, basis.x, basis.y, basis.z) { }
+            public NormalElement(int apiVersion, EventHandler handler, float x, float y, float z) : base(apiVersion, handler) { this.x = x; this.y = y; this.z = z; }
 
             // public override AHandlerElement Clone(EventHandler handler) { return new NormalElement(requestedApiVersion, handler, this); }
             public override bool Equals(VertexElement other) { NormalElement o = other as NormalElement; return o != null && x.Equals(o.x) && y.Equals(o.y) && z.Equals(o.z); }
@@ -497,10 +497,10 @@ namespace meshExpImp.ModelBlocks
         {
             protected float u, v;
 
-            public UVElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public UVElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public UVElement(int APIversion, EventHandler handler, UVElement basis) : this(APIversion, handler, basis.u, basis.v) { }
-            public UVElement(int APIversion, EventHandler handler, float u, float v) : base(APIversion, handler) { this.u = u; this.v = v; }
+            public UVElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public UVElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public UVElement(int apiVersion, EventHandler handler, UVElement basis) : this(apiVersion, handler, basis.u, basis.v) { }
+            public UVElement(int apiVersion, EventHandler handler, float u, float v) : base(apiVersion, handler) { this.u = u; this.v = v; }
 
             protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); u = r.ReadSingle(); v = r.ReadSingle(); }
             internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(u); w.Write(v); }
@@ -519,10 +519,10 @@ namespace meshExpImp.ModelBlocks
         {
             protected uint id;
 
-            public BoneAssignmentElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public BoneAssignmentElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public BoneAssignmentElement(int APIversion, EventHandler handler, BoneAssignmentElement basis) : this(APIversion, handler, basis.id) { }
-            public BoneAssignmentElement(int APIversion, EventHandler handler, uint id) : base(APIversion, handler) { this.id = id; }
+            public BoneAssignmentElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public BoneAssignmentElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public BoneAssignmentElement(int apiVersion, EventHandler handler, BoneAssignmentElement basis) : this(apiVersion, handler, basis.id) { }
+            public BoneAssignmentElement(int apiVersion, EventHandler handler, uint id) : base(apiVersion, handler) { this.id = id; }
 
             protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); id = r.ReadUInt32(); }
             internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(id); }
@@ -539,10 +539,10 @@ namespace meshExpImp.ModelBlocks
         {
             protected float w1, w2, w3, w4;
 
-            public WeightsElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public WeightsElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public WeightsElement(int APIversion, EventHandler handler, WeightsElement basis) : this(APIversion, handler, basis.w1, basis.w2, basis.w3, basis.w4) { }
-            public WeightsElement(int APIversion, EventHandler handler, float w1, float w2, float w3, float w4) : base(APIversion, handler) { this.w1 = w1; this.w2 = w2; this.w3 = w3; this.w4 = w4; }
+            public WeightsElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public WeightsElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public WeightsElement(int apiVersion, EventHandler handler, WeightsElement basis) : this(apiVersion, handler, basis.w1, basis.w2, basis.w3, basis.w4) { }
+            public WeightsElement(int apiVersion, EventHandler handler, float w1, float w2, float w3, float w4) : base(apiVersion, handler) { this.w1 = w1; this.w2 = w2; this.w3 = w3; this.w4 = w4; }
 
             protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); w1 = r.ReadSingle(); w2 = r.ReadSingle(); w3 = r.ReadSingle(); w4 = r.ReadSingle(); }
             internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(w1); w.Write(w2); w.Write(w3); w.Write(w4); }
@@ -565,10 +565,10 @@ namespace meshExpImp.ModelBlocks
         {
             protected byte w1, w2, w3, w4;
 
-            public WeightBytesElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public WeightBytesElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public WeightBytesElement(int APIversion, EventHandler handler, WeightBytesElement basis) : this(APIversion, handler, basis.w1, basis.w2, basis.w3, basis.w4) { }
-            public WeightBytesElement(int APIversion, EventHandler handler, byte w1, byte w2, byte w3, byte w4) : base(APIversion, handler) { this.w1 = w1; this.w2 = w2; this.w3 = w3; this.w4 = w4; }
+            public WeightBytesElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public WeightBytesElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public WeightBytesElement(int apiVersion, EventHandler handler, WeightBytesElement basis) : this(apiVersion, handler, basis.w1, basis.w2, basis.w3, basis.w4) { }
+            public WeightBytesElement(int apiVersion, EventHandler handler, byte w1, byte w2, byte w3, byte w4) : base(apiVersion, handler) { this.w1 = w1; this.w2 = w2; this.w3 = w3; this.w4 = w4; }
 
             protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); w1 = r.ReadByte(); w2 = r.ReadByte(); w3 = r.ReadByte(); w4 = r.ReadByte(); }
             internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(w1); w.Write(w2); w.Write(w3); w.Write(w4); }
@@ -589,10 +589,10 @@ namespace meshExpImp.ModelBlocks
         }
         public class TangentNormalElement : PositionElement
         {
-            public TangentNormalElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public TangentNormalElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public TangentNormalElement(int APIversion, EventHandler handler, TangentNormalElement basis) : this(APIversion, handler, basis.x, basis.y, basis.z) { }
-            public TangentNormalElement(int APIversion, EventHandler handler, float x, float y, float z) : base(APIversion, handler) { this.x = x; this.y = y; this.z = z; }
+            public TangentNormalElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public TangentNormalElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public TangentNormalElement(int apiVersion, EventHandler handler, TangentNormalElement basis) : this(apiVersion, handler, basis.x, basis.y, basis.z) { }
+            public TangentNormalElement(int apiVersion, EventHandler handler, float x, float y, float z) : base(apiVersion, handler) { this.x = x; this.y = y; this.z = z; }
 
             // public override AHandlerElement Clone(EventHandler handler) { return new TangentNormalElement(requestedApiVersion, handler, this); }
             public override bool Equals(VertexElement other) { TangentNormalElement o = other as TangentNormalElement; return o != null && x.Equals(o.x) && y.Equals(o.y) && z.Equals(o.z); }
@@ -603,10 +603,10 @@ namespace meshExpImp.ModelBlocks
         {
             int argb;
 
-            public ColorElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public ColorElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public ColorElement(int APIversion, EventHandler handler, ColorElement basis) : this(APIversion, handler, basis.argb) { }
-            public ColorElement(int APIversion, EventHandler handler, int argb) : base(APIversion, handler) { this.argb = argb; }
+            public ColorElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public ColorElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public ColorElement(int apiVersion, EventHandler handler, ColorElement basis) : this(apiVersion, handler, basis.argb) { }
+            public ColorElement(int apiVersion, EventHandler handler, int argb) : base(apiVersion, handler) { this.argb = argb; }
 
             protected override void Parse(Stream s) { BinaryReader r = new BinaryReader(s); argb = r.ReadInt32(); }
             internal override void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(argb); }
@@ -620,10 +620,10 @@ namespace meshExpImp.ModelBlocks
         }
         public class VertexIDElement : BoneAssignmentElement
         {
-            public VertexIDElement(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public VertexIDElement(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-            public VertexIDElement(int APIversion, EventHandler handler, VertexIDElement basis) : this(APIversion, handler, basis.id) { }
-            public VertexIDElement(int APIversion, EventHandler handler, uint id) : base(APIversion, handler) { this.id = id; }
+            public VertexIDElement(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public VertexIDElement(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+            public VertexIDElement(int apiVersion, EventHandler handler, VertexIDElement basis) : this(apiVersion, handler, basis.id) { }
+            public VertexIDElement(int apiVersion, EventHandler handler, uint id) : base(apiVersion, handler) { this.id = id; }
 
             // public override AHandlerElement Clone(EventHandler handler) { return new VertexIDElement(requestedApiVersion, handler, this); }
             public override bool Equals(VertexElement other) { VertexIDElement o = other as VertexIDElement; return o != null && id.Equals(o.id); }
@@ -820,11 +820,11 @@ namespace meshExpImp.ModelBlocks
             public DependentList<VertexFormat> ParentVertexFormats { get; set; }
             public override List<string> ContentFields { get { var res = GetContentFields(requestedApiVersion, this.GetType()); res.Remove("ParentVertexFormats"); return res; } }
 
-            public VertexDataElement(int APIversion, EventHandler handler, uint version, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.version = version; this.ParentVertexFormats = parentVertexFormats; }
-            public VertexDataElement(int APIversion, EventHandler handler, uint version, Stream s, DependentList<VertexFormat> parentVertexFormats) : base(APIversion, handler) { this.version = version; this.ParentVertexFormats = parentVertexFormats; Parse(s); }
-            public VertexDataElement(int APIversion, EventHandler handler, uint version, VertexDataElement basis) : this(APIversion, handler, basis.version, basis.elementList, basis.ParentVertexFormats) { }
-            public VertexDataElement(int APIversion, EventHandler handler, uint version, DependentList<VertexElement> elementList, DependentList<VertexFormat> parentVertexFormats)
-                : base(APIversion, handler)
+            public VertexDataElement(int apiVersion, EventHandler handler, uint version, DependentList<VertexFormat> parentVertexFormats) : base(apiVersion, handler) { this.version = version; this.ParentVertexFormats = parentVertexFormats; }
+            public VertexDataElement(int apiVersion, EventHandler handler, uint version, Stream s, DependentList<VertexFormat> parentVertexFormats) : base(apiVersion, handler) { this.version = version; this.ParentVertexFormats = parentVertexFormats; Parse(s); }
+            public VertexDataElement(int apiVersion, EventHandler handler, uint version, VertexDataElement basis) : this(apiVersion, handler, basis.version, basis.elementList, basis.ParentVertexFormats) { }
+            public VertexDataElement(int apiVersion, EventHandler handler, uint version, DependentList<VertexElement> elementList, DependentList<VertexFormat> parentVertexFormats)
+                : base(apiVersion, handler)
             {
                 this.version = version;
                 this.ParentVertexFormats = parentVertexFormats;//reference!
@@ -938,12 +938,12 @@ namespace meshExpImp.ModelBlocks
             ushort vertexDataIndex2;
             #endregion
 
-            public Face(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Face(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Face(int APIversion, EventHandler handler, Face basis)
-                : this(APIversion, handler, basis.vertexDataIndex0, basis.vertexDataIndex1, basis.vertexDataIndex2) { }
-            public Face(int APIversion, EventHandler handler, ushort vertexDataIndex0, ushort vertexDataIndex1, ushort vertexDataIndex2)
-                : base(APIversion, handler)
+            public Face(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Face(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Face(int apiVersion, EventHandler handler, Face basis)
+                : this(apiVersion, handler, basis.vertexDataIndex0, basis.vertexDataIndex1, basis.vertexDataIndex2) { }
+            public Face(int apiVersion, EventHandler handler, ushort vertexDataIndex0, ushort vertexDataIndex1, ushort vertexDataIndex2)
+                : base(apiVersion, handler)
             {
                 this.vertexDataIndex0 = vertexDataIndex0;
                 this.vertexDataIndex1 = vertexDataIndex1;
@@ -1017,11 +1017,11 @@ namespace meshExpImp.ModelBlocks
             Vector2List unknown2;
             #endregion
 
-            public UnknownThing(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public UnknownThing(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public UnknownThing(int APIversion, EventHandler handler, UnknownThing basis) : this(APIversion, handler, basis.unknown1, basis.unknown2) { }
-            public UnknownThing(int APIversion, EventHandler handler, uint unknown1, IEnumerable<Vector2> unknown2)
-                : base(APIversion, handler)
+            public UnknownThing(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public UnknownThing(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public UnknownThing(int apiVersion, EventHandler handler, UnknownThing basis) : this(apiVersion, handler, basis.unknown1, basis.unknown2) { }
+            public UnknownThing(int apiVersion, EventHandler handler, uint unknown1, IEnumerable<Vector2> unknown2)
+                : base(apiVersion, handler)
             {
                 this.unknown1 = unknown1;
                 this.unknown2 = unknown2 == null ? null : new Vector2List(handler, unknown2);
@@ -1123,20 +1123,20 @@ namespace meshExpImp.ModelBlocks
             byte unknown18;
             #endregion
 
-            public UnknownThing2(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public UnknownThing2(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public UnknownThing2(int APIversion, EventHandler handler, UnknownThing2 basis)
-                : this(APIversion, handler, basis.unknown1,
+            public UnknownThing2(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public UnknownThing2(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public UnknownThing2(int apiVersion, EventHandler handler, UnknownThing2 basis)
+                : this(apiVersion, handler, basis.unknown1,
                 basis.unknown2, basis.unknown3, basis.unknown4, basis.unknown5,
                 basis.unknown6, basis.unknown7, basis.unknown8, basis.unknown9,
                 basis.unknown10, basis.unknown11, basis.unknown12, basis.unknown13,
                 basis.unknown14, basis.unknown15, basis.unknown16, basis.unknown17, basis.unknown18) { }
-            public UnknownThing2(int APIversion, EventHandler handler, uint unknown1,
+            public UnknownThing2(int apiVersion, EventHandler handler, uint unknown1,
                 ushort unknown2, ushort unknown3, ushort unknown4, float unknown5,
                 float unknown6, float unknown7, float unknown8, float unknown9,
                 float unknown10, float unknown11, float unknown12, float unknown13,
                 float unknown14, float unknown15, float unknown16, float unknown17, byte unknown18)
-                : base(APIversion, handler)
+                : base(apiVersion, handler)
             {
                 this.unknown1 = unknown1;
                 this.unknown2 = unknown2;

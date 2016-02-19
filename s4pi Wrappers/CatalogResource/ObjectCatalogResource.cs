@@ -118,8 +118,8 @@ namespace CatalogResource
             private uint amount;
             #endregion
 
-            public SellingPoint(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public SellingPoint(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public SellingPoint(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public SellingPoint(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
 
 
             #region Data I/O

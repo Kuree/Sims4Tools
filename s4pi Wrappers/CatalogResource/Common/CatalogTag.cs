@@ -12,29 +12,36 @@ namespace CatalogResource.Common
 		private Tag tag;
 
 		#region Constructors
-            
-		public CatalogTag(int APIversion, EventHandler handler, CatalogTag other)
-			: this(APIversion, handler, other.tag)
+
+		public CatalogTag(int apiVersion, EventHandler handler, CatalogTag other)
+			: this(apiVersion, handler, other.tag)
 		{
 		}
 
-		public CatalogTag(int APIversion, EventHandler handler)
-			: base(APIversion, handler)
+		public CatalogTag(int apiVersion, EventHandler handler)
+			: base(apiVersion, handler)
 		{
 			this.MakeNew();
 		}
 
-		public CatalogTag(int APIversion, EventHandler handler, Stream s)
-			: base(APIversion, handler)
+		public CatalogTag(int apiVersion, EventHandler handler, Stream s)
+			: base(apiVersion, handler)
 		{
 			this.Parse(s);
 		}
 
-		public CatalogTag(int APIversion, EventHandler handler, Tag ctag)
-			: base(APIversion, handler)
+		public CatalogTag(int apiVersion, EventHandler handler, Tag ctag)
+			: base(apiVersion, handler)
 		{
 			this.tag = ctag;
 		}
+
+        	public CatalogTag(int apiVersion, EventHandler handler, uint tagValue)
+        	    : base(apiVersion, handler)
+        	{
+            		this.tag = CatalogTagRegistry.FetchTag(tagValue);
+        	}
+
 		public bool Equals(CatalogTag other)
 		{
 			return this.tag == other.tag;
@@ -68,13 +75,13 @@ namespace CatalogResource.Common
 		void Parse(Stream s)
 		{
 			var br = new BinaryReader(s);
-			this.tag = CatalogTagRegistry.FetchTag(br.ReadUInt16());
+			this.tag = CatalogTagRegistry.FetchTag(br.ReadUInt32());
 		}
 
 		public void UnParse(Stream s)
 		{
 			var bw = new BinaryWriter(s);
-			bw.Write(this.Tag);
+			bw.Write(this.Tag.ToUInt32());
 		}
 
 		private void MakeNew()

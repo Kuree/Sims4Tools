@@ -1,0 +1,6 @@
+// DDS Export
+ResourceType: 0x00B2D882 0x8FFB80F6 0xB6C8B6A0
+Label: Export To DDS
+Command: Helpers\DDSHelper\DDSHelper.exe
+Arguments: /export "{}" 
+Desc: Export DDS/DST Resource to DDS/DXT compatible with editors

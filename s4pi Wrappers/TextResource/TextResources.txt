@@ -1,38 +1,105 @@
-﻿0x024A0E52 Spore UTF-8 with encoding bytes NameGeneration.package
-0x025C90A6 Cascading Style Sheet
-0x025C95B6 XML with encoding bytes -- <graph/>
+﻿0x0069453E TS4 XML -- objective
 0x029E333B Audio controllers
 0x02C9EFF2 Audio Submix
-0x02D5DF13 JAZZ
-0x024A0E52 SimCity5 Config
-0x02FAC0B6 Spore "Guide notes" from Text.package?
-0x0333406C XML with or without encoding bytes -- <base/> (with), various (without)
-0x03B33DDF XML without encoding bytes -- <base/>
-0x03E9D964 XML TS4 Objects
-0x0604ABDA XML with encoding bytes -- <DreamTree/>
-0x0A98EAF0 SimCity5 UI JavaScript Object
-0x0C772E27 ?
+0x02D5DF13 JAZZ tuning
+0x03B33DDF TS4 XML tuning
+0x03E9D964 TS4 XML -- pie_menu_category
+0x04D2B465 TS4 XML -- achievement_collection
+0x074DFB83 TS4 XML -- relbit
+0x0C772E27 TS4 XML -- action
+0x0CA4C78B TS4 XML -- sim_template
+0x0E4D15FB TS4 XML -- role_state
+0x0EEB823A Renderer_FadeTuning
+0x11E72A63 TS4 XML -- notebook_entry
+0x122FC66A Lot type event map 
+0x12496650 TS4 XML -- camera
 0x1A8506C5 Modal music wrappings
 0x1B25A024 Sound properties
+0x1C12D458 TS4 XML -- tagcategoriesmetadata
 0x1F886EAD Various configuration bits
-0x2B6CAB5F Spore Note in UI.package
+0x2451C101 TS4 XML -- achievement_category
+0x2553F435 TS4 XML -- drama_node
+0x2673076D TS4 XML -- client_tutorial
+0x28B64675 TS4 XML -- aspiration
+0x2C01BC15 Renderer_GlobalHighlightSettings
+0x2C70ADF8 TS4 XML -- career_level
+0x2E47A104 TS4 XML -- social_group
+0x2F59B437 TS4 XML -- club_seed
+0x31397645 Client_RegionSortTuning
+0x339BC5BD TS4 XML -- statistic
+0x37B999F1 Renderer_GlobalShadowSettings
+0x37EF2EE7 TS4 XML -- royalty
+0x3F163505 TS4 XML -- slot_type_set
+0x3FD6243E TS4 XML -- walk_by
 0x4115F9D5 Various sound configs
-0x6017E896 ?
-0x67771F5C SimCity5 UI JavaScript Object
-0x73E93EEB XML without encoding bytes -- <manifest/>
+0x457FC032 Renderer_CensorTuning
+0x48C2D5ED TS4 XML -- template_chooser
+0x48C75CE3 TS4 XML -- career_track
+0x49395302 TS4 XML -- tag_set
+0x4DB8251E Renderer_GlobalDofSettings (Depth of Field)
+0x4F739CEE TS4 XML -- test_based_score
+0x51077643 TS4 XML -- scommodity (StaticCommodity)
+0x51E7A18D TS4 XML -- region
+0x54BD4618 Automation_AssetVersion
+0x598F28E7 TS4 XML -- situation_goal
+0x5B02819E TS4 XML -- object_state
+0x6017E896 TS4 XML -- buff
+0x6224C9D6 TS4 XML -- strategy
+0x69A5DAA4 TS4 XML -- slot_type
+0x6E0DDA9F TS4 XML -- sim_filter
+0x6FA49828 TS4 XML -- reward
+0x7147A350 TS4 XML -- object_part
+0x738E6C56 TS4 XML -- topic
+0x73996BEB TS4 XML -- career
+0x78559E9E TS4 XML -- achievement
+0x7DF2169C TS4 XML -- snippet
+0x800A3690 TS4 XML -- caslighting
+0x86136AA5 Renderer_GlobalLightSettings
+0x893E429C TS4 XML -- tagstraitgroupmetadata
+0x8FB3E0B1 TS4 XML -- tutorial_tip
+0x91568FD8 Lot object list
+0x99CBC754 NativeBuildBuy tuning
 0x99D98089 Button UI event mapping
-0xA576C2E7 ? Sound?
-0xA8D58BE5 XML without encoding bytes -- <skills_store/>
-0xB61DE6B4 ?
+0x9C07855F TS4 XML -- situation_job
+0x9CC21262 TS4 XML -- service_npc
+0x9DB989FD TS4 XML -- tagsmetadata
+0x9DDB5FDA TS4 XML -- simlighting
+0x9DF2F1F2 TS4 XML -- situation_goal_set
+0xAD6FDF1F TS4 XML -- posture
+0xAFADAC48 TS4 XML -- away_action
+0xB61DE6B4 TS4 XML -- object
+0xB7FF8F95 TS4 XML -- subroot
+0xB9881120 TS4 XML -- ensemble
+0xBA7B60B8 TS4 XML -- mood
+0xBE04173A TS4 XML -- spaction (StoryProgressionActionCareer)
+0xC020FCAD TS4 XML -- aspiration_track
 0xC202C770 Music data file
-0xCB5FDDC7 ?
-0xC582D2FB ?
-0xD4D9FBE5 XML without encoding bytes -- <patternlist/>
-0xDD3223A7 XML without encoding bytes -- <buff_store/>
-0xDD6233D6 SimCity5 UI HTML
+0xC2CAA646 Telemetry_Tuning
+0xCB5FDDC7 TS4 XML -- trait
+0xC582D2FB TS4 -- voicex
+0xD2DC5BAD Ambience
+0xD70DD79E Renderer_HsvTweakerSettings
+0xD83892B7 Client_ThumbnailPoses
+0xD8800D66 TS4 XML -- lot_tuning
+0xDD057DCC TS4 XML -- tagtuning
+0xDE6AD3CF Video_GlobalTuning
+0xDEBAFB73 TS4 XML -- broadcaster
+0xE0D75679 BuildBuyTuning
+0xE04A24A3 TS4 XML -- tutorial
+0xE06AE65E Renderer_GlobalVolLightScatteringSettings
+0xE1477E18 TS4 XML -- game_ruleset
 0xE231B3D8 Object modifiers
-0xE5105066 ?
-0xE5105067 XML without encoding bytes -- <RecipeMasterList_store/>
-0xE5105068 ?
-0xE882D22F ?
-0xF0FF5598 Shortcut definitions
+0xE24B5287 TS4 XML -- castuning
+0xE350DBD8 TS4 XML -- aspiration_category
+0xE55EEACB Video_Playlist
+0xE6BBD7DE TS4 XML -- venue
+0xE882D22F TS4 XML -- interaction
+0xEB97F823 TS4 XML -- recipe
+0xEC3DA10E TS4 XML -- bucks_perk
+0xEC6A8FC6 TS4 XML -- balloon
+0xEE17C6AD TS4 XML -- animation
+0xF3ABFF3C TS4 XML -- casmodifiertuning
+0xF93B40CF Renderer_GlobalSsaoSettings (ScreenSpaceAmbientOcclusion)
+0xF958A092 TS4 XML -- zone_director
+0xFA0FFA34 TS4 XML -- ClubInteractionGroup
+0xFBC3AEEB TS4 XML -- situation

@@ -1,4 +1,4 @@
-﻿ResourceType: 0x015A1849
+ResourceType: 0x015A1849
 Label: GEOM Preview
 Command: Helpers\ModelViewer\ModelViewer.exe
 Arguments: "{}"

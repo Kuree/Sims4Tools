@@ -1,6 +1,11 @@
-﻿/***************************************************************************
- *  Copyright (C) 2014 by Keyi Zhang                                       *
- *  kz005@bucknell.edu                                                     *
+/***************************************************************************
+ *  Copyright (C) 2009, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Peter Jones                                                            *
+ *  Keyi Zhang                                                             *
+ *  Cmar                                                                   *
+ *  Buzzler                                                                *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -9,7 +14,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -17,6 +22,7 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,198 +30,390 @@ using s4pi.Interfaces;
 
 namespace StblResource
 {
+    using System.Text;
+
     /// <summary>
     /// A resource wrapper that understands String Table resources
     /// Currently not compatible with TS3
     /// </summary>
-    public class StblResource : AResource, IDictionary<uint, string>, System.Collections.IDictionary
+    public class StblResource : AResource
     {
-        const int recommendedApiVersion = 1;
-        public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
+        private const int recommendedApiVersion = 1;
 
-        static bool checking = s4pi.Settings.Settings.Checking;
+        public override int RecommendedApiVersion
+        {
+            get { return recommendedApiVersion; }
+        }
+
+        public override List<string> ContentFields
+        {
+            get { return GetContentFields(this.requestedApiVersion, this.GetType()); }
+        }
+
+        private static readonly bool checking = s4pi.Settings.Settings.Checking;
 
         #region Attributes
-        ushort unknown1;
-        byte[] unknown2;
-        uint size;
-        Dictionary<uint, string> entries;
+
+        private ushort version;
+        private byte isCompressed;
+        private ulong numEntries;
+        private byte[] reserved; //2 bytes
+        private uint stringLength;
+        private StringEntryList entries;
+
         #endregion
 
-        public StblResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
+        public StblResource(int APIversion, Stream s) : base(APIversion, s)
+        {
+            if (this.stream == null)
+            {
+                this.version = 5;
+                this.stream = this.UnParse();
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+            this.stream.Position = 0;
+            this.Parse(this.stream);
+        }
 
         #region Data I/O
-        void Parse(Stream s)
+
+        private void Parse(Stream s)
         {
-            if (s == null) s = this.UnParse();
+            if (s == null)
+            {
+                s = this.UnParse();
+            }
             s.Position = 0;
             BinaryReader r = new BinaryReader(s);
 
             uint magic = r.ReadUInt32();
-            if (checking) if (magic != FOURCC("STBL"))
-                    throw new InvalidDataException(String.Format("Expected magic tag 0x{0:X8}; read 0x{1:X8}; position 0x{2:X8}",
-                        FOURCC("STBL"), magic, s.Position));
-            byte version = r.ReadByte();
-            if (checking) if (version != 0x05)
-                    throw new InvalidDataException(String.Format("Expected version 0x02; read 0x{0:X2}; position 0x{1:X8}",
-                        version, s.Position));
-            
-            unknown1 = r.ReadUInt16();
-
-            uint count = r.ReadUInt32();
-
-            unknown2 = r.ReadBytes(6);
-            size = r.ReadUInt32();
-
-            uint sizeCount = 0;
-
-            entries = new Dictionary<uint, string>(); 
-            for (int i = 0; i < count; i++)
+            if (checking)
             {
-                uint key = r.ReadUInt32();
-                r.ReadByte();
-                Int16 length = r.ReadInt16();
-                string value = System.Text.Encoding.UTF8.GetString(r.ReadBytes(length));
-                sizeCount += (uint)length + 1;
-                if (entries.ContainsKey(key)) continue; 
-                entries.Add(key, value);
+                if (magic != FOURCC("STBL"))
+                {
+                    throw new InvalidDataException(
+                        string.Format("Expected magic tag 0x{0:X8}; read 0x{1:X8}; position 0x{2:X8}",
+                            FOURCC("STBL"),
+                            magic,
+                            s.Position));
+                }
+            }
+            this.version = r.ReadUInt16();
+            if (checking)
+            {
+                if (this.version != 0x05)
+                {
+                    throw new InvalidDataException(
+                        string.Format("Expected version 0x05; read 0x{0:X2}; position 0x{1:X8}", this.version,
+                            s.Position));
+                }
             }
 
-            if (sizeCount != size) { throw new InvalidCastException(String.Format("Expected size 0x{0}; read 0x{1}", size, sizeCount)); }
+            this.isCompressed = r.ReadByte();
+            this.numEntries = r.ReadUInt64();
+            this.reserved = r.ReadBytes(2);
+            this.stringLength = r.ReadUInt32();
+
+            this.entries = new StringEntryList(this.OnResourceChanged, s, this.numEntries);
         }
 
         protected override Stream UnParse()
         {
-            MemoryStream ms = new MemoryStream();
+            Stream memoryStream = new MemoryStream();
+            BinaryWriter writer = new BinaryWriter(memoryStream);
 
-            BinaryWriter w = new BinaryWriter(ms);
+            writer.Write((uint)FOURCC("STBL"));
+            writer.Write(this.version);
 
-            w.Write((uint)FOURCC("STBL"));
-            w.Write((byte)0x05);
+            writer.Write(this.isCompressed);
 
-            w.Write(unknown1);
-
-            if (entries == null) entries = new Dictionary<uint, string>();
-            w.Write((uint)entries.Count);
-
-            if (this.unknown2 == null) this.unknown2 = new byte[6];
-            w.Write(unknown2);
-
-            long sizePosition = w.BaseStream.Position;
-            w.Write(0x00000000); //w.Write(size);
-            int actualSize = 0;
-            foreach (var kvp in entries)
+            if (this.entries == null)
             {
-                w.Write(kvp.Key);
-                w.Write((byte)0);                
-                byte[] str = System.Text.Encoding.UTF8.GetBytes(kvp.Value);
-                w.Write((ushort)str.Length);
-                w.Write(str);
-                actualSize += str.Length + 1;
+                this.entries = new StringEntryList(this.OnResourceChanged);
+            }
+            writer.Write((ulong)this.entries.Count);
+
+            if (this.reserved == null)
+            {
+                this.reserved = new byte[2];
+            }
+            writer.Write(this.reserved);
+
+            long sizePosition = writer.BaseStream.Position;
+            writer.Write(0x00000000);
+            uint actualSize = 0;
+            foreach (StringEntry entry in this.entries)
+            {
+                entry.UnParse(memoryStream);
+                actualSize += entry.EntrySize;
             }
 
-            w.BaseStream.Position = sizePosition;
-            w.Write(actualSize);
+            writer.BaseStream.Position = sizePosition;
+            writer.Write(actualSize);
 
-            return ms;
+            memoryStream.Position = 0;
+            return memoryStream;
         }
+
         #endregion
 
-        #region IDictionary<uint,string> Members
+        #region Sub Class
 
-        public void Add(uint key, string value) { entries.Add(key, value); OnResourceChanged(this, EventArgs.Empty); }
-
-        public bool ContainsKey(uint key) { return entries.ContainsKey(key); }
-
-        public ICollection<uint> Keys { get { return entries.Keys; } }
-
-        public bool Remove(uint key) { try { return entries.Remove(key); } finally { OnResourceChanged(this, EventArgs.Empty); } }
-
-        public bool TryGetValue(uint key, out string value) { return entries.TryGetValue(key, out value); }
-
-        public ICollection<string> Values { get { return entries.Values; } }
-
-        public string this[uint key]
+        public class StringEntry : AHandlerElement, IEquatable<StringEntry>
         {
-            get { return entries[key]; }
-            set { if (entries[key] != value) { entries[key] = value; OnResourceChanged(this, EventArgs.Empty); } }
+            private uint keyHash;
+            private byte flags;
+            private string stringValue;
+
+            internal uint EntrySize
+            {
+                get { return (uint)(this.StringValue.Length + 1); }
+            }
+
+            public StringEntry(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
+            {
+            }
+
+            public StringEntry(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler)
+            {
+                this.Parse(s);
+            }
+
+            #region AHandlerElement Members
+
+            public override int RecommendedApiVersion
+            {
+                get { return recommendedApiVersion; }
+            }
+
+            public override List<string> ContentFields
+            {
+                get { return GetContentFields(this.requestedApiVersion, this.GetType()); }
+            }
+
+            public override AHandlerElement Clone(EventHandler handler)
+            {
+                StringEntry clone = new StringEntry(this.RecommendedApiVersion, handler)
+                                    {
+                                        keyHash = this.keyHash,
+                                        flags = this.flags,
+                                        stringValue = this.stringValue
+                                    };
+                return clone;
+            }
+
+            #endregion
+
+            #region Data I/O
+
+            public void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                this.keyHash = r.ReadUInt32();
+                this.flags = r.ReadByte();
+                ushort length = r.ReadUInt16();
+                this.stringValue = Encoding.UTF8.GetString(r.ReadBytes(length));
+            }
+
+            public void UnParse(Stream s)
+            {
+                BinaryWriter w = new BinaryWriter(s);
+                w.Write(this.keyHash);
+                w.Write(this.flags);
+                byte[] str = Encoding.UTF8.GetBytes(this.StringValue);
+                w.Write((ushort)str.Length);
+                w.Write(str);
+            }
+
+            #endregion
+
+            public bool Equals(StringEntry other)
+            {
+                return this.keyHash == other.keyHash && this.flags == other.flags
+                       && string.CompareOrdinal(this.StringValue, other.StringValue) == 0;
+            }
+
+            [ElementPriority(0)]
+            public uint KeyHash
+            {
+                get { return this.keyHash; }
+                set
+                {
+                    if (this.keyHash != value)
+                    {
+                        this.OnElementChanged();
+                        this.keyHash = value;
+                    }
+                }
+            }
+
+            [ElementPriority(1)]
+            public byte Flags
+            {
+                get { return this.flags; }
+                set
+                {
+                    if (this.flags != value)
+                    {
+                        this.OnElementChanged();
+                        this.flags = value;
+                    }
+                }
+            }
+
+            [ElementPriority(2)]
+            public string StringValue
+            {
+                get { return this.stringValue ?? string.Empty; }
+                set
+                {
+                    if (string.CompareOrdinal(this.StringValue, value) != 0)
+                    {
+                        this.OnElementChanged();
+                        this.stringValue = value;
+                    }
+                }
+            }
+
+            public string Value
+            {
+                get
+                {
+                    return string.Format("Key 0x{0:X8}, Flags 0x{1:X2} : {2}",
+                        this.keyHash,
+                        this.flags,
+                        this.StringValue);
+                }
+            }
+        }
+
+        public class StringEntryList : DependentList<StringEntry>
+        {
+            private readonly ulong numberEntries;
+
+            public StringEntryList(EventHandler handler) : base(handler)
+            {
+            }
+
+            public StringEntryList(EventHandler handler, Stream s, ulong numEntries) : base(handler)
+            {
+                this.numberEntries = numEntries;
+                this.Parse(s);
+            }
+
+            #region Data I/O
+
+            protected override void Parse(Stream s)
+            {
+                BinaryReader r = new BinaryReader(s);
+                for (ulong i = 0; i < this.numberEntries; i++)
+                {
+                    this.Add(new StringEntry(1, this.handler, s));
+                }
+            }
+
+            public override void UnParse(Stream s)
+            {
+                foreach (StringEntry entry in this)
+                {
+                    entry.UnParse(s);
+                }
+            }
+
+            #endregion
+
+            protected override StringEntry CreateElement(Stream s)
+            {
+                return new StringEntry(1, this.handler, s);
+            }
+
+            protected override void WriteElement(Stream s, StringEntry element)
+            {
+                element.UnParse(s);
+            }
         }
 
         #endregion
-
-        #region ICollection<KeyValuePair<uint,string>> Members
-
-        public void Add(KeyValuePair<uint, string> item) { entries.Add(item.Key, item.Value); }
-
-        public void Clear() { entries.Clear(); OnResourceChanged(this, EventArgs.Empty); }
-
-        public bool Contains(KeyValuePair<uint, string> item) { return entries.ContainsKey(item.Key) && entries[item.Key].Equals(item.Value); }
-
-        public void CopyTo(KeyValuePair<uint, string>[] array, int arrayIndex) { foreach (var kvp in entries) array[arrayIndex++] = kvp; }
-
-        public int Count { get { return entries.Count; } }
-
-        public bool IsReadOnly { get { return false; } }
-
-        public bool Remove(KeyValuePair<uint, string> item) { try { return Contains(item) ? entries.Remove(item.Key) : false; } finally { OnResourceChanged(this, EventArgs.Empty); } }
-
-        #endregion
-
-        #region IEnumerable<KeyValuePair<uint,string>> Members
-
-        public IEnumerator<KeyValuePair<uint, string>> GetEnumerator() { return entries.GetEnumerator(); }
-
-        #endregion
-
-        #region IEnumerable Members
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return entries.GetEnumerator(); }
-
-        #endregion
-
-        #region IDictionary Members
-
-        public void Add(object key, object value) { this.Add((uint)key, (string)value); }
-
-        public bool Contains(object key) { return ContainsKey((uint)key); }
-
-        System.Collections.IDictionaryEnumerator System.Collections.IDictionary.GetEnumerator() { return entries.GetEnumerator(); }
-
-        public bool IsFixedSize { get { return false; } }
-
-        System.Collections.ICollection System.Collections.IDictionary.Keys { get { return entries.Keys; } }
-
-        public void Remove(object key) { Remove((uint)key); }
-
-        System.Collections.ICollection System.Collections.IDictionary.Values { get { return entries.Values; } }
-
-        public object this[object key] { get { return this[(uint)key]; } set { this[(uint)key] = (string)value; } }
-
-        #endregion
-
-        #region ICollection Members
-
-        public void CopyTo(Array array, int index) { CopyTo((KeyValuePair<uint, string>[])array, index); }
-
-        public bool IsSynchronized { get { return false; } }
-
-        public object SyncRoot { get { return null; } }
-
-        #endregion
-
-        /// <summary>
-        /// Return the default dictionary entry for this <c>IDictionary{TKey, TValue}</c>.
-        /// </summary>
-        /// <returns>The default dictionary entry for this <c>IDictionary{TKey, TValue}</c>.</returns>
-        public static System.Collections.DictionaryEntry GetDefault() { return new System.Collections.DictionaryEntry((uint)0, ""); }
 
         #region Content Fields
-        public ushort Unknown1 { get { return unknown1; } set { if (unknown1 != value) { unknown1 = value; OnResourceChanged(this, EventArgs.Empty); } } }
-        public byte[] Unknown2 { get { return unknown2; } set { if (unknown2 != value) { unknown2 = value; OnResourceChanged(this, EventArgs.Empty); } } }
-        public uint ByteSize { get { return size; } set { if (size != value) { size = value; OnResourceChanged(this, EventArgs.Empty); } } }
 
-        public String Value { get { return ValueBuilder; } }
+        [ElementPriority(0)]
+        public ushort Version
+        {
+            get { return this.version; }
+            set
+            {
+                if (this.version != value)
+                {
+                    this.version = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(1)]
+        public byte IsCompressed
+        {
+            get { return this.isCompressed; }
+            set
+            {
+                if (this.isCompressed != value)
+                {
+                    this.isCompressed = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(2)]
+        public byte[] Reserved
+        {
+            get { return this.reserved; }
+            set
+            {
+                if (this.reserved != value)
+                {
+                    this.reserved = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(3)]
+        public ulong NumberEntries
+        {
+            get { return this.numEntries; }
+            set { }
+        }
+
+        [ElementPriority(4)]
+        public uint StringDataLength
+        {
+            get { return this.stringLength; }
+            set { }
+        }
+
+        [ElementPriority(5)]
+        public StringEntryList Entries
+        {
+            get { return this.entries; }
+            set
+            {
+                if (this.entries != value)
+                {
+                    this.entries = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        public string Value
+        {
+            get { return this.ValueBuilder; }
+        }
+
         #endregion
     }
 
@@ -226,7 +424,7 @@ namespace StblResource
     {
         public StblResourceHandler()
         {
-            this.Add(typeof(StblResource), new List<string>(new string[] { "0x220557DA", }));
+            this.Add(typeof (StblResource), new List<string>(new[] { "0x220557DA", }));
         }
     }
 }

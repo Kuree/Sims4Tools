@@ -217,22 +217,22 @@ namespace CatalogResource
 
             #region Constructors
 
-            public WallMATDEntry(int APIversion, EventHandler handler, WallMATDEntry other)
-                : this(APIversion, handler, other.matdLabel, other.matdRef)
+            public WallMATDEntry(int apiVersion, EventHandler handler, WallMATDEntry other)
+                : this(apiVersion, handler, other.matdLabel, other.matdRef)
             {
             }
-            public WallMATDEntry(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public WallMATDEntry(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 this.MakeNew();
             }
-            public WallMATDEntry(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
+            public WallMATDEntry(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public WallMATDEntry(int APIversion, EventHandler handler, MainWallHeight matdLabel, TGIBlock matdRef)
-                : base(APIversion, handler)
+            public WallMATDEntry(int apiVersion, EventHandler handler, MainWallHeight matdLabel, TGIBlock matdRef)
+                : base(apiVersion, handler)
             {
                 this.matdLabel = matdLabel;
                 this.matdRef = new TGIBlock(kRecommendedApiVersion, handler, TGIBlock.Order.ITG, matdRef);
@@ -357,22 +357,22 @@ namespace CatalogResource
             #endregion ContentFields
 
             #region Constructors
-            public WallImgGroupEntry(int APIversion, EventHandler handler, WallImgGroupEntry other)
-                : this(APIversion, handler, other.imgGroupType, other.imgRef01, other.imgRef02, other.imgRef03)
+            public WallImgGroupEntry(int apiVersion, EventHandler handler, WallImgGroupEntry other)
+                : this(apiVersion, handler, other.imgGroupType, other.imgRef01, other.imgRef02, other.imgRef03)
             {
             }
-            public WallImgGroupEntry(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public WallImgGroupEntry(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 this.MakeNew();
             }
-            public WallImgGroupEntry(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
+            public WallImgGroupEntry(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public WallImgGroupEntry(int APIversion, EventHandler handler, CornerWallHeight imgGroupType, TGIBlock imgRef01, TGIBlock imgRef02, TGIBlock imgRef03)
-                : base(APIversion, handler)
+            public WallImgGroupEntry(int apiVersion, EventHandler handler, CornerWallHeight imgGroupType, TGIBlock imgRef01, TGIBlock imgRef02, TGIBlock imgRef03)
+                : base(apiVersion, handler)
             {
                 this.imgGroupType = imgGroupType;
                 this.imgRef01 = new TGIBlock(kRecommendedApiVersion, handler, TGIBlock.Order.ITG, imgRef01);

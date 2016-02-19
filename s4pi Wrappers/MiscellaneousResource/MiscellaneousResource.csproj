@@ -36,12 +36,18 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeformerMapResource.cs" />
+    <Compile Include="ModelFlags.cs" />
     <Compile Include="MTBLResource.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="AUEVResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimModifierResource.cs" />
+    <Compile Include="SkyBoxTextureResource.cs" />
+    <Compile Include="THMResource.cs" />
+    <Compile Include="TMLTResource.cs" />
+    <Compile Include="TRIMResource.cs" />
+    <Compile Include="WidthAndMappingFlags.cs" />
+    <Compile Include="WorldColorTimelineResource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">

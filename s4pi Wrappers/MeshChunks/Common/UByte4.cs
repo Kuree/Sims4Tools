@@ -30,10 +30,10 @@ namespace meshExpImp.ModelBlocks
         private byte mC;
         private byte mD;
 
-        public UByte4(int APIversion, EventHandler handler) : base(APIversion, handler) {}
-        public UByte4(int APIversion, EventHandler handler, UByte4 basis): this(APIversion, handler, basis.A,basis.B,basis.C,basis.D){}
-        public UByte4(int APIversion, EventHandler handler, Stream s): base(APIversion, handler){Parse(s);}
-        public UByte4(int APIversion, EventHandler handler, byte a, byte b, byte c, byte d) : base(APIversion, handler)
+        public UByte4(int apiVersion, EventHandler handler) : base(apiVersion, handler) {}
+        public UByte4(int apiVersion, EventHandler handler, UByte4 basis): this(apiVersion, handler, basis.A,basis.B,basis.C,basis.D){}
+        public UByte4(int apiVersion, EventHandler handler, Stream s): base(apiVersion, handler){Parse(s);}
+        public UByte4(int apiVersion, EventHandler handler, byte a, byte b, byte c, byte d) : base(apiVersion, handler)
         {
             mA = a;
             mB = b;

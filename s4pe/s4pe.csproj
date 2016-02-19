@@ -242,7 +242,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Settings.cs" />
-    <Compile Include="Settings\AutoUpdate.cs" />
+    <Compile Include="Settings\GitHubVersion.cs" />
+    <Compile Include="Settings\UpdateChecker.cs" />
     <Compile Include="Settings\ExternalProgramsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -273,6 +274,7 @@
     <Compile Include="Settings\OrganiseCustomPlacesDialog.Designer.cs">
       <DependentUpon>OrganiseCustomPlacesDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings\Version.cs" />
     <Compile Include="Splash\Splash.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -375,6 +377,10 @@
     <ProjectReference Include="..\s4pi Wrappers\ImageResource\ImageResource.csproj">
       <Project>{ad53972b-d73e-4935-a4ad-3ebe0e3516f2}</Project>
       <Name>ImageResource</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\s4pi.Resource.Commons\s4pi.Commons\s4pi.Commons.csproj">
+      <Project>{BDAC59C8-3ABF-439F-9C1C-5112CB22F4AD}</Project>
+      <Name>s4pi.Commons</Name>
     </ProjectReference>
     <ProjectReference Include="..\s4pi\Interfaces\Interfaces.csproj">
       <Project>{51023BD2-9139-438D-B794-95E5EC023537}</Project>

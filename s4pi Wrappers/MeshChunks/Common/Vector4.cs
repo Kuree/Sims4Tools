@@ -27,10 +27,10 @@ namespace meshExpImp.ModelBlocks
     {
         protected float mW;
 
-        public Vector4(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-        public Vector4(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler, s) { }
-        public Vector4(int APIversion, EventHandler handler, Vector4 basis) : this(APIversion, handler, basis.X, basis.Y, basis.Z, basis.W) { }
-        public Vector4(int APIversion, EventHandler handler, float x, float y, float z, float w) : base(APIversion, handler, x, y, z) { mW = w; }
+        public Vector4(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+        public Vector4(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler, s) { }
+        public Vector4(int apiVersion, EventHandler handler, Vector4 basis) : this(apiVersion, handler, basis.X, basis.Y, basis.Z, basis.W) { }
+        public Vector4(int apiVersion, EventHandler handler, float x, float y, float z, float w) : base(apiVersion, handler, x, y, z) { mW = w; }
 
         [ElementPriority(4)]
         public float W

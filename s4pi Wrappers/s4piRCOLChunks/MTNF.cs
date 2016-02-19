@@ -50,14 +50,14 @@ namespace s4pi.GenericRCOLResource
         ShaderDataList sdList = null;
         #endregion
 
-        public MTNF(int APIversion, EventHandler handler, MTNF basis)
-            : base(APIversion, handler)
+        public MTNF(int apiVersion, EventHandler handler, MTNF basis)
+            : base(apiVersion, handler)
         {
             this.mtnfUnknown1 = basis.mtnfUnknown1;
             this.sdList = basis.sdList == null ? null : new ShaderDataList(handler, basis.sdList, basis._ParentTGIBlocks, basis._RCOLTag);
         }
-        public MTNF(int APIversion, EventHandler handler, Stream s, string _RCOLTag = "MATD") : base(APIversion, handler) { this._RCOLTag = _RCOLTag; Parse(s); }
-        public MTNF(int APIversion, EventHandler handler, string _RCOLTag = "MATD") : base(APIversion, handler) { this._RCOLTag = _RCOLTag; }
+        public MTNF(int apiVersion, EventHandler handler, Stream s, string _RCOLTag = "MATD") : base(apiVersion, handler) { this._RCOLTag = _RCOLTag; Parse(s); }
+        public MTNF(int apiVersion, EventHandler handler, string _RCOLTag = "MATD") : base(apiVersion, handler) { this._RCOLTag = _RCOLTag; }
 
         #region Data I/O
         private void Parse(Stream s)

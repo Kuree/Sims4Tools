@@ -1,6 +1,9 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Keyi Zhang                                       *
- *  kz005@bucknell.edu                                                     *
+ *  Copyright (C) 2014, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Keyi Zhang, kz005@bucknell.edu                                         *
+ *  CmarNYC                                                                *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -9,7 +12,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -17,6 +20,7 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -326,7 +330,7 @@ namespace s4pi.ImageResource
     {
         public ThumbnailResourceHandler()
         {
-            this.Add(typeof(ThumbnailResource), new List<string>(new string[] { "0x3C1AF1F2", "0xCD9DE247", "0x5B282D45", "0x0D338A3A", "0x3BD45407", "0x3C2A8647", }));
+            this.Add(typeof(ThumbnailResource), new List<string>(new string[] { "0x0D338A3A", "0x16CCF748", "0x3BD45407", "0x3C1AF1F2", "0x3C2A8647", "0x5B282D45", "0xCD9DE247", "0xE18CAEE2", "0xE254AE6E", }));
         }
     }
 }

@@ -63,18 +63,30 @@
     <Compile Include="CASPartResource.cs" />
     <Compile Include="CASPFlags.cs" />
     <Compile Include="DeformerMapResource.cs" />
+    <Compile Include="Handlers\Flag.cs" />
+    <Compile Include="Lists\FlagList.cs" />
     <Compile Include="GEOMListResource.cs" />
+    <Compile Include="Lists\LODBlockList.cs" />
+    <Compile Include="Handlers\LODInfoEntry.cs" />
+    <Compile Include="Handlers\Override.cs" />
+    <Compile Include="Lists\OverrideList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="SimOutfitResource.cs" />
     <Compile Include="SkinToneResource.cs" />
     <Compile Include="StyleLookResource.cs" />
+    <Compile Include="Handlers\SwatchColor.cs" />
+    <Compile Include="Lists\SwatchColorList.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CS System Classes\CS System Classes.csproj">
       <Project>{00200E76-C245-42A7-B567-5C30EDBCE977}</Project>
       <Name>CS System Classes</Name>
       <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\s4pi.Resource.Commons\s4pi.Resource.Commons.csproj">
+      <Project>{3D2A241B-533B-47B5-A8D1-DB3B7953E6A7}</Project>
+      <Name>s4pi.Resource.Commons</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\s4pi\Interfaces\Interfaces.csproj">
       <Project>{51023BD2-9139-438D-B794-95E5EC023537}</Project>

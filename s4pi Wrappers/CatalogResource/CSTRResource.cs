@@ -277,22 +277,22 @@ namespace CatalogResource
 
             #region Constructors
 
-            public CSTR_references(int APIversion, EventHandler handler, CSTR_references other)
-                : this(APIversion, handler, other.modlRef01, other.modlRef02, other.modlRef03, other.unkRef01, other.wallRef, other.objRef)
+            public CSTR_references(int apiVersion, EventHandler handler, CSTR_references other)
+                : this(apiVersion, handler, other.modlRef01, other.modlRef02, other.modlRef03, other.unkRef01, other.wallRef, other.objRef)
             {
             }
-            public CSTR_references(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public CSTR_references(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 this.MakeNew();
             }
-            public CSTR_references(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
+            public CSTR_references(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public CSTR_references(int APIversion, EventHandler handler, TGIBlock modlRef01, TGIBlock modlRef02, TGIBlock modlRef03, TGIBlock unkRef01, TGIBlock wallRef, TGIBlock objRef)
-                : base(APIversion, handler)
+            public CSTR_references(int apiVersion, EventHandler handler, TGIBlock modlRef01, TGIBlock modlRef02, TGIBlock modlRef03, TGIBlock unkRef01, TGIBlock wallRef, TGIBlock objRef)
+                : base(apiVersion, handler)
             {
                 this.modlRef01 = new TGIBlock(kRecommendedApiVersion,handler,TGIBlock.Order.ITG,modlRef01);
                 this.modlRef02 = new TGIBlock(kRecommendedApiVersion, handler, TGIBlock.Order.ITG, modlRef02);

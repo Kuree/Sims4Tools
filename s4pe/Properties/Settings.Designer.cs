@@ -424,12 +424,12 @@ namespace S4PIDemoFE.Properties {
         [global::System.Configuration.SettingsProviderAttribute(typeof(System.Configuration.PortableSettingsProvider))]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("2010-07-01")]
-        public global::System.DateTime AULastUpdateTS {
+        public global::System.DateTime LastUpdateTimeStamp {
             get {
-                return ((global::System.DateTime)(this["AULastUpdateTS"]));
+                return ((global::System.DateTime)(this["LastUpdateTimeStamp"]));
             }
             set {
-                this["AULastUpdateTS"] = value;
+                this["LastUpdateTimeStamp"] = value;
             }
         }
         

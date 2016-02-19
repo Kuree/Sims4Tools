@@ -41,35 +41,35 @@ namespace s4pi.Interfaces
         /// <summary>
         /// Create a Quaternion { 0, 0, 0, 0 }.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
-        public Quaternion(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+        public Quaternion(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
         /// <summary>
         /// Create a Quaternion from a <see cref="Stream"/>.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="s"><see cref="Stream"/> containing coordinates.</param>
-        public Quaternion(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+        public Quaternion(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
         /// <summary>
         /// Create a Quaternion from a given value.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="basis"><see cref="Quaternion"/> to copy.</param>
-        public Quaternion(int APIversion, EventHandler handler, Quaternion basis)
-            : this(APIversion, handler, basis.a, basis.b, basis.c, basis.d) { }
+        public Quaternion(int apiVersion, EventHandler handler, Quaternion basis)
+            : this(apiVersion, handler, basis.a, basis.b, basis.c, basis.d) { }
         /// <summary>
         /// Create a Quaternion { a, b, c, d }.
         /// </summary>
-        /// <param name="APIversion">The requested API version.</param>
+        /// <param name="apiVersion">The requested API version.</param>
         /// <param name="handler">The <see cref="EventHandler"/> delegate to invoke if the <see cref="AHandlerElement"/> changes.</param>
         /// <param name="a">Q 'a' value.</param>
         /// <param name="b">Q 'b' value.</param>
         /// <param name="c">Q 'c' value.</param>
         /// <param name="d">Q 'd' value.</param>
-        public Quaternion(int APIversion, EventHandler handler, float a, float b, float c, float d)
-            : base(APIversion, handler)
+        public Quaternion(int apiVersion, EventHandler handler, float a, float b, float c, float d)
+            : base(apiVersion, handler)
         {
             this.a = a;
             this.b = b;

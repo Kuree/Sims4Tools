@@ -1,6 +1,6 @@
-﻿// RLE Import
+// RLE Export
 ResourceType: 0x3453CF95
 Label: Export to DDS
-Command: Helpers\RLEHelper\RLEDDSHelper.exe
+Command: Helpers\RLEDDSHelper\RLEDDSHelper.exe
 Arguments: /export "{}" 
 Desc: Export RLE Resource to DDS

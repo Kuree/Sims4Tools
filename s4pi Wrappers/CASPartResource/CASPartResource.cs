@@ -1,6 +1,11 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Keyi Zhang                                       *
- *  kz005@bucknell.edu                                                     *
+ *  Copyright (C) 2014, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Peter Jones                                                            *
+ *  Keyi Zhang                                                             *
+ *  CmarNYC                                                                *
+ *  Buzzler                                                                *  
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -9,7 +14,7 @@
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
@@ -17,112 +22,157 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
-using s4pi.Interfaces;
+
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Text;
+
+using CASPartResource.Lists;
+using CASPartResource.Handlers;
+
+using s4pi.Interfaces;
+using s4pi.Settings;
 
 namespace CASPartResource
 {
     public class CASPartResource : AResource
     {
-        const int recommendedApiVersion = 1;
-        public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-        
+        internal const int recommendedApiVersion = 1;
 
-
-        static bool checking = s4pi.Settings.Settings.Checking;
+        public override int RecommendedApiVersion
+        {
+            get { return recommendedApiVersion; }
+        }
 
         #region Attributes
+
         public uint version;
-        uint tgiOffset;
-        uint presetCount;
-        string name;
-        float sortPriority;
-        ushort secondarySortIndex;
+        private uint presetCount;
+        private string name;
+        private float sortPriority;
+        private ushort secondarySortIndex;
         private uint propertyID;
-        uint auralMaterialHash;
-        ParmFlag parmFlags;
-        ExcludePartFlag excludePartFlags;
-        uint excludeModifierRegionFlags;
-        FlagList flagList;
-        uint simlolencePrice;
-        uint partTitleKey;
-        uint partDesptionKey;
-        byte uniqueTextureSpace;
-        BodyType bodyType;
-        int unused1;
-        AgeGenderFlags ageGender;
-        uint reserved1;  // cmar - added V 0x20, set to 1
-        byte unused2;
-        byte unused3;
-        SwatchColorList swatchColorCode;
-        byte buffResKey;
-        byte varientThumbnailKey;
-        ulong voiceEffectHash;
-        byte usedMaterialCount; // cmar - added V 0x1E
-        uint materialSetUpperBodyHash; // cmar - added V 0x1E
-        uint materialSetLowerBodyHash; // cmar - added V 0x1E
-        uint materialSetShoesHash; // cmar - added V 0x1E
-        OccultTypesDisabled hideForOccultFlags; // cmar = added V 0x1F
-        byte nakedKey;
-        byte parentKey;
-        int sortLayer;
-        LODBlockList lodBlockList;
-        SimpleList<byte> slotKey;
-        byte diffuseShadowKey;
-        byte shadowKey;
-        byte compositionMethod;
-        byte regionMapKey;
-        OverrideList overrides;
-        byte normalMapKey;
-        byte specularMapKey;
-        uint sharedUVMapSpace;
-        byte emissionMapKey; // cmar - added V 0x1E
+        private uint auralMaterialHash;
+        private ParmFlag parmFlags;
+        private ExcludePartFlag excludePartFlags;
+        private ulong excludeModifierRegionFlags;   // cmar - changed from uint to ulong with V 0x25
+        private FlagList flagList;                  // property 16-bit tag / 32-bit value pairs
+        private uint deprecatedPrice;               // deprecated
+        private uint partTitleKey;
+        private uint partDesptionKey;
+        private byte uniqueTextureSpace;
+        private BodyType bodyType;
+        int bodySubType;                            // cmar - changed from unused with V 0x25
+        private AgeGenderFlags ageGender;
+        private uint reserved1;                     // cmar - added V 0x20, set to 1
+        short packID;                               // cmar - added V 0x25
+        PackFlag packFlags;                         // cmar - added V 0x25
+        byte[] reserved2;                           // cmar - added V 0x25, nine bytes, set to 0
+        byte unused2;                               // cmar - only if V < 0x25
+        byte unused3;                               // cmar - only if V < 0x25
+        private SwatchColorList swatchColorCode;
+        private byte buffResKey;
+        private byte varientThumbnailKey;
+        private ulong voiceEffectHash;
+        private byte usedMaterialCount;             // cmar - added V 0x1E
+        private uint materialSetUpperBodyHash;      // cmar - added V 0x1E
+        private uint materialSetLowerBodyHash;      // cmar - added V 0x1E
+        private uint materialSetShoesHash;          // cmar - added V 0x1E
+        private OccultTypesDisabled hideForOccultFlags; // cmar = added V 0x1F
+        private byte nakedKey;
+        private byte parentKey;
+        private int sortLayer;
+        private LODBlockList lodBlockList;
+        private SimpleList<byte> slotKey;
+        private byte diffuseShadowKey;
+        private byte shadowKey;
+        private byte compositionMethod;
+        private byte regionMapKey;
+        private OverrideList overrides;
+        private byte normalMapKey;
+        private byte specularMapKey;
+        private uint sharedUVMapSpace;
+        private byte emissionMapKey;                // cmar - added V 0x1E
         private CountedTGIBlockList tgiList;
+
         #endregion
 
-        public CASPartResource(int APIversion, Stream s) : base(APIversion, s) { if (stream == null || stream.Length == 0) { stream = UnParse(); OnResourceChanged(this, EventArgs.Empty); } stream.Position = 0; Parse(stream); }
+        public CASPartResource(int APIversion, Stream s)
+            : base(APIversion, s)
+        {
+            if (this.stream == null || this.stream.Length == 0)
+            {
+                this.stream = this.UnParse();
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+            this.stream.Position = 0;
+            this.Parse(this.stream);
+        }
 
         #region Data I/O
-        void Parse(Stream s)
+
+        private void Parse(Stream s)
         {
             s.Position = 0;
-            BinaryReader r = new BinaryReader(s);
-            version = r.ReadUInt32();
-            tgiOffset = r.ReadUInt32() + 8;
-            presetCount = r.ReadUInt32();
-            if (presetCount != 0) throw new Exception("Found non-zero one");
-            name = BigEndianUnicodeString.Read(s);
+            var r = new BinaryReader(s);
+            this.version = r.ReadUInt32();
+            this.TGIoffset = r.ReadUInt32() + 8;
+            this.presetCount = r.ReadUInt32();
+            if (this.presetCount != 0)
+            {
+                throw new Exception("Found non-zero one");
+            }
+            this.name = BigEndianUnicodeString.Read(s);
 
-            sortPriority = r.ReadSingle();
+            this.sortPriority = r.ReadSingle();
             this.secondarySortIndex = r.ReadUInt16();
-            propertyID = r.ReadUInt32();
+            this.propertyID = r.ReadUInt32();
             this.auralMaterialHash = r.ReadUInt32();
             this.parmFlags = (ParmFlag)r.ReadByte();
             this.excludePartFlags = (ExcludePartFlag)r.ReadUInt64();
-            this.excludeModifierRegionFlags = r.ReadUInt32();
+            if (this.version >= 36) this.excludeModifierRegionFlags = r.ReadUInt64();
+            else this.excludeModifierRegionFlags = r.ReadUInt32();
 
-            flagList = new FlagList(OnResourceChanged, s);
+            if (this.version >= 37)
+                this.flagList = new FlagList(this.OnResourceChanged, s);
+            else
+            {
+                this.flagList = FlagList.CreateWithUInt16Flags(this.OnResourceChanged, s, recommendedApiVersion);
+            }
 
-            this.simlolencePrice = r.ReadUInt32();
+            this.deprecatedPrice = r.ReadUInt32();
             this.partTitleKey = r.ReadUInt32();
             this.partDesptionKey = r.ReadUInt32();
             this.uniqueTextureSpace = r.ReadByte();
             this.bodyType = (BodyType)r.ReadInt32();
-            this.unused1 = r.ReadInt32();
+            this.bodySubType = r.ReadInt32();
             this.ageGender = (AgeGenderFlags)r.ReadUInt32();
-            if (this.version >= 0x20) this.reserved1 = r.ReadUInt32();
-            this.unused2 = r.ReadByte();
-            this.unused3 = r.ReadByte();
+            if (this.version >= 0x20)
+            {
+                this.reserved1 = r.ReadUInt32();
+            }
+            if (this.version >= 34)
+            {
+                this.packID = r.ReadInt16();
+                this.packFlags = (PackFlag)r.ReadByte();
+                this.reserved2 = r.ReadBytes(9);
+            }
+            else
+            {
+                this.packID = 0;
+                this.unused2 = r.ReadByte();
+                if (this.unused2 > 0) this.unused3 = r.ReadByte();
+            }
 
-            swatchColorCode = new SwatchColorList(OnResourceChanged, s);
+            this.swatchColorCode = new SwatchColorList(this.OnResourceChanged, s);
 
             this.buffResKey = r.ReadByte();
             this.varientThumbnailKey = r.ReadByte();
-            if (this.version >= 0x1C) this.voiceEffectHash = r.ReadUInt64();
+            if (this.version >= 0x1C)
+            {
+                this.voiceEffectHash = r.ReadUInt64();
+            }
             if (this.version >= 0x1E)
             {
                 this.usedMaterialCount = r.ReadByte();
@@ -133,24 +183,30 @@ namespace CASPartResource
                     this.materialSetShoesHash = r.ReadUInt32();
                 }
             }
-            if (this.version >= 0x1F) this.hideForOccultFlags = (OccultTypesDisabled)r.ReadUInt32();
+            if (this.version >= 0x1F)
+            {
+                this.hideForOccultFlags = (OccultTypesDisabled)r.ReadUInt32();
+            }
             this.nakedKey = r.ReadByte();
             this.parentKey = r.ReadByte();
             this.sortLayer = r.ReadInt32();
 
             // Don't move any of this before the -----
             // TGI block list
-            long currentPosition = r.BaseStream.Position;
-            r.BaseStream.Position = tgiOffset;
-            byte count4 = r.ReadByte();
-            tgiList = new CountedTGIBlockList(OnResourceChanged, "IGT", count4, s);
+            var currentPosition = r.BaseStream.Position;
+            r.BaseStream.Position = this.TGIoffset;
+            var count4 = r.ReadByte();
+            this.tgiList = new CountedTGIBlockList(this.OnResourceChanged, "IGT", count4, s);
             r.BaseStream.Position = currentPosition;
-            lodBlockList = new LODBlockList(null, s, tgiList);
+            this.lodBlockList = new LODBlockList(null, s, this.tgiList);
             //-------------
 
-            byte count = r.ReadByte();
+            var count = r.ReadByte();
             this.slotKey = new SimpleList<byte>(null);
-            for (byte i = 0; i < count; i++) this.slotKey.Add(r.ReadByte());
+            for (byte i = 0; i < count; i++)
+            {
+                this.slotKey.Add(r.ReadByte());
+            }
 
             this.diffuseShadowKey = r.ReadByte();
             this.shadowKey = r.ReadByte();
@@ -159,189 +215,837 @@ namespace CASPartResource
             this.overrides = new OverrideList(null, s);
             this.normalMapKey = r.ReadByte();
             this.specularMapKey = r.ReadByte();
-            if (this.version >= 0x1B) this.sharedUVMapSpace = r.ReadUInt32();
-            if (this.version >= 0x1E) this.emissionMapKey = r.ReadByte();
-
+            if (this.version >= 0x1B)
+            {
+                this.sharedUVMapSpace = r.ReadUInt32();
+            }
+            if (this.version >= 0x1E)
+            {
+                this.emissionMapKey = r.ReadByte();
+            }
         }
 
         protected override Stream UnParse()
         {
-            MemoryStream s = new MemoryStream();
-            BinaryWriter w = new BinaryWriter(s);
+            var s = new MemoryStream();
+            var w = new BinaryWriter(s);
 
             w.Write(this.version);
             w.Write(0); // tgi offset
-            w.Write(presetCount);
-            BigEndianUnicodeString.Write(s, name);
-            w.Write(sortPriority);
-            w.Write(secondarySortIndex);
-            w.Write(propertyID);
-            w.Write(auralMaterialHash);
-            w.Write((byte)parmFlags);
-            w.Write((ulong)excludePartFlags);
-            w.Write(excludeModifierRegionFlags);
-            if (this.flagList == null) this.flagList = new FlagList(OnResourceChanged);
-            flagList.UnParse(s);
-            w.Write(simlolencePrice);
-            w.Write(partTitleKey);
-            w.Write(partDesptionKey);
-            w.Write(uniqueTextureSpace);
-            w.Write((uint)bodyType);
-            w.Write(unused1);
-            w.Write((uint)ageGender);
-            if (this.version >= 0x20) w.Write(reserved1);
-            w.Write(unused2);
-            w.Write(unused3);
-            if (this.swatchColorCode == null) this.swatchColorCode = new SwatchColorList(OnResourceChanged);
-            swatchColorCode.UnParse(s);
-            w.Write(buffResKey);
-            w.Write(varientThumbnailKey);
-            if (this.version >= 0x1C) w.Write(voiceEffectHash);
+            w.Write(this.presetCount);
+            BigEndianUnicodeString.Write(s, this.name);
+            w.Write(this.sortPriority);
+            w.Write(this.secondarySortIndex);
+            w.Write(this.propertyID);
+            w.Write(this.auralMaterialHash);
+            w.Write((byte)this.parmFlags);
+            w.Write((ulong)this.excludePartFlags);
+            if (this.version >= 36)
+            {
+                w.Write(this.excludeModifierRegionFlags);
+            }
+            else
+            {
+                w.Write((uint)this.excludeModifierRegionFlags);
+            }
+
+            this.flagList = this.flagList ?? new FlagList(this.OnResourceChanged);
+            if (this.version >= 37)
+            {
+                this.flagList.UnParse(s);
+            }
+            else
+            {
+                this.flagList.WriteUInt16Flags(s);
+            }
+            w.Write(this.deprecatedPrice);
+            w.Write(this.partTitleKey);
+            w.Write(this.partDesptionKey);
+            w.Write(this.uniqueTextureSpace);
+            w.Write((uint)this.bodyType);
+            w.Write(this.bodySubType);
+            w.Write((uint)this.ageGender);
+            if (this.version >= 0x20)
+            {
+                w.Write(this.reserved1);
+            }
+            if (this.version >= 34)
+            {
+                w.Write(this.packID);
+                w.Write((byte)this.packFlags);
+                if (this.reserved2 == null) this.reserved2 = new byte[9];
+                w.Write(this.reserved2);
+            }
+            else
+            {
+                w.Write(this.unused2);
+                if (this.unused2 > 0) w.Write(this.unused3);
+            }
+            if (this.swatchColorCode == null)
+            {
+                this.swatchColorCode = new SwatchColorList(this.OnResourceChanged);
+            }
+            this.swatchColorCode.UnParse(s);
+            w.Write(this.buffResKey);
+            w.Write(this.varientThumbnailKey);
+            if (this.version >= 0x1C)
+            {
+                w.Write(this.voiceEffectHash);
+            }
             if (this.version >= 0x1E)
             {
-                w.Write(usedMaterialCount);
-                if (usedMaterialCount > 0)
+                w.Write(this.usedMaterialCount);
+                if (this.usedMaterialCount > 0)
                 {
-                    w.Write(materialSetUpperBodyHash);
-                    w.Write(materialSetLowerBodyHash);
-                    w.Write(materialSetShoesHash);
+                    w.Write(this.materialSetUpperBodyHash);
+                    w.Write(this.materialSetLowerBodyHash);
+                    w.Write(this.materialSetShoesHash);
                 }
             }
-            if (this.version >= 0x1F) w.Write((uint)hideForOccultFlags);
-            w.Write(nakedKey);
-            w.Write(parentKey);
-            w.Write(sortLayer);
-            if (this.lodBlockList == null) this.lodBlockList = new LODBlockList(OnResourceChanged);
-            lodBlockList.UnParse(s);
-            if (this.slotKey == null) this.slotKey = new SimpleList<byte>(OnResourceChanged);
+            if (this.version >= 0x1F)
+            {
+                w.Write((uint)this.hideForOccultFlags);
+            }
+            w.Write(this.nakedKey);
+            w.Write(this.parentKey);
+            w.Write(this.sortLayer);
+            if (this.lodBlockList == null)
+            {
+                this.lodBlockList = new LODBlockList(this.OnResourceChanged);
+            }
+            this.lodBlockList.UnParse(s);
+            if (this.slotKey == null)
+            {
+                this.slotKey = new SimpleList<byte>(this.OnResourceChanged);
+            }
             w.Write((byte)this.slotKey.Count);
-            foreach (var b in this.slotKey) w.Write(b);
-            w.Write(diffuseShadowKey);
-            w.Write(shadowKey);
-            w.Write(compositionMethod);
-            w.Write(regionMapKey);
-            if (this.overrides == null) this.overrides = new OverrideList(OnResourceChanged);
-            overrides.UnParse(s);
-            w.Write(normalMapKey);
-            w.Write(specularMapKey);
-            if (this.version >= 0x1B) w.Write(sharedUVMapSpace);
-            if (this.version >= 0x1E) w.Write(emissionMapKey);
-            long tgiPosition = w.BaseStream.Position;
+            foreach (var b in this.slotKey)
+            {
+                w.Write(b);
+            }
+            w.Write(this.diffuseShadowKey);
+            w.Write(this.shadowKey);
+            w.Write(this.compositionMethod);
+            w.Write(this.regionMapKey);
+            if (this.overrides == null)
+            {
+                this.overrides = new OverrideList(this.OnResourceChanged);
+            }
+            this.overrides.UnParse(s);
+            w.Write(this.normalMapKey);
+            w.Write(this.specularMapKey);
+            if (this.version >= 0x1B)
+            {
+                w.Write(this.sharedUVMapSpace);
+            }
+            if (this.version >= 0x1E)
+            {
+                w.Write(this.emissionMapKey);
+            }
+            var tgiPosition = w.BaseStream.Position;
             w.BaseStream.Position = 4;
             w.Write(tgiPosition - 8);
             w.BaseStream.Position = tgiPosition;
-            if (this.tgiList == null) this.tgiList = new CountedTGIBlockList(OnResourceChanged);
-            w.Write((byte)tgiList.Count);
-            foreach (var tgi in tgiList) tgi.UnParse(s);
+            if (this.tgiList == null)
+            {
+                this.tgiList = new CountedTGIBlockList(this.OnResourceChanged);
+            }
+            w.Write((byte)this.tgiList.Count);
+            foreach (var tgi in this.tgiList)
+            {
+                tgi.UnParse(s);
+            }
 
             return s;
         }
+
         #endregion
 
         #region Content Fields
+
         [ElementPriority(0)]
-        public uint Version { get { return version; } set { if (value != version)version = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(1)]
-        public uint TGIoffset { get { return tgiOffset; } }
-        [ElementPriority(2)]
-        public uint PresetCount { get { return presetCount; } set { if (value != presetCount) presetCount = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(3)]
-        public string Name { get { return name; } set { if (!value.Equals(name)) name = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(4)]
-        public float SortPriority { get { return sortPriority; } set { if (!value.Equals(sortPriority)) sortPriority = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(5)]
-        public UInt16 SecondarySortIndex { get { return secondarySortIndex; } set { if (!value.Equals(secondarySortIndex)) secondarySortIndex = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(6)]
-        public uint PropertyID { get { return propertyID; } set { if (!value.Equals(propertyID)) propertyID = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(7)]
-        public uint AuralMaterialHash { get { return auralMaterialHash; } set { if (!value.Equals(this.auralMaterialHash)) { this.auralMaterialHash = value; OnResourceChanged(this, EventArgs.Empty); } } }
-        [ElementPriority(8)]
-        public ParmFlag ParmFlags { get { return parmFlags; } set { if (!value.Equals(parmFlags)) parmFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(9)]
-        public ExcludePartFlag ExcludePartFlags { get { return excludePartFlags; } set { if (!value.Equals(excludePartFlags)) excludePartFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(10)]
-        public uint ExcludeModifierRegionFlags { get { return excludeModifierRegionFlags; } set { if (!value.Equals(excludeModifierRegionFlags)) excludeModifierRegionFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(11)]
-        public FlagList CASFlagList { get { return flagList; } set { if (!value.Equals(flagList)) flagList = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(12)]
-        public uint SimlolencePrice { get { return simlolencePrice; } set { if (!value.Equals(simlolencePrice)) SimlolencePrice = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(13)]
-        public uint PartTitleKey { get { return partTitleKey; } set { if (!value.Equals(partTitleKey)) partTitleKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(14)]
-        public uint PartDesptionKey { get { return partDesptionKey; } set { if (!value.Equals(partDesptionKey)) partDesptionKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(15)]
-        public byte UniqueTextureSpace { get { return uniqueTextureSpace; } set { if (!value.Equals(uniqueTextureSpace)) uniqueTextureSpace = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(16)]
-        public BodyType BodyType { get { return bodyType; } set { if (!value.Equals(bodyType)) bodyType = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(17)]
-        public int Unused1 { get { return unused1; } set { if (!value.Equals(unused1)) unused1 = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(18)]
-        public AgeGenderFlags AgeGender { get { return ageGender; } set { if (!value.Equals(ageGender)) ageGender = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(19)]
-        public uint Reserved1 { get { return reserved1; } set { if (!value.Equals(reserved1)) reserved1 = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(20)]
-        public byte Unused2 { get { return unused2; } set { if (!value.Equals(unused2)) unused2 = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(21)]
-        public byte Unused3 { get { return unused3; } set { if (!value.Equals(unused3)) unused3 = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(22)]
-        public SwatchColorList SwatchColorCode { get { return swatchColorCode; } set { if (!swatchColorCode.Equals(value)) swatchColorCode = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(23), TGIBlockListContentField("TGIList")]
-        public byte BuffResKey { get { return buffResKey; } set { if (!value.Equals(buffResKey)) buffResKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(24), TGIBlockListContentField("TGIList")]
-        public byte VarientThumbnailKey { get { return varientThumbnailKey; } set { if (!value.Equals(varientThumbnailKey)) varientThumbnailKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(25)]
-        public ulong VoiceEffectHash { get { return voiceEffectHash; } set { if (!value.Equals(voiceEffectHash)) voiceEffectHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(26)]
-        public uint MaterialSetUpperBodyHash { get { return materialSetUpperBodyHash; } set { if (!value.Equals(materialSetUpperBodyHash)) materialSetUpperBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(27)]
-        public uint MaterialSetLowerBodyHash { get { return materialSetLowerBodyHash; } set { if (!value.Equals(materialSetLowerBodyHash)) materialSetLowerBodyHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(28)]
-        public uint MaterialSetShoesHash { get { return materialSetShoesHash; } set { if (!value.Equals(materialSetShoesHash)) materialSetShoesHash = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(29)]
-        public OccultTypesDisabled HideForOccultFlags { get { return hideForOccultFlags; } set { if (!value.Equals(hideForOccultFlags)) hideForOccultFlags = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(30), TGIBlockListContentField("TGIList")]
-        public byte NakedKey { get { return nakedKey; } set { if (!value.Equals(nakedKey)) nakedKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(31), TGIBlockListContentField("TGIList")]
-        public byte ParentKey { get { return parentKey; } set { if (!value.Equals(parentKey)) parentKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(32)]
-        public int SortLayer { get { return sortLayer; } set { if (!value.Equals(sortLayer)) sortLayer = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(33)]
-        public LODBlockList LodBlockList { get { return lodBlockList; } set { if (!lodBlockList.Equals(value)) lodBlockList = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(34), TGIBlockListContentField("TGIList")]
-        public SimpleList<byte> SlotKey { get { return slotKey; } set { if (!value.Equals(slotKey)) slotKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(35), TGIBlockListContentField("TGIList")]
-        public byte DiffuseShadowKey { get { return diffuseShadowKey; } set { if (!value.Equals(diffuseShadowKey)) diffuseShadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(36), TGIBlockListContentField("TGIList")]
-        public byte ShadowKey { get { return shadowKey; } set { if (!value.Equals(shadowKey)) shadowKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(37)]
-        public byte CompositionMethod { get { return compositionMethod; } set { if (!value.Equals(compositionMethod)) compositionMethod = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(38), TGIBlockListContentField("TGIList")]
-        public byte RegionMapKey { get { return regionMapKey; } set { if (!value.Equals(regionMapKey)) regionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(39)]
-        public OverrideList Overrides { get { return overrides; } set { if (!value.Equals(overrides)) overrides = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(40), TGIBlockListContentField("TGIList")]
-        public byte NormalMapKey { get { return normalMapKey; } set { if (!value.Equals(normalMapKey)) normalMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(41), TGIBlockListContentField("TGIList")]
-        public byte SpecularMapKey { get { return specularMapKey; } set { if (!value.Equals(specularMapKey)) specularMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
-        [ElementPriority(42)]
-        public uint SharedUVMapSpace { 
-            get { if (this.version < 0x1B) { throw new InvalidOperationException("Version not supported"); } else { return this.sharedUVMapSpace; }}
-            set { if (version < 0x1B) { throw new InvalidOperationException("Version not Supported"); } this.sharedUVMapSpace = value; }
+        public uint Version
+        {
+            get { return this.version; }
+            set
+            {
+                if (value != this.version)
+                {
+                    this.version = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
         }
+
+        [ElementPriority(1)]
+        public uint TGIoffset { get; private set; }
+
+        [ElementPriority(2)]
+        public uint PresetCount
+        {
+            get { return this.presetCount; }
+            set
+            {
+                if (value != this.presetCount)
+                {
+                    this.presetCount = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(3)]
+        public string Name
+        {
+            get { return this.name; }
+            set
+            {
+                if (!value.Equals(this.name))
+                {
+                    this.name = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(4)]
+        public float SortPriority
+        {
+            get { return this.sortPriority; }
+            set
+            {
+                if (!value.Equals(this.sortPriority))
+                {
+                    this.sortPriority = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(5)]
+        public ushort SecondarySortIndex
+        {
+            get { return this.secondarySortIndex; }
+            set
+            {
+                if (!value.Equals(this.secondarySortIndex))
+                {
+                    this.secondarySortIndex = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(6)]
+        public uint PropertyID
+        {
+            get { return this.propertyID; }
+            set
+            {
+                if (!value.Equals(this.propertyID))
+                {
+                    this.propertyID = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(7)]
+        public uint AuralMaterialHash
+        {
+            get { return this.auralMaterialHash; }
+            set
+            {
+                if (!value.Equals(this.auralMaterialHash))
+                {
+                    this.auralMaterialHash = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(8)]
+        public ParmFlag ParmFlags
+        {
+            get { return this.parmFlags; }
+            set
+            {
+                if (!value.Equals(this.parmFlags))
+                {
+                    this.parmFlags = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(9)]
+        public ExcludePartFlag ExcludePartFlags
+        {
+            get { return this.excludePartFlags; }
+            set
+            {
+                if (!value.Equals(this.excludePartFlags))
+                {
+                    this.excludePartFlags = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(10)]
+        public ulong ExcludeModifierRegionFlags
+        {
+            get { return this.excludeModifierRegionFlags; }
+            set
+            {
+                if (!value.Equals(this.excludeModifierRegionFlags))
+                {
+                    this.excludeModifierRegionFlags = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(11)]
+        public FlagList CASFlagList
+        {
+            get { return this.flagList; }
+            set
+            {
+                if (!value.Equals(this.flagList))
+                {
+                    this.flagList = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(12)]
+        public uint DeprecatedPrice
+        {
+            get { return this.deprecatedPrice; }
+            set
+            {
+                if (!value.Equals(this.deprecatedPrice))
+                {
+                    this.deprecatedPrice = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(13)]
+        public uint PartTitleKey
+        {
+            get { return this.partTitleKey; }
+            set
+            {
+                if (!value.Equals(this.partTitleKey))
+                {
+                    this.partTitleKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(14)]
+        public uint PartDescriptionKey
+        {
+            get { return this.partDesptionKey; }
+            set
+            {
+                if (!value.Equals(this.partDesptionKey))
+                {
+                    this.partDesptionKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(15)]
+        public byte UniqueTextureSpace
+        {
+            get { return this.uniqueTextureSpace; }
+            set
+            {
+                if (!value.Equals(this.uniqueTextureSpace))
+                {
+                    this.uniqueTextureSpace = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(16)]
+        public BodyType BodyType
+        {
+            get { return this.bodyType; }
+            set
+            {
+                if (!value.Equals(this.bodyType))
+                {
+                    this.bodyType = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(17)]
+        public int BodySubType
+        {
+            get { return this.bodySubType; }
+            set
+            {
+                if (!value.Equals(this.bodySubType))
+                {
+                    this.bodySubType = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(18)]
+        public AgeGenderFlags AgeGender
+        {
+            get { return this.ageGender; }
+            set
+            {
+                if (!value.Equals(this.ageGender))
+                {
+                    this.ageGender = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(19)]
+        public uint Reserved1
+        {
+            get { return this.reserved1; }
+            set
+            {
+                if (!value.Equals(this.reserved1))
+                {
+                    this.reserved1 = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(20)]
+        public short PackID
+        {
+            get { return this.packID; }
+            set
+            {
+                if (this.packID == 0 || value > 0)
+                {
+                    this.packID = value;
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        [ElementPriority(21)]
+        public PackFlag PackFlags
+        {
+            get { return this.packFlags; }
+            set
+            {
+                if (!value.Equals(this.packFlags))
+                {
+                    this.packFlags = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(22)]
+        public byte[] Reserved2
+        {
+            get { return this.reserved2; }
+            set
+            {
+                if (!value.Equals(this.reserved2)) this.reserved2 = value;
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(20)]
+        public byte Unused2
+        {
+            get { return this.unused2; }
+            set
+            {
+                if (!value.Equals(this.unused2))
+                {
+                    this.unused2 = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(21)]
+        public byte Unused3
+        {
+            get { return this.unused3; }
+            set
+            {
+                if (!value.Equals(this.unused3))
+                {
+                    this.unused3 = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(22)]
+        public SwatchColorList SwatchColorCode
+        {
+            get { return this.swatchColorCode; }
+            set
+            {
+                if (!this.swatchColorCode.Equals(value))
+                {
+                    this.swatchColorCode = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(23), TGIBlockListContentField("TGIList")]
+        public byte BuffResKey
+        {
+            get { return this.buffResKey; }
+            set
+            {
+                if (!value.Equals(this.buffResKey))
+                {
+                    this.buffResKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(24), TGIBlockListContentField("TGIList")]
+        public byte VarientThumbnailKey
+        {
+            get { return this.varientThumbnailKey; }
+            set
+            {
+                if (!value.Equals(this.varientThumbnailKey))
+                {
+                    this.varientThumbnailKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(25)]
+        public ulong VoiceEffectHash
+        {
+            get { return this.voiceEffectHash; }
+            set
+            {
+                if (!value.Equals(this.voiceEffectHash))
+                {
+                    this.voiceEffectHash = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(26)]
+        public uint MaterialSetUpperBodyHash
+        {
+            get { return this.materialSetUpperBodyHash; }
+            set
+            {
+                if (!value.Equals(this.materialSetUpperBodyHash))
+                {
+                    this.materialSetUpperBodyHash = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(27)]
+        public uint MaterialSetLowerBodyHash
+        {
+            get { return this.materialSetLowerBodyHash; }
+            set
+            {
+                if (!value.Equals(this.materialSetLowerBodyHash))
+                {
+                    this.materialSetLowerBodyHash = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(28)]
+        public uint MaterialSetShoesHash
+        {
+            get { return this.materialSetShoesHash; }
+            set
+            {
+                if (!value.Equals(this.materialSetShoesHash))
+                {
+                    this.materialSetShoesHash = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(29)]
+        public OccultTypesDisabled HideForOccultFlags
+        {
+            get { return this.hideForOccultFlags; }
+            set
+            {
+                if (!value.Equals(this.hideForOccultFlags))
+                {
+                    this.hideForOccultFlags = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(30), TGIBlockListContentField("TGIList")]
+        public byte NakedKey
+        {
+            get { return this.nakedKey; }
+            set
+            {
+                if (!value.Equals(this.nakedKey))
+                {
+                    this.nakedKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(31), TGIBlockListContentField("TGIList")]
+        public byte ParentKey
+        {
+            get { return this.parentKey; }
+            set
+            {
+                if (!value.Equals(this.parentKey))
+                {
+                    this.parentKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(32)]
+        public int SortLayer
+        {
+            get { return this.sortLayer; }
+            set
+            {
+                if (!value.Equals(this.sortLayer))
+                {
+                    this.sortLayer = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(33)]
+        public LODBlockList LodBlockList
+        {
+            get { return this.lodBlockList; }
+            set
+            {
+                if (!this.lodBlockList.Equals(value))
+                {
+                    this.lodBlockList = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(34), TGIBlockListContentField("TGIList")]
+        public SimpleList<byte> SlotKey
+        {
+            get { return this.slotKey; }
+            set
+            {
+                if (!value.Equals(this.slotKey))
+                {
+                    this.slotKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(35), TGIBlockListContentField("TGIList")]
+        public byte DiffuseShadowKey
+        {
+            get { return this.diffuseShadowKey; }
+            set
+            {
+                if (!value.Equals(this.diffuseShadowKey))
+                {
+                    this.diffuseShadowKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(36), TGIBlockListContentField("TGIList")]
+        public byte ShadowKey
+        {
+            get { return this.shadowKey; }
+            set
+            {
+                if (!value.Equals(this.shadowKey))
+                {
+                    this.shadowKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(37)]
+        public byte CompositionMethod
+        {
+            get { return this.compositionMethod; }
+            set
+            {
+                if (!value.Equals(this.compositionMethod))
+                {
+                    this.compositionMethod = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(38), TGIBlockListContentField("TGIList")]
+        public byte RegionMapKey
+        {
+            get { return this.regionMapKey; }
+            set
+            {
+                if (!value.Equals(this.regionMapKey))
+                {
+                    this.regionMapKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(39)]
+        public OverrideList Overrides
+        {
+            get { return this.overrides; }
+            set
+            {
+                if (!value.Equals(this.overrides))
+                {
+                    this.overrides = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(40), TGIBlockListContentField("TGIList")]
+        public byte NormalMapKey
+        {
+            get { return this.normalMapKey; }
+            set
+            {
+                if (!value.Equals(this.normalMapKey))
+                {
+                    this.normalMapKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(41), TGIBlockListContentField("TGIList")]
+        public byte SpecularMapKey
+        {
+            get { return this.specularMapKey; }
+            set
+            {
+                if (!value.Equals(this.specularMapKey))
+                {
+                    this.specularMapKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
+
+        [ElementPriority(42)]
+        public uint SharedUVMapSpace
+        {
+            get
+            {
+                if (this.version < 0x1B)
+                {
+                    throw new InvalidOperationException("Version not supported");
+                }
+                return this.sharedUVMapSpace;
+            }
+            set
+            {
+                if (this.version < 0x1B)
+                {
+                    throw new InvalidOperationException("Version not Supported");
+                }
+                this.sharedUVMapSpace = value;
+            }
+        }
+
         [ElementPriority(43), TGIBlockListContentField("TGIList")]
-        public byte EmissionMapKey { get { return emissionMapKey; } set { if (!value.Equals(emissionMapKey)) emissionMapKey = value; OnResourceChanged(this, EventArgs.Empty); } }
+        public byte EmissionMapKey
+        {
+            get { return this.emissionMapKey; }
+            set
+            {
+                if (!value.Equals(this.emissionMapKey))
+                {
+                    this.emissionMapKey = value;
+                }
+                this.OnResourceChanged(this, EventArgs.Empty);
+            }
+        }
 
         [ElementPriority(44)]
-        public CountedTGIBlockList TGIList { get { return tgiList; } set { if (!value.Equals(tgiList)) { OnResourceChanged(this, EventArgs.Empty); this.tgiList = value; } } }
-        public String Value { get { return ValueBuilder; } }
+        public CountedTGIBlockList TGIList
+        {
+            get { return this.tgiList; }
+            set
+            {
+                if (!value.Equals(this.tgiList))
+                {
+                    this.OnResourceChanged(this, EventArgs.Empty);
+                    this.tgiList = value;
+                }
+            }
+        }
+
+        public string Value
+        {
+            get { return this.ValueBuilder; }
+        }
 
         public override List<string> ContentFields
         {
             get
             {
-                List<string> res = base.ContentFields;
-                if (this.version < 0x1B) { res.Remove("SharedUVMapSpace"); }
-                if (this.version < 0x1C) { res.Remove("VoiceEffectHash"); }
+                var res = base.ContentFields;
+                if (this.version < 0x1B)
+                {
+                    res.Remove("SharedUVMapSpace");
+                }
+                if (this.version < 0x1C)
+                {
+                    res.Remove("VoiceEffectHash");
+                }
                 if (this.version < 0x1E)
                 {
                     res.Remove("MaterialSetUpperBodyHash");
@@ -349,406 +1053,41 @@ namespace CASPartResource
                     res.Remove("MaterialSetShoesHash");
                     res.Remove("EmissionMapKey");
                 }
-                if (this.version < 0x1F) { res.Remove("OccultBitField"); }
-                if (this.version < 0x20) { res.Remove("Reserved1"); }
+                if (this.version < 0x1F)
+                {
+                    res.Remove("OccultBitField");
+                }
+                if (this.version < 0x20)
+                {
+                    res.Remove("Reserved1");
+                }
+                if (this.version < 0x25)
+                {
+                    res.Remove("PackID");
+                    res.Remove("PackFlags");
+                    res.Remove("Reserved2");
+                }
+                else
+                {
+                    res.Remove("Unused2");
+                    res.Remove("Unused3");
+                }
                 return res;
             }
         }
+
         #endregion
 
-        #region Sub-Class
-        public class LODInfoEntry : AHandlerElement, IEquatable<LODInfoEntry>
-        {
-            const int recommendedApiVersion = 1;
-
-            private CountedTGIBlockList tgiList;
-
-            byte level;
-            UInt32 unused;
-            LODAssetList lodAssetList;
-            ByteIndexList lodKeyList;
-
-            public LODInfoEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
-            public LODInfoEntry(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
-            public LODInfoEntry(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
-            public void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                this.level = r.ReadByte();
-
-                this.unused = r.ReadUInt32();
-
-                lodAssetList = new LODAssetList(null, s);
-
-                byte[] byteList = new byte[r.ReadByte()];
-                for (int i = 0; i < byteList.Length; i++)
-                    byteList[i] = r.ReadByte();
-                lodKeyList = new ByteIndexList(handler, byteList, tgiList);
-
-
-            }
-
-            public void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write(this.level);
-                w.Write(this.unused);
-
-                if (this.lodAssetList == null) { this.lodAssetList = new LODAssetList(handler); }
-                this.lodAssetList.UnParse(s);
-
-                if (this.lodKeyList == null) { this.lodKeyList = new ByteIndexList(handler, new CountedTGIBlockList(handler)); }
-                w.Write((byte)lodKeyList.Count);
-                foreach (byte b in lodKeyList)
-                    w.Write(b);
-            }
-
-            #region AHandlerElement Members
-            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-            #endregion
-
-            #region Content Fields
-            [ElementPriority(0)]
-            public byte Level { get { return level; } set { if (!value.Equals(level)) { level = value; OnElementChanged(); } } }
-            public uint Unused { get { return unused; } set { if (!value.Equals(this.unused)) { this.unused = value; OnElementChanged(); } } }
-            [ElementPriority(3)]
-            public LODAssetList LodAssetList { get { return this.lodAssetList; } set { if (!value.Equals(this.lodAssetList)) { this.lodAssetList = value; OnElementChanged(); } } }
-            [ElementPriority(4)]
-            public ByteIndexList LODKeyList { get { return lodKeyList; } set { if (!value.Equals(lodKeyList)) value = lodKeyList; OnElementChanged(); } }
-            public string Value { get { return ValueBuilder; } }
-
-            #endregion
-
-            #region IEquatable
-            public bool Equals(LODInfoEntry other)
-            {
-                return this.level == other.level && this.unused == other.unused && this.lodKeyList.Equals(other.lodKeyList);
-            }
-            #endregion
-
-            #region Sub-class
-            public class LodAssets : AHandlerElement, IEquatable<LodAssets>
-            {
-                #region Attribute
-                const int recommendedApiVersion = 1;
-
-                int sorting;
-                int specLevel;
-                int castShadow;
-
-                #endregion
-
-                #region Constructor
-                public LodAssets(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-                public LodAssets(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-
-                #endregion
-
-                #region AHandlerElement Members
-                public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-                public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-                #endregion
-
-                #region Data I/O
-                protected void Parse(Stream s)
-                {
-                    BinaryReader r = new BinaryReader(s);
-                    this.sorting = r.ReadInt32();
-                    this.specLevel = r.ReadInt32();
-                    this.castShadow = r.ReadInt32();
-                }
-
-                public void UnParse(Stream s)
-                {
-                    BinaryWriter w = new BinaryWriter(s);
-                    w.Write(this.sorting);
-                    w.Write(this.specLevel);
-                    w.Write(this.castShadow);
-                }
-                #endregion
-
-                #region IEquatable
-                public bool Equals(LodAssets other)
-                {
-                    return this.sorting == other.sorting && this.specLevel == other.specLevel && this.castShadow == other.castShadow;
-                }
-                #endregion
-
-
-                #region Content Fields
-                public int Sorting { get { return this.sorting; } set { if (!value.Equals(this.sorting)) { OnElementChanged(); this.sorting = value; } } }
-                public int SpecLevel { get { return this.specLevel; } set { if (!value.Equals(this.specLevel)) { OnElementChanged(); this.specLevel = value; } } }
-                public int CastShadow { get { return this.castShadow; } set { if (!value.Equals(this.castShadow)) { OnElementChanged(); this.castShadow = value; } } }
-
-                public string Value { get { return ValueBuilder; } }
-                #endregion
-            }
-
-            public class LODAssetList : DependentList<LodAssets>
-            {
-                public LODAssetList(EventHandler handler) : base(handler) { }
-                public LODAssetList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
-
-                #region Data I/O
-                protected override void Parse(Stream s)
-                {
-                    BinaryReader r = new BinaryReader(s);
-                    byte count = r.ReadByte();
-                    for (int i = 0; i < count; i++)
-                        base.Add(new LodAssets(1, handler, s));
-                }
-
-                public override void UnParse(Stream s)
-                {
-                    BinaryWriter w = new BinaryWriter(s);
-                    w.Write((byte)base.Count);
-                    foreach (var asset in this)
-                        asset.UnParse(s);
-                }
-
-                protected override LodAssets CreateElement(Stream s) { return new LodAssets(1, handler, s); }
-                protected override void WriteElement(Stream s, LodAssets element) { element.UnParse(s); }
-                #endregion
-            }
-            #endregion
-        }
-
-        public class LODBlockList : DependentList<LODInfoEntry>
-        {
-            #region Attributes
-            CountedTGIBlockList tgiList;
-            #endregion
-
-            #region Constructors
-            public LODBlockList(EventHandler handler) : this(handler, new CountedTGIBlockList(handler)) { }
-            public LODBlockList(EventHandler handler, CountedTGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; }
-            public LODBlockList(EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(handler) { this.tgiList = tgiList; Parse(s); }
-            #endregion
-
-
-            #region Data I/O
-            protected override void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                byte count = r.ReadByte();
-                for (int i = 0; i < count; i++)
-                {
-                    base.Add(new LODInfoEntry(1, handler, s, tgiList));
-                }
-            }
-
-            public override void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write((byte)base.Count);
-                foreach (var unknownClass in this)
-                {
-                    unknownClass.UnParse(s);
-                }
-            }
-
-            protected override LODInfoEntry CreateElement(Stream s) { return new LODInfoEntry(1, handler, tgiList); }
-            protected override void WriteElement(Stream s, LODInfoEntry element) { element.UnParse(s); }
-            #endregion
-
-        }
-
-
-        public class SwatchColor : AHandlerElement, IEquatable<SwatchColor>
-        {
-            private Color color;
-            public SwatchColor(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
-            {
-                BinaryReader r = new BinaryReader(s);
-                this.color = Color.FromArgb(r.ReadInt32());
-            }
-            public SwatchColor(int APIversion, EventHandler handler, Color color) : base(APIversion, handler) { this.color = color; }
-            public SwatchColor(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public void UnParse(Stream s) { BinaryWriter w = new BinaryWriter(s); w.Write(this.color.ToArgb()); }
-
-            #region AHandlerElement Members
-            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-            #endregion
-
-            public bool Equals(SwatchColor other) { return other.Equals(this.color); }
-
-            public Color Color { get { return this.color; } set { if (!color.Equals(value)) { this.color = value; OnElementChanged(); } } }
-            public string Value { get { { return string.Format("#{0:X2}{1:X2}{2:X2}{3:X2}", color.A, color.R, color.G, color.B); } } } // Color code consists with HTML code
-        }
-
-        public class SwatchColorList : DependentList<SwatchColor>
-        {
-            public SwatchColorList(EventHandler handler) : base(handler) { }
-            public SwatchColorList(EventHandler handler, Stream s) : base(handler) { Parse(s); }
-
-            #region Data I/O
-            protected override void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                byte count = r.ReadByte();
-                for (int i = 0; i < count; i++)
-                    base.Add(new SwatchColor(1, handler, s));
-            }
-
-            public override void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write((byte)base.Count);
-                foreach (var color in this)
-                    color.UnParse(s);
-            }
-
-            protected override SwatchColor CreateElement(Stream s) { return new SwatchColor(1, handler, Color.Black); }
-            protected override void WriteElement(Stream s, SwatchColor element) { element.UnParse(s); }
-            #endregion
-        }
-
-        public class Flag : AHandlerElement, IEquatable<Flag>
-        {
-            CASPFlags flagCategory;
-            CASPFlagValues flagValue;
-
-            public Flag(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
-            {
-                BinaryReader r = new BinaryReader(s);
-                this.flagCategory = (CASPFlags)r.ReadUInt16();
-                this.flagValue = (CASPFlagValues)r.ReadUInt16();
-            }
-
-            public Flag(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-
-            public void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write((ushort)this.flagCategory);
-                w.Write((ushort)this.flagValue);
-            }
-
-            #region AHandlerElement Members
-            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-            #endregion
-
-            public bool Equals(Flag other)
-            {
-                return this.flagValue == other.flagValue && this.flagCategory == other.flagCategory;
-            }
-
-            [ElementPriority(0)]
-            public CASPFlags FlagCatagory { get { return this.flagCategory; } set { if (value != this.flagCategory) { OnElementChanged(); this.flagCategory = value; } } }
-            [ElementPriority(1)]
-            public CASPFlagValues FlagValue { get { return this.flagValue; } set { if (value != this.flagValue) { OnElementChanged(); this.flagValue = value; } } }
-
-            public string Value { get { return ValueBuilder; } }
-        }
-
-        public class FlagList : DependentList<Flag>
-        {
-            public FlagList(EventHandler handler) : base(handler) { }
-            public FlagList(EventHandler handler, Stream s) : base(handler, s) { }
-
-            #region Data I/O
-            protected override void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                uint count = r.ReadUInt32();
-                for (int i = 0; i < count; i++)
-                    base.Add(new Flag(recommendedApiVersion, handler, s));
-            }
-
-            public override void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write((uint)base.Count);
-                foreach (var flag in this)
-                    flag.UnParse(s);
-            }
-            #endregion
-
-            protected override Flag CreateElement(Stream s) { return new Flag(recommendedApiVersion, handler, s); }
-            protected override void WriteElement(Stream s, Flag element) { element.UnParse(s); }
-        }
-        
-        public class Override : AHandlerElement, IEquatable<Override>
-        {
-            byte region;
-            float layer;
-
-            public Override(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
-            {
-                BinaryReader r = new BinaryReader(s);
-                this.region = r.ReadByte();
-                this.layer = r.ReadSingle();
-            }
-
-            public Override(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-
-            internal void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write(region);
-                w.Write(layer);
-            }
-
-            #region AHandlerElement Members
-            public override int RecommendedApiVersion { get { return recommendedApiVersion; } }
-            public override List<string> ContentFields { get { return GetContentFields(requestedApiVersion, this.GetType()); } }
-            #endregion
-
-            public bool Equals(Override other)
-            {
-                return this.region == other.region && this.layer == other.layer;
-            }
-
-            [ElementPriority(0)]
-            public byte Region { get { return this.region; } set { if (value != this.region) { OnElementChanged(); this.region = value; } } }
-            [ElementPriority(1)]
-            public float Layer { get { return this.layer; } set { if (value != this.layer) { OnElementChanged(); this.layer = value; } } }
-
-            public string Value { get { return ValueBuilder; } }
-        }
-        public class OverrideList : DependentList<Override>
-        {
-            public OverrideList(EventHandler handler) : base(handler) { }
-            public OverrideList(EventHandler handler, Stream s) : base(handler, s) { }
-
-            #region Data I/O
-            protected override void Parse(Stream s)
-            {
-                BinaryReader r = new BinaryReader(s);
-                byte count = r.ReadByte();
-                for (int i = 0; i < count; i++)
-                    base.Add(new Override(recommendedApiVersion, handler, s));
-            }
-
-            public override void UnParse(Stream s)
-            {
-                BinaryWriter w = new BinaryWriter(s);
-                w.Write((byte)base.Count);
-                foreach (var Override in this)
-                    Override.UnParse(s);
-            }
-            #endregion
-
-            protected override Override CreateElement(Stream s) { return new Override(recommendedApiVersion, handler, s); }
-            protected override void WriteElement(Stream s, Override element) { element.UnParse(s); }
-        }
-
-        #endregion
     }
 
     public class CASPartResourceHandler : AResourceHandler
     {
         public CASPartResourceHandler()
         {
-            if (s4pi.Settings.Settings.IsTS4)
-                this.Add(typeof(CASPartResource), new List<string>(new string[] { "0x034AEECB", }));
+            if (Settings.IsTS4)
+            {
+                this.Add(typeof(CASPartResource), new List<string>(new[] { "0x034AEECB" }));
+            }
         }
     }
-
 }

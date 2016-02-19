@@ -185,8 +185,8 @@ namespace CASPartResource
             private byte index;
             private float sliderValue;
 
-            public SliderReference(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.ParentTGIList = tgiList; }
-            public SliderReference(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.ParentTGIList = tgiList; Parse(s); }
+            public SliderReference(int apiVersion, EventHandler handler, CountedTGIBlockList tgiList) : base(apiVersion, handler) { this.ParentTGIList = tgiList; }
+            public SliderReference(int apiVersion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(apiVersion, handler) { this.ParentTGIList = tgiList; Parse(s); }
 
             public void Parse(Stream s)
             {
@@ -250,8 +250,8 @@ namespace CASPartResource
             private DataBlobHandler unknownBlock;
             private UnknownReference2List unknownReference2List;
 
-            public UnknownReference(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
-            public UnknownReference(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s); }
+            public UnknownReference(int apiVersion, EventHandler handler, CountedTGIBlockList tgiList) : base(apiVersion, handler) { this.tgiList = tgiList; }
+            public UnknownReference(int apiVersion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(apiVersion, handler) { this.tgiList = tgiList; Parse(s); }
 
             public void Parse(Stream s)
             {
@@ -283,8 +283,8 @@ namespace CASPartResource
         public class UnknownReference2 : AHandlerElement, IEquatable<UnknownReference2>
         {
             public CountedTGIBlockList ParentTGIList { get; private set; }
-            public UnknownReference2(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.ParentTGIList = tgiList; }
-            public UnknownReference2(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.ParentTGIList = tgiList; Parse(s); }
+            public UnknownReference2(int apiVersion, EventHandler handler, CountedTGIBlockList tgiList) : base(apiVersion, handler) { this.ParentTGIList = tgiList; }
+            public UnknownReference2(int apiVersion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(apiVersion, handler) { this.ParentTGIList = tgiList; Parse(s); }
             private byte index;
             private uint referenceValue;
 
@@ -327,8 +327,8 @@ namespace CASPartResource
             private UnknownReferenceList unknownReferenceList;
             private CountedTGIBlockList tgiList;
 
-            public UnknownBlock(int APIversion, EventHandler handler, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; }
-            public UnknownBlock(int APIversion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(APIversion, handler) { this.tgiList = tgiList; Parse(s, tgiList); }
+            public UnknownBlock(int apiVersion, EventHandler handler, CountedTGIBlockList tgiList) : base(apiVersion, handler) { this.tgiList = tgiList; }
+            public UnknownBlock(int apiVersion, EventHandler handler, Stream s, CountedTGIBlockList tgiList) : base(apiVersion, handler) { this.tgiList = tgiList; Parse(s, tgiList); }
             
             protected void Parse(Stream s, CountedTGIBlockList tgiList)
             {

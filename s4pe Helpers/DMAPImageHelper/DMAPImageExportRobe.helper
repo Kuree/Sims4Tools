@@ -1,0 +1,6 @@
+// Deformer Map export to Bitmap image
+ResourceType: 0xDB43E069
+Label: Export to Bitmap (Robe data)
+Command: Helpers\DMAPImageHelper\DMAPImageHelper.exe
+Arguments: /exportRobe "{}" 
+Desc: Export DMAP Resource to Bitmap Image using Robe Data

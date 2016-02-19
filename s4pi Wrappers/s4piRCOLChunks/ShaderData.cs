@@ -256,7 +256,7 @@ namespace s4pi.GenericRCOLResource
         long offsetPos = -1;
 
         #region Constructors
-        protected ShaderData(int APIversion, EventHandler handler, FieldType field) : base(APIversion, handler) { this.field = field; }
+        protected ShaderData(int apiVersion, EventHandler handler, FieldType field) : base(apiVersion, handler) { this.field = field; }
         #endregion
 
         public static ShaderData CreateEntry(int APIversion, EventHandler handler, Stream s, long start, DependentList<TGIBlock> _ParentTGIBlocks = null, string _RCOLTag = "MATD")
@@ -383,10 +383,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public ElementFloat(int APIversion, EventHandler handler, FieldType field, Stream s) : base(APIversion, handler, field) { Parse(s); }
-        public ElementFloat(int APIversion, EventHandler handler) : this(APIversion, handler, (FieldType)0, 0f) { }
-        public ElementFloat(int APIversion, EventHandler handler, ElementFloat basis) : this(APIversion, handler, basis.field, basis.data) { }
-        public ElementFloat(int APIversion, EventHandler handler, FieldType field, Single data) : base(APIversion, handler, field) { this.data = data; }
+        public ElementFloat(int apiVersion, EventHandler handler, FieldType field, Stream s) : base(apiVersion, handler, field) { Parse(s); }
+        public ElementFloat(int apiVersion, EventHandler handler) : this(apiVersion, handler, (FieldType)0, 0f) { }
+        public ElementFloat(int apiVersion, EventHandler handler, ElementFloat basis) : this(apiVersion, handler, basis.field, basis.data) { }
+        public ElementFloat(int apiVersion, EventHandler handler, FieldType field, Single data) : base(apiVersion, handler, field) { this.data = data; }
         #endregion
 
         #region Data I/O
@@ -419,10 +419,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public ElementFloat2(int APIversion, EventHandler handler, FieldType field, Stream s) : base(APIversion, handler, field) { Parse(s); }
-        public ElementFloat2(int APIversion, EventHandler handler) : this(APIversion, handler, (FieldType)0, 0f, 0f) { }
-        public ElementFloat2(int APIversion, EventHandler handler, ElementFloat2 basis) : this(APIversion, handler, basis.field, basis.data0, basis.data1) { }
-        public ElementFloat2(int APIversion, EventHandler handler, FieldType field, Single data0, Single data1) : base(APIversion, handler, field) { this.data0 = data0; this.data1 = data1; }
+        public ElementFloat2(int apiVersion, EventHandler handler, FieldType field, Stream s) : base(apiVersion, handler, field) { Parse(s); }
+        public ElementFloat2(int apiVersion, EventHandler handler) : this(apiVersion, handler, (FieldType)0, 0f, 0f) { }
+        public ElementFloat2(int apiVersion, EventHandler handler, ElementFloat2 basis) : this(apiVersion, handler, basis.field, basis.data0, basis.data1) { }
+        public ElementFloat2(int apiVersion, EventHandler handler, FieldType field, Single data0, Single data1) : base(apiVersion, handler, field) { this.data0 = data0; this.data1 = data1; }
         #endregion
 
         #region Data I/O
@@ -467,10 +467,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public ElementFloat3(int APIversion, EventHandler handler, FieldType field, Stream s) : base(APIversion, handler, field) { Parse(s); }
-        public ElementFloat3(int APIversion, EventHandler handler) : this(APIversion, handler, (FieldType)0, 0f, 0f, 0f) { }
-        public ElementFloat3(int APIversion, EventHandler handler, ElementFloat3 basis) : this(APIversion, handler, basis.field, basis.data0, basis.data1, basis.data2) { }
-        public ElementFloat3(int APIversion, EventHandler handler, FieldType field, Single data0, Single data1, Single data2) : base(APIversion, handler, field) { this.data0 = data0; this.data1 = data1; this.data2 = data2; }
+        public ElementFloat3(int apiVersion, EventHandler handler, FieldType field, Stream s) : base(apiVersion, handler, field) { Parse(s); }
+        public ElementFloat3(int apiVersion, EventHandler handler) : this(apiVersion, handler, (FieldType)0, 0f, 0f, 0f) { }
+        public ElementFloat3(int apiVersion, EventHandler handler, ElementFloat3 basis) : this(apiVersion, handler, basis.field, basis.data0, basis.data1, basis.data2) { }
+        public ElementFloat3(int apiVersion, EventHandler handler, FieldType field, Single data0, Single data1, Single data2) : base(apiVersion, handler, field) { this.data0 = data0; this.data1 = data1; this.data2 = data2; }
         #endregion
 
         #region Data I/O
@@ -519,10 +519,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public ElementFloat4(int APIversion, EventHandler handler, FieldType field, Stream s) : base(APIversion, handler, field) { Parse(s); }
-        public ElementFloat4(int APIversion, EventHandler handler) : this(APIversion, handler, (FieldType)0, 0f, 0f, 0f, 0f) { }
-        public ElementFloat4(int APIversion, EventHandler handler, ElementFloat4 basis) : this(APIversion, handler, basis.field, basis.data0, basis.data1, basis.data2, basis.data3) { }
-        public ElementFloat4(int APIversion, EventHandler handler, FieldType field, Single data0, Single data1, Single data2, Single data3) : base(APIversion, handler, field) { this.data0 = data0; this.data1 = data1; this.data2 = data2; this.data3 = data3; }
+        public ElementFloat4(int apiVersion, EventHandler handler, FieldType field, Stream s) : base(apiVersion, handler, field) { Parse(s); }
+        public ElementFloat4(int apiVersion, EventHandler handler) : this(apiVersion, handler, (FieldType)0, 0f, 0f, 0f, 0f) { }
+        public ElementFloat4(int apiVersion, EventHandler handler, ElementFloat4 basis) : this(apiVersion, handler, basis.field, basis.data0, basis.data1, basis.data2, basis.data3) { }
+        public ElementFloat4(int apiVersion, EventHandler handler, FieldType field, Single data0, Single data1, Single data2, Single data3) : base(apiVersion, handler, field) { this.data0 = data0; this.data1 = data1; this.data2 = data2; this.data3 = data3; }
         #endregion
 
         #region Data I/O
@@ -571,10 +571,10 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public ElementInt(int APIversion, EventHandler handler, FieldType field, Stream s) : base(APIversion, handler, field) { Parse(s); }
-        public ElementInt(int APIversion, EventHandler handler) : this(APIversion, handler, (FieldType)0, (int)0) { }
-        public ElementInt(int APIversion, EventHandler handler, ElementInt basis) : this(APIversion, handler, basis.field, basis.data) { }
-        public ElementInt(int APIversion, EventHandler handler, FieldType field, Int32 data) : base(APIversion, handler, field) { this.data = data; }
+        public ElementInt(int apiVersion, EventHandler handler, FieldType field, Stream s) : base(apiVersion, handler, field) { Parse(s); }
+        public ElementInt(int apiVersion, EventHandler handler) : this(apiVersion, handler, (FieldType)0, (int)0) { }
+        public ElementInt(int apiVersion, EventHandler handler, ElementInt basis) : this(apiVersion, handler, basis.field, basis.data) { }
+        public ElementInt(int apiVersion, EventHandler handler, FieldType field, Int32 data) : base(apiVersion, handler, field) { this.data = data; }
         #endregion
 
         #region Data I/O
@@ -628,11 +628,11 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        private ElementTextureRef(int APIversion, EventHandler handler, FieldType field, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
-            : base(APIversion, handler, field) { _ParentTGIBlocks = ParentTGIBlocks; _RCOLTag = RCOLTag; }
+        private ElementTextureRef(int apiVersion, EventHandler handler, FieldType field, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
+            : base(apiVersion, handler, field) { _ParentTGIBlocks = ParentTGIBlocks; _RCOLTag = RCOLTag; }
 
-        public ElementTextureRef(int APIversion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
-            : this(APIversion, handler, (FieldType)0, ParentTGIBlocks, RCOLTag) 
+        public ElementTextureRef(int apiVersion, EventHandler handler, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
+            : this(apiVersion, handler, (FieldType)0, ParentTGIBlocks, RCOLTag) 
         {
             if (_RCOLTag == "GEOM")
             {
@@ -651,11 +651,11 @@ namespace s4pi.GenericRCOLResource
             }
         }
 
-        public ElementTextureRef(int APIversion, EventHandler handler, FieldType field, Stream s, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
-            : this(APIversion, handler, field, ParentTGIBlocks, RCOLTag) { Parse(s); }
+        public ElementTextureRef(int apiVersion, EventHandler handler, FieldType field, Stream s, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = "MATD")
+            : this(apiVersion, handler, field, ParentTGIBlocks, RCOLTag) { Parse(s); }
 
-        public ElementTextureRef(int APIversion, EventHandler handler, ElementTextureRef basis, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = null)
-            : this(APIversion, handler, basis.field, ParentTGIBlocks ?? basis._ParentTGIBlocks, RCOLTag ?? basis._RCOLTag) 
+        public ElementTextureRef(int apiVersion, EventHandler handler, ElementTextureRef basis, DependentList<TGIBlock> ParentTGIBlocks = null, string RCOLTag = null)
+            : this(apiVersion, handler, basis.field, ParentTGIBlocks ?? basis._ParentTGIBlocks, RCOLTag ?? basis._RCOLTag) 
         {
             if (_RCOLTag == "GEOM")
             {
@@ -674,10 +674,10 @@ namespace s4pi.GenericRCOLResource
             }
         }
 
-        public ElementTextureRef(int APIversion, EventHandler handler, FieldType field, Int32 index, DependentList<TGIBlock> ParentTGIBlocks)
-            : this(APIversion, handler, field, ParentTGIBlocks, "GEOM") { this.index = index; }
-        public ElementTextureRef(int APIversion, EventHandler handler, FieldType field, GenericRCOLResource.ChunkReference data)
-            : this(APIversion, handler, field, null, "MATD") { this.data = new GenericRCOLResource.ChunkReference(0, handler, data); }
+        public ElementTextureRef(int apiVersion, EventHandler handler, FieldType field, Int32 index, DependentList<TGIBlock> ParentTGIBlocks)
+            : this(apiVersion, handler, field, ParentTGIBlocks, "GEOM") { this.index = index; }
+        public ElementTextureRef(int apiVersion, EventHandler handler, FieldType field, GenericRCOLResource.ChunkReference data)
+            : this(apiVersion, handler, field, null, "MATD") { this.data = new GenericRCOLResource.ChunkReference(0, handler, data); }
         #endregion
 
         #region Data I/O
@@ -831,11 +831,11 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public ElementTextureKey(int APIversion, EventHandler handler, FieldType field, Stream s) : base(APIversion, handler, field) { Parse(s); }
-        public ElementTextureKey(int APIversion, EventHandler handler) : this(APIversion, handler, (FieldType)0, (uint)0, (uint)0, (ulong)0) { }
-        public ElementTextureKey(int APIversion, EventHandler handler, ElementTextureKey basis) : this(APIversion, handler, basis.field, basis.data) { }
-        public ElementTextureKey(int APIversion, EventHandler handler, FieldType field, IResourceKey data) : base(APIversion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", data); }
-        public ElementTextureKey(int APIversion, EventHandler handler, FieldType field, uint resourceType, uint resourceGroup, ulong instance) : base(APIversion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", resourceType, resourceGroup, instance); }
+        public ElementTextureKey(int apiVersion, EventHandler handler, FieldType field, Stream s) : base(apiVersion, handler, field) { Parse(s); }
+        public ElementTextureKey(int apiVersion, EventHandler handler) : this(apiVersion, handler, (FieldType)0, (uint)0, (uint)0, (ulong)0) { }
+        public ElementTextureKey(int apiVersion, EventHandler handler, ElementTextureKey basis) : this(apiVersion, handler, basis.field, basis.data) { }
+        public ElementTextureKey(int apiVersion, EventHandler handler, FieldType field, IResourceKey data) : base(apiVersion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", data); }
+        public ElementTextureKey(int apiVersion, EventHandler handler, FieldType field, uint resourceType, uint resourceGroup, ulong instance) : base(apiVersion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", resourceType, resourceGroup, instance); }
         #endregion
 
         #region Data I/O
@@ -867,11 +867,11 @@ namespace s4pi.GenericRCOLResource
         #endregion
 
         #region Constructors
-        public ElementImageMapKey(int APIversion, EventHandler handler, FieldType field, Stream s) : base(APIversion, handler, field) { Parse(s); }
-        public ElementImageMapKey(int APIversion, EventHandler handler) : this(APIversion, handler, (FieldType)0, (uint)0, (uint)0, (ulong)0) { }
-        public ElementImageMapKey(int APIversion, EventHandler handler, ElementImageMapKey basis) : this(APIversion, handler, basis.field, basis.data) { }
-        public ElementImageMapKey(int APIversion, EventHandler handler, FieldType field, IResourceKey data) : base(APIversion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", data); }
-        public ElementImageMapKey(int APIversion, EventHandler handler, FieldType field, uint resourceType, uint resourceGroup, ulong instance) : base(APIversion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", resourceType, resourceGroup, instance); }
+        public ElementImageMapKey(int apiVersion, EventHandler handler, FieldType field, Stream s) : base(apiVersion, handler, field) { Parse(s); }
+        public ElementImageMapKey(int apiVersion, EventHandler handler) : this(apiVersion, handler, (FieldType)0, (uint)0, (uint)0, (ulong)0) { }
+        public ElementImageMapKey(int apiVersion, EventHandler handler, ElementImageMapKey basis) : this(apiVersion, handler, basis.field, basis.data) { }
+        public ElementImageMapKey(int apiVersion, EventHandler handler, FieldType field, IResourceKey data) : base(apiVersion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", data); }
+        public ElementImageMapKey(int apiVersion, EventHandler handler, FieldType field, uint resourceType, uint resourceGroup, ulong instance) : base(apiVersion, handler, field) { this.data = new TGIBlock(requestedApiVersion, handler, "ITG", resourceType, resourceGroup, instance); }
         #endregion
 
         #region Data I/O

@@ -13,7 +13,8 @@ namespace S4PIDemoFE.Settings
 			this.InitializeComponent();
 			this.Icon = ((Icon)(new ComponentResourceManager(typeof(MainForm)).GetObject("$this.Icon")));
 
-			if (Properties.Settings.Default.CustomPlaces == null)
+		    StringCollection customPlaces = Properties.Settings.Default.CustomPlaces;
+		    if (customPlaces == null)
 			{
 				this.listBox1.Items.Clear();
 				Properties.Settings.Default.CustomPlaces = new StringCollection();
@@ -21,14 +22,15 @@ namespace S4PIDemoFE.Settings
 			}
 			else
 			{
+                this.Populate();
 				this.listBox1.SelectedIndex = 0;
-				this.btnAdd.Enabled = Properties.Settings.Default.CustomPlaces.Count < Properties.Settings.Default.CustomPlacesCount;
+				this.btnAdd.Enabled = customPlaces.Count < Properties.Settings.Default.CustomPlacesCount;
 			}
 
 			this.numericUpDown1.Value = Properties.Settings.Default.CustomPlacesCount;
 		}
 
-		void Populate()
+		private void Populate()
 		{
 			this.listBox1.Items.Clear();
 			for (int i = 0; i < Properties.Settings.Default.CustomPlaces.Count; i++)
@@ -70,7 +72,7 @@ namespace S4PIDemoFE.Settings
 		private void btnAdd_Click(object sender, EventArgs e)
 		{
 			DialogResult dr = this.folderBrowserDialog1.ShowDialog(this);
-			
+
 			if (dr != DialogResult.OK || string.IsNullOrEmpty(this.folderBrowserDialog1.SelectedPath))
 			{
 				return;
@@ -80,7 +82,7 @@ namespace S4PIDemoFE.Settings
 
 			this.Populate();
 			this.listBox1.SelectedIndex = Properties.Settings.Default.CustomPlaces.Count - 1;
-			
+
 			this.UpdateAddButton();
 		}
 

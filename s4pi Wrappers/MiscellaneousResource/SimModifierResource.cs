@@ -99,8 +99,8 @@ namespace s4pi.Miscellaneous
             private CountedTGIBlockList delayLoadKey;
             private ObjectDataLIst objectKey;
 
-            public ContexData(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public ContexData(int APIversion, EventHandler handler) : base(APIversion, handler) { this.UnParse(new MemoryStream()); }
+            public ContexData(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public ContexData(int apiVersion, EventHandler handler) : base(apiVersion, handler) { this.UnParse(new MemoryStream()); }
 
             #region Data I/O
             public void Parse(Stream s)
@@ -153,7 +153,7 @@ namespace s4pi.Miscellaneous
             {
                 public uint position { get; set; }
                 public uint length { get; set; }
-                public ObjectData(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+                public ObjectData(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
                 public void Parse(Stream s)
                 {
                     BinaryReader r = new BinaryReader(s);
@@ -259,8 +259,8 @@ namespace s4pi.Miscellaneous
             public uint boneHash { get; set; }
             public float multiplier { get; set; }
 
-            public BoneEntry(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public BoneEntry(int APIversion, EventHandler handler) : base(APIversion, handler) { }
+            public BoneEntry(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public BoneEntry(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
 
             public void Parse(Stream s)
             {

@@ -222,22 +222,22 @@ namespace CatalogResource
 
             #region Constructors
 
-            public CBLKEntry(int APIversion, EventHandler handler, CBLKEntry other)
-                : this(APIversion, handler, other.byte01, other.byte02, other.byte03)
+            public CBLKEntry(int apiVersion, EventHandler handler, CBLKEntry other)
+                : this(apiVersion, handler, other.byte01, other.byte02, other.byte03)
             {
             }
-            public CBLKEntry(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public CBLKEntry(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
                 this.MakeNew();
             }
-            public CBLKEntry(int APIversion, EventHandler handler, Stream s)
-                : base(APIversion, handler)
+            public CBLKEntry(int apiVersion, EventHandler handler, Stream s)
+                : base(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public CBLKEntry(int APIversion, EventHandler handler, byte value01, byte value02, byte value03)
-                : base(APIversion, handler)
+            public CBLKEntry(int apiVersion, EventHandler handler, byte value01, byte value02, byte value03)
+                : base(apiVersion, handler)
             {
                 this.byte01 = value01;
                 this.byte02 = value02;

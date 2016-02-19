@@ -89,10 +89,10 @@ namespace NGMPHashMapResource
             ulong nameHash;
             ulong instance;
 
-            public NGMPPair(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public NGMPPair(int APIversion, EventHandler handler, NGMPPair basis) : this(APIversion, handler, basis.nameHash, basis.instance) { }
-            public NGMPPair(int APIversion, EventHandler handler, ulong nameHash, ulong instance) : base(APIversion, handler) { this.nameHash = nameHash; this.instance = instance; }
-            public NGMPPair(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
+            public NGMPPair(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public NGMPPair(int apiVersion, EventHandler handler, NGMPPair basis) : this(apiVersion, handler, basis.nameHash, basis.instance) { }
+            public NGMPPair(int apiVersion, EventHandler handler, ulong nameHash, ulong instance) : base(apiVersion, handler) { this.nameHash = nameHash; this.instance = instance; }
+            public NGMPPair(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
 
             void Parse(Stream s)
             {

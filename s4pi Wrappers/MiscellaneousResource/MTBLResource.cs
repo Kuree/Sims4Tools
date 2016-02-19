@@ -1,6 +1,9 @@
 /***************************************************************************
- *  Copyright (C) 2014 by Inge Jones                                       *
- *  Modified by pbox 2015-04-25                                            *
+ *  Copyright (C) 2014, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Inge Jones                                                             *
+ *  pbox                                                                   *
  *                                                                         *
  *  This file is part of the Sims 4 Package Interface (s4pi)               *
  *                                                                         *
@@ -17,6 +20,7 @@
  *  You should have received a copy of the GNU General Public License      *
  *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
+
 using s4pi.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -74,44 +78,50 @@ namespace s4pi.Miscellaneous
         {
             long offset = 0;
             ulong modelIID = 0x0000000000000000;
-            ulong unkIID_1 = 0x0000000000000000;
-            uint unk1;
-            float unk2;
-            float unk3;
-            float unk4;
-            float unk5;
-            float unk6;
-            float unk7;
-            uint unk8;
-            ulong unkIID_2 = 0x0000000000000000;
-                        
-            public MTBLEntry(int APIversion, EventHandler handler, MTBLEntry other)
-                : this(APIversion, handler, other.modelIID, other.unkIID_1, other.unk1, other.unk2, other.unk3, other.unk4, other.unk5, other.unk6, other.unk7, other.unk8, other.unkIID_2)//,other.unk9, other.unk10)
+            ulong baseFileNameHash = 0x0000000000000000;
+            WidthAndMappingFlags widthAndMappingFlags;
+            byte minimumWallHeight;
+            byte numberOfLevels;
+            byte unused;
+            float thumbnailBoundsMinX;
+            float thumbnailBoundsMinZ;
+            float thumbnailBoundsMinY;
+            float thumbnailBoundsMaxX;
+            float thumbnailBoundsMaxZ;
+            float thumbnailBoundsMaxY;
+            ModelFlags modelFlags;
+            ulong vfxHash = 0x0000000000000000;
+
+            public MTBLEntry(int apiVersion, EventHandler handler, MTBLEntry other)
+                : this(apiVersion, handler, other.modelIID, other.baseFileNameHash, other.widthAndMappingFlags, other.minimumWallHeight, other.numberOfLevels, other.unused, other.thumbnailBoundsMinX, other.thumbnailBoundsMinZ, other.thumbnailBoundsMinY, other.thumbnailBoundsMaxX, other.thumbnailBoundsMaxZ, other.thumbnailBoundsMaxY, other.modelFlags, other.vfxHash)
             {
             }
-            public MTBLEntry(int APIversion, EventHandler handler)
-                : base(APIversion, handler)
+            public MTBLEntry(int apiVersion, EventHandler handler)
+                : base(apiVersion, handler)
             {
             }
-            public MTBLEntry(int APIversion, EventHandler handler, Stream s)
-                : this(APIversion, handler)
+            public MTBLEntry(int apiVersion, EventHandler handler, Stream s)
+                : this(apiVersion, handler)
             {
                 this.Parse(s);
             }
-            public MTBLEntry(int APIversion, EventHandler handler, ulong modelIID, ulong unkIID_1, uint unk1, float unk2, float unk3, float unk4, float unk5, float unk6, float unk7, uint unk8, ulong unkIID_2)//, float unk9, float unk10)
-                : base(APIversion, handler)
+            public MTBLEntry(int apiVersion, EventHandler handler, ulong modelIID, ulong baseFileNameHash, WidthAndMappingFlags widthAndMappingFlags, byte minimumWallHeight, byte numberOfLevels, byte unused, float thumbnailBoundsMinX, float thumbnailBoundsMinZ, float thumbnailBoundsMinY, float thumbnailBoundsMaxX, float thumbnailBoundsMaxZ, float thumbnailBoundsMaxY, ModelFlags modelFlags, ulong vfxHash)
+                : base(apiVersion, handler)
             {
                 this.modelIID = modelIID;
-                this.unkIID_1 = unkIID_1;
-                this.unk1 = unk1;
-                this.unk2 = unk2;
-                this.unk3 = unk3;
-                this.unk4 = unk4;
-                this.unk5 = unk5;
-                this.unk6 = unk6;
-                this.unk7 = unk7;
-                this.unk8 = unk8;
-                this.unkIID_2 = unkIID_2;
+                this.baseFileNameHash = baseFileNameHash;
+                this.widthAndMappingFlags = widthAndMappingFlags;
+                this.minimumWallHeight = minimumWallHeight;
+                this.numberOfLevels = numberOfLevels;
+                this.unused = unused;
+                this.thumbnailBoundsMinX = thumbnailBoundsMinX;
+                this.thumbnailBoundsMinZ = thumbnailBoundsMinZ;
+                this.thumbnailBoundsMinY = thumbnailBoundsMinY;
+                this.thumbnailBoundsMaxX = thumbnailBoundsMaxX;
+                this.thumbnailBoundsMaxZ = thumbnailBoundsMaxZ;
+                this.thumbnailBoundsMaxY = thumbnailBoundsMaxY;
+                this.modelFlags = modelFlags;
+                this.vfxHash = vfxHash;
             }
 
             [ElementPriority(0)]
@@ -126,81 +136,85 @@ namespace s4pi.Miscellaneous
                 set { modelIID = value; OnElementChanged(); }
             }
             [ElementPriority(2)]
-            public ulong UnkIID_1
+            public ulong BaseFileNameHash
             {
-                get { return unkIID_1; }
-                set { this.unkIID_1 = value; OnElementChanged(); }
+                get { return baseFileNameHash; }
+                set { this.baseFileNameHash = value; OnElementChanged(); }
             }
             [ElementPriority(3)]
-            public uint Unk1
+            public WidthAndMappingFlags WidthAndMappingFlags
             {
-                get { return unk1; }
-                set { this.unk1 = value; OnElementChanged(); }
+                get { return widthAndMappingFlags; }
+                set { this.widthAndMappingFlags = value; OnElementChanged(); }
             }
             [ElementPriority(4)]
-            public float ThumbnailBoundsMinX
+            public byte MinimumWallHeight
             {
-                get { return unk2; }
-                set { this.unk2 = value; OnElementChanged(); }
+                get { return minimumWallHeight; }
+                set { this.minimumWallHeight = value; OnElementChanged(); }
             }
-
             [ElementPriority(5)]
-            public float ThumbnailBoundsMaxX
+            public byte NumberOfLevels
             {
-                get { return unk5; }
-                set { this.unk5 = value; OnElementChanged(); }
+                get { return numberOfLevels; }
+                set { this.numberOfLevels = value; OnElementChanged(); }
             }
             [ElementPriority(6)]
-            public float ThumbnailBoundsMinY
+            public byte Unused
             {
-                get { return unk4; }
-                set { this.unk4 = value; OnElementChanged(); }
+                get { return unused; }
+                set { this.unused = value; OnElementChanged(); }
             }
             [ElementPriority(7)]
-            public float ThumbnailBoundsMaxY
+            public float ThumbnailBoundsMinX
             {
-                get { return unk7; }
-                set { this.unk7 = value; OnElementChanged(); }
+                get { return thumbnailBoundsMinX; }
+                set { this.thumbnailBoundsMinX = value; OnElementChanged(); }
             }
+
             [ElementPriority(8)]
-            public float ThumbnailBoundsMinZ
+            public float ThumbnailBoundsMaxX
             {
-                get { return unk3; }
-                set { this.unk3 = value; OnElementChanged(); }
+                get { return thumbnailBoundsMaxX; }
+                set { this.thumbnailBoundsMaxX = value; OnElementChanged(); }
             }
             [ElementPriority(9)]
+            public float ThumbnailBoundsMinY
+            {
+                get { return thumbnailBoundsMinY; }
+                set { this.thumbnailBoundsMinY = value; OnElementChanged(); }
+            }
+            [ElementPriority(10)]
+            public float ThumbnailBoundsMaxY
+            {
+                get { return thumbnailBoundsMaxY; }
+                set { this.thumbnailBoundsMaxY = value; OnElementChanged(); }
+            }
+            [ElementPriority(11)]
+            public float ThumbnailBoundsMinZ
+            {
+                get { return thumbnailBoundsMinZ; }
+                set { this.thumbnailBoundsMinZ = value; OnElementChanged(); }
+            }
+            [ElementPriority(12)]
             public float ThumbnailBoundsMaxZ
             {
-                get { return unk6; }
-                set { this.unk6 = value; OnElementChanged(); }
+                get { return thumbnailBoundsMaxZ; }
+                set { this.thumbnailBoundsMaxZ = value; OnElementChanged(); }
             }
 
-            [ElementPriority(10)]
-            public uint Unk8
-            {
-                get { return unk8; }
-                set { this.unk8 = value; OnElementChanged(); }
-            }
-            /*
-            [ElementPriority(11)]
-            public float Unk9
-            {
-                get { return unk9; }
-                set { this.unk9 = value; OnElementChanged(); }
-            }
-
-            [ElementPriority(12)]
-            public float Unk10
-            {
-                get { return unk10; }
-                set { this.unk10 = value; OnElementChanged(); }
-            }
-            */
             [ElementPriority(13)]
-            public ulong UnkIID_2
+            public ModelFlags ModelFlags
             {
-                get { return unkIID_2; }
-                set { this.unkIID_2 = value; OnElementChanged(); }
+                get { return modelFlags; }
+                set { this.modelFlags = value; OnElementChanged(); }
+            }
+
+            [ElementPriority(14)]
+            public ulong VfxHash
+            {
+                get { return vfxHash; }
+                set { this.vfxHash = value; OnElementChanged(); }
             }
 
             public override int RecommendedApiVersion
@@ -218,18 +232,19 @@ namespace s4pi.Miscellaneous
                 var br = new BinaryReader(s);
                 this.offset = s.Position;
                 this.modelIID = br.ReadUInt64();
-                this.unkIID_1 = br.ReadUInt64();
-                this.unk1 = br.ReadUInt32();
-                this.unk2 = br.ReadSingle();
-                this.unk3 = br.ReadSingle();
-                this.unk4 = br.ReadSingle();
-                this.unk5 = br.ReadSingle();
-                this.unk6 = br.ReadSingle();
-                this.unk7 = br.ReadSingle();
-                this.unk8 = br.ReadUInt32();
-                //this.unk9 = br.ReadSingle();
-                //this.unk10 = br.ReadSingle();
-                this.unkIID_2 = br.ReadUInt64();
+                this.baseFileNameHash = br.ReadUInt64();
+                this.widthAndMappingFlags = (WidthAndMappingFlags)br.ReadByte();
+                this.minimumWallHeight = br.ReadByte();
+                this.numberOfLevels = br.ReadByte();
+                this.unused = br.ReadByte();
+                this.thumbnailBoundsMinX = br.ReadSingle();
+                this.thumbnailBoundsMinZ = br.ReadSingle();
+                this.thumbnailBoundsMinY = br.ReadSingle();
+                this.thumbnailBoundsMaxX = br.ReadSingle();
+                this.thumbnailBoundsMaxZ = br.ReadSingle();
+                this.thumbnailBoundsMaxY = br.ReadSingle();
+                this.modelFlags = (ModelFlags)br.ReadUInt32();
+                this.vfxHash = br.ReadUInt64();
 
             }
             public string Value { get { return ValueBuilder; } }
@@ -238,36 +253,37 @@ namespace s4pi.Miscellaneous
             {
                 var bw = new BinaryWriter(s);
                 bw.Write(this.modelIID);
-                bw.Write(this.unkIID_1);
-                bw.Write(this.unk1);
-                bw.Write(this.unk2);
-                bw.Write(this.unk3);
-                bw.Write(this.unk4);
-                bw.Write(this.unk5);
-                bw.Write(this.unk6);
-                bw.Write(this.unk7);
-                bw.Write(this.unk8);
-                //bw.Write(this.unk9);
-                //bw.Write(this.unk10);
-                bw.Write(this.unkIID_2);
+                bw.Write(this.baseFileNameHash);
+                bw.Write((byte)this.widthAndMappingFlags);
+                bw.Write(this.minimumWallHeight);
+                bw.Write(this.numberOfLevels);
+                bw.Write(this.unused);
+                bw.Write(this.thumbnailBoundsMinX);
+                bw.Write(this.thumbnailBoundsMinZ);
+                bw.Write(this.thumbnailBoundsMinY);
+                bw.Write(this.thumbnailBoundsMaxX);
+                bw.Write(this.thumbnailBoundsMaxZ);
+                bw.Write(this.thumbnailBoundsMaxY);
+                bw.Write((uint)this.modelFlags);
+                bw.Write(this.vfxHash);
 
             }
             public bool Equals(MTBLEntry other)
             {
                 return this.modelIID == other.modelIID 
-                    && this.unkIID_1 == other.unkIID_1
-                    && this.unk1 == other.unk1
-                    && this.unk2 == other.unk2
-                    && this.unk3 == other.unk3
-                    && this.unk4 == other.unk4
-                    && this.unk5 == other.unk5
-                    && this.unk6 == other.unk6
-                    && this.unk7 == other.unk7
-                    && this.unk8 == other.unk8
-                    && this.unkIID_2 == other.unkIID_2;
-
-                    //&& this.unk9 == other.unk9
-                    //&& this.unk10 == other.unk10;
+                    && this.baseFileNameHash == other.baseFileNameHash
+                    && this.widthAndMappingFlags == other.widthAndMappingFlags
+                    && this.minimumWallHeight == other.minimumWallHeight
+                    && this.numberOfLevels == other.numberOfLevels
+                    && this.unused == other.unused
+                    && this.thumbnailBoundsMinX == other.thumbnailBoundsMinX
+                    && this.thumbnailBoundsMinZ == other.thumbnailBoundsMinZ
+                    && this.thumbnailBoundsMinY == other.thumbnailBoundsMinY
+                    && this.thumbnailBoundsMaxX == other.thumbnailBoundsMaxX
+                    && this.thumbnailBoundsMaxZ == other.thumbnailBoundsMaxZ
+                    && this.thumbnailBoundsMaxY == other.thumbnailBoundsMaxY
+                    && this.modelFlags == other.modelFlags
+                    && this.vfxHash == other.vfxHash;
             }
 
         }
@@ -297,6 +313,10 @@ namespace s4pi.Miscellaneous
 
             w.Write(version);
 
+            if (entryList == null)
+            {
+                entryList = new MTBLEntryList(this.OnResourceChanged);
+            }
             this.entryList.UnParse(ms);
 
             return ms;

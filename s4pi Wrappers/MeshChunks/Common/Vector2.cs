@@ -27,10 +27,10 @@ namespace meshExpImp.ModelBlocks
     public class Vector2 : AHandlerElement, IEquatable<Vector2>
     {
         protected float mX, mY;
-        public Vector2(int APIversion, EventHandler handler, float x, float y): base(APIversion, handler){mX = x;mY = y;}
-        public Vector2(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-        public Vector2(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-        public Vector2(int APIversion, EventHandler handler, Vector2 basis) : this(APIversion, handler, basis.X, basis.Y){ }
+        public Vector2(int apiVersion, EventHandler handler, float x, float y): base(apiVersion, handler){mX = x;mY = y;}
+        public Vector2(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+        public Vector2(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+        public Vector2(int apiVersion, EventHandler handler, Vector2 basis) : this(apiVersion, handler, basis.X, basis.Y){ }
 
         [ElementPriority(1)]
         public float X

@@ -1,21 +1,24 @@
 ﻿/***************************************************************************
- *  Copyright (C) 2009, 2010 by Peter L Jones, 2014 By Keyi Zhang          *
- *  pljones@users.sf.net, kz005@bucknell.edu                               *
+ *  Copyright (C) 2009, 2014 by the Sims 4 Tools development team          *
  *                                                                         *
- *  This file is part of the Sims 3 Package Interface (s3pi)               *
+ *  Contributors:                                                          *
+ *  Peter L Jones, pljones@users.sf.net                                    *
+ *  Keyi Zhang, kz005@bucknell.edu                                         *
  *                                                                         *
- *  s3pi is free software: you can redistribute it and/or modify           *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
  *  it under the terms of the GNU General Public License as published by   *
  *  the Free Software Foundation, either version 3 of the License, or      *
  *  (at your option) any later version.                                    *
  *                                                                         *
- *  s3pi is distributed in the hope that it will be useful,                *
+ *  s4pi is distributed in the hope that it will be useful,                *
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
  *  GNU General Public License for more details.                           *
  *                                                                         *
  *  You should have received a copy of the GNU General Public License      *
- *  along with s3pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
  ***************************************************************************/
 
 using System;
@@ -279,7 +282,7 @@ namespace S4PIDemoFE
             0x05B1B524, //  THUM   .png
             0x05B1B525, //  THUM   .png
             0x05B1B526, //  THUM   .png
-            0x0668F635, //  TWNI   .png
+            0x0668F635, //  TWNI   .png 
             0x2653E3C8, //  THUM   .png
             0x2653E3C9, //  THUM   .png
             0x2653E3CA, //  THUM   .png
@@ -427,19 +430,18 @@ namespace S4PIDemoFE
         //TODO: static constructor read this from file
         //TODO: temporarily use the one from s4pi ImageResource wrapper source
         static uint[] resourceTypes = new uint[] {
+            0x0D338A3A,
+            0x16CCF748,
             0x3BD45407,
             0x3C1AF1F2,
-            0x5B282D45,
-            0x56278554,
-            0xCD9DE247,
-            0x0D338A3A,
-            0x3BD45407,
             0x3C2A8647,
-            0xE254AE6E,
-            0x16CCF748,
-            0xE18CAEE2,
+            0x56278554,
+            0x5B282D45,
             0x9C925813,
-            0xA1FF2FC4
+            0xA1FF2FC4,
+            0xCD9DE247,
+            0xE18CAEE2,
+            0xE254AE6E
         };
 
         PictureBox pb = new PictureBox();

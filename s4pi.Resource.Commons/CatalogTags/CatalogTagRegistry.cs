@@ -1,6 +1,27 @@
-﻿using System;
+﻿/***************************************************************************
+ *  Copyright (C) 2015, 2016 by the Sims 4 Tools development team          *
+ *                                                                         *
+ *  Contributors:                                                          *
+ *  Buzzler                                                                *
+ *                                                                         *
+ *  This file is part of the Sims 4 Package Interface (s4pi)               *
+ *                                                                         *
+ *  s4pi is free software: you can redistribute it and/or modify           *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation, either version 3 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  s4pi is distributed in the hope that it will be useful,                *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *  You should have received a copy of the GNU General Public License      *
+ *  along with s4pi.  If not, see <http://www.gnu.org/licenses/>.          *
+ ***************************************************************************/
+
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,9 +35,9 @@ namespace s4pi.Resource.Commons.CatalogTags
 	public class CatalogTagRegistry
 	{
 		private const string CatalogTuningFileName = "S4_03B33DDF_00000000_D89CB9186B79ACB7.xml";
-		
-		private static Dictionary<ushort, Tag> tags;
-		private static Dictionary<ushort, Tag> categories;
+
+		private static Dictionary<uint, Tag> tags;
+		private static Dictionary<uint, Tag> categories;
 
 		static CatalogTagRegistry()
 		{
@@ -48,10 +69,24 @@ namespace s4pi.Resource.Commons.CatalogTags
 		/// Fetches the matching tag for the specified <paramref name="index"/>.
 		/// </summary>
 		/// <returns>A <see cref="Tag"/> instance containing the matching value, or a default if no match was found.</returns>
-		public static Tag FetchTag(ushort index)
+		public static Tag FetchTag(uint index)
+		{
+			return GetTagOrDefault(tags, index);
+		}
+
+		/// <summary>
+		/// Fetches the matching category for the specified <paramref name="index"/>.
+		/// </summary>
+		/// <returns>A <see cref="Tag"/> instance containing the matching value, or a default if no match was found.</returns>
+		public static Tag FetchCategory(uint index)
+		{
+			return GetTagOrDefault(categories, index);
+		}
+
+		private static Tag GetTagOrDefault(IDictionary<uint, Tag> dictionary, uint index)
 		{
 			Tag tag;
-			if (tags.TryGetValue(index, out tag))
+			if (dictionary.TryGetValue(index, out tag))
 			{
 				return tag;
 			}
@@ -90,7 +125,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 					string prefix = tag.Value.Substring(0, index);
 					if (!knownCategories.Any(c => c.Value.Equals(prefix, StringComparison.OrdinalIgnoreCase)))
 					{
-						knownCategories.Add(new Tag { Index = ushort.MaxValue, Value = prefix });
+						knownCategories.Add(new Tag { Index = uint.MaxValue, Value = prefix });
 					}
 				}
 			}
@@ -112,7 +147,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 
 			var category = categories.Values.FirstOrDefault(t => t.Value.Equals(prefix, StringComparison.OrdinalIgnoreCase));
 
-			return category ?? new Tag { Index = ushort.MaxValue, Value = prefix };
+			return category ?? new Tag { Index = uint.MaxValue, Value = prefix };
 		}
 
 		/// <summary>
@@ -122,7 +157,7 @@ namespace s4pi.Resource.Commons.CatalogTags
 		public static IEnumerable<Tag> FetchTagsForCategory(string category)
 		{
 			string prefix = category + "_";
-			
+
 			return tags.Values.Where(t => t.Value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
 		}
 	}

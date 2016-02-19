@@ -92,10 +92,10 @@ namespace CASPartResource
             #endregion
 
             #region Constructors
-            public MatrixRow(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public MatrixRow(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public MatrixRow(int APIversion, EventHandler handler, MatrixRow basis) : this(APIversion, handler, basis.x, basis.y, basis.z) { }
-            public MatrixRow(int APIversion, EventHandler handler, float x, float y, float z) : base(APIversion, handler) { this.x = x; this.y = y; this.z = z; }
+            public MatrixRow(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public MatrixRow(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public MatrixRow(int apiVersion, EventHandler handler, MatrixRow basis) : this(apiVersion, handler, basis.x, basis.y, basis.z) { }
+            public MatrixRow(int apiVersion, EventHandler handler, float x, float y, float z) : base(apiVersion, handler) { this.x = x; this.y = y; this.z = z; }
             #endregion
 
             #region Data I/O
@@ -168,10 +168,10 @@ namespace CASPartResource
             #endregion
 
             #region Constructors
-            public Matrix4x3(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Matrix4x3(int APIversion, EventHandler handler, Stream s) : base(APIversion, handler) { Parse(s); }
-            public Matrix4x3(int APIversion, EventHandler handler, Matrix4x3 basis) : this(APIversion, handler, basis.right, basis.up, basis.back, basis.translate) { }
-            public Matrix4x3(int APIversion, EventHandler handler, MatrixRow row1, MatrixRow row2, MatrixRow row3, MatrixRow row4) : base(APIversion, handler)
+            public Matrix4x3(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Matrix4x3(int apiVersion, EventHandler handler, Stream s) : base(apiVersion, handler) { Parse(s); }
+            public Matrix4x3(int apiVersion, EventHandler handler, Matrix4x3 basis) : this(apiVersion, handler, basis.right, basis.up, basis.back, basis.translate) { }
+            public Matrix4x3(int apiVersion, EventHandler handler, MatrixRow row1, MatrixRow row2, MatrixRow row3, MatrixRow row4) : base(apiVersion, handler)
             {
                 this.right = new MatrixRow(requestedApiVersion, handler, row1);
                 this.up = new MatrixRow(requestedApiVersion, handler, row2);
@@ -252,9 +252,9 @@ namespace CASPartResource
             #endregion
 
             #region Constructors
-            public Bone(int APIversion, EventHandler handler) : base(APIversion, handler) { }
-            public Bone(int APIversion, EventHandler handler, Bone basis) : this(APIversion, handler, basis.name, basis.inverseBindPose) { }
-            public Bone(int APIversion, EventHandler handler, string name, Matrix4x3 inverseBindPose) : base(APIversion, handler) { this.name = name; this.inverseBindPose = new Matrix4x3(requestedApiVersion, handler, inverseBindPose); }
+            public Bone(int apiVersion, EventHandler handler) : base(apiVersion, handler) { }
+            public Bone(int apiVersion, EventHandler handler, Bone basis) : this(apiVersion, handler, basis.name, basis.inverseBindPose) { }
+            public Bone(int apiVersion, EventHandler handler, string name, Matrix4x3 inverseBindPose) : base(apiVersion, handler) { this.name = name; this.inverseBindPose = new Matrix4x3(requestedApiVersion, handler, inverseBindPose); }
             #endregion
 
             #region AHandlerElement Members
