@@ -93,4 +93,4 @@ Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy 
 [repository we forked from]:https://github.com/Kuree/Sims4Tools
 [GNU General Public License v3]:http://www.gnu.org/licenses/gpl-3.0.html
 [The Sims 4]:https://en.wikipedia.org/wiki/The_Sims_4
-[0.4.3]:https://github.com/s4ptacle/Sims4Tools/releases/tag/0.4.3
+[0.4.3]:https://github.com/s4ptacle/Sims4Tools/releases/tag/0.4.3-release
