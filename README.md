@@ -4,7 +4,7 @@ s4pe, based on the s4pi interface library, is an editing tool for the .package f
 Current Version
 ----
 
-[0.4.3] is the most recent version. The [repository we forked from] is not being maintained any more. 
+[0.4.3] is the most recent version; [0.4.4-beta] is the most recent beta. The [repository we forked from] is not being maintained any more. 
 
 
 Contributors
@@ -94,3 +94,4 @@ Without Peter's work on s3pe/s3pi, this project would not exist. His philosophy 
 [GNU General Public License v3]:http://www.gnu.org/licenses/gpl-3.0.html
 [The Sims 4]:https://en.wikipedia.org/wiki/The_Sims_4
 [0.4.3]:https://github.com/s4ptacle/Sims4Tools/releases/tag/0.4.3-release
+[0.4.4-beta]:https://github.com/s4ptacle/Sims4Tools/releases/tag/0.4.4-beta
