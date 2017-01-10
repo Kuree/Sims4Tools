@@ -1,0 +1,6 @@
+// RLES Import
+ResourceType: 0xBA856C78
+Label: Import From DDS
+Command: RLESDDSHelper.exe
+Arguments: /import "{}" 
+Desc: Import a DDS into RLES Resource

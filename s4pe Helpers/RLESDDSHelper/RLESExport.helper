@@ -1,0 +1,6 @@
+// RLES Export
+ResourceType: 0xBA856C78
+Label: Export to DDS
+Command: RLESDDSHelper.exe
+Arguments: /export "{}" 
+Desc: Export RLES Resource to DDS

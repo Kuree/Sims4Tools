@@ -1,0 +1,6 @@
+// JFIF TS4 Thumbnail Import
+ResourceType: 0x0D338A3A 0x3BD45407 0x3C1AF1F2 0x3C2A8647 0x5B282D45 0x9C925813 0xA1FF2FC4 0xCD9DE247
+Label: Import From PNG
+Command: ThumbnailImportHelper.exe
+Arguments: /import "{}" 
+Desc: Import a PNG into JFIF Thumbnail Resource
